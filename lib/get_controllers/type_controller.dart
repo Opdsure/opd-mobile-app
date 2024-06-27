@@ -27,4 +27,9 @@ class TypeController extends GetxController{
     signRePass.value = type;
   }
 
+  RxInt previewCount = 0.obs;
+  void previewCountChange(int type){
+    previewCount.value = type;
+  }
+
 }
