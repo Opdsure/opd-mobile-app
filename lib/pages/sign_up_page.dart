@@ -16,6 +16,8 @@ import '../utils/app_colors.dart';
 
 class SignUpPage extends StatelessWidget{
   final countryPicker = const  FlCountryCodePicker();
+
+  const SignUpPage({super.key});
   @override
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
