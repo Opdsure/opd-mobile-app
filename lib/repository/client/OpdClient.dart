@@ -27,6 +27,14 @@ class OpdClient extends OpdApi {
 
   bool get isLogged => accessToken != null;
 
+
+  Future<void> init({
+    String? userId,
+    String? accessToken
+  }) async {
+
+  }
+
 @override
   Future<RegisterResponse> register({
   String? emailAddress,

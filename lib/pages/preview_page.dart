@@ -11,6 +11,8 @@ class PreviewPage extends StatelessWidget{
 
   final PageController _pageController = PageController();
 
+  PreviewPage({super.key});
+
   void _nextPage() {
     if (_pageController.hasClients) {
       _pageController.nextPage(
@@ -154,5 +156,4 @@ class PreviewPage extends StatelessWidget{
       ),
     );
   }
-
 }
