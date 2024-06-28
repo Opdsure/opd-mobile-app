@@ -6,9 +6,13 @@ import 'app_text_view.dart';
 
 class AppHeader extends StatelessWidget{
   final String headerName;
+  final Widget? rightView;
+  final bool showRightView;
 
   AppHeader({
-    this.headerName = 'OPDSure'
+    this.headerName = 'OPDSure',
+    this.rightView,
+    this.showRightView = false
   });
 
   @override
@@ -28,9 +32,14 @@ class AppHeader extends StatelessWidget{
           child: AppTextView(
             text: headerName,
             size: 16.0,
-            fontWeight: FontWeight.w500,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
           ),
         ),
+        showRightView?Align(
+          alignment: Alignment.centerRight,
+          child: rightView,
+        ):Container(),
       ],
     );
   }

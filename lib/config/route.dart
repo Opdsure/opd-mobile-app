@@ -3,10 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
+import 'package:opdsure/pages/add_family_details.dart';
+import 'package:opdsure/pages/checkout_page.dart';
 import 'package:opdsure/pages/login_page.dart';
 import 'package:opdsure/pages/preview_page.dart';
 import 'package:opdsure/pages/sign_up_page.dart';
 import 'package:opdsure/widget/opd_widget.dart';
+
+import '../pages/home_page.dart';
 
 abstract class AppRoutes {
   static FutureOr<String?> loggedInRedirect(
@@ -32,7 +36,7 @@ abstract class AppRoutes {
     GoRoute(
       path: '/on_board_screen',
       pageBuilder: (context, state) =>
-          defaultPageBuilder(context, state, PreviewPage(),),
+          defaultPageBuilder(context, state, HomePage(),),
     ),
     GoRoute(
         path: '/signup',

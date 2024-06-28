@@ -86,6 +86,7 @@ class AppMobileField extends StatelessWidget {
                 isDense: true,
                 hintText: hint,
                 border: InputBorder.none,
+                fillColor: Colors.white,
                 hintStyle: GoogleFonts.montserrat(
 
                 ),

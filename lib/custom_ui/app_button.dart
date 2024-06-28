@@ -8,14 +8,18 @@ class AppButton extends StatelessWidget {
   final double size;
   final FontWeight fontWeight;
   final Color color;
+  final Color textColor;
+  final Color borderColor;
   final VoidCallback? onClick;
 
   const AppButton({
     required this.text,
     this.size = 15.0,
     this.fontWeight = FontWeight.normal,
-    this.color = backIconCl,
+    this.color = buttonColor,
+    this.borderColor = buttonColor,
     this.onClick,
+    this.textColor = Colors.white
   });
 
   @override
@@ -25,14 +29,15 @@ class AppButton extends StatelessWidget {
       child: Container(
         width: double.infinity,
           height: 45.0,
-          decoration: const BoxDecoration(
-            color: buttonColor,
-              borderRadius: BorderRadius.all(Radius.circular(10))
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: const BorderRadius.all(Radius.circular(10)),
+            border: Border.all(color: borderColor)
           ),
           child: Center(
             child: AppTextView(
               text: text,
-              color: Colors.white,
+              color: textColor,
               size: 16.0,
               fontWeight: FontWeight.w600,
             ),
