@@ -33,9 +33,7 @@ class AppTextView extends StatelessWidget {
         ),
       )
           : TextButton(
-        onPressed: () {
-          onClick!.call();
-        },
+        onPressed: onClick,
         child: Text(
           text,
           textAlign: mTextAlign,

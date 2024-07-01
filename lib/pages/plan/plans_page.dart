@@ -11,7 +11,7 @@ import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/custom_ui/select_plan.dart';
 import 'package:opdsure/utils/common_methods.dart';
 
-import '../utils/app_colors.dart';
+import '../../utils/app_colors.dart';
 
 class PlansPage extends StatelessWidget{
 

@@ -29,7 +29,7 @@ class Api {
     String? name,
     bool? termAndCondition,
   }) async {
-    final requestUri = Uri(path: 'register');
+    final requestUri = Uri(path: 'api/v1/user/register');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.bodyBytes = utf8.encode(jsonEncode({

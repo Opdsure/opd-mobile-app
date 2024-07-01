@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../custom_ui/app_button.dart';
-import '../custom_ui/app_text_view.dart';
-import '../utils/app_colors.dart';
+import '../../custom_ui/app_button.dart';
+import '../../custom_ui/app_text_view.dart';
+import '../../utils/app_colors.dart';
 
 class OtpPage extends StatelessWidget{
 

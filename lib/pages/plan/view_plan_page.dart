@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../custom_ui/app_button.dart';
-import '../custom_ui/app_round_box.dart';
-import '../custom_ui/app_text_view.dart';
+import '../../custom_ui/app_button.dart';
+import '../../custom_ui/app_round_box.dart';
+import '../../custom_ui/app_text_view.dart';
 
 class ViewPlanPage extends StatelessWidget{
   @override

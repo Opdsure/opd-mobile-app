@@ -3,16 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
-import 'package:opdsure/pages/add_family_details.dart';
-import 'package:opdsure/pages/checkout_page.dart';
-import 'package:opdsure/pages/claims_page.dart';
-import 'package:opdsure/pages/forget_password_page.dart';
-import 'package:opdsure/pages/login_page.dart';
-import 'package:opdsure/pages/preview_page.dart';
-import 'package:opdsure/pages/sign_up_page.dart';
+import 'package:opdsure/pages/forget_password/forget_password_page.dart';
+import 'package:opdsure/pages/preview/preview_page.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
-import '../pages/home_page.dart';
+import '../pages/login/login_page.dart';
+import '../pages/signup/sign_up_page.dart';
 
 abstract class AppRoutes {
   static FutureOr<String?> loggedInRedirect(
@@ -37,20 +33,37 @@ abstract class AppRoutes {
             : '/signup'),
     GoRoute(
       path: '/on_board_screen',
-      pageBuilder: (context, state) =>
-          defaultPageBuilder(context, state, ForgetPasswordPage(),),
+      pageBuilder: (context, state) => defaultPageBuilder(
+        context,
+        state,
+        PreviewPage(),
+      ),
     ),
     GoRoute(
         path: '/signup',
         redirect: loggedInRedirect,
-        pageBuilder: (context, state) =>
-            defaultPageBuilder(context, state, const SignUpPage(),),
+        pageBuilder: (context, state) => defaultPageBuilder(
+              context,
+              state,
+              const SignUpPage(),
+            ),
         routes: [
           GoRoute(
             path: 'login',
-            pageBuilder: (context, state) =>
-                defaultPageBuilder(context, state, LoginPage(),),
+            pageBuilder: (context, state) => defaultPageBuilder(
+              context,
+              state,
+              LoginPage(),
+            ),
           ),
+          GoRoute(
+            path: 'forget_password',
+            pageBuilder: (context, state) => defaultPageBuilder(
+              context,
+              state,
+              ForgetPasswordPage(),
+            ),
+          )
         ]),
     ShellRoute(pageBuilder: defaultPageBuilder, routes: [
       GoRoute(

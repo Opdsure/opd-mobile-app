@@ -5,9 +5,9 @@ import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_round_view.dart';
 
-import '../custom_ui/app_text_view.dart';
-import '../utils/app_colors.dart';
-import '../utils/app_var.dart';
+import '../../custom_ui/app_text_view.dart';
+import '../../utils/app_colors.dart';
+import '../../utils/app_var.dart';
 
 class CheckoutPage extends StatelessWidget{
   @override

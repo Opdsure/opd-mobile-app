@@ -3,10 +3,10 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../custom_ui/app_button.dart';
-import '../custom_ui/app_edit_text.dart';
-import '../custom_ui/app_text_view.dart';
-import '../utils/app_colors.dart';
+import '../../custom_ui/app_button.dart';
+import '../../custom_ui/app_edit_text.dart';
+import '../../custom_ui/app_text_view.dart';
+import '../../utils/app_colors.dart';
 
 class ForgetPasswordPage extends StatelessWidget{
   @override

@@ -20,8 +20,8 @@ class OpdSureApp extends StatelessWidget {
     required this.store,
     this.testWidget,
     super.key});
-
-  static final GoRouter router = GoRouter(routes: AppRoutes.routes);
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GoRouter router = GoRouter(routes: AppRoutes.routes, navigatorKey: navigatorKey);
   @override
   Widget build(BuildContext context) {
     return ThemeBuilder(builder: (context, mode, color) => MaterialApp.router(
@@ -35,6 +35,7 @@ class OpdSureApp extends StatelessWidget {
           onGenerateRoute: (_) =>
               MaterialPageRoute(builder: (_) =>
                   OpdSure(
+                    clients: clients,
                     store: store,
                     child: child,
           )),

@@ -1,12 +1,18 @@
-import 'package:hive/hive.dart';
+import 'dart:async';
+
+import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/repository/network_api/opd_api.dart';
 import 'package:http/http.dart' as http;
+import 'package:opdsure/utils/exception/exception.dart';
 import 'package:opdsure/utils/http_timeout.dart';
+import 'package:opdsure/utils/logs/logs.dart';
+import 'package:opdsure/utils/run_banchmark.dart';
+import 'package:opdsure/utils/streams/cached_stream_controller.dart';
 
 import '../../model/register/RegisterResponse.dart';
+import '../database_api/database_api.dart';
 
-enum LoginState {loggedIn, loggedOut}
-
+enum LoginState { loggedIn, loggedOut }
 
 class OpdClient extends OpdApi {
   final String clientName;
@@ -15,46 +21,112 @@ class OpdClient extends OpdApi {
 
   String? _userID;
 
+  bool _initLock = false;
 
+  final FutureOr<DatabaseApi> Function(OpdClient)? databaseBuilder;
+
+  DatabaseApi? _database;
+
+  DatabaseApi? get database => _database;
+
+  final CachedStreamController<LoginState> onLoginStateChanged =
+      CachedStreamController();
 
   OpdClient(
     this.clientName, {
+    this.databaseBuilder,
     http.Client? httpClient,
     Duration defaultNetworkRequestTimeout = const Duration(seconds: 35),
   }) : super(
-            httpClient: FixedTimeoutHttpClient(
-                httpClient ?? http.Client(), defaultNetworkRequestTimeout));
+          httpClient: FixedTimeoutHttpClient(
+              httpClient ?? http.Client(), defaultNetworkRequestTimeout),
+        );
 
   bool get isLogged => accessToken != null;
 
+  Future<void> init({String? userId, String? accessToken}) async {
+    if ((userId != null || accessToken != null) &&
+        (userId == null || accessToken == null)) {
+      throw OpdClientInitPreconditionError(
+        'If one of [userId, accessToken] is set then all of them must be set!',
+      );
+    }
 
-  Future<void> init({
-    String? userId,
-    String? accessToken
-  }) async {
+    if (_initLock) {
+      throw OpdClientInitPreconditionError(
+        '[init()] is call multiple times!',
+      );
+    }
 
+    try {
+      if (onLoginStateChanged.value == LoginState.loggedIn) {
+        throw OpdClientInitPreconditionError(
+          'User is already logged in! Call [logout()] first!',
+        );
+      }
+
+      final databaseBuilder = this.databaseBuilder;
+      if (databaseBuilder != null) {
+        _database ??= await runBenchmarked(
+          'Build database',
+          () async => databaseBuilder(this),
+        );
+      }
+
+      final clientBox = await _database?.getClient(clientName);
+
+      if(clientBox != null){
+        baseServerUri = Uri.parse(clientBox.baseServerUrl!);
+        _userID = clientBox.userId!;
+        this.accessToken = clientBox.accessToken!;
+      }
+      if(userId != null){
+        baseServerUri = Uri.https(AppConfig.defaultBaseUrl);
+        _userID = userId;
+        this.accessToken = accessToken;
+        await _database?.insertClient(Uri.https(AppConfig.defaultBaseUrl).toString(), accessToken!, userId);
+      }else{
+        baseServerUri = Uri.https(AppConfig.defaultBaseUrl);
+        Logs().e('User is not logged in');
+      }
+    } on OpdClientInitException {
+      rethrow;
+    } catch (e, s) {
+      Logs().e('OpdClient initialization failed', e, s);
+    }
   }
 
-@override
-  Future<RegisterResponse> register({
-  String? emailAddress,
-  String? password,
-  String? confirmPassword,
-  String? countryCode,
-  String? phone,
-  String? name,
-  bool? termAndCondition}) {
-    if(baseServerUri == null){
+  Future<void> clear() async {
+    accessToken = null;
+    baseServerUri = null;
+    _userID = null;
+    _database = null;
+    _initLock = false;
+  }
+
+  @override
+  Future<RegisterResponse> register(
+      {String? emailAddress,
+      String? password,
+      String? confirmPassword,
+      String? countryCode,
+      String? phone,
+      String? name,
+      bool? termAndCondition}) async {
+    if (baseServerUri == null) {
       throw Exception("No baseServerUri set");
     }
-    return super.register(
-        emailAddress : emailAddress,
-        password : password,
-        confirmPassword : confirmPassword,
-        countryCode : countryCode,
-        phone : phone,
-        name : name,
-        termAndCondition : termAndCondition
-    );
+    final response = await  super.register(
+        emailAddress: emailAddress,
+        password: password,
+        confirmPassword: confirmPassword,
+        countryCode: countryCode,
+        phone: phone,
+        name: name,
+        termAndCondition: termAndCondition);
+
+    await init(accessToken: response.data!.token!, userId: "1");
+
+    return response;
   }
 }

@@ -9,7 +9,7 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/utils/app_colors.dart';
 
-import '../custom_ui/app_mobile_field.dart';
+import '../../custom_ui/app_mobile_field.dart';
 
 class AddFamilyDetails extends StatelessWidget{
   final countryPicker = const FlCountryCodePicker();
