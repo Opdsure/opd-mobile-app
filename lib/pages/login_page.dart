@@ -130,7 +130,7 @@ class LoginPage extends StatelessWidget{
               ],
             ),
             const SizedBox(height: 12.0,),
-            AppRoundBox(
+            AppBorderBox(
               myChild: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -155,7 +155,7 @@ class LoginPage extends StatelessWidget{
             ),
             const SizedBox(height: 12.0,),
             Obx((){
-              return AppRoundBox(
+              return AppBorderBox(
                 myChild: Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

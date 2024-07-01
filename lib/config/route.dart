@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/pages/add_family_details.dart';
 import 'package:opdsure/pages/checkout_page.dart';
+import 'package:opdsure/pages/claims_page.dart';
+import 'package:opdsure/pages/forget_password_page.dart';
 import 'package:opdsure/pages/login_page.dart';
 import 'package:opdsure/pages/preview_page.dart';
 import 'package:opdsure/pages/sign_up_page.dart';
@@ -36,7 +38,7 @@ abstract class AppRoutes {
     GoRoute(
       path: '/on_board_screen',
       pageBuilder: (context, state) =>
-          defaultPageBuilder(context, state, HomePage(),),
+          defaultPageBuilder(context, state, ForgetPasswordPage(),),
     ),
     GoRoute(
         path: '/signup',

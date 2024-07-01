@@ -176,7 +176,7 @@ class SignUpPage extends StatelessWidget{
               ],
             ),
             const SizedBox(height: 12.0,),
-            AppRoundBox(
+            AppBorderBox(
               myChild: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -201,7 +201,7 @@ class SignUpPage extends StatelessWidget{
             ),
             const SizedBox(height: 12.0,),
             Obx((){
-              return AppRoundBox(
+              return AppBorderBox(
                 myChild: Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

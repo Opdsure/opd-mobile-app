@@ -33,7 +33,7 @@ class AppEditText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppRoundBox(
+    return AppBorderBox(
       myChild: Center(
         child: TextField(
           keyboardType: textInputType,

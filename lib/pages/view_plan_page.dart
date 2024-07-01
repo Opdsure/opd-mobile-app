@@ -54,7 +54,7 @@ class ViewPlanPage extends StatelessWidget{
           const SizedBox(height: 12.0,),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 15.0),
-            child: AppRoundBox(
+            child: AppBorderBox(
               myChild: Center(
                 child: AppTextView(
                   text: 'Cancel',

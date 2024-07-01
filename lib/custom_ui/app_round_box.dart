@@ -1,17 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class AppRoundBox extends StatelessWidget{
+class AppBorderBox extends StatelessWidget{
 
   final Widget myChild;
   final Color borderColor;
   final Color boxColor;
+  final double height;
   final VoidCallback? mCallback;
 
-  const AppRoundBox({
+  const AppBorderBox({
     required this.myChild,
     this.borderColor = const Color(0xFFEAECF0),
     this.boxColor = const Color(0x0D101828),
+    this.height = 50.0,
     this.mCallback
   });
 
@@ -21,7 +23,7 @@ class AppRoundBox extends StatelessWidget{
       onTap: mCallback,
       child: Container(
         width: double.infinity,
-        height: 50,
+        height: height,
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         decoration: BoxDecoration(
           color: const Color(0xFFFFFFFF),
