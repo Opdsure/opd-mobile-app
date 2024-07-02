@@ -3,12 +3,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
-import 'package:opdsure/pages/forget_password/forget_password_page.dart';
+import 'package:opdsure/pages/claims_page.dart';
+import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
+import 'package:opdsure/pages/login/login_page/login_controller.dart';
+import 'package:opdsure/pages/login/otp_page/otp_page_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
+import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
-import '../pages/login/login_page.dart';
-import '../pages/signup/sign_up_page.dart';
 
 abstract class AppRoutes {
   static FutureOr<String?> loggedInRedirect(
@@ -53,7 +55,15 @@ abstract class AppRoutes {
             pageBuilder: (context, state) => defaultPageBuilder(
               context,
               state,
-              LoginPage(),
+              const LoginPage(),
+            ),
+          ),
+          GoRoute(
+            path: 'otp',
+            pageBuilder: (context, state) => defaultPageBuilder(
+              context,
+              state,
+              const OtpPage(),
             ),
           ),
           GoRoute(
@@ -61,18 +71,15 @@ abstract class AppRoutes {
             pageBuilder: (context, state) => defaultPageBuilder(
               context,
               state,
-              ForgetPasswordPage(),
+              const ForgetPasswordPage(),
             ),
           )
         ]),
     ShellRoute(pageBuilder: defaultPageBuilder, routes: [
       GoRoute(
         path: '/home',
-        pageBuilder: (context, state) => defaultPageBuilder(
-          context,
-          state,
-          Container(),
-        ),
+        pageBuilder: (context, state) =>
+            defaultPageBuilder(context, state, ClaimsPage()),
       ),
     ])
   ];

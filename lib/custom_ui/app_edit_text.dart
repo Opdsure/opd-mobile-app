@@ -16,10 +16,16 @@ class AppEditText extends StatelessWidget {
   final bool viewSuffix;
   final bool disableText;
   final Widget? suffixWidget;
+  final TextEditingController? textEditingController;
+  final String? errorText;
+  final TextStyle? errorStyle;
 
   const AppEditText({
     required this.hint,
+    this.textEditingController,
     this.size = 15.0,
+    this.errorText,
+    this.errorStyle,
     this.fontWeight = FontWeight.normal,
     this.color = backIconCl,
     this.textInputType = TextInputType.text,
@@ -36,6 +42,7 @@ class AppEditText extends StatelessWidget {
     return AppBorderBox(
       myChild: Center(
         child: TextField(
+          controller: textEditingController,
           keyboardType: textInputType,
           readOnly: disableText,
           style: GoogleFonts.montserrat(
@@ -45,6 +52,8 @@ class AppEditText extends StatelessWidget {
           obscureText: isViewPassword,
           textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
+            errorText: errorText,
+            errorStyle: errorStyle,
             isDense: true,
             hintText: hint,
             border: InputBorder.none,

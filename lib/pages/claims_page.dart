@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
+import 'package:opdsure/widget/opd_widget.dart';
 
 class ClaimsPage extends StatelessWidget{
   @override
@@ -17,13 +18,16 @@ class ClaimsPage extends StatelessWidget{
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Row(
+                Row(
                   children: [
                     AppTextView(
                       text: 'Claims',
                       size: 22.0,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black
+                      color: Colors.black,
+                      onClick: (){
+                        OpdSure.of(context).client.logout();
+                      },
                     )
                   ],
                 ),

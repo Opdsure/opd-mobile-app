@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:opdsure/custom_ui/input_decoration/decoratedInputBorder.dart';
 
 import '../utils/platform_infos.dart';
 import 'app_config.dart';
@@ -93,9 +94,16 @@ abstract class OpdThemes {
         selectionHandleColor: colorScheme.secondary,
       ),
       inputDecorationTheme: InputDecorationTheme(
-        border: OutlineInputBorder(
-          borderSide: BorderSide.none,
-          borderRadius: BorderRadius.circular(AppConfig.borderRadius / 2),
+        border: DecoratedInputBorder(
+            child: OutlineInputBorder(
+              borderSide: BorderSide.none,
+              borderRadius: BorderRadius.circular(AppConfig.borderRadius / 2),
+            ), shadow: const BoxShadow(
+          color: Color(0xff101828),
+          blurRadius: 0.2,
+          offset: Offset(0, 1)
+
+        )
         ),
         contentPadding: const EdgeInsets.all(12),
         filled: true,

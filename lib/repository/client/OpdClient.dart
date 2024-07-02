@@ -9,7 +9,9 @@ import 'package:opdsure/utils/logs/logs.dart';
 import 'package:opdsure/utils/run_banchmark.dart';
 import 'package:opdsure/utils/streams/cached_stream_controller.dart';
 
-import '../../model/register/RegisterResponse.dart';
+import '../../model/forget_password/forget_password_response.dart';
+import '../../model/login/login_response.dart';
+import '../../model/register/register_response.dart';
 import '../database_api/database_api.dart';
 
 enum LoginState { loggedIn, loggedOut }
@@ -38,6 +40,7 @@ class OpdClient extends OpdApi {
     http.Client? httpClient,
     Duration defaultNetworkRequestTimeout = const Duration(seconds: 35),
   }) : super(
+    baseServerUri: Uri.https(AppConfig.defaultBaseUrl),
           httpClient: FixedTimeoutHttpClient(
               httpClient ?? http.Client(), defaultNetworkRequestTimeout),
         );
@@ -124,9 +127,64 @@ class OpdClient extends OpdApi {
         phone: phone,
         name: name,
         termAndCondition: termAndCondition);
+    if(response.success!){
+      await init(accessToken: response.data!.token!, userId: "1");
+    }
 
-    await init(accessToken: response.data!.token!, userId: "1");
+    if(response.data == null){
+      throw Exception(response.toString());
+    }
 
     return response;
+  }
+
+
+  @override
+  Future<LoginResponse> login({String? emailAddress, String? password, String? phone}) async {
+    if (baseServerUri == null) {
+      throw Exception("No baseServerUri set");
+    }
+    final response = await super.login(emailAddress:emailAddress, password: password, phone: phone);
+
+    if(response.success!){
+      await init(accessToken: response.data!.token!, userId: '1');
+    }
+
+    if(response.data == null){
+      throw Exception(response.toJson());
+    }
+
+    return response;
+  }
+
+  @override
+  Future<ForgetPasswordResponse> forgetPassword({String? email}) {
+    return super.forgetPassword(email: email);
+  }
+
+  @override
+  Future<LoginResponse> logout() async {
+    try {
+      final response = await super.logout();
+      final clientBox = await _database?.getClient(clientName);
+      if (clientBox != null) {
+        clientBox.userId = null;
+        clientBox.accessToken = null;
+        _database?.updateClient(clientBox);
+      }
+      onLoginStateChanged.add(LoginState.loggedOut);
+      return response;
+    }catch (e){
+      clear();
+      final clientBox = await _database?.getClient(clientName);
+      if (clientBox != null) {
+        clientBox.userId = null;
+        clientBox.accessToken = null;
+        _database?.updateClient(clientBox);
+      }
+      onLoginStateChanged.add(LoginState.loggedOut);
+      return LoginResponse();
+    }
+
   }
 }

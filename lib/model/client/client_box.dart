@@ -28,6 +28,11 @@ class ClientBox {
   String? get accessToken => _accessToken ?? "";
   String? get userId => _userId ?? "";
 
+
+  set baseServerUrl(String? value) {
+    _baseServerUrl = value;
+  }
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['base_server_url'] = _baseServerUrl;
@@ -36,4 +41,11 @@ class ClientBox {
     return map;
   }
 
+  set accessToken(String? value) {
+    _accessToken = value;
+  }
+
+  set userId(String? value) {
+    _userId = value;
+  }
 }

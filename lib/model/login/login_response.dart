@@ -1,5 +1,5 @@
-class RegisterResponse {
-  RegisterResponse({
+class LoginResponse {
+  LoginResponse({
       Data? data, 
       bool? success, 
       String? message,}){
@@ -8,7 +8,7 @@ class RegisterResponse {
     _message = message;
 }
 
-  RegisterResponse.fromJson(dynamic json) {
+  LoginResponse.fromJson(dynamic json) {
     _data = json['data'] != null ? Data.fromJson(json['data']) : null;
     _success = json['success'];
     _message = json['message'];
@@ -17,9 +17,9 @@ class RegisterResponse {
   bool? _success;
   String? _message;
 
-  Data? get data => _data ?? Data();
-  bool? get success => _success ?? false;
-  String? get message => _message ?? "";
+  Data? get data => _data;
+  bool? get success => _success;
+  String? get message => _message;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -44,7 +44,7 @@ class Data {
   }
   String? _token;
 
-  String? get token => _token ?? "";
+  String? get token => _token;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

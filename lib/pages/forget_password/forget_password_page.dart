@@ -2,13 +2,18 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
 
 import '../../custom_ui/app_button.dart';
 import '../../custom_ui/app_edit_text.dart';
 import '../../custom_ui/app_text_view.dart';
 import '../../utils/app_colors.dart';
 
-class ForgetPasswordPage extends StatelessWidget{
+class ForgetPasswordPageView extends StatelessWidget{
+  final ForgetPasswordPageController controller;
+  const ForgetPasswordPageView(this.controller, {super.key});
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -23,9 +28,12 @@ class ForgetPasswordPage extends StatelessWidget{
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(
-                  Icons.arrow_back_ios,
-                  color: backIconCl,
+                IconButton(
+                  onPressed: ()=> context.pop(),
+                  icon: const Icon(
+                    Icons.arrow_back_ios,
+                    color: backIconCl,
+                  ),
                 ),
                 Image.asset(
                   'assets/images/app_logo.png',
@@ -64,12 +72,15 @@ class ForgetPasswordPage extends StatelessWidget{
             const AppButton(text: 'Send Mail'),
 
             const SizedBox(height: 24.0,),
-            const Center(
+            Center(
               child: AppTextView(
                 text: 'Back to Login',
                 color: buttonColor,
                 size: 14.0,
                 fontWeight: FontWeight.w600,
+                onClick: (){
+                  context.pop();
+                },
               ),
             ),
           ],

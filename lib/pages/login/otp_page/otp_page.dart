@@ -2,12 +2,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:opdsure/pages/login/otp_page/otp_page_controller.dart';
 
-import '../../custom_ui/app_button.dart';
-import '../../custom_ui/app_text_view.dart';
-import '../../utils/app_colors.dart';
+import '../../../custom_ui/app_button.dart';
+import '../../../custom_ui/app_text_view.dart';
+import '../../../utils/app_colors.dart';
 
-class OtpPage extends StatelessWidget{
+class OtpPageView extends StatelessWidget{
+
+  final OtpPageController controller;
+
+  OtpPageView(this.controller, {super.key});
 
   var otpTextStyles;
   TextStyle? createStyle() {

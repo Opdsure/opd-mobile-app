@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/repository/client/client_manager.dart';
 import 'package:opdsure/utils/app_keys/app_key.dart';
@@ -73,6 +74,13 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
     return candidate;
   }
 
+  void initOpd(){
+    for (final c in widget.clients) {
+      _registerSub(c.clientName);
+    }
+  }
+
+
   OpdClient? getClientByName(String name) =>
       widget.clients.firstWhereOrNull((c) => c.clientName == name);
 
@@ -84,7 +92,9 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
       onLoginStateChanged[name] ??=
           c.onLoginStateChanged.stream.listen((state) {
         final loggedInWithMultipleClients = widget.clients.length > 1;
-        if (state == LoginState.loggedOut) {}
+        if (state == LoginState.loggedOut) {
+          OpdSureApp.navigatorKey.currentContext!.go('/signup');
+        }
         if (loggedInWithMultipleClients && state != LoginState.loggedIn) {
           _clearSub(c.clientName);
           widget.clients.remove(c);
@@ -106,6 +116,7 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    initOpd();
   }
 
   @override

@@ -15,11 +15,17 @@ class AppMobileField extends StatelessWidget {
   final Color color;
   final bool isViewPassword;
   final VoidCallback? countryCallback;
+  final TextEditingController? textEditingController;
+  final String? errorText;
+  final TextStyle? errorStyle;
 
   const AppMobileField({
     required this.hint,
+    this.textEditingController,
     this.countryCode = '+91',
     this.size = 15.0,
+    this.errorText,
+    this.errorStyle,
     this.color = backIconCl,
     this.flagUri = 'packages/fl_country_code_picker/assets/flags/in.png',
     this.fontWeight = FontWeight.normal,
@@ -76,6 +82,7 @@ class AppMobileField extends StatelessWidget {
           ),
           Flexible(
             child: TextField(
+              controller: textEditingController,
               style: GoogleFonts.montserrat(
                   fontSize: size,
                   color: color
@@ -87,6 +94,8 @@ class AppMobileField extends StatelessWidget {
                 hintText: hint,
                 border: InputBorder.none,
                 fillColor: Colors.white,
+                errorText: errorText,
+                errorStyle: errorStyle,
                 hintStyle: GoogleFonts.montserrat(
 
                 ),

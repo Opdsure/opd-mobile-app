@@ -9,7 +9,7 @@ class AppBorderBox extends StatelessWidget{
   final double height;
   final VoidCallback? mCallback;
 
-  const AppBorderBox({
+  const AppBorderBox({super.key,
     required this.myChild,
     this.borderColor = const Color(0xFFEAECF0),
     this.boxColor = const Color(0x0D101828),

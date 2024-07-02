@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
+import 'package:opdsure/config/isrg_x1.dart';
 
 
 class CustomHttpClient {
@@ -25,5 +26,5 @@ class CustomHttpClient {
     return HttpClient(context: context);
   }
 
-  static http.Client createHTTPClient() => IOClient(customHttpClient(''));
+  static http.Client createHTTPClient() => IOClient(customHttpClient(ISRG_X1));
 }

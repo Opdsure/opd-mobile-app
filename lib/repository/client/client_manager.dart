@@ -6,6 +6,8 @@ import 'package:opdsure/utils/opd_extension/client_extension.dart';
 import 'package:opdsure/utils/platform_infos.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../utils/custom_http_client.dart';
+
 abstract class ClientManager{
   static const String clientNamespace = 'io.app.opd.sure.store.clients';
 
@@ -24,7 +26,7 @@ abstract class ClientManager{
       await store.setStringList(clientNamespace, clientNames.toList());
     }
     final clients = clientNames.map(createClient).toList();
-     Future.wait(clients.map((clients) => clients.initWithRestore()));
+     await Future.wait(clients.map((clients) => clients.initWithRestore()));
 
     if(clients.length > 1 && clients.any((c) => !c.isLogged)){
       final loggedOutClients = clients.where((c) => !c.isLogged).toList();
@@ -43,6 +45,7 @@ abstract class ClientManager{
   static OpdClient createClient(String clientName){
     return OpdClient(
         clientName,
+        httpClient: PlatformInfos.isAndroid ? CustomHttpClient.createHTTPClient() : null,
         databaseBuilder: opdDatabaseBuilder,
     );
   }
