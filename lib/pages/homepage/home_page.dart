@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_gradient.dart';
-import 'package:opdsure/custom_ui/app_round_box.dart';
+import 'package:opdsure/custom_ui/app_border_box.dart';
 import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/utils/app_colors.dart';
@@ -18,7 +18,7 @@ class HomePage extends StatelessWidget{
     double w = CommonMethods.deviceWidth(context);
     // TODO: implement build
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: pageBackColor,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: ListView(

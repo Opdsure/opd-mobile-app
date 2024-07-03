@@ -21,7 +21,7 @@ class AppHeader extends StatelessWidget{
     return Stack(
       children: [
         const Align(
-          alignment: Alignment.bottomLeft,
+          alignment: Alignment.centerLeft,
           child: Icon(
             Icons.arrow_back_ios,
             color: backIconCl,

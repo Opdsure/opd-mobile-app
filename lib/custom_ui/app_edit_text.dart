@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:opdsure/custom_ui/app_round_box.dart';
+import 'package:opdsure/custom_ui/app_border_box.dart';
 import 'package:opdsure/utils/app_colors.dart';
 
 class AppEditText extends StatelessWidget {

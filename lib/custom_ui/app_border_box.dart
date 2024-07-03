@@ -7,6 +7,7 @@ class AppBorderBox extends StatelessWidget{
   final Color borderColor;
   final Color boxColor;
   final double height;
+  final double borderWidth;
   final VoidCallback? mCallback;
 
   const AppBorderBox({super.key,
@@ -14,6 +15,7 @@ class AppBorderBox extends StatelessWidget{
     this.borderColor = const Color(0xFFEAECF0),
     this.boxColor = const Color(0x0D101828),
     this.height = 50.0,
+    this.borderWidth = 2.0,
     this.mCallback
   });
 
@@ -29,7 +31,7 @@ class AppBorderBox extends StatelessWidget{
           color: const Color(0xFFFFFFFF),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            width: 2,
+            width: borderWidth,
             color: borderColor,
           ),
           boxShadow: [
