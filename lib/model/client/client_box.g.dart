@@ -19,19 +19,25 @@ class ClientBoxAdapter extends TypeAdapter<ClientBox> {
     return ClientBox()
       .._baseServerUrl = fields[0] as String?
       .._accessToken = fields[1] as String?
-      .._userId = fields[2] as String?;
+      .._userId = fields[2] as String?
+      .._id = fields[3] as int?
+      .._isPlanPurchased = fields[4] as bool?;
   }
 
   @override
   void write(BinaryWriter writer, ClientBox obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj._baseServerUrl)
       ..writeByte(1)
       ..write(obj._accessToken)
       ..writeByte(2)
-      ..write(obj._userId);
+      ..write(obj._userId)
+      ..writeByte(3)
+      ..write(obj._id)
+      ..writeByte(4)
+      ..write(obj._isPlanPurchased);
   }
 
   @override

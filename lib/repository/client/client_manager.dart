@@ -32,7 +32,7 @@ abstract class ClientManager{
       final loggedOutClients = clients.where((c) => !c.isLogged).toList();
       for (final client in loggedOutClients) {
         Logs().w(
-          'Multi account is enabled but client ${client.userID} is not logged in. Removing...',
+          'Multi account is enabled but client ${client.userId} is not logged in. Removing...',
         );
         clientNames.remove(client.clientName);
         clients.remove(client);

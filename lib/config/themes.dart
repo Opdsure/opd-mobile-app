@@ -105,8 +105,8 @@ abstract class OpdThemes {
 
         )
         ),
-        contentPadding: const EdgeInsets.all(12),
         filled: true,
+        fillColor: Colors.white
       ),
       appBarTheme: AppBarTheme(
         toolbarHeight: OpdThemes.isColumnMode(context) ? 72 : 56,

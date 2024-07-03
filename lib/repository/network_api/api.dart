@@ -8,11 +8,13 @@ import 'package:opdsure/model/login/login_response.dart';
 import 'package:opdsure/model/register/register_response.dart';
 
 import '../../config/app_config.dart';
+import '../../model/plans/plans_response.dart';
 
 class Api {
   Client httpClient;
   Uri? baseUri = Uri.https(AppConfig.defaultBaseUrl);
   String? bearerToken;
+  bool isPlanBuy = false;
 
   Api({Client? httpClient, this.baseUri, this.bearerToken})
       : httpClient = httpClient ?? Client();
@@ -86,7 +88,7 @@ class Api {
     return ForgetPasswordResponse.fromJson(json);
   }
 
-  Future<LoginResponse> logout() async {
+  Future logout() async {
     final requestUri = Uri(path: 'api/v1/user/logout');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -97,5 +99,17 @@ class Api {
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return LoginResponse.fromJson(json);
+  }
+
+  Future<PlansResponse?> getAllPlans() async {
+    final requestUri = Uri(path: 'api/v1/public/plan');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if(response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return PlansResponse.fromJson(json);
   }
 }

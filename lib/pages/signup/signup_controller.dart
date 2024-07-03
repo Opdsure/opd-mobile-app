@@ -51,40 +51,48 @@ class SignUpController extends State<SignUpPage> {
     final opdSure = OpdSure.of(context);
     if(Get.put(TypeController()).signUpBy.value == 'phone'){
       if(phoneTextController.text.isEmpty){
-        setState(() => phoneError = 'Enter a valid phone no');
+        setState(() => phoneError = 'Phone no is empty');
+        return;
       }else{
         if(!phoneTextController.text.isValidPhoneNumber){
           setState(() => phoneError = 'Enter a valid phone no');
+          return;
         }
       }
     }else{
       if(emailTextController.text.isEmpty){
-        setState(() => emailError = 'Enter a valid email address');
+        setState(() => emailError = 'Email address is empty');
+        return;
       }else{
         if(!emailTextController.text.isValidEmail){
           setState(() => emailError = 'Enter a valid email address');
+          return;
         }
       }
     }
     if(passwordTextController.text.isEmpty){
-      setState(() => passwordError = 'Enter a valid password');
+      setState(() => passwordError = 'password is empty');
+      return;
     }else{
       if(!passwordTextController.text.isValidPassword){
-
+        setState(() => passwordError = 'Enter a valid password');
+        return;
       }
     }
     if(confirmPasswordTextController.text.isEmpty){
-      setState(() => confirmPasswordError = 'Password not matched');
+      setState(() => confirmPasswordError = 'confirm password is empty');
+      return;
     }else{
       if(passwordTextController.text != confirmPasswordTextController.text){
         setState(() => confirmPasswordError = 'Password not matched');
+        return;
       }
     }
 
     setState(() =>  loading = true);
 
     try{
-      await opdSure.client.register(
+      await opdSure.getLoginClient().register(
         name: 'sahil yadav',
         emailAddress: emailTextController.text,
         password: passwordTextController.text,

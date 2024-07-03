@@ -1,17 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 
-import '../../custom_ui/app_button.dart';
-import '../../custom_ui/app_round_box.dart';
-import '../../custom_ui/app_text_view.dart';
+import '../../../custom_ui/app_button.dart';
+import '../../../custom_ui/app_round_box.dart';
+import '../../../custom_ui/app_text_view.dart';
 
-class ViewPlanPage extends StatelessWidget{
+class ViewPlanPageView extends StatelessWidget{
+
+  final ViewPlansPageController controller;
+
+  const ViewPlanPageView(this.controller, {super.key});
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
       backgroundColor: Colors.white,
-      body: ListView(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           const SizedBox(height: 16.0,),
           Center(
@@ -47,26 +54,26 @@ class ViewPlanPage extends StatelessWidget{
             child: AppButton(
               text: 'View Plans',
               onClick: (){
-
+                controller.selectPlans(context);
               },
             ),
           ),
-          const SizedBox(height: 12.0,),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15.0),
-            child: AppBorderBox(
-              myChild: Center(
-                child: AppTextView(
-                  text: 'Cancel',
-                  size: 16.0,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF344054),
-                ),
-              ),
-              borderColor: Color(0xFFD0D5DD),
-              boxColor: Color(0x1A101828),
-            ),
-          ),
+          // const SizedBox(height: 12.0,),
+          // const Padding(
+          //   padding: EdgeInsets.symmetric(horizontal: 15.0),
+          //   child: AppBorderBox(
+          //     myChild: Center(
+          //       child: AppTextView(
+          //         text: 'Cancel',
+          //         size: 16.0,
+          //         fontWeight: FontWeight.w600,
+          //         color: Color(0xFF344054),
+          //       ),
+          //     ),
+          //     borderColor: Color(0xFFD0D5DD),
+          //     boxColor: Color(0x1A101828),
+          //   ),
+          // ),
         ],
       ),
     );

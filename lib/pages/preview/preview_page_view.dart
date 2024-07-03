@@ -32,8 +32,8 @@ class PreviewPageView extends StatelessWidget{
             child: Padding(
               padding: const  EdgeInsets.only(right: 10.0),
               child: AppTextView(
-                onClick: (){
-                  OpdSure.of(context).store.setBool(AppKey.onBoardScreen, true);
+                onClick: () async {
+                  await OpdSure.of(context).store.setBool(AppKey.onBoardScreen, true);
                   context.go("/signup");
                 },
                 text: 'Skip',

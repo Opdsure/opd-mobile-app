@@ -17,8 +17,8 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageController extends State<LoginPage> {
 
-  TextEditingController emailTextController = TextEditingController();
-  TextEditingController passwordTextController = TextEditingController();
+  TextEditingController emailTextController = TextEditingController(text: 'sahil.yadav@intileo.com');
+  TextEditingController passwordTextController = TextEditingController(text: 'Intileo@123');
   TextEditingController phoneTextController = TextEditingController(text: '8510819003');
 
   String? emailError;
@@ -43,7 +43,7 @@ class LoginPageController extends State<LoginPage> {
   }
 
   forgetPassword(){
-    context.push('${GoRouter.of(context).routeInformationProvider.value.uri.path}/forget_password');
+    context.push('/signup/login/forget_password');
   }
 
   void login() async {
@@ -72,7 +72,7 @@ class LoginPageController extends State<LoginPage> {
     setState(() =>  loading = true);
 
     try{
-      await opdSure.client.login(
+      await opdSure.getLoginClient().login(
         emailAddress: emailTextController.text,
         password: passwordTextController.text,
         phone: phoneTextController.text);

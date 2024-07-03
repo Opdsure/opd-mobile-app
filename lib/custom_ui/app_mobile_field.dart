@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 
@@ -18,6 +19,7 @@ class AppMobileField extends StatelessWidget {
   final TextEditingController? textEditingController;
   final String? errorText;
   final TextStyle? errorStyle;
+  final List<TextInputFormatter>? inputFormatters;
 
   const AppMobileField({
     required this.hint,
@@ -31,7 +33,8 @@ class AppMobileField extends StatelessWidget {
     this.fontWeight = FontWeight.normal,
     this.isPasswordField = false,
     this.isViewPassword = false,
-    this.countryCallback
+    this.countryCallback,
+    this.inputFormatters
   });
 
   @override
@@ -89,6 +92,7 @@ class AppMobileField extends StatelessWidget {
               ),
               obscureText: isViewPassword,
               textAlignVertical: TextAlignVertical.center,
+              inputFormatters: inputFormatters,
               decoration: InputDecoration(
                 isDense: true,
                 hintText: hint,

@@ -8,7 +8,6 @@ class DecoratedInputBorder extends InputBorder {
   }) : super(borderSide: child.borderSide);
 
   final InputBorder child;
-
   final BoxShadow shadow;
 
   @override
@@ -33,27 +32,26 @@ class DecoratedInputBorder extends InputBorder {
 
   @override
   ShapeBorder scale(double t) {
-    final scalledChild = child.scale(t);
+    final scaledChild = child.scale(t);
 
     return DecoratedInputBorder(
-      child: scalledChild is InputBorder ? scalledChild : child,
+      child: scaledChild is InputBorder ? scaledChild : child,
       shadow: BoxShadow.lerp(null, shadow, t)!,
     );
   }
 
   @override
   void paint(Canvas canvas, Rect rect, {double? gapStart, double gapExtent = 0.0, double gapPercentage = 0.0, TextDirection? textDirection}) {
-    final clipPath = Path()
-      ..addRect(const Rect.fromLTWH(-5000, -5000, 10000, 10000))
-      ..addPath(getInnerPath(rect), Offset.zero)
-      ..fillType = PathFillType.evenOdd;
-    canvas.clipPath(clipPath);
-
     final Paint paint = shadow.toPaint();
     final Rect bounds = rect.shift(shadow.offset).inflate(shadow.spreadRadius);
 
-    canvas.drawPath(getOuterPath(bounds), paint);
+    // Draw the shadow
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(bounds, Radius.circular(8.0)),
+      paint,
+    );
 
+    // Draw the border
     child.paint(canvas, rect, gapStart: gapStart, gapExtent: gapExtent, gapPercentage: gapPercentage, textDirection: textDirection);
   }
 

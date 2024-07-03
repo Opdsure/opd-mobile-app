@@ -6,11 +6,14 @@ import 'package:go_router/go_router.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/repository/client/client_manager.dart';
 import 'package:opdsure/utils/app_keys/app_key.dart';
+import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_sure_app.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/app_config.dart';
+import '../utils/logs/logs.dart';
+import '../utils/opd_extension/account_bundles.dart';
 
 class OpdSure extends StatefulWidget {
   final Widget? child;
@@ -28,15 +31,65 @@ class OpdSure extends StatefulWidget {
 }
 
 class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
+  int _activeClient = -1;
+  String? activeBundle;
+
+  List<OpdClient?>? get currentBundle {
+    if (!hasComplexBundles) {
+      return List.from(widget.clients);
+    }
+    final bundles = accountBundles;
+    if (bundles.containsKey(activeBundle)) {
+      return bundles[activeBundle];
+    }
+    return bundles.values.first;
+  }
+
+
+
+  Map<String?, List<OpdClient?>> get accountBundles {
+    final resBundles = <String?, List<_AccountBundleWithClient>>{};
+    for (var i = 0; i < widget.clients.length; i++) {
+      final bundles = widget.clients[i].accountBundles;
+      for (final bundle in bundles) {
+        if (bundle.name == null) {
+          continue;
+        }
+        resBundles[bundle.name] ??= [];
+        resBundles[bundle.name]!.add(
+          _AccountBundleWithClient(
+            client: widget.clients[i],
+            bundle: bundle,
+          ),
+        );
+      }
+    }
+    for (final b in resBundles.values) {
+      b.sort(
+            (a, b) => a.bundle!.priority == null
+            ? 1
+            : b.bundle!.priority == null
+            ? -1
+            : a.bundle!.priority!.compareTo(b.bundle!.priority!),
+      );
+    }
+    return resBundles
+        .map((k, v) => MapEntry(k, v.map((vv) => vv.client).toList()));
+  }
+
+  bool get hasComplexBundles => accountBundles.values.any((v) => v.length > 1);
   SharedPreferences get store => widget.store;
+
+  bool isSelectPlans = false;
 
   OpdClient get client {
     if (widget.clients.isEmpty) {
       widget.clients.add(getLoginClient());
-    } else {
-      return widget.clients[0];
     }
-    return widget.clients[0];
+    if (_activeClient < 0 || _activeClient >= widget.clients.length) {
+      return currentBundle!.first!;
+    }
+    return widget.clients[_activeClient];
   }
 
   bool get isOnboardScreenActive {
@@ -49,8 +102,18 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
 
   OpdClient? _loginClientCandidate;
 
+  void setActiveClient(OpdClient? cl) {
+    final i = widget.clients.indexWhere((c) => c == cl);
+    if (i != -1) {
+      _activeClient = i;
+    } else {
+      Logs().w('Tried to set an unknown client ${cl!.userId} as active');
+    }
+  }
+
   OpdClient getLoginClient() {
     if (widget.clients.isNotEmpty && !client.isLogged) {
+      _registerSub(client.clientName);
       return client;
     }
     final candidate = _loginClientCandidate ??= ClientManager.createClient(
@@ -74,12 +137,11 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
     return candidate;
   }
 
-  void initOpd(){
+  void initOpd() {
     for (final c in widget.clients) {
       _registerSub(c.clientName);
     }
   }
-
 
   OpdClient? getClientByName(String name) =>
       widget.clients.firstWhereOrNull((c) => c.clientName == name);
@@ -93,15 +155,15 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
           c.onLoginStateChanged.stream.listen((state) {
         final loggedInWithMultipleClients = widget.clients.length > 1;
         if (state == LoginState.loggedOut) {
-          OpdSureApp.navigatorKey.currentContext!.go('/signup');
+          _clearSub(name);
+          isSelectPlans = false;
         }
         if (loggedInWithMultipleClients && state != LoginState.loggedIn) {
           _clearSub(c.clientName);
           widget.clients.remove(c);
           ClientManager.removeClientNameFromStore(c.clientName, store);
         } else {
-          OpdSureApp.router
-              .go(state == LoginState.loggedIn ? "/home" : '/login');
+          OpdSureApp.router.go(state == LoginState.loggedIn ? "/home" : '/signup/login');
         }
       });
     }
@@ -126,4 +188,12 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
       child: widget.child,
     );
   }
+}
+
+
+class _AccountBundleWithClient {
+  final OpdClient? client;
+  final AccountBundle? bundle;
+
+  _AccountBundleWithClient({this.client, this.bundle});
 }

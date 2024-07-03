@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -87,6 +88,9 @@ class LoginView extends StatelessWidget {
                   countryCode: '+91',
                   textEditingController: controller.phoneTextController,
                   errorText: controller.phoneError,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(13),
+                  ],
                   countryCallback: () async {
                     // Show the country code picker when tapped.
                     final picked =
@@ -119,7 +123,7 @@ class LoginView extends StatelessWidget {
             Align(
               alignment: Alignment.centerRight,
               child: AppTextView(
-                text: 'Forget Password',
+                text: 'Forgot Password',
                 size: 12.0,
                 fontWeight: FontWeight.w600,
                 color: buttonColor,

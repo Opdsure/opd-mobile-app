@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:opdsure/config/app_config.dart';
+import 'package:opdsure/repository/client/client_manager.dart';
 import 'package:opdsure/repository/network_api/opd_api.dart';
 import 'package:http/http.dart' as http;
 import 'package:opdsure/utils/exception/exception.dart';
@@ -11,17 +12,22 @@ import 'package:opdsure/utils/streams/cached_stream_controller.dart';
 
 import '../../model/forget_password/forget_password_response.dart';
 import '../../model/login/login_response.dart';
+import '../../model/plans/plans_response.dart';
 import '../../model/register/register_response.dart';
 import '../database_api/database_api.dart';
 
 enum LoginState { loggedIn, loggedOut }
 
 class OpdClient extends OpdApi {
+  int? _id;
+
+  int? get id => _id;
+
   final String clientName;
 
-  String? get userID => _userID;
+  String? get userId => _userId;
 
-  String? _userID;
+  String? _userId;
 
   bool _initLock = false;
 
@@ -47,11 +53,17 @@ class OpdClient extends OpdApi {
 
   bool get isLogged => accessToken != null;
 
-  Future<void> init({String? userId, String? accessToken}) async {
-    if ((userId != null || accessToken != null) &&
-        (userId == null || accessToken == null)) {
+  bool get isPlanPurchased => false;
+
+  Map<String, Map<String, String>> _accountData = {};
+
+  Map<String, Map<String, String>> get accountData => _accountData;
+
+  Future<void> init({String? newUserId, String? newAccessToken, bool? newIsPlanPurchased}) async {
+    if ((newUserId != null || newAccessToken != null || newIsPlanPurchased != null) &&
+        (newUserId == null || newAccessToken == null || newIsPlanPurchased == null)) {
       throw OpdClientInitPreconditionError(
-        'If one of [userId, accessToken] is set then all of them must be set!',
+        'If one of [userId, accessToken, isPlanPurchased] is set then all of them must be set!',
       );
     }
 
@@ -76,35 +88,70 @@ class OpdClient extends OpdApi {
         );
       }
 
-      final clientBox = await _database?.getClient(clientName);
+      String? accessToken;
+      String? userId;
+      bool? isPlanPurchased;
+
+      final clientBox = await this.database?.getClient(clientName);
 
       if(clientBox != null){
-        baseServerUri = Uri.parse(clientBox.baseServerUrl!);
-        _userID = clientBox.userId!;
-        this.accessToken = clientBox.accessToken!;
+        userId = clientBox.userId;
+        accessToken = clientBox.accessToken;
+        isPlanPurchased = clientBox.isPlanPurchased;
       }
-      if(userId != null){
-        baseServerUri = Uri.https(AppConfig.defaultBaseUrl);
-        _userID = userId;
-        this.accessToken = accessToken;
-        await _database?.insertClient(Uri.https(AppConfig.defaultBaseUrl).toString(), accessToken!, userId);
+      if(newUserId != null){
+        userId = _userId = newUserId;
+        accessToken = this.accessToken = newAccessToken;
+        isPlanPurchased = isPlanBuy = newIsPlanPurchased ?? false;
       }else{
-        baseServerUri = Uri.https(AppConfig.defaultBaseUrl);
-        Logs().e('User is not logged in');
+        accessToken = this.accessToken = newAccessToken ?? accessToken;
+        userId = _userId = newUserId ?? userId;
+        isPlanPurchased = this.isPlanPurchased = newIsPlanPurchased ?? isPlanPurchased ?? false;
       }
+
+      if(this.accessToken == null || this.userId == null){
+        onLoginStateChanged.add(LoginState.loggedOut);
+        Logs().e('User is not logged in.');
+        _initLock = false;
+        return;
+      }
+
+      final database = this.database;
+      if(database != null){
+        if(id != null){
+          await database.updateClient(
+            userId: userId,
+            accessToken: accessToken,
+            baseUri: baseServerUri.toString(),
+            isPlanPurchased: isPlanPurchased
+          );
+        }else{
+          _id = await database.insertClient(
+              baseUri: baseServerUri.toString(),
+              accessToken: accessToken,
+              userId: userId,
+            isPlanPurchased: isPlanPurchased
+          );
+        }
+      }
+
+      _initLock = false;
+      onLoginStateChanged.add(LoginState.loggedIn);
+      Logs().i('Successfully connected as $userId with ${baseServerUri.toString()}',);
     } on OpdClientInitException {
       rethrow;
     } catch (e, s) {
+      await clear();
+      _initLock = false;
       Logs().e('OpdClient initialization failed', e, s);
     }
   }
 
   Future<void> clear() async {
     accessToken = null;
-    baseServerUri = null;
-    _userID = null;
-    _database = null;
+    _userId = null;
     _initLock = false;
+    _id = null;
   }
 
   @override
@@ -128,7 +175,7 @@ class OpdClient extends OpdApi {
         name: name,
         termAndCondition: termAndCondition);
     if(response.success!){
-      await init(accessToken: response.data!.token!, userId: "1");
+      await init(newAccessToken: response.data!.token!, newUserId: "1", newIsPlanPurchased: false);
     }
 
     if(response.data == null){
@@ -147,7 +194,7 @@ class OpdClient extends OpdApi {
     final response = await super.login(emailAddress:emailAddress, password: password, phone: phone);
 
     if(response.success!){
-      await init(accessToken: response.data!.token!, userId: '1');
+      await init(newAccessToken: response.data!.token!, newUserId: '1', newIsPlanPurchased: false);
     }
 
     if(response.data == null){
@@ -163,28 +210,58 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<LoginResponse> logout() async {
-    try {
-      final response = await super.logout();
-      final clientBox = await _database?.getClient(clientName);
-      if (clientBox != null) {
-        clientBox.userId = null;
-        clientBox.accessToken = null;
-        _database?.updateClient(clientBox);
-      }
-      onLoginStateChanged.add(LoginState.loggedOut);
-      return response;
-    }catch (e){
-      clear();
-      final clientBox = await _database?.getClient(clientName);
-      if (clientBox != null) {
-        clientBox.userId = null;
-        clientBox.accessToken = null;
-        _database?.updateClient(clientBox);
-      }
-      onLoginStateChanged.add(LoginState.loggedOut);
-      return LoginResponse();
+  Future logout() async {
+    if (baseServerUri == null) {
+      throw Exception("No baseServerUri set");
     }
-
+    try{
+    final response = await super.logout();
+    if(response.success!){
+      await clear();
+    }else{
+      await clear();
+    }
+    }catch(e){
+      await clear();
+    }
+   final database = this.database;
+    if(database != null){
+      database.deleteClient();
+    }
+    onLoginStateChanged.add(LoginState.loggedOut);
   }
+
+  @override
+  Future<PlansResponse?> getAllPlans() async {
+    PlansResponse? plansResponse;
+    final database = this.database;
+    if(database != null){
+      plansResponse = await database.getPlans();
+      plansResponse ??= await super.getAllPlans();
+      await database.updatePlans(plans: plansResponse);
+    }else{
+      plansResponse = await super.getAllPlans();
+
+      final databaseBuilder = this.databaseBuilder;
+      if (databaseBuilder != null) {
+        _database ??= await runBenchmarked(
+          'Build database',
+              () async => databaseBuilder(this),
+        );
+      }
+      final database = this.database;
+      if(database != null) {
+        await database.insertPlans(plans: plansResponse);
+      }
+    }
+    return plansResponse;
+  }
+
+  Future updatePlanPurchasedStatus(bool value) async {
+    final database = this.database;
+    if(database != null){
+      database.updatePlanPurchasedStatus(value);
+    }
+  }
+
 }

@@ -18,6 +18,9 @@ class OpdApi extends Api {
 
   set accessToken(String? token) => bearerToken = token;
 
+  bool get isPlanPurchased => isPlanBuy;
+
+  set isPlanPurchased(bool value) => isPlanBuy = value;
 
   @override
   Never bodySizeExceeded(int expected, int actual) {

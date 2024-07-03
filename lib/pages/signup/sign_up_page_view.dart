@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
@@ -78,6 +79,9 @@ class SignUpView extends StatelessWidget{
                   countryCode: '+91',
                   textEditingController: controller.phoneTextController,
                   errorText: controller.phoneError,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(13),
+                  ],
                   countryCallback: ()async{
                     // Show the country code picker when tapped.
                     final picked= await countryPicker.showPicker(context: context);
@@ -105,7 +109,7 @@ class SignUpView extends StatelessWidget{
             const Padding(
               padding: EdgeInsets.only(left: 3.0),
               child: AppTextView(
-                text: 'Must be at lease 8 character',
+                text: 'Must be at least 8 characters',
                 color: Color(0xff475467),
                 size: 12.0,
               ),
