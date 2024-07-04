@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 
 import '../../../custom_ui/app_button.dart';
-import '../../../custom_ui/app_round_box.dart';
 import '../../../custom_ui/app_text_view.dart';
 
 class ViewPlanPageView extends StatelessWidget{

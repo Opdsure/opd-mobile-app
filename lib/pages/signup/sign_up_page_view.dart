@@ -9,13 +9,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_edit_text.dart';
 import 'package:opdsure/custom_ui/app_mobile_field.dart';
-import 'package:opdsure/custom_ui/app_round_box.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/utils/app_keys/app_key.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../../custom_ui/app_border_box.dart';
 import '../../get_controllers/type_controller.dart';
 import '../../utils/app_colors.dart';
 

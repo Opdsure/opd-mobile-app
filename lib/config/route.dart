@@ -9,8 +9,9 @@ import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
 import 'package:opdsure/pages/login/otp_page/otp_page_controller.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
-import 'package:opdsure/pages/preview/preview_page.dart';
+import 'package:opdsure/pages/profile_page.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
+import 'package:opdsure/pages/wallet_page.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../pages/plan/plans_page/plans_page_controller.dart';
@@ -53,7 +54,7 @@ abstract class AppRoutes {
       pageBuilder: (context, state) => defaultPageBuilder(
         context,
         state,
-        PreviewPage(),
+        WalletPage(),
       ),
     ),
     GoRoute(
