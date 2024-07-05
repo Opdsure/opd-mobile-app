@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "460950537530",
+    "firebase_url": "https://opdsure-c5b02-default-rtdb.firebaseio.com",
+    "project_id": "opdsure-c5b02",
+    "storage_bucket": "opdsure-c5b02.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:460950537530:android:d1e6149495428ffccdbc03",
+        "android_client_info": {
+          "package_name": "io.app.opdsure"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "460950537530-ut5ggikn8342c2dn9uqf900ac43o9s3c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.app.opdsure",
+            "certificate_hash": "ef33b7c4e631751d82e1131e54f512d283082d5a"
+          }
+        },
+        {
+          "client_id": "460950537530-j6jb98pq3re8ulao9j4dq69qu84va34t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvb6yRppD8OG3FvYQuTs_t8m74Tm08cBg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "460950537530-j6jb98pq3re8ulao9j4dq69qu84va34t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "460950537530-qam1li122lprgj6jh2m6rmmtcd0trkd6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "io.app.opdsure"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
