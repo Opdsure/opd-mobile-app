@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/pages/signup/name_email_number_view.dart';
 import 'package:opdsure/pages/signup/sign_up_page_view.dart';
+import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/utils/app_keys/app_key.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
@@ -124,6 +125,9 @@ class SignUpController extends State<SignUpPage> {
   }
 
   void register() async {
+    // CommonMethods.convertToE164('9354253305', countryCode);
+    String e164Number = CommonMethods.convertToE164('phoneNumber', countryCode);
+    OpdClient.getFirebaseOTP('+91 85108 19003', context);
     final opdSure = OpdSure.of(context);
     if (!isWithEmail) {
       if (phoneTextController.text.isEmpty) {

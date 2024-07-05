@@ -25,6 +25,7 @@ class PreviewPageView extends StatelessWidget{
     return Scaffold(
       backgroundColor: Colors.white,
       body: ListView(
+        physics: const NeverScrollableScrollPhysics(),
         children: [
           const SizedBox(height: 16.0,),
            Align(

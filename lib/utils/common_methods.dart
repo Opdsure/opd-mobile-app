@@ -1,3 +1,6 @@
+import 'package:dlibphonenumber/enums/phone_number_format.dart';
+import 'package:dlibphonenumber/generated/classes/phone_number/phonenumber.pb.dart';
+import 'package:dlibphonenumber/phone_number_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -27,5 +30,11 @@ class CommonMethods{
       textColor: Colors.white,
       fontSize: 16.0,
     );
+  }
+
+  static String convertToE164(String phoneNumber, String countryCode) {
+    final PhoneNumberUtil phoneUtil = PhoneNumberUtil.instance;
+    final PhoneNumber mPhoneNumber = phoneUtil.parse(phoneNumber, countryCode);
+    return phoneUtil.format(mPhoneNumber, PhoneNumberFormat.international);
   }
 }

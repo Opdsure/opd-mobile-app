@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/repository/network_api/opd_api.dart';
@@ -283,6 +285,29 @@ class OpdClient extends OpdApi {
     return userProfile;
   }
 
+  static Future getFirebaseOTP(String mobile, BuildContext context) async{
+
+    FirebaseAuth _auth = FirebaseAuth.instance;
+
+    _auth.verifyPhoneNumber(
+        phoneNumber: mobile,
+        timeout: const Duration(seconds: 60),
+        verificationCompleted: (params){
+          _auth.signInWithCredential(params);
+          print(params);
+        },
+        verificationFailed: (params){
+          print(params);
+        },
+        codeSent: (params,code){
+          print(params);
+          print(code);
+        },
+        codeAutoRetrievalTimeout: (params){
+          print(params);
+        },
+    );
+  }
 
   Future updatePlanPurchasedStatus(bool value) async {
     final database = this.database;
