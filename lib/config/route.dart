@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/claims_page.dart';
+import 'package:opdsure/pages/complaints_page.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
 import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
