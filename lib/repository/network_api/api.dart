@@ -6,6 +6,7 @@ import 'package:http/http.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
 import 'package:opdsure/model/login/login_response.dart';
 import 'package:opdsure/model/register/register_response.dart';
+import 'package:opdsure/model/user_profile/user_profile.dart';
 
 import '../../config/app_config.dart';
 import '../../model/plans/plans_response.dart';
@@ -99,6 +100,20 @@ class Api {
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return LoginResponse.fromJson(json);
+  }
+
+
+  Future<UserProfile> getProfile() async {
+    final requestUri = Uri(path: 'api/v1/user/get-profile');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if(response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return UserProfile.fromJson(json);
   }
 
   Future<PlansResponse?> getAllPlans() async {

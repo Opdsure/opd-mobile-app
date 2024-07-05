@@ -17,7 +17,7 @@ class PlansResponseAdapter extends TypeAdapter<PlansResponse> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return PlansResponse()
-      .._data = fields[0] as Data?
+      .._data = fields[0] as PlansData?
       .._success = fields[1] as bool?
       .._message = fields[2] as String?;
   }
@@ -45,23 +45,23 @@ class PlansResponseAdapter extends TypeAdapter<PlansResponse> {
           typeId == other.typeId;
 }
 
-class DataAdapter extends TypeAdapter<Data> {
+class PlansDataAdapter extends TypeAdapter<PlansData> {
   @override
   final int typeId = 3;
 
   @override
-  Data read(BinaryReader reader) {
+  PlansData read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Data()
+    return PlansData()
       .._records = (fields[0] as List?)?.cast<Records>()
       .._pagination = fields[1] as Pagination?;
   }
 
   @override
-  void write(BinaryWriter writer, Data obj) {
+  void write(BinaryWriter writer, PlansData obj) {
     writer
       ..writeByte(2)
       ..writeByte(0)
@@ -76,7 +76,7 @@ class DataAdapter extends TypeAdapter<Data> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DataAdapter &&
+      other is PlansDataAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

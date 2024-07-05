@@ -16,10 +16,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class LoginPageController extends State<LoginPage> {
-
-  TextEditingController emailTextController = TextEditingController(text: 'sahil.yadav@intileo.com');
-  TextEditingController passwordTextController = TextEditingController(text: 'Intileo@123');
-  TextEditingController phoneTextController = TextEditingController(text: '8510819003');
+  TextEditingController emailTextController =
+      TextEditingController(text: 'sahil.yadav@intileo.com');
+  TextEditingController passwordTextController =
+      TextEditingController(text: 'Intileo@123');
+  TextEditingController phoneTextController =
+      TextEditingController(text: '8510819003');
 
   String? emailError;
   String? passwordError;
@@ -27,7 +29,6 @@ class LoginPageController extends State<LoginPage> {
 
   bool loading = false;
   late TapGestureRecognizer signupRecognizer;
-
 
   @override
   void initState() {
@@ -38,50 +39,52 @@ class LoginPageController extends State<LoginPage> {
       };
   }
 
-  _signUp(){
+  _signUp() {
     context.go('/signup');
   }
 
-  forgetPassword(){
+  forgetPassword() {
     context.push('/signup/login/forget_password');
   }
 
+
+
   void login() async {
     final opdSure = OpdSure.of(context);
-    if(Get.put(TypeController()).loginBy.value == 'phone'){
-      if(phoneTextController.text.isEmpty){
+    if (Get.put(TypeController()).loginBy.value == 'phone') {
+      if (phoneTextController.text.isEmpty) {
         setState(() => phoneError = 'Enter a valid phone no');
-      }else{
-        if(!phoneTextController.text.isValidPhoneNumber){
+      } else {
+        if (!phoneTextController.text.isValidPhoneNumber) {
           setState(() => phoneError = 'Enter a valid phone no');
         }
       }
-    }else{
-      if(emailTextController.text.isEmpty){
+    } else {
+      if (emailTextController.text.isEmpty) {
         setState(() => emailError = 'Enter a valid email address');
-      }else{
-        if(!emailTextController.text.isValidEmail){
+      } else {
+        if (!emailTextController.text.isValidEmail) {
           setState(() => emailError = 'Enter a valid email address');
         }
       }
     }
-    if(passwordTextController.text.isEmpty){
+    if (passwordTextController.text.isEmpty) {
       setState(() => phoneError = 'Enter a valid password');
     }
 
-    setState(() =>  loading = true);
+    setState(() => loading = true);
 
-    try{
+    try {
       await opdSure.getLoginClient().login(
         emailAddress: emailTextController.text,
         password: passwordTextController.text,
         phone: phoneTextController.text);
-    }catch(e){
+    } catch (e) {
       setState(() => passwordError = e.toString());
       return setState(() => loading = false);
     }
 
-    if(mounted) setState(() => loading = false);
+    if (mounted) setState(() => loading = false);
   }
 
   @override

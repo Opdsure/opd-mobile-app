@@ -1,6 +1,7 @@
 import 'package:opdsure/model/client/client_box.dart';
 
 import '../../model/plans/plans_response.dart';
+import '../../model/user_profile/user_profile.dart';
 
 abstract class DatabaseApi{
 
@@ -25,5 +26,12 @@ Future updatePlans({PlansResponse? plans});
 
 Future insertPlans({PlansResponse? plans});
 
+Future deletePlans({PlansResponse? plans});
+
 Future updatePlanPurchasedStatus(bool value);
+
+Future<UserProfile?> getUserProfile();
+Future updateUserProfile({UserProfile? userProfile});
+Future insertUserProfile({UserProfile? userProfile});
+Future deleteUserProfile();
 }

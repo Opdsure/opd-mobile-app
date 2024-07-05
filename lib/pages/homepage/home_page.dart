@@ -8,8 +8,11 @@ import 'package:opdsure/custom_ui/app_gradient.dart';
 import 'package:opdsure/custom_ui/app_border_box.dart';
 import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
+import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import 'package:opdsure/utils/logs/logs.dart';
+import 'package:opdsure/widget/opd_widget.dart';
 
 class HomePage extends StatelessWidget{
   @override
@@ -235,6 +238,9 @@ class HomePage extends StatelessWidget{
             ),
             const SizedBox(height: 20,),
             AppBorderBox(
+              mCallback: () {
+                OpdSure.of(context).client.logout();
+              },
               height: h*0.12,
               myChild: Padding(
                 padding: const EdgeInsets.all(8.0),

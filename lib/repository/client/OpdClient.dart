@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:opdsure/config/app_config.dart';
-import 'package:opdsure/repository/client/client_manager.dart';
+import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/repository/network_api/opd_api.dart';
 import 'package:http/http.dart' as http;
 import 'package:opdsure/utils/exception/exception.dart';
@@ -53,7 +53,6 @@ class OpdClient extends OpdApi {
 
   bool get isLogged => accessToken != null;
 
-  bool get isPlanPurchased => false;
 
   Map<String, Map<String, String>> _accountData = {};
 
@@ -257,9 +256,38 @@ class OpdClient extends OpdApi {
     return plansResponse;
   }
 
+  @override
+  Future<UserProfile> getProfile() async {
+    UserProfile? userProfile;
+    final database = this.database;
+    if(database != null){
+      userProfile = await database.getUserProfile();
+      userProfile ??= await super.getProfile();
+      await database.updateUserProfile(userProfile: userProfile);
+    }else{
+      userProfile = await super.getProfile();
+
+      final databaseBuilder = this.databaseBuilder;
+      if (databaseBuilder != null) {
+        _database ??= await runBenchmarked(
+          'Build database',
+              () async => databaseBuilder(this),
+        );
+      }
+
+      final database = this.database;
+      if(database != null) {
+        await database.insertUserProfile(userProfile: userProfile);
+      }
+    }
+    return userProfile;
+  }
+
+
   Future updatePlanPurchasedStatus(bool value) async {
     final database = this.database;
     if(database != null){
+      isPlanPurchased = value;
       database.updatePlanPurchasedStatus(value);
     }
   }

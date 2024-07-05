@@ -1,12 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:opdsure/pages/login/otp_page/otp_page_controller.dart';
 
 import '../../../custom_ui/app_button.dart';
 import '../../../custom_ui/app_text_view.dart';
 import '../../../utils/app_colors.dart';
+import 'otp_page_controller.dart';
 
 class OtpPageView extends StatelessWidget{
 
@@ -61,7 +60,7 @@ class OtpPageView extends StatelessWidget{
             ),
             const Center(
               child: AppTextView(
-                text: 'Enter the 4-digit code that we have sent\non the email mukesh@example.com',
+                text: 'Enter the 4-digit code that we have sent\non the email ',
                 color: Color(0xff475467),
                 size: 16.0,
                 mTextAlign: TextAlign.center,
@@ -84,19 +83,13 @@ class OtpPageView extends StatelessWidget{
               borderRadius: const BorderRadius.all(Radius.circular(10.0)),
               //runs when a code is typed in
               onCodeChanged: (String code) {
-                //handle validation or checks here
+
               },
               //runs when every textfield is filled
               onSubmit: (String verificationCode){
-                showDialog(
-                    context: context,
-                    builder: (context){
-                      return AlertDialog(
-                        title: Text("Verification Code"),
-                        content: Text('Code entered is $verificationCode'),
-                      );
-                    }
-                );
+                if(verificationCode.length == 4){
+                  controller.otpVerify(verificationCode);
+                }
               }, // end onSubmit
             ),
             const SizedBox(height: 24.0,),

@@ -6,14 +6,14 @@ import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/claims_page.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
+import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
-import 'package:opdsure/pages/login/otp_page/otp_page_controller.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
-import 'package:opdsure/pages/profile_page.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
-import 'package:opdsure/pages/wallet_page.dart';
+import 'package:opdsure/pages/preview/preview_page.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../pages/otp_page/otp_page_controller.dart';
 import '../pages/plan/plans_page/plans_page_controller.dart';
 
 abstract class AppRoutes {
@@ -54,7 +54,7 @@ abstract class AppRoutes {
       pageBuilder: (context, state) => defaultPageBuilder(
         context,
         state,
-        WalletPage(),
+        PreviewPage(),
       ),
     ),
     GoRoute(
@@ -67,6 +67,25 @@ abstract class AppRoutes {
             ),
         routes: [
           GoRoute(
+              path: 'otp',
+              pageBuilder: (context, state) {
+                final otpMap = state.extra as Map<String, dynamic>;
+                return defaultPageBuilder(
+                  context,
+                  state,
+                  OtpPage(
+                    password: otpMap['password'],
+                    email: otpMap['email'],
+                    otp: otpMap['otp'],
+                    phone: otpMap['phone'],
+                    confirmPassword: otpMap['confirmPassword'],
+                    countryCode: otpMap['countryCode'],
+                    name: otpMap['name'],
+                    termAndCondition: otpMap['termAndCondition'],
+                  ),
+                );}
+          ),
+          GoRoute(
             path: 'login',
             pageBuilder: (context, state) => defaultPageBuilder(
               context,
@@ -74,14 +93,6 @@ abstract class AppRoutes {
               const LoginPage(),
             ),
             routes: [
-              GoRoute(
-                path: 'otp',
-                pageBuilder: (context, state) => defaultPageBuilder(
-                  context,
-                  state,
-                  const OtpPage(),
-                ),
-              ),
               GoRoute(
                 path: 'forget_password',
                 pageBuilder: (context, state) => defaultPageBuilder(
@@ -100,7 +111,7 @@ abstract class AppRoutes {
             path: '/home',
             redirect: isPlanPurchasedRedirect,
             pageBuilder: (context, state) =>
-                defaultPageBuilder(context, state, ClaimsPage()),
+                defaultPageBuilder(context, state, HomePage()),
             routes: [
               ShellRoute(
                 pageBuilder: defaultPageBuilder,

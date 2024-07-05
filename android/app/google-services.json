@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "830840011069",
+    "project_id": "opd-sure",
+    "storage_bucket": "opd-sure.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:830840011069:android:15cc55ee43d7166716ed54",
+        "android_client_info": {
+          "package_name": "io.app.opdsure"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPIOVSB8qv4BQmY3UzavwwFsK2js3Cepk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

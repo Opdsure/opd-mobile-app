@@ -113,7 +113,6 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
 
   OpdClient getLoginClient() {
     if (widget.clients.isNotEmpty && !client.isLogged) {
-      _registerSub(client.clientName);
       return client;
     }
     final candidate = _loginClientCandidate ??= ClientManager.createClient(
@@ -155,7 +154,6 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
           c.onLoginStateChanged.stream.listen((state) {
         final loggedInWithMultipleClients = widget.clients.length > 1;
         if (state == LoginState.loggedOut) {
-          _clearSub(name);
           isSelectPlans = false;
         }
         if (loggedInWithMultipleClients && state != LoginState.loggedIn) {

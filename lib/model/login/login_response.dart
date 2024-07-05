@@ -1,6 +1,6 @@
 class LoginResponse {
   LoginResponse({
-      Data? data, 
+      LoginData? data,
       bool? success, 
       String? message,}){
     _data = data;
@@ -9,15 +9,15 @@ class LoginResponse {
 }
 
   LoginResponse.fromJson(dynamic json) {
-    _data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    _data = json['data'] != null ? LoginData.fromJson(json['data']) : null;
     _success = json['success'];
     _message = json['message'];
   }
-  Data? _data;
+  LoginData? _data;
   bool? _success;
   String? _message;
 
-  Data? get data => _data;
+  LoginData? get data => _data;
   bool? get success => _success;
   String? get message => _message;
 
@@ -33,13 +33,13 @@ class LoginResponse {
 
 }
 
-class Data {
-  Data({
+class LoginData {
+  LoginData({
       String? token,}){
     _token = token;
 }
 
-  Data.fromJson(dynamic json) {
+  LoginData.fromJson(dynamic json) {
     _token = json['token'];
   }
   String? _token;

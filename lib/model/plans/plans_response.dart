@@ -4,7 +4,7 @@ part 'plans_response.g.dart';
 @HiveType(typeId: 2)
 class PlansResponse {
   PlansResponse({
-      Data? data, 
+      PlansData? data,
       bool? success, 
       String? message,}){
     _data = data;
@@ -13,18 +13,18 @@ class PlansResponse {
 }
 
   PlansResponse.fromJson(dynamic json) {
-    _data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    _data = json['data'] != null ? PlansData.fromJson(json['data']) : null;
     _success = json['success'];
     _message = json['message'];
   }
   @HiveField(0)
-  Data? _data;
+  PlansData? _data;
   @HiveField(1)
   bool? _success;
   @HiveField(2)
   String? _message;
 
-  Data? get data => _data;
+  PlansData? get data => _data;
   bool? get success => _success;
   String? get message => _message;
 
@@ -41,15 +41,15 @@ class PlansResponse {
 }
 
 @HiveType(typeId: 3)
-class Data {
-  Data({
+class PlansData {
+  PlansData({
       List<Records>? records, 
       Pagination? pagination,}){
     _records = records;
     _pagination = pagination;
 }
 
-  Data.fromJson(dynamic json) {
+  PlansData.fromJson(dynamic json) {
     if (json['records'] != null) {
       _records = [];
       json['records'].forEach((v) {

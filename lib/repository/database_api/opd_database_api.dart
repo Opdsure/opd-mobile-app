@@ -1,6 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:opdsure/model/client/client_box.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
+import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/repository/database_api/database_api.dart';
 
@@ -9,10 +10,12 @@ class OpdDatabaseApi extends DatabaseApi {
   final String name;
   late Box<ClientBox> _clientBox;
   late Box<PlansResponse> _planBox;
+  late Box<UserProfile> _userProfileBox;
 
   OpdDatabaseApi(this.name);
 
   static const planBoxName = 'plan_box_name';
+  static const userProfileBoxName = 'user_profile_box_name';
 
   @override
   Future<ClientBox?> getClient(String name) async {
@@ -78,11 +81,14 @@ class OpdDatabaseApi extends DatabaseApi {
   Future<void> open() async {
     Hive.registerAdapter(ClientBoxAdapter());
     Hive.registerAdapter(PlansResponseAdapter());
-    Hive.registerAdapter(DataAdapter());
+    Hive.registerAdapter(PlansDataAdapter());
     Hive.registerAdapter(RecordsAdapter());
     Hive.registerAdapter(PaginationAdapter());
+    Hive.registerAdapter(UserProfileAdapter());
+    Hive.registerAdapter(ProfileDataAdapter());
     _clientBox = await Hive.openBox(name);
     _planBox = await Hive.openBox(planBoxName);
+    _userProfileBox = await Hive.openBox(userProfileBoxName);
   }
 
   @override
@@ -118,5 +124,34 @@ class OpdDatabaseApi extends DatabaseApi {
   @override
   Future deleteClient() async {
     await _clientBox.delete(name);
+  }
+
+  @override
+  Future<UserProfile?> getUserProfile() async {
+    return _userProfileBox.get(userProfileBoxName, defaultValue: null);
+  }
+
+  @override
+  Future deletePlans({PlansResponse? plans}) async{
+    await _planBox.delete(planBoxName);
+  }
+
+  @override
+  Future deleteUserProfile() async {
+    await _userProfileBox.delete(userProfileBoxName);
+  }
+
+  @override
+  Future insertUserProfile({UserProfile? userProfile}) async {
+    if(userProfile != null) {
+      await _userProfileBox.put(userProfileBoxName, userProfile);
+    }
+  }
+
+  @override
+  Future updateUserProfile({UserProfile? userProfile}) async {
+    if(userProfile != null) {
+      await _userProfileBox.put(userProfileBoxName, userProfile);
+    }
   }
 }
