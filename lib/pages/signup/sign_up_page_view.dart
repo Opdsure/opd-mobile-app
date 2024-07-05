@@ -11,6 +11,7 @@ import 'package:opdsure/custom_ui/app_edit_text.dart';
 import 'package:opdsure/custom_ui/app_mobile_field.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
+import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../custom_ui/app_border_box.dart';
 import '../../get_controllers/type_controller.dart';
@@ -219,8 +220,8 @@ class SignUpView extends StatelessWidget {
               ),
               borderColor: const Color(0xFFD0D5DD),
               boxColor: const Color(0x1A101828),
-              mCallback: (){
-                controller.signInWithGoogle(context: context);
+              mCallback: () async {
+                final user = await OpdSure.of(context).client.signInWithGoogle();
               },
             ),
             const SizedBox(

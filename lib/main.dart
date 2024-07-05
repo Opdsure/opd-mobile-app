@@ -5,9 +5,9 @@ import 'package:opdsure/repository/client/client_manager.dart';
 import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_sure_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_core/firebase_core.dart';
 
-import 'firebase_options.dart';
+import 'utils/firebase_options.dart';
+
 
 void main() async  {
   WidgetsFlutterBinding.ensureInitialized();

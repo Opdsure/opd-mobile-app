@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/repository/client/client_manager.dart';
 import 'package:opdsure/utils/app_keys/app_key.dart';
@@ -34,6 +35,10 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
   int _activeClient = -1;
   String? activeBundle;
 
+  SharedPreferences get store => widget.store;
+
+  ProfileData? get profileData => client.profileData;
+
   List<OpdClient?>? get currentBundle {
     if (!hasComplexBundles) {
       return List.from(widget.clients);
@@ -45,6 +50,7 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
     return bundles.values.first;
   }
 
+  bool isWithEmail = false;
 
 
   Map<String?, List<OpdClient?>> get accountBundles {
@@ -78,7 +84,7 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
   }
 
   bool get hasComplexBundles => accountBundles.values.any((v) => v.length > 1);
-  SharedPreferences get store => widget.store;
+
 
   bool isSelectPlans = false;
 
@@ -161,7 +167,16 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
           widget.clients.remove(c);
           ClientManager.removeClientNameFromStore(c.clientName, store);
         } else {
-          OpdSureApp.router.go(state == LoginState.loggedIn ? "/home" : '/signup/login');
+          if(state == LoginState.loggedIn){
+            if(profileData!.phone == null){
+              OpdSureApp.router.go("/home/name_email_number");
+            }else{
+              OpdSureApp.router.go("/home");
+            }
+          }else{
+            OpdSureApp.router.go('/signup/login');
+          }
+
         }
       });
     }

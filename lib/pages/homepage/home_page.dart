@@ -44,7 +44,7 @@ class HomePage extends StatelessWidget{
                               )
                           ),
                           TextSpan(
-                              text: 'Rakesh',
+                              text: OpdSure.of(context).profileData!.name!,
                               style: GoogleFonts.montserrat(
                                   fontSize: 22.0,
                                   fontWeight: FontWeight.w600,

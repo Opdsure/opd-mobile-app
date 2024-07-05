@@ -30,45 +30,52 @@ class Api {
 
   Future<RegisterResponse> register({
     String? emailAddress,
-    String? password,
-    String? confirmPassword,
+    required String? password,
+    required String? confirmPassword,
     String? countryCode,
     String? phone,
-    String? name,
-    bool? termAndCondition,
+    required int? loginType,
+    required bool? termAndCondition,
   }) async {
     final requestUri = Uri(path: 'api/v1/user/signup');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.bodyBytes = utf8.encode(jsonEncode({
-      if(emailAddress != null) 'email' : emailAddress,
-      if(password != null) 'password' : password,
-      if(confirmPassword != null) 'confirm_password' : confirmPassword,
-      if(countryCode != null) 'country_code' : countryCode,
-      if(phone != null) 'phone' : phone,
-      if(name != null) 'name' : name,
-      if(termAndCondition != null) 'terms_and_condition' : termAndCondition
+      if (loginType != null) 'key_type': loginType,
+      if (emailAddress != null) 'email': emailAddress,
+      if (password != null) 'password': password,
+      if (confirmPassword != null) 'confirm_password': confirmPassword,
+      if (countryCode != null) 'country_code': countryCode,
+      if (phone != null) 'phone': phone,
+      if (termAndCondition != null) 'terms_and_condition': termAndCondition
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
-    if(response.statusCode != 200) unexpectedResponse(response, responseBody);
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return RegisterResponse.fromJson(json);
   }
 
-  Future<LoginResponse> login({String? emailAddress, String? password, String? phone}) async {
+  Future<LoginResponse> login(
+      {String? emailAddress,
+      String? password,
+      String? phone,
+      String? countryCode,
+      int? loginType}) async {
     final requestUri = Uri(path: 'api/v1/user/login');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.bodyBytes = utf8.encode(jsonEncode({
-      if(emailAddress != null) 'email' : emailAddress,
-      if(password != null) 'password' : password,
-   //   if(phone != null) 'phone' : phone
+      if (emailAddress != null) 'email': emailAddress,
+      if (password != null) 'password': password,
+      if (phone != null) 'phone': phone,
+      if (loginType != null) 'key_type': loginType,
+      if (countryCode != null) 'country_code': countryCode
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
-    if(response.statusCode != 200) unexpectedResponse(response, responseBody);
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return LoginResponse.fromJson(json);
@@ -79,11 +86,11 @@ class Api {
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.bodyBytes = utf8.encode(jsonEncode({
-      if(email != null) 'email' : email,
+      if (email != null) 'email': email,
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
-    if(response.statusCode != 200) unexpectedResponse(response, responseBody);
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return ForgetPasswordResponse.fromJson(json);
@@ -96,12 +103,11 @@ class Api {
     request.headers['Authorization'] = 'Bearer $bearerToken';
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
-    if(response.statusCode != 200) unexpectedResponse(response, responseBody);
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return LoginResponse.fromJson(json);
   }
-
 
   Future<UserProfile> getProfile() async {
     final requestUri = Uri(path: 'api/v1/user/get-profile');
@@ -110,7 +116,7 @@ class Api {
     request.headers['Authorization'] = 'Bearer $bearerToken';
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
-    if(response.statusCode != 200) unexpectedResponse(response, responseBody);
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return UserProfile.fromJson(json);
@@ -122,9 +128,27 @@ class Api {
     request.headers['content-type'] = 'application/json';
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
-    if(response.statusCode != 200) unexpectedResponse(response, responseBody);
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return PlansResponse.fromJson(json);
+  }
+
+  Future updateUserProfile({String? name, String? email, String? phone,}) async {
+    final requestUri = Uri(path: 'api/v1/user/update-profile');
+    final request = Request('PUT', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8.encode(jsonEncode({
+      if (email != null) 'email': email,
+      if (phone != null) 'phone': phone,
+      if (name != null) 'name': name
+    }));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return UserProfile.fromJson(json);
   }
 }

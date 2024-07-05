@@ -24,7 +24,6 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TypeController typeController = Get.put(TypeController());
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
@@ -66,7 +65,7 @@ class LoginView extends StatelessWidget {
             ),
             const Center(
               child: AppTextView(
-                text: 'Please enter your details.',
+                text: 'Please enter your login details.',
                 color: Color(0xff475467),
                 size: 16.0,
               ),
@@ -74,16 +73,14 @@ class LoginView extends StatelessWidget {
             const SizedBox(
               height: 24.0,
             ),
-            Obx(() {
-              if (typeController.loginBy.value == 'phone') {
-                return AppEditText(
+
+            controller.isWithEmail ? AppEditText(
                   hint: 'Enter your email address',
                   size: 14.0,
                   textInputType: TextInputType.emailAddress,
                   textEditingController: controller.emailTextController,
-                );
-              } else {
-                return AppMobileField(
+                ) :
+             AppMobileField(
                   hint: 'Enter your mobile number',
                   countryCode: '+91',
                   textEditingController: controller.phoneTextController,
@@ -98,25 +95,20 @@ class LoginView extends StatelessWidget {
                     // Null check
                     if (picked != null) print(picked);
                   },
-                );
-              }
-            }),
+                ),
             const SizedBox(
               height: 16.0,
             ),
-            Obx(() {
-              return AppEditText(
-                hint: 'Enter password',
-                size: 14.0,
-                isPasswordField: true,
-                isViewPassword: typeController.signPass.value,
-                textEditingController: controller.passwordTextController,
-                errorText: controller.passwordError,
-                eyeCallback: () {
-                  typeController.signPassChange(!typeController.signPass.value);
-                },
-              );
-            }),
+        AppEditText(
+          hint: 'Enter password',
+          size: 14.0,
+          isPasswordField: true,
+          isViewPassword: controller.isPasswordObscure,
+          textEditingController: controller.passwordTextController,
+          viewSuffix: true,
+          errorText: controller.passwordError,
+          eyeCallback: controller.togglePassword,
+        ),
             const SizedBox(
               height: 5.0,
             ),
@@ -195,14 +187,13 @@ class LoginView extends StatelessWidget {
             const SizedBox(
               height: 12.0,
             ),
-            Obx(() {
-              return AppBorderBox(
+            AppBorderBox(
                 myChild: Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Image.asset(
-                        typeController.loginBy.value == 'phone'
+                        !controller.isWithEmail
                             ? 'assets/images/phone_img.png'
                             : 'assets/images/mail_icon.png',
                         height: 24.0,
@@ -212,7 +203,7 @@ class LoginView extends StatelessWidget {
                         width: 10.0,
                       ),
                       AppTextView(
-                        text: typeController.loginBy.value == 'phone'
+                        text: !controller.isWithEmail
                             ? 'Continue with Phone'
                             : 'Continue with Email',
                         size: 16.0,
@@ -224,14 +215,8 @@ class LoginView extends StatelessWidget {
                 ),
                 borderColor: const Color(0xFFD0D5DD),
                 boxColor: const Color(0x1A101828),
-                mCallback: () {
-                  String pageKey = typeController.loginBy.value == 'phone'
-                      ? 'email'
-                      : 'phone';
-                  typeController.loginByChange(pageKey);
-                },
-              );
-            }),
+                mCallback: controller.toggleEmailOrPhone
+              ),
             const SizedBox(
               height: 24.0,
             ),

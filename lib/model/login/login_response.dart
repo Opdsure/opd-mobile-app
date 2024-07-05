@@ -35,20 +35,26 @@ class LoginResponse {
 
 class LoginData {
   LoginData({
-      String? token,}){
+      String? token,
+    String? userId,}){
     _token = token;
+    _userId = userId;
 }
 
   LoginData.fromJson(dynamic json) {
     _token = json['token'];
+    _userId = json['user_id'];
   }
   String? _token;
+  String? _userId;
 
   String? get token => _token;
+  String? get userId => _userId;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['token'] = _token;
+    map['user_id'] = _userId;
     return map;
   }
 

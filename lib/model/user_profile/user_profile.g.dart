@@ -59,7 +59,7 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       .._id = fields[0] as String?
       .._name = fields[1] as String?
       .._email = fields[2] as String?
-      .._phone = fields[3] as int?
+      .._phone = fields[3] as String?
       .._countryCode = fields[4] as String?;
   }
 

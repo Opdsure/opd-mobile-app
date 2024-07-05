@@ -26,6 +26,7 @@ class UserProfile {
   @HiveField(2)
   String? _message;
 
+
   ProfileData? get data => _data;
   bool? get success => _success;
   String? get message => _message;
@@ -39,7 +40,6 @@ class UserProfile {
     map['message'] = _message;
     return map;
   }
-
 }
 
 @HiveType(typeId: 7)
@@ -48,7 +48,7 @@ class ProfileData {
       String? id, 
       String? name, 
       String? email, 
-      int? phone, 
+      String? phone,
       String? countryCode,}){
     _id = id;
     _name = name;
@@ -61,6 +61,15 @@ class ProfileData {
     _id = json['_id'];
     _name = json['name'];
     _email = json['email'];
+    if(json['phone'] != null){
+      if(json['phone'].runtimeType is String){
+        _phone = json['phone'];
+      }else{
+        _phone = json['phone'].toString();
+      }
+    }else{
+      _phone = json['phone'];
+    }
     _phone = json['phone'];
     _countryCode = json['country_code'];
   }
@@ -71,15 +80,15 @@ class ProfileData {
   @HiveField(2)
   String? _email;
   @HiveField(3)
-  int? _phone;
+  String? _phone;
   @HiveField(4)
   String? _countryCode;
 
-  String? get id => _id;
-  String? get name => _name;
-  String? get email => _email;
-  int? get phone => _phone;
-  String? get countryCode => _countryCode;
+  String? get id => _id ?? "";
+  String? get name => _name ?? "";
+  String? get email => _email ?? "";
+  String? get phone => null; //_phone ?? 0;
+  String? get countryCode => _countryCode ?? "";
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -91,4 +100,23 @@ class ProfileData {
     return map;
   }
 
+  set id(String? value) {
+    _id = value;
+  }
+
+  set name(String? value) {
+    _name = value;
+  }
+
+  set email(String? value) {
+    _email = value;
+  }
+
+  set phone(String? value) {
+    _phone = value;
+  }
+
+  set countryCode(String? value) {
+    _countryCode = value;
+  }
 }

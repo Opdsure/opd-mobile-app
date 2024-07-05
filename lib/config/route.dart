@@ -9,6 +9,7 @@ import 'package:opdsure/pages/complaints_page.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
 import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
+import 'package:opdsure/pages/name_email_number/name_email_number_controller.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
@@ -40,7 +41,30 @@ abstract class AppRoutes {
               : OpdSure.of(context).isSelectPlans
                   ? '/home/view_plans/select_plans'
                   : '/home/view_plans'
-          : 'signup';
+          : '/signup';
+
+  static FutureOr<String?> getRedirectNameForHome(
+      BuildContext context, GoRouterState state) {
+    final opd = OpdSure.of(context);
+    if (opd.client.isLogged) {
+      if (opd.profileData!.phone == null || opd.profileData!.email == null) {
+        opd.isWithEmail =
+            opd.profileData!.email == null && opd.profileData!.email!.isEmpty;
+        return '/home/name_email_number';
+      }
+      if (opd.client.isPlanPurchased) {
+        return null;
+      } else {
+        if (opd.isSelectPlans) {
+          return '/home/view_plans/select_plans';
+        } else {
+          return '/home/view_plans';
+        }
+      }
+    } else {
+      return '/signup';
+    }
+  }
 
   AppRoutes();
 
@@ -75,17 +99,15 @@ abstract class AppRoutes {
                   context,
                   state,
                   OtpPage(
-                    password: otpMap['password'],
-                    email: otpMap['email'],
-                    otp: otpMap['otp'],
-                    phone: otpMap['phone'],
-                    confirmPassword: otpMap['confirmPassword'],
-                    countryCode: otpMap['countryCode'],
-                    name: otpMap['name'],
-                    termAndCondition: otpMap['termAndCondition'],
-                  ),
-                );}
-          ),
+                      password: otpMap['password'],
+                      email: otpMap['email'],
+                      confirmPassword: otpMap['confirmPassword'],
+                      phone: otpMap['phone'],
+                      termCondition: otpMap['termCondition'],
+                      isWithEmail: otpMap['isWithEmail'],
+                      countryCode: otpMap['countryCode']),
+                );
+              }),
           GoRoute(
             path: 'login',
             pageBuilder: (context, state) => defaultPageBuilder(
@@ -110,10 +132,23 @@ abstract class AppRoutes {
       routes: [
         GoRoute(
             path: '/home',
-            redirect: isPlanPurchasedRedirect,
+            redirect: getRedirectNameForHome,
             pageBuilder: (context, state) =>
                 defaultPageBuilder(context, state, HomePage()),
             routes: [
+              ShellRoute(
+                pageBuilder: defaultPageBuilder,
+                routes: [
+                  GoRoute(
+                    path: "name_email_number",
+                    pageBuilder: (context, state) => defaultPageBuilder(
+                      context,
+                      state,
+                      const NameEmailNumber(),
+                    ),
+                  ),
+                ],
+              ),
               ShellRoute(
                 pageBuilder: defaultPageBuilder,
                 routes: [
@@ -126,19 +161,18 @@ abstract class AppRoutes {
                     ),
                     routes: [
                       GoRoute(
-                        path: 'select_plans',
-                        pageBuilder: (context, state){
-                          PlansResponse? plans;
-                          if(state.extra != null){
-                            plans = state.extra as PlansResponse;
-                          }
-                          return defaultPageBuilder(
-                          context,
-                          state,
-                          PlansPage(plans: plans),
-                        );
-                        }
-                      ),
+                          path: 'select_plans',
+                          pageBuilder: (context, state) {
+                            PlansResponse? plans;
+                            if (state.extra != null) {
+                              plans = state.extra as PlansResponse;
+                            }
+                            return defaultPageBuilder(
+                              context,
+                              state,
+                              PlansPage(plans: plans),
+                            );
+                          }),
                     ],
                   ),
                 ],

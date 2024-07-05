@@ -8,55 +8,60 @@ class OtpPage extends StatefulWidget {
   String? phone;
   String? email;
   String? password;
-  String? otp;
   String? confirmPassword;
-  String? name;
-  bool? termAndCondition;
   String? countryCode;
-  OtpPage({this.countryCode, this.name, this.termAndCondition, this.phone, this.email, this.password, this.confirmPassword, this.otp, super.key});
+  bool? termCondition;
+  bool? isWithEmail;
+
+  OtpPage(
+      {this.password,
+      this.confirmPassword,
+      this.termCondition,
+      this.countryCode,
+      this.phone,
+      this.email,
+      this.isWithEmail,
+      super.key});
 
   @override
   State<OtpPage> createState() => OtpPageController();
 }
 
 class OtpPageController extends State<OtpPage> {
-
   bool loading = false;
 
   String? phone;
   String? email;
   String? password;
   String? confirmPassword;
-  String? name;
-  bool? termAndCondition;
-  String? otp;
   String? countryCode;
-
+  bool? termCondition;
+  bool? isWithEmail;
 
   @override
   void initState() {
     super.initState();
     phone = widget.phone;
     email = widget.email;
-    otp = widget.otp;
     password = widget.password;
     confirmPassword = widget.confirmPassword;
-    name =widget.name;
-    termAndCondition = widget.termAndCondition;
+    termCondition = widget.termCondition;
     countryCode = widget.countryCode;
+    isWithEmail = widget.isWithEmail ?? false;
   }
-  void otpVerify(String? otp) async {
-    final opdSure = OpdSure.of(context);
-    if(this.otp == otp) {
+
+  void otpVerify(String otp) async {
+    final user = await OpdSure.of(context).client.signInWithOTP(otp);
+    if(user != null) {
       try {
-        await opdSure.getLoginClient().register(
-            emailAddress: email,
-            password: password,
-            confirmPassword: confirmPassword,
-            phone: phone,
+        await OpdSure.of(context).getLoginClient().register(
+          emailAddress: email,
+          password: password,
+          confirmPassword: confirmPassword,
+          phone: phone,
           countryCode: countryCode,
-          name: name,
-          termAndCondition: termAndCondition
+          termAndCondition: termCondition,
+          loginType: isWithEmail! ? 0 : 1,
         );
       } catch (e) {
         return setState(() => loading = false);
@@ -76,10 +81,9 @@ class OtpPageController extends State<OtpPage> {
           }
       );
     }
-    if(mounted) setState(() => loading = false);
-    }
+    if (mounted) setState(() => loading = false);
+  }
 
   @override
   Widget build(BuildContext context) => OtpPageView(this);
 }
-

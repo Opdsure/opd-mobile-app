@@ -4,6 +4,7 @@ import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/repository/database_api/database_api.dart';
+import 'package:opdsure/utils/app_keys/database_box_key.dart';
 
 class OpdDatabaseApi extends DatabaseApi {
   static const int version = 1;
@@ -14,8 +15,6 @@ class OpdDatabaseApi extends DatabaseApi {
 
   OpdDatabaseApi(this.name);
 
-  static const planBoxName = 'plan_box_name';
-  static const userProfileBoxName = 'user_profile_box_name';
 
   @override
   Future<ClientBox?> getClient(String name) async {
@@ -87,19 +86,19 @@ class OpdDatabaseApi extends DatabaseApi {
     Hive.registerAdapter(UserProfileAdapter());
     Hive.registerAdapter(ProfileDataAdapter());
     _clientBox = await Hive.openBox(name);
-    _planBox = await Hive.openBox(planBoxName);
-    _userProfileBox = await Hive.openBox(userProfileBoxName);
+    _planBox = await Hive.openBox(DatabaseBoxKey.planBoxName);
+    _userProfileBox = await Hive.openBox(DatabaseBoxKey.userProfileBoxName);
   }
 
   @override
   Future<PlansResponse?> getPlans() async {
-    return _planBox.get(planBoxName, defaultValue: null);
+    return _planBox.get(DatabaseBoxKey.planBoxName, defaultValue: null);
   }
 
   @override
   Future<int?> insertPlans({PlansResponse? plans}) async {
     if (plans != null) {
-      await _planBox.put(planBoxName, plans);
+      await _planBox.put(DatabaseBoxKey.planBoxName, plans);
       return 0;
     }
     return 1;
@@ -108,7 +107,7 @@ class OpdDatabaseApi extends DatabaseApi {
   @override
   Future updatePlans({PlansResponse? plans}) async {
     if (plans != null) {
-      await _planBox.put(planBoxName, plans);
+      await _planBox.put(DatabaseBoxKey.planBoxName, plans);
     }
   }
 
@@ -128,30 +127,30 @@ class OpdDatabaseApi extends DatabaseApi {
 
   @override
   Future<UserProfile?> getUserProfile() async {
-    return _userProfileBox.get(userProfileBoxName, defaultValue: null);
+    return _userProfileBox.get(DatabaseBoxKey.userProfileBoxName, defaultValue: null);
   }
 
   @override
   Future deletePlans({PlansResponse? plans}) async{
-    await _planBox.delete(planBoxName);
+    await _planBox.delete(DatabaseBoxKey.planBoxName);
   }
 
   @override
   Future deleteUserProfile() async {
-    await _userProfileBox.delete(userProfileBoxName);
+    await _userProfileBox.delete(DatabaseBoxKey.userProfileBoxName);
   }
 
   @override
   Future insertUserProfile({UserProfile? userProfile}) async {
     if(userProfile != null) {
-      await _userProfileBox.put(userProfileBoxName, userProfile);
+      await _userProfileBox.put(DatabaseBoxKey.userProfileBoxName, userProfile);
     }
   }
 
   @override
   Future updateUserProfile({UserProfile? userProfile}) async {
     if(userProfile != null) {
-      await _userProfileBox.put(userProfileBoxName, userProfile);
+      await _userProfileBox.put(DatabaseBoxKey.userProfileBoxName, userProfile);
     }
   }
 }

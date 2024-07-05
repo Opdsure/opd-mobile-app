@@ -69,11 +69,14 @@ class OtpPageView extends StatelessWidget{
             const SizedBox(height: 24.0,),
 
             OtpTextField(
-              numberOfFields: 4,
+              numberOfFields: 6,
               showFieldAsBox: true,
-              fieldWidth: 60.0,
+              fieldWidth: 50.0,
               fieldHeight: 60.0,
+              showCursor: false,
               styles: [
+                createStyle(),
+                createStyle(),
                 createStyle(),
                 createStyle(),
                 createStyle(),
@@ -87,7 +90,7 @@ class OtpPageView extends StatelessWidget{
               },
               //runs when every textfield is filled
               onSubmit: (String verificationCode){
-                if(verificationCode.length == 4){
+                if(verificationCode.length == 6){
                   controller.otpVerify(verificationCode);
                 }
               }, // end onSubmit

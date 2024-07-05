@@ -1,11 +1,10 @@
+import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/pages/login/login_page/login_page_view.dart';
 import 'package:opdsure/utils/opd_extension/string_extension.dart';
 
-import '../../../get_controllers/type_controller.dart';
 import '../../../widget/opd_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -26,10 +25,15 @@ class LoginPageController extends State<LoginPage> {
   String? emailError;
   String? passwordError;
   String? phoneError;
+  bool isWithEmail = false;
+
+  String countryCode = '+91';
 
   bool loading = false;
+  bool isPasswordObscure = true;
+  final countryPicker = const FlCountryCodePicker();
   late TapGestureRecognizer signupRecognizer;
-
+  String flagUri = 'packages/fl_country_code_picker/assets/flags/in.png';
   @override
   void initState() {
     super.initState();
@@ -38,7 +42,12 @@ class LoginPageController extends State<LoginPage> {
         _signUp();
       };
   }
-
+  void togglePassword() {
+    setState(() => isPasswordObscure = !isPasswordObscure);
+  }
+  void toggleEmailOrPhone() {
+    setState(() => isWithEmail = !isWithEmail);
+  }
   _signUp() {
     context.go('/signup');
   }
@@ -47,38 +56,57 @@ class LoginPageController extends State<LoginPage> {
     context.push('/signup/login/forget_password');
   }
 
-
+  getCountryCode() async {
+    final picked = await countryPicker.showPicker(context: context);
+    if (picked != null) {
+      flagUri =
+      'packages/fl_country_code_picker/assets/flags/${picked.code.toLowerCase()}.png';
+      countryCode = picked.dialCode;
+      setState(() {});
+    }
+  }
 
   void login() async {
     final opdSure = OpdSure.of(context);
-    if (Get.put(TypeController()).loginBy.value == 'phone') {
+    if (!isWithEmail) {
       if (phoneTextController.text.isEmpty) {
         setState(() => phoneError = 'Enter a valid phone no');
+        return;
       } else {
         if (!phoneTextController.text.isValidPhoneNumber) {
           setState(() => phoneError = 'Enter a valid phone no');
+          return;
         }
       }
     } else {
       if (emailTextController.text.isEmpty) {
         setState(() => emailError = 'Enter a valid email address');
+        return;
       } else {
         if (!emailTextController.text.isValidEmail) {
           setState(() => emailError = 'Enter a valid email address');
+          return;
         }
       }
     }
     if (passwordTextController.text.isEmpty) {
-      setState(() => phoneError = 'Enter a valid password');
+      setState(() => passwordError = 'Enter a valid password');
+    }else{
+      if(!passwordTextController.text.isValidPassword){
+        setState(() => passwordError = 'Enter a valid password');
+        return;
+      }
     }
 
     setState(() => loading = true);
 
     try {
       await opdSure.getLoginClient().login(
+        loginType: isWithEmail ? 0 : 1,
+        countryCode: isWithEmail ? null : countryCode,
         emailAddress: emailTextController.text,
         password: passwordTextController.text,
-        phone: phoneTextController.text);
+        phone: isWithEmail ? null : phoneTextController.text);
     } catch (e) {
       setState(() => passwordError = e.toString());
       return setState(() => loading = false);
