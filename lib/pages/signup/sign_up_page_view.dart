@@ -219,6 +219,9 @@ class SignUpView extends StatelessWidget {
               ),
               borderColor: const Color(0xFFD0D5DD),
               boxColor: const Color(0x1A101828),
+              mCallback: (){
+                controller.signInWithGoogle(context: context);
+              },
             ),
             const SizedBox(
               height: 12.0,

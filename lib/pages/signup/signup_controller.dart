@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:opdsure/pages/signup/name_email_number_view.dart';
 import 'package:opdsure/pages/signup/sign_up_page_view.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
@@ -22,15 +25,15 @@ class SignUpController extends State<SignUpPage> {
   late TapGestureRecognizer loginRecognizer;
   TextEditingController emailTextController = TextEditingController();
   TextEditingController passwordTextController =
-      TextEditingController(text: 'Intileo@123');
+  TextEditingController(text: 'Intileo@123');
   TextEditingController confirmPasswordTextController =
-      TextEditingController(text: 'Intileo@123');
+  TextEditingController(text: 'Intileo@123');
   TextEditingController firstNameTextController = TextEditingController();
   TextEditingController middleNameTextController = TextEditingController();
   TextEditingController lastNameControllerTextController =
-      TextEditingController();
+  TextEditingController();
   TextEditingController phoneTextController =
-      TextEditingController(text: '8510819003');
+  TextEditingController(text: '8510819003');
 
   final countryPicker = const FlCountryCodePicker();
   bool isTermAndConditions = false;
@@ -61,6 +64,24 @@ class SignUpController extends State<SignUpPage> {
       ..onTap = () {
         _login();
       };
+  }
+
+  Future<User?> signInWithGoogle({required BuildContext context}) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    try {
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final User? user = userCredential.user;
+      print(user);
+      // Use the user object for further operations or navigate to a new screen.
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   _login() {
@@ -126,9 +147,8 @@ class SignUpController extends State<SignUpPage> {
 
   void register() async {
     // CommonMethods.convertToE164('9354253305', countryCode);
-    String e164Number = CommonMethods.convertToE164('phoneNumber', countryCode);
     OpdClient.getFirebaseOTP('+91 85108 19003', context);
-    final opdSure = OpdSure.of(context);
+    /*final opdSure = OpdSure.of(context);
     if (!isWithEmail) {
       if (phoneTextController.text.isEmpty) {
         setState(() => phoneError = 'Phone no is empty');
@@ -220,14 +240,14 @@ class SignUpController extends State<SignUpPage> {
     //   return setState(() => loading = false);
     // }
 
-    if (mounted) setState(() => loading = false);
+    if (mounted) setState(() => loading = false);*/
   }
 
   getCountryCode() async {
     final picked = await countryPicker.showPicker(context: context);
     if (picked != null) {
       flagUri =
-          'packages/fl_country_code_picker/assets/flags/${picked.code.toLowerCase()}.png';
+      'packages/fl_country_code_picker/assets/flags/${picked.code.toLowerCase()}.png';
       countryCode = picked.dialCode;
       setState(() {});
     }
