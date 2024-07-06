@@ -70,7 +70,6 @@ class ProfileData {
     }else{
       _phone = json['phone'];
     }
-    _phone = json['phone'];
     _countryCode = json['country_code'];
   }
   @HiveField(0)

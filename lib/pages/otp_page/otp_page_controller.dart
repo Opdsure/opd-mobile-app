@@ -36,7 +36,7 @@ class OtpPageController extends State<OtpPage> {
   String? confirmPassword;
   String? countryCode;
   bool? termCondition;
-  bool? isWithEmail;
+  bool isWithEmail = false;
 
   @override
   void initState() {
@@ -55,13 +55,13 @@ class OtpPageController extends State<OtpPage> {
     if(user != null) {
       try {
         await OpdSure.of(context).getLoginClient().register(
-          emailAddress: email,
+          emailAddress: isWithEmail ? email : null,
           password: password,
           confirmPassword: confirmPassword,
-          phone: phone,
-          countryCode: countryCode,
+          phone: isWithEmail ? null : phone,
+          countryCode: isWithEmail ? null : countryCode,
           termAndCondition: termCondition,
-          loginType: isWithEmail! ? 0 : 1,
+          loginType: isWithEmail ? 0 : 1,
         );
       } catch (e) {
         return setState(() => loading = false);

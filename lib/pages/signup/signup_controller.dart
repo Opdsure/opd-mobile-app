@@ -64,6 +64,23 @@ class SignUpController extends State<SignUpPage> {
       };
   }
 
+  Future<User?> signInWithGoogle({required BuildContext context}) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    try {
+      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      final User? user = userCredential.user;
+      print(user);
+      // Use the user object for further operations or navigate to a new screen.
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   _login() {
     context.push(
@@ -170,11 +187,11 @@ class SignUpController extends State<SignUpPage> {
     }else{
       try {
         await opdSure.getLoginClient().register(
-          emailAddress: emailTextController.text,
+          emailAddress: isWithEmail ? emailTextController.text : null,
           password: passwordTextController.text,
           confirmPassword: confirmPasswordTextController.text,
-          phone: phoneTextController.text,
-          countryCode: countryCode,
+          phone: isWithEmail ? null : phoneTextController.text,
+          countryCode: isWithEmail ? null : countryCode,
           termAndCondition: isTermAndConditions,
           loginType: isWithEmail ? 0: 1,
         );

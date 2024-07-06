@@ -233,7 +233,7 @@ class SignUpView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image.asset(
-                      controller.isWithEmail
+                      !controller.isWithEmail
                           ? 'assets/images/phone_img.png'
                           : 'assets/images/mail_icon.png',
                       height: 24.0,
@@ -243,7 +243,7 @@ class SignUpView extends StatelessWidget {
                       width: 10.0,
                     ),
                     AppTextView(
-                      text: controller.isWithEmail
+                      text: !controller.isWithEmail
                           ? 'Continue with Phone'
                           : 'Continue with Email',
                       size: 16.0,
