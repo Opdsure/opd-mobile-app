@@ -1,9 +1,10 @@
 import 'package:hive/hive.dart';
 import 'package:opdsure/config/app_config.dart';
+import 'package:opdsure/model/database_type_key.dart';
 
 part 'client_box.g.dart';
 
-@HiveType(typeId: 1)
+@HiveType(typeId: DatabaseTypeKey.clientBox)
 class ClientBox {
   ClientBox(
       {String? baseServerUrl,

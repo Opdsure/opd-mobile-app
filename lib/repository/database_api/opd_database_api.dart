@@ -83,6 +83,8 @@ class OpdDatabaseApi extends DatabaseApi {
     Hive.registerAdapter(PlansDataAdapter());
     Hive.registerAdapter(RecordsAdapter());
     Hive.registerAdapter(PaginationAdapter());
+    Hive.registerAdapter(MembershipOptionsAdapter());
+    Hive.registerAdapter(PlanBenefitsAdapter());
     Hive.registerAdapter(UserProfileAdapter());
     Hive.registerAdapter(ProfileDataAdapter());
     _clientBox = await Hive.openBox(name);

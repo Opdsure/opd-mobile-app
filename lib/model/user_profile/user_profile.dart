@@ -1,8 +1,10 @@
 import 'package:hive/hive.dart';
 
+import '../database_type_key.dart';
+
 part 'user_profile.g.dart';
 
-@HiveType(typeId: 6)
+@HiveType(typeId: DatabaseTypeKey.userBox)
 class UserProfile {
   UserProfile({
       ProfileData? data,
@@ -42,7 +44,7 @@ class UserProfile {
   }
 }
 
-@HiveType(typeId: 7)
+@HiveType(typeId: DatabaseTypeKey.userData)
 class ProfileData {
   ProfileData({
       String? id, 
@@ -86,7 +88,7 @@ class ProfileData {
   String? get id => _id ?? "";
   String? get name => _name ?? "";
   String? get email => _email ?? "";
-  String? get phone => null; //_phone ?? 0;
+  String? get phone => _phone ?? "";
   String? get countryCode => _countryCode ?? "";
 
   Map<String, dynamic> toJson() {

@@ -134,7 +134,7 @@ class Api {
     return PlansResponse.fromJson(json);
   }
 
-  Future updateUserProfile({String? name, String? email, String? phone,}) async {
+  Future<UserProfile?> updateUserProfile({String? name, String? email, String? phone,}) async {
     final requestUri = Uri(path: 'api/v1/user/update-profile');
     final request = Request('PUT', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';

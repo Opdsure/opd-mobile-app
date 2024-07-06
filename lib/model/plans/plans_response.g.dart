@@ -96,8 +96,8 @@ class PaginationAdapter extends TypeAdapter<Pagination> {
       .._pageSize = fields[1] as int?
       .._totalPages = fields[2] as int?
       .._currentPage = fields[3] as int?
-      .._nextPage = fields[4] as dynamic
-      .._prevPage = fields[5] as dynamic;
+      .._nextPage = fields[4] as int?
+      .._prevPage = fields[5] as int?;
   }
 
   @override
@@ -142,33 +142,57 @@ class RecordsAdapter extends TypeAdapter<Records> {
     return Records()
       .._id = fields[0] as String?
       .._name = fields[1] as String?
-      .._charges = fields[2] as String?
-      .._frequency = fields[3] as int?
-      .._features = fields[4] as String?
-      .._createdAt = fields[5] as String?
-      .._updatedAt = fields[6] as String?
-      .._v = fields[7] as int?;
+      .._frequency = fields[2] as int?
+      .._subscriberType = fields[3] as int?
+      .._opdMaxDiscount = fields[4] as int?
+      .._opdPrecentDiscount = fields[6] as int?
+      .._labMaxDiscount = fields[7] as int?
+      .._labPrecentDiscount = fields[8] as int?
+      .._pharmacyMaxDiscount = fields[9] as int?
+      .._pharmacyPrecentDiscount = fields[10] as int?
+      .._planBenefits = (fields[11] as List?)?.cast<PlanBenefits>()
+      .._membershipOptions = (fields[12] as List?)?.cast<MembershipOptions>()
+      .._files = (fields[13] as List?)?.cast<String>()
+      .._createdAt = fields[14] as String?
+      .._updatedAt = fields[15] as String?
+      .._v = fields[16] as int?;
   }
 
   @override
   void write(BinaryWriter writer, Records obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj._id)
       ..writeByte(1)
       ..write(obj._name)
       ..writeByte(2)
-      ..write(obj._charges)
-      ..writeByte(3)
       ..write(obj._frequency)
+      ..writeByte(3)
+      ..write(obj._subscriberType)
       ..writeByte(4)
-      ..write(obj._features)
-      ..writeByte(5)
-      ..write(obj._createdAt)
+      ..write(obj._opdMaxDiscount)
       ..writeByte(6)
-      ..write(obj._updatedAt)
+      ..write(obj._opdPrecentDiscount)
       ..writeByte(7)
+      ..write(obj._labMaxDiscount)
+      ..writeByte(8)
+      ..write(obj._labPrecentDiscount)
+      ..writeByte(9)
+      ..write(obj._pharmacyMaxDiscount)
+      ..writeByte(10)
+      ..write(obj._pharmacyPrecentDiscount)
+      ..writeByte(11)
+      ..write(obj._planBenefits)
+      ..writeByte(12)
+      ..write(obj._membershipOptions)
+      ..writeByte(13)
+      ..write(obj._files)
+      ..writeByte(14)
+      ..write(obj._createdAt)
+      ..writeByte(15)
+      ..write(obj._updatedAt)
+      ..writeByte(16)
       ..write(obj._v);
   }
 
@@ -179,6 +203,87 @@ class RecordsAdapter extends TypeAdapter<Records> {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is RecordsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class MembershipOptionsAdapter extends TypeAdapter<MembershipOptions> {
+  @override
+  final int typeId = 6;
+
+  @override
+  MembershipOptions read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return MembershipOptions()
+      .._membershipId = fields[0] as int?
+      .._membershipLabel = fields[1] as String?
+      .._memberCount = fields[2] as int?
+      .._charges = fields[3] as int?
+      .._walletBalance = fields[4] as int?;
+  }
+
+  @override
+  void write(BinaryWriter writer, MembershipOptions obj) {
+    writer
+      ..writeByte(5)
+      ..writeByte(0)
+      ..write(obj._membershipId)
+      ..writeByte(1)
+      ..write(obj._membershipLabel)
+      ..writeByte(2)
+      ..write(obj._memberCount)
+      ..writeByte(3)
+      ..write(obj._charges)
+      ..writeByte(4)
+      ..write(obj._walletBalance);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MembershipOptionsAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class PlanBenefitsAdapter extends TypeAdapter<PlanBenefits> {
+  @override
+  final int typeId = 7;
+
+  @override
+  PlanBenefits read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return PlanBenefits()
+      .._planLabel = fields[0] as String?
+      .._planFeature = fields[1] as String?;
+  }
+
+  @override
+  void write(BinaryWriter writer, PlanBenefits obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj._planLabel)
+      ..writeByte(1)
+      ..write(obj._planFeature);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlanBenefitsAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

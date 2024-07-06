@@ -63,18 +63,17 @@ class OpdClient extends OpdApi {
   int? _resendToken;
 
   final CachedStreamController<LoginState> onLoginStateChanged =
-      CachedStreamController();
+  CachedStreamController();
 
-  OpdClient(
-    this.clientName, {
+  OpdClient(this.clientName, {
     this.databaseBuilder,
     http.Client? httpClient,
     Duration defaultNetworkRequestTimeout = const Duration(seconds: 35),
   }) : super(
-          baseServerUri: Uri.https(AppConfig.defaultBaseUrl),
-          httpClient: FixedTimeoutHttpClient(
-              httpClient ?? http.Client(), defaultNetworkRequestTimeout),
-        );
+    baseServerUri: Uri.https(AppConfig.defaultBaseUrl),
+    httpClient: FixedTimeoutHttpClient(
+        httpClient ?? http.Client(), defaultNetworkRequestTimeout),
+  );
 
   bool get isLogged => accessToken != null;
 
@@ -82,13 +81,12 @@ class OpdClient extends OpdApi {
 
   Map<String, Map<String, String>> get accountData => _accountData;
 
-  Future<void> init(
-      {String? newUserId,
-      String? newAccessToken,
-      bool? newIsPlanPurchased}) async {
+  Future<void> init({String? newUserId,
+    String? newAccessToken,
+    bool? newIsPlanPurchased}) async {
     if ((newUserId != null ||
-            newAccessToken != null ||
-            newIsPlanPurchased != null) &&
+        newAccessToken != null ||
+        newIsPlanPurchased != null) &&
         (newUserId == null ||
             newAccessToken == null ||
             newIsPlanPurchased == null)) {
@@ -114,7 +112,7 @@ class OpdClient extends OpdApi {
       if (databaseBuilder != null) {
         _database ??= await runBenchmarked(
           'Build database',
-          () async => databaseBuilder(this),
+              () async => databaseBuilder(this),
         );
       }
 
@@ -224,12 +222,11 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<LoginResponse> login(
-      {String? emailAddress,
-      String? password,
-      String? phone,
-      String? countryCode,
-      int? loginType}) async {
+  Future<LoginResponse> login({String? emailAddress,
+    String? password,
+    String? phone,
+    String? countryCode,
+    int? loginType}) async {
     if (baseServerUri == null) {
       throw Exception("No baseServerUri set");
     }
@@ -296,7 +293,7 @@ class OpdClient extends OpdApi {
       if (databaseBuilder != null) {
         _database ??= await runBenchmarked(
           'Build database',
-          () async => databaseBuilder(this),
+              () async => databaseBuilder(this),
         );
       }
       final database = this.database;
@@ -322,7 +319,7 @@ class OpdClient extends OpdApi {
       if (databaseBuilder != null) {
         _database ??= await runBenchmarked(
           'Build database',
-          () async => databaseBuilder(this),
+              () async => databaseBuilder(this),
         );
       }
 
@@ -334,8 +331,7 @@ class OpdClient extends OpdApi {
     return userProfile;
   }
 
-  Future getFirebaseOTP(
-    String mobile, {
+  Future getFirebaseOTP(String mobile, {
     required PhoneVerificationCompleted verificationCompleted,
     required PhoneVerificationFailed verificationFailed,
     required PhoneCodeSent codeSent,
@@ -374,7 +370,7 @@ class OpdClient extends OpdApi {
       firebaseUser = await _auth.signInWithCredential(credential);
       _resendToken = null;
       return firebaseUser;
-    }catch(e){
+    } catch (e) {
       return null;
     }
   }
@@ -383,15 +379,15 @@ class OpdClient extends OpdApi {
     final GoogleSignIn googleSignIn = GoogleSignIn();
     try {
       final GoogleSignInAccount? googleSignInAccount =
-          await googleSignIn.signIn();
+      await googleSignIn.signIn();
       final GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount!.authentication;
+      await googleSignInAccount!.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
         idToken: googleSignInAuthentication.idToken,
       );
       final UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
+      await FirebaseAuth.instance.signInWithCredential(credential);
       firebaseUser = userCredential;
       return userCredential;
     } catch (e) {
@@ -408,22 +404,29 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future updateUserProfile({String? name, String? email, String? phone}) async {
-    super.updateUserProfile(name: name, email: email, phone: phone);
-    final database = this.database;
-    if (database != null) {
-      final userProfile = await database.getUserProfile();
-      if (name != null) {
-        userProfile!.data!.name = name;
+  Future<UserProfile?> updateUserProfile(
+      {String? name, String? email, String? phone}) async {
+    final response = await super.updateUserProfile(
+        name: name, email: email, phone: phone);
+    if (response != null) {
+      final database = this.database;
+      if (database != null) {
+        final userProfile = await database.getUserProfile();
+        if (name != null) {
+          userProfile!.data!.name = name;
+        }
+        if (email != null) {
+          userProfile!.data!.email = email;
+        }
+        if (phone != null) {
+          userProfile!.data!.phone = phone;
+        }
+        await database.updateUserProfile(userProfile: userProfile);
       }
-      if (email != null) {
-        userProfile!.data!.email = email;
-      }
-      if (phone != null) {
-        userProfile!.data!.phone = phone;
-      }
-
-      await database.updateUserProfile(userProfile: userProfile);
+    }else{
+      return null;
     }
+    return response;
   }
+
 }

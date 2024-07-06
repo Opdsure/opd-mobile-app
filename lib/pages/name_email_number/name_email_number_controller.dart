@@ -1,5 +1,6 @@
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import 'name_email_number_view.dart';
@@ -71,9 +72,14 @@ class NameEmailNumberController extends State<NameEmailNumber> {
     }
   }
 
-  void updateProfile(){
+  void updateProfile() async {
     final opd = OpdSure.of(context);
-    opd.client.updateUserProfile(name: _getFullName(), phone: isWithEmail ? null : phoneTextController.text, );
+    final response = await opd.client.updateUserProfile(name: _getFullName(), phone: isWithEmail ? null : phoneTextController.text, );
+    if(response != null){
+      context.pushReplacement('/home');
+    }else{
+
+    }
 
   }
 

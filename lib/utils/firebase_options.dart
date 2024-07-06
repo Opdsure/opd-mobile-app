@@ -67,6 +67,8 @@ class DefaultFirebaseOptions {
     projectId: 'opdsure-c5b02',
     databaseURL: 'https://opdsure-c5b02-default-rtdb.firebaseio.com',
     storageBucket: 'opdsure-c5b02.appspot.com',
+    androidClientId: '460950537530-cd32cv0eo6q715jqi3uhgb2d3384h99i.apps.googleusercontent.com',
+    iosClientId: '460950537530-qam1li122lprgj6jh2m6rmmtcd0trkd6.apps.googleusercontent.com',
     iosBundleId: 'io.app.opdsure',
   );
 
@@ -77,6 +79,8 @@ class DefaultFirebaseOptions {
     projectId: 'opdsure-c5b02',
     databaseURL: 'https://opdsure-c5b02-default-rtdb.firebaseio.com',
     storageBucket: 'opdsure-c5b02.appspot.com',
+    androidClientId: '460950537530-cd32cv0eo6q715jqi3uhgb2d3384h99i.apps.googleusercontent.com',
+    iosClientId: '460950537530-qam1li122lprgj6jh2m6rmmtcd0trkd6.apps.googleusercontent.com',
     iosBundleId: 'io.app.opdsure',
   );
 
@@ -90,4 +94,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'opdsure-c5b02.appspot.com',
     measurementId: 'G-6HK8D7X5TW',
   );
+
 }

@@ -93,6 +93,7 @@ class SignUpController extends State<SignUpPage> {
   }
 
   void sendOtp() async {
+    setState(() => loading = true);
       OpdSure
           .of(context)
           .client

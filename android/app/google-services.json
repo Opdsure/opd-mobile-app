@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "460950537530-cd32cv0eo6q715jqi3uhgb2d3384h99i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.app.opdsure",
+            "certificate_hash": "56bb3e85bd5efc20ca52ea52ebabe2f9f1850bf8"
+          }
+        },
+        {
           "client_id": "460950537530-ut5ggikn8342c2dn9uqf900ac43o9s3c.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

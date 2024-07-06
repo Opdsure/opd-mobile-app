@@ -4,10 +4,13 @@ import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
+import 'package:opdsure/custom_ui/app_drop_down.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/custom_ui/select_plan.dart';
+import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/plan/plans_page/plans_page_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
@@ -18,7 +21,9 @@ import '../../../utils/app_colors.dart';
 class PlansPageView extends StatelessWidget {
   final PlansPageController controller;
 
-  const PlansPageView(this.controller, {super.key});
+  PlansPageView(this.controller, {super.key});
+
+  Color textColor = Color(0xFF8A48B3);
 
   Widget commonRow(BuildContext context, String imgUri, String desc) {
     double w = CommonMethods.deviceWidth(context);
@@ -51,19 +56,10 @@ class PlansPageView extends StatelessWidget {
                 height: 16.0,
               ),
               AppHeader(
-                headerName: 'Plans & Pricing',
+                headerName: 'Select Plan',
               ),
               const SizedBox(
                 height: 30.0,
-              ),
-              const AppTextView(
-                text: 'Select Plan',
-                size: 22.0,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-              const SizedBox(
-                height: 15.0,
               ),
               ButtonsTabBar(
                 backgroundColor: Colors.transparent,
@@ -89,34 +85,106 @@ class PlansPageView extends StatelessWidget {
               const SizedBox(
                 height: 15.0,
               ),
-              AppTextView(
-                text: '₹ ${controller.record.charges!}/mo',
-                color: Color(0xFF8A48B3),
-                size: 40.0,
-                fontWeight: FontWeight.w700,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppTextView(
+                    text: '₹ ${controller.plansPrice!}',
+                    color: textColor,
+                    size: 40.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  if (controller.record.planType == PlanType.both)...[
+                    Row(
+                      children: [
+                        AppTextView(
+                          text: controller.planType,
+                          color: textColor,
+                          fontWeight: FontWeight.w300,
+                        ),
+                        Switch(
+                          value: controller.isIndividual,
+                          onChanged: controller.toggleIndividual,
+                          activeTrackColor: textColor,
+                          inactiveTrackColor: textColor,
+                          trackOutlineColor: controller.isIndividual
+                              ? null
+                              : WidgetStatePropertyAll<Color>(textColor),
+                          inactiveThumbColor: Colors.white,
+                          thumbIcon: WidgetStatePropertyAll<Icon>(
+                            Icon(
+                              controller.isIndividual
+                                  ? Icons.person
+                                  : Icons.family_restroom,
+                              color: textColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ]
+                ],
               ),
               const SizedBox(
                 height: 15.0,
               ),
-              const AppTextView(
-                text: 'Billed annually',
+              AppTextView(
+                text: controller.getPlanFrequency(),
                 size: 16.0,
                 fontWeight: FontWeight.w600,
               ),
               const SizedBox(
                 height: 15.0,
               ),
-              const AppTextView(
-                text: 'Benefits',
+              AppTextView(
+                text: 'Benefits of ${controller.record.name!}',
                 size: 20.0,
                 color: Colors.black,
                 fontWeight: FontWeight.w600,
               ),
+              if ((controller.record.planType! == PlanType.family ||
+                      controller.record.planType! == PlanType.both) &&
+                  !controller.isIndividual) ...[
+                const SizedBox(
+                  height: 10.0,
+                ),
+                AppDropDown<MembershipOptions>(
+                    hint: const AppTextView(
+                      text: "Select plan type",
+                    ),
+                    items: controller.getPlanItem(),
+                    onChanged: controller.setPlanItem,
+                    value: controller.options),
+              ],
               const SizedBox(
                 height: 10.0,
               ),
-              commonRow(
-                  context, 'unlimited_doctor', controller.record.features!),
+              SizedBox(
+                height: 400,
+                child: ListView.builder(
+                    itemCount: controller.record.planBenefits!.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        leading: Icon(
+                          Icons.verified,
+                          color: textColor,
+                        ),
+                        title: AppTextView(
+                          color: Colors.black,
+                          text:
+                              controller.record.planBenefits![index].planLabel!,
+                          size: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        subtitle: AppTextView(
+                            color: Colors.black,
+                            text: controller
+                                .record.planBenefits![index].planFeature!),
+                      );
+                    }),
+              ),
+              // commonRow(
+              // context, 'unlimited_doctor', controller.record.name!),
               // const SizedBox(height: 10.0,),
               // commonRow(context,'max_limit','Maximum limit of INR 500/- per Doctor Consultation.'),
               // const SizedBox(height: 10.0,),
@@ -131,55 +199,55 @@ class PlansPageView extends StatelessWidget {
               AppButton(
                 text: 'Select',
                 onClick: () {
-                  modalBottomSheetMenu(context);
+                 // modalBottomSheetMenu(context);
                 },
               )
             ],
           ),
         ),
-        bottomNavigationBar: NavigationBar(
-          onDestinationSelected: (int index) {
-            OpdSure.of(context).client.logout();
-          },
-          backgroundColor: Colors.white,
-          indicatorColor: Colors.transparent,
-          selectedIndex: 1,
-          destinations: <Widget>[
-            NavigationDestination(
-              // selectedIcon: Image.asset('assets/images/bottom_home.png'),
-              icon: Image.asset(
-                'assets/images/bottom_home.png',
-                height: 30.0,
-                width: 30.0,
-              ),
-              label: 'Home',
-            ),
-            NavigationDestination(
-              icon: Image.asset(
-                'assets/images/bottom_claim.png',
-                height: 30.0,
-                width: 30.0,
-              ),
-              label: 'Claims',
-            ),
-            NavigationDestination(
-              icon: Image.asset(
-                'assets/images/bottom_appointment.png',
-                height: 30.0,
-                width: 30.0,
-              ),
-              label: 'Appointment',
-            ),
-            NavigationDestination(
-              icon: Image.asset(
-                'assets/images/bottom_profile.png',
-                height: 30.0,
-                width: 30.0,
-              ),
-              label: 'Profile',
-            ),
-          ],
-        ),
+        // bottomNavigationBar: NavigationBar(
+        //   onDestinationSelected: (int index) {
+        //     OpdSure.of(context).client.logout();
+        //   },
+        //   backgroundColor: Colors.white,
+        //   indicatorColor: Colors.transparent,
+        //   selectedIndex: 1,
+        //   destinations: <Widget>[
+        //     NavigationDestination(
+        //       // selectedIcon: Image.asset('assets/images/bottom_home.png'),
+        //       icon: Image.asset(
+        //         'assets/images/bottom_home.png',
+        //         height: 30.0,
+        //         width: 30.0,
+        //       ),
+        //       label: 'Home',
+        //     ),
+        //     NavigationDestination(
+        //       icon: Image.asset(
+        //         'assets/images/bottom_claim.png',
+        //         height: 30.0,
+        //         width: 30.0,
+        //       ),
+        //       label: 'Claims',
+        //     ),
+        //     NavigationDestination(
+        //       icon: Image.asset(
+        //         'assets/images/bottom_appointment.png',
+        //         height: 30.0,
+        //         width: 30.0,
+        //       ),
+        //       label: 'Appointment',
+        //     ),
+        //     NavigationDestination(
+        //       icon: Image.asset(
+        //         'assets/images/bottom_profile.png',
+        //         height: 30.0,
+        //         width: 30.0,
+        //       ),
+        //       label: 'Profile',
+        //     ),
+        //   ],
+        // ),
       ),
     );
   }
@@ -281,7 +349,9 @@ class PlansPageView extends StatelessWidget {
                     AppButton(
                       text: 'Continue',
                       onClick: () async {
-                        await OpdSure.of(context).client.updatePlanPurchasedStatus(true);
+                        await OpdSure.of(context)
+                            .client
+                            .updatePlanPurchasedStatus(true);
                         context.go('/home');
                       },
                     )

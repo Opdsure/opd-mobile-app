@@ -28,8 +28,19 @@ class ViewPlansPageController extends State<ViewPlansPage> {
 
 
   void selectPlans(BuildContext context){
-    OpdSure.of(context).isSelectPlans = true;
-    context.go('${GoRouter.of(context).routeInformationProvider.value.uri.path}/select_plans', extra: plansResponse);
+    if(plansResponse != null) {
+      OpdSure
+          .of(context)
+          .isSelectPlans = true;
+      context.go('${GoRouter
+          .of(context)
+          .routeInformationProvider
+          .value
+          .uri
+          .path}/select_plans', extra: plansResponse);
+    }else{
+
+    }
   }
 
   @override
