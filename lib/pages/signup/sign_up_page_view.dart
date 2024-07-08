@@ -284,11 +284,6 @@ class SignUpView extends StatelessWidget {
               ],
             ),
           ),
-          if(controller.loading)...[ Container(
-            width: CommonMethods.deviceWidth(context),
-            height: CommonMethods.deviceHeight(context),
-            color: Colors.black.withOpacity(0.25),
-          ),]
         ],
       ),
     );

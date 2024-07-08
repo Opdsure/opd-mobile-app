@@ -25,7 +25,6 @@ class PlansPageController extends State<PlansPage> {
       setState(() {
         isIndividual = value;
         planType = value ? "Individual" : "Family";
-        options = null;
       });
 
   List<DropdownMenuItem<MembershipOptions>> getPlanItem() {
@@ -43,8 +42,10 @@ class PlansPageController extends State<PlansPage> {
         isIndividual = true;
         planType = 'Individual';
         options = null;
+        plansPrice = option.charges!.toString();
       }else{
         options = option;
+        plansPrice = option.charges!.toString();
       }
 
     });

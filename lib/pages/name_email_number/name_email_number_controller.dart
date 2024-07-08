@@ -20,7 +20,7 @@ class NameEmailNumberController extends State<NameEmailNumber> {
   TextEditingController lastNameControllerTextController =
   TextEditingController();
   TextEditingController phoneTextController =
-  TextEditingController(text: '8510819003');
+  TextEditingController();
 
 
   String? emailError;

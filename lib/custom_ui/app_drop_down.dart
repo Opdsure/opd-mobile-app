@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opdsure/custom_ui/app_border_box.dart';
 
 class AppDropDown<T> extends StatelessWidget {
   final List<DropdownMenuItem<T>>? items;
@@ -9,15 +10,17 @@ class AppDropDown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DropdownButton(
-      hint: hint,
-      value: value,
-      elevation: 6,
-      isExpanded: true,
-      icon: Icon(Icons.keyboard_arrow_down_rounded),
-      items: items,
-      onChanged: onChanged,
-      underline: Container(),
+    return AppBorderBox(
+      myChild: DropdownButton(
+        hint: hint,
+        value: value,
+        elevation: 6,
+        isExpanded: true,
+        icon: const Icon(Icons.keyboard_arrow_down_rounded),
+        items: items,
+        onChanged: onChanged,
+        underline: Container(),
+      ),
     );
   }
 }

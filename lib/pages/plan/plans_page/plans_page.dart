@@ -4,7 +4,6 @@ import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_drop_down.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
@@ -15,7 +14,6 @@ import 'package:opdsure/pages/plan/plans_page/plans_page_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
-import '../../../repository/client/client_manager.dart';
 import '../../../utils/app_colors.dart';
 
 class PlansPageView extends StatelessWidget {
@@ -23,7 +21,7 @@ class PlansPageView extends StatelessWidget {
 
   PlansPageView(this.controller, {super.key});
 
-  Color textColor = Color(0xFF8A48B3);
+  Color textColor = const Color(0xFF8A48B3);
 
   Widget commonRow(BuildContext context, String imgUri, String desc) {
     double w = CommonMethods.deviceWidth(context);
@@ -95,30 +93,40 @@ class PlansPageView extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                   if (controller.record.planType == PlanType.both)...[
-                    Row(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        AppTextView(
-                          text: controller.planType,
-                          color: textColor,
-                          fontWeight: FontWeight.w300,
-                        ),
-                        Switch(
-                          value: controller.isIndividual,
-                          onChanged: controller.toggleIndividual,
-                          activeTrackColor: textColor,
-                          inactiveTrackColor: textColor,
-                          trackOutlineColor: controller.isIndividual
-                              ? null
-                              : WidgetStatePropertyAll<Color>(textColor),
-                          inactiveThumbColor: Colors.white,
-                          thumbIcon: WidgetStatePropertyAll<Icon>(
-                            Icon(
-                              controller.isIndividual
-                                  ? Icons.person
-                                  : Icons.family_restroom,
+                        Row(
+                          children: [
+                            AppTextView(
+                              text: controller.planType,
                               color: textColor,
+                              fontWeight: FontWeight.w500,
                             ),
-                          ),
+                            Switch(
+                              value: controller.isIndividual,
+                              onChanged: controller.toggleIndividual,
+                              activeTrackColor: textColor,
+                              inactiveTrackColor: textColor,
+                              trackOutlineColor: controller.isIndividual
+                                  ? null
+                                  : WidgetStatePropertyAll<Color>(textColor),
+                              inactiveThumbColor: Colors.white,
+                              thumbIcon: WidgetStatePropertyAll<Icon>(
+                                Icon(
+                                  controller.isIndividual
+                                      ? Icons.person
+                                      : Icons.family_restroom,
+                                  color: textColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        AppTextView(
+                          text: 'Toggle for ${controller.isIndividual ? "family" : "individual"}',
+                          size: 12,
+                          color: textColor,
                         ),
                       ],
                     ),
@@ -163,6 +171,8 @@ class PlansPageView extends StatelessWidget {
                 height: 400,
                 child: ListView.builder(
                     itemCount: controller.record.planBenefits!.length,
+                    physics: const BouncingScrollPhysics(
+                      decelerationRate: ScrollDecelerationRate.fast,),
                     itemBuilder: (context, index) {
                       return ListTile(
                         leading: Icon(

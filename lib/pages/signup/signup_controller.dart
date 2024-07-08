@@ -22,15 +22,15 @@ class SignUpController extends State<SignUpPage> {
   late TapGestureRecognizer loginRecognizer;
   TextEditingController emailTextController = TextEditingController();
   TextEditingController passwordTextController =
-  TextEditingController(text: 'Intileo@123');
+  TextEditingController();
   TextEditingController confirmPasswordTextController =
-  TextEditingController(text: 'Intileo@123');
+  TextEditingController();
   TextEditingController firstNameTextController = TextEditingController();
   TextEditingController middleNameTextController = TextEditingController();
   TextEditingController lastNameControllerTextController =
   TextEditingController();
   TextEditingController phoneTextController =
-  TextEditingController(text: '8510819003');
+  TextEditingController();
 
   final countryPicker = const FlCountryCodePicker();
   bool isTermAndConditions = false;

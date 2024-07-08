@@ -16,11 +16,11 @@ class LoginPage extends StatefulWidget {
 
 class LoginPageController extends State<LoginPage> {
   TextEditingController emailTextController =
-      TextEditingController(text: 'sahil.yadav@intileo.com');
+      TextEditingController();
   TextEditingController passwordTextController =
-      TextEditingController(text: 'Intileo@123');
+      TextEditingController();
   TextEditingController phoneTextController =
-      TextEditingController(text: '8510819003');
+      TextEditingController();
 
   String? emailError;
   String? passwordError;
