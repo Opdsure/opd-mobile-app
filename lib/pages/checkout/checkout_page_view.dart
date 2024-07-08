@@ -4,15 +4,21 @@ import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_round_view.dart';
+import 'package:opdsure/model/plans/plans_response.dart';
+import 'package:opdsure/utils/common_methods.dart';
 
 import '../../custom_ui/app_text_view.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/app_var.dart';
+import 'checkout_controller.dart';
 
-class CheckoutPage extends StatelessWidget{
+class CheckoutPageView extends StatelessWidget{
+  final CheckoutController controller;
+
+  const CheckoutPageView(this.controller, {super.key});
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       backgroundColor: pageBackColor,
       body: Padding(
@@ -35,8 +41,8 @@ class CheckoutPage extends StatelessWidget{
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const AppTextView(
-                        text: 'Health Plan',
+                      AppTextView(
+                        text: controller.records!.name!,
                         color: Colors.black,
                         size: 16.0,
                         fontWeight: FontWeight.w500,
@@ -62,9 +68,9 @@ class CheckoutPage extends StatelessWidget{
                       )
                     ],
                   ),
-                  const AppTextView(
-                    text: '$rupeeSymbol 1000/mo',
-                    color: Color(0xFF667085),
+                  AppTextView(
+                    text: '$rupeeSymbol ${controller.options!.charges!}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
+                    color: const Color(0xFF667085),
                   ),
                   const SizedBox(height: 15.0,),
                   const AppTextView(
@@ -73,53 +79,54 @@ class CheckoutPage extends StatelessWidget{
                     size: 16.0,
                     fontWeight: FontWeight.w500,
                   ),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      AppTextView(
-                        text: 'Number of Members',
-                        color: Color(0xFF667085),
-                      ),
-                      Row(
-                        children: [
-                          AppRoundView(
-                            mChild: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(
-                                Icons.remove,
-                                color: Color(0xFF667085),
-                              ),
-                            ),
-                            color: Color(0xFFF5F5F5),
-                            corner: 5.0,
-                          ),
-                          SizedBox(width: 10.0,),
-                          AppTextView(
-                            text: '4',
-                            size: 16.0,
-                          ),
-                          SizedBox(width: 10.0,),
-                          AppRoundView(
-                            mChild: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Icon(
-                                Icons.add,
-                                color: Color(0xFF667085),
-                              ),
-                            ),
-                            color: Color(0xFFF5F5F5),
-                            corner: 5.0,
-                          ),
-                        ],
-                      )
-                    ],
+                  AppTextView(
+                    text: controller.options!.membershipLabel!,
+                    color: const Color(0xFF667085),
                   ),
+                  // const Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //
+                  //     Row(
+                  //       children: [
+                  //         AppRoundView(
+                  //           mChild: Padding(
+                  //             padding: EdgeInsets.all(8.0),
+                  //             child: Icon(
+                  //               Icons.remove,
+                  //               color: Color(0xFF667085),
+                  //             ),
+                  //           ),
+                  //           color: Color(0xFFF5F5F5),
+                  //           corner: 5.0,
+                  //         ),
+                  //         SizedBox(width: 10.0,),
+                  //         AppTextView(
+                  //           text: '4',
+                  //           size: 16.0,
+                  //         ),
+                  //         SizedBox(width: 10.0,),
+                  //         AppRoundView(
+                  //           mChild: Padding(
+                  //             padding: EdgeInsets.all(8.0),
+                  //             child: Icon(
+                  //               Icons.add,
+                  //               color: Color(0xFF667085),
+                  //             ),
+                  //           ),
+                  //           color: Color(0xFFF5F5F5),
+                  //           corner: 5.0,
+                  //         ),
+                  //       ],
+                  //     )
+                  //   ],
+                  // ),
                 ],
               ),
             ),
             const SizedBox(height: 15.0,),
             AppCardView(
-              mChaild: const Column(
+              mChaild: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -134,16 +141,81 @@ class CheckoutPage extends StatelessWidget{
                     ],
                   ),
                   SizedBox(height: 15.0,),
+                  // Plan Price
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      AppTextView(
+                      const AppTextView(
                         text: 'Plan Charge',
                         color: Color(0xFF667085),
                         size: 16.0,
                       ),
                       AppTextView(
-                        text: '$rupeeSymbol 4000/mo',
+                        text: '$rupeeSymbol ${controller.planCharge}',
+                        color: const Color(0xFF667085),
+                        size: 16.0,
+                      ),
+                    ],
+                  ),
+                  // Coupon discount
+                  controller.couponDiscount == 0.0 ? Container() :Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppTextView(
+                        text: 'Coupon discount',
+                        color: Color(0xFF667085),
+                        size: 16.0,
+                      ),
+                      AppTextView(
+                        text: '$rupeeSymbol ${controller.couponDiscount}',
+                        color: Color(0xFF667085),
+                        size: 16.0,
+                      ),
+                    ],
+                  ),
+                  //GST
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppTextView(
+                        text: 'GST(18)%',
+                        color: Color(0xFF667085),
+                        size: 16.0,
+                      ),
+                      AppTextView(
+                        text: '$rupeeSymbol ${controller.gst}',
+                        color: Color(0xFF667085),
+                        size: 16.0,
+                      ),
+                    ],
+                  ),
+                  //net amount
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppTextView(
+                        text: 'Net amount',
+                        color: Color(0xFF667085),
+                        size: 16.0,
+                      ),
+                      AppTextView(
+                        text: '$rupeeSymbol ${controller.netAmount}',
+                        color: Color(0xFF667085),
+                        size: 16.0,
+                      ),
+                    ],
+                  ),
+                  // total amount
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppTextView(
+                        text: 'Net amount(with GST)',
+                        color: Color(0xFF667085),
+                        size: 16.0,
+                      ),
+                      AppTextView(
+                        text: '$rupeeSymbol ${controller.netAmountWithGst}',
                         color: Color(0xFF667085),
                         size: 16.0,
                       ),
@@ -162,7 +234,7 @@ class CheckoutPage extends StatelessWidget{
                         fontWeight: FontWeight.w500,
                       ),
                       AppTextView(
-                        text: '$rupeeSymbol 4000/mo',
+                        text: '$rupeeSymbol ${controller.netAmountWithGst}',
                         color: Colors.black,
                         size: 16.0,
                         fontWeight: FontWeight.w500,
@@ -208,7 +280,9 @@ class CheckoutPage extends StatelessWidget{
               ),
             ),
             const SizedBox(height: 30.0,),
-            AppButton(text: 'Pay Now')
+            AppButton(text: 'Pay Now',
+              onClick: controller.openPaymentGateway,
+            )
          ],
         ),
       ),

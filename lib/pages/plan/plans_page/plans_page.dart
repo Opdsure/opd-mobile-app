@@ -75,7 +75,7 @@ class PlansPageView extends StatelessWidget {
                 borderWidth: 1,
                 unselectedBorderColor: const Color(0xFFEAECF0),
                 radius: 15,
-                tabs: controller.plansTab,
+                tabs: controller.plansTab!,
                 onTap: (index) {
                   controller.getIndexedRecords(index: index);
                 },
@@ -87,12 +87,12 @@ class PlansPageView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppTextView(
-                    text: '₹ ${controller.plansPrice!}',
+                    text: '₹ ${controller.options!.charges!}',
                     color: textColor,
                     size: 40.0,
                     fontWeight: FontWeight.w700,
                   ),
-                  if (controller.record.planType == PlanType.both)...[
+                  if (controller.record!.planType == PlanType.both)...[
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -137,7 +137,7 @@ class PlansPageView extends StatelessWidget {
                 height: 15.0,
               ),
               AppTextView(
-                text: controller.getPlanFrequency(),
+                text: CommonMethods.getPlanFrequency(controller.record!.frequency!),
                 size: 16.0,
                 fontWeight: FontWeight.w600,
               ),
@@ -145,13 +145,13 @@ class PlansPageView extends StatelessWidget {
                 height: 15.0,
               ),
               AppTextView(
-                text: 'Benefits of ${controller.record.name!}',
+                text: 'Benefits of ${controller.record!.name!}',
                 size: 20.0,
                 color: Colors.black,
                 fontWeight: FontWeight.w600,
               ),
-              if ((controller.record.planType! == PlanType.family ||
-                      controller.record.planType! == PlanType.both) &&
+              if ((controller.record!.planType! == PlanType.family ||
+                      controller.record!.planType! == PlanType.both) &&
                   !controller.isIndividual) ...[
                 const SizedBox(
                   height: 10.0,
@@ -162,7 +162,7 @@ class PlansPageView extends StatelessWidget {
                     ),
                     items: controller.getPlanItem(),
                     onChanged: controller.setPlanItem,
-                    value: controller.options),
+                    value: controller.familyOptions),
               ],
               const SizedBox(
                 height: 10.0,
@@ -170,7 +170,7 @@ class PlansPageView extends StatelessWidget {
               SizedBox(
                 height: 400,
                 child: ListView.builder(
-                    itemCount: controller.record.planBenefits!.length,
+                    itemCount: controller.record!.planBenefits!.length,
                     physics: const BouncingScrollPhysics(
                       decelerationRate: ScrollDecelerationRate.fast,),
                     itemBuilder: (context, index) {
@@ -182,19 +182,19 @@ class PlansPageView extends StatelessWidget {
                         title: AppTextView(
                           color: Colors.black,
                           text:
-                              controller.record.planBenefits![index].planLabel!,
+                              controller.record!.planBenefits![index].planLabel!,
                           size: 16,
                           fontWeight: FontWeight.bold,
                         ),
                         subtitle: AppTextView(
                             color: Colors.black,
                             text: controller
-                                .record.planBenefits![index].planFeature!),
+                                .record!.planBenefits![index].planFeature!),
                       );
                     }),
               ),
               // commonRow(
-              // context, 'unlimited_doctor', controller.record.name!),
+              // context, 'unlimited_doctor', controller.record!.name!),
               // const SizedBox(height: 10.0,),
               // commonRow(context,'max_limit','Maximum limit of INR 500/- per Doctor Consultation.'),
               // const SizedBox(height: 10.0,),
@@ -209,7 +209,7 @@ class PlansPageView extends StatelessWidget {
               AppButton(
                 text: 'Select',
                 onClick: () {
-                 // modalBottomSheetMenu(context);
+                  controller.goToCheckout();
                 },
               )
             ],

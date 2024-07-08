@@ -88,6 +88,9 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
 
   bool isSelectPlans = false;
 
+
+  bool isPlansSelect = false;
+
   OpdClient get client {
     if (widget.clients.isEmpty) {
       widget.clients.add(getLoginClient());
@@ -168,7 +171,7 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
           ClientManager.removeClientNameFromStore(c.clientName, store);
         } else {
           if(state == LoginState.loggedIn){
-            if(profileData!.phone == null){
+            if(profileData!.phone!.isEmpty || profileData!.email!.isEmpty){
               OpdSureApp.router.go("/home/name_email_number");
             }else{
               OpdSureApp.router.go("/home");

@@ -21,6 +21,22 @@ class CommonMethods{
         .width;
   }
 
+
+  static String getPlanFrequency(int frequency,{bool isBilled = true}) {
+    switch (frequency) {
+      case 1:
+        return '${isBilled ? "Billed " : ""}yearly';
+      case 2:
+        return '${isBilled ? "Billed " : ""}Billed half yearly';
+      case 3:
+        return '${isBilled ? "Billed " : ""}Billed quarterly';
+      case 4:
+        return '${isBilled ? "Billed " : ""}Billed monthly';
+      default:
+        return '';
+    }
+  }
+
   static void showToast(String toastMessage){
     Fluttertoast.showToast(
       msg: toastMessage,

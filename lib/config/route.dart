@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
-import 'package:opdsure/pages/file_claim_page.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
 import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
@@ -14,7 +13,7 @@ import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
-import '../pages/add_family_details/add_family_details.dart';
+import '../pages/checkout/checkout_controller.dart';
 import '../pages/otp_page/otp_page_controller.dart';
 import '../pages/plan/plans_page/plans_page_controller.dart';
 
@@ -56,6 +55,9 @@ abstract class AppRoutes {
         return null;
       } else {
         if (opd.isSelectPlans) {
+          if (opd.isPlansSelect) {
+            return '/home/view_plans/plans_payment';
+          }
           return '/home/view_plans/select_plans';
         } else {
           return '/home/view_plans';
@@ -171,6 +173,29 @@ abstract class AppRoutes {
                               context,
                               state,
                               PlansPage(plans: plans),
+                            );
+                          }),
+                      GoRoute(
+                          path: 'plans_payment',
+                          pageBuilder: (context, state) {
+                            Map<String, dynamic>? data;
+                            Records? records;
+                            MembershipOptions? options;
+                            if (state.extra != null) {
+                              data = state.extra as Map<String, dynamic>;
+                              records = data['records'] as Records;
+                              if(data['options'] != null){
+                                options = data['options'] as MembershipOptions;
+                              }
+
+                            }
+                            return defaultPageBuilder(
+                              context,
+                              state,
+                              CheckoutPage(
+                                records: records,
+                                options: options,
+                              ),
                             );
                           }),
                     ],

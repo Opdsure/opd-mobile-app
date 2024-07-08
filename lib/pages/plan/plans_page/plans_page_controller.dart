@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/plan/plans_page/plans_page.dart';
+import 'package:opdsure/utils/common_methods.dart';
+
+import '../../../widget/opd_widget.dart';
 
 class PlansPage extends StatefulWidget {
   final PlansResponse? plans;
@@ -12,63 +16,61 @@ class PlansPage extends StatefulWidget {
 }
 
 class PlansPageController extends State<PlansPage> {
-  late Records record;
-  late List<Tab> plansTab;
+  Records? record;
+  List<Tab>? plansTab;
   int? plansLength = 0;
   PlansResponse? plans;
   String? plansPrice;
   String planType = 'Individual';
   bool isIndividual = true;
+  MembershipOptions? familyOptions;
   MembershipOptions? options;
 
-  void toggleIndividual(bool value) =>
-      setState(() {
+  void toggleIndividual(bool value) => setState(() {
         isIndividual = value;
         planType = value ? "Individual" : "Family";
       });
 
   List<DropdownMenuItem<MembershipOptions>> getPlanItem() {
     //record.membershipOptions?.insert(0, MembershipOptions(membershipLabel: "Select plan type"));
-    return record.membershipOptions!.map((e) {
+    return record!.membershipOptions!.map((e) {
       return DropdownMenuItem<MembershipOptions>(
-          value: e,
-          child: Text(e.membershipLabel!));
+          value: e, child: Text(e.membershipLabel!));
     }).toList();
   }
 
   void setPlanItem(MembershipOptions? option) {
     setState(() {
-      if(option!.membershipLabel == 'Individual'){
+      if (option!.membershipLabel == 'Individual') {
         isIndividual = true;
         planType = 'Individual';
-        options = null;
-        plansPrice = option.charges!.toString();
-      }else{
+        familyOptions = option;
+        options = plans!.data!.records![0].membershipOptions![0];
+      } else {
+        familyOptions = option;
         options = option;
-        plansPrice = option.charges!.toString();
       }
-
     });
   }
 
   void _getTabs() {
     plansTab = widget.plans!.data!.records!
-        .map((records) => Tab(text: records.name!,))
+        .map((records) => Tab(
+              text: records.name!,
+            ))
         .toList();
   }
 
-  String getPlanFrequency() {
-    switch (record.frequency!) {
-      case 1:
-        return 'Billed yearly';
-      case 2:
-        return 'Billed half yearly';
-      case 3:
-        return 'Billed quarterly';
-      case 4:
-        return 'Billed monthly';
-      default:
-        return '';
+
+
+  goToCheckout() {
+    if (record != null) {
+      OpdSure.of(context).isPlansSelect = true;
+
+      context.push('/home/view_plans/plans_payment',
+          extra: {"records": record, "options": options});
+    } else {
+      CommonMethods.showToast('Please select a plan');
     }
   }
 
@@ -84,8 +86,7 @@ class PlansPageController extends State<PlansPage> {
   void initState() {
     plans = widget.plans;
     plansLength = widget.plans!.data!.records!.length;
-    plansPrice =
-        plans!.data!.records![0].membershipOptions![0].charges!.toString();
+    options = plans!.data!.records![0].membershipOptions![0];
     _getTabs();
     getIndexedRecords(index: 0);
     super.initState();
