@@ -4,6 +4,7 @@ import 'package:dlibphonenumber/phone_number_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 
 class CommonMethods{
 
@@ -36,5 +37,11 @@ class CommonMethods{
     final PhoneNumberUtil phoneUtil = PhoneNumberUtil.instance;
     final PhoneNumber mPhoneNumber = phoneUtil.parse(phoneNumber, countryCode);
     return phoneUtil.format(mPhoneNumber, PhoneNumberFormat.international);
+  }
+
+  static String changeDateFormat(String dateStr,{from = 'dd/MM/yyyy',to = 'yyyy-MM-dd'}){
+    if(dateStr == '') return "";
+    DateTime tempDate = DateFormat(from).parse(dateStr);
+    return DateFormat(to).format(tempDate);
   }
 }

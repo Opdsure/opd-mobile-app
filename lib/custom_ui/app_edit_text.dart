@@ -19,6 +19,7 @@ class AppEditText extends StatelessWidget {
   final TextEditingController? textEditingController;
   final String? errorText;
   final TextStyle? errorStyle;
+  final VoidCallback? viewCallback;
 
   const AppEditText({
     required this.hint,
@@ -35,6 +36,7 @@ class AppEditText extends StatelessWidget {
     this.viewSuffix = false,
     this.disableText = false,
     this.suffixWidget,
+    this.viewCallback
   });
 
   @override
@@ -76,6 +78,7 @@ class AppEditText extends StatelessWidget {
           ),
         ),
       ),
+      mCallback: viewCallback,
     );
   }
 }

@@ -10,3 +10,12 @@ const List<String> previewDescriptionStr = ['Embrace a disease-free lifestyle wi
   'Efficiently manage and file your\npharmacy claims with us.',
   'Unlock all our premium features by\nselecting the plan that fits you best.'];
 const rupeeSymbol = '₹';
+const mFlagUri = 'packages/fl_country_code_picker/assets/flags/';
+
+const claimMapList = [
+  {
+  'id' : '0',
+  'value' : 'OPD'
+  },
+
+];

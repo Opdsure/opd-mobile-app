@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 
 import '../utils/app_colors.dart';
+import '../utils/app_var.dart';
 
 class AppMobileField extends StatelessWidget {
   final String hint;
@@ -29,7 +30,7 @@ class AppMobileField extends StatelessWidget {
     this.errorText,
     this.errorStyle,
     this.color = backIconCl,
-    this.flagUri = 'packages/fl_country_code_picker/assets/flags/in.png',
+    this.flagUri = '${mFlagUri}in.png',
     this.fontWeight = FontWeight.normal,
     this.isPasswordField = false,
     this.isViewPassword = false,

@@ -32,4 +32,44 @@ class TypeController extends GetxController{
     previewCount.value = type;
   }
 
+  RxString familyMemDOB = ''.obs;
+  void familyMemDOBChange(String type){
+    familyMemDOB.value = type;
+  }
+
+  RxString opdVisitDate = ''.obs;
+  void opdVisitDateChange(String type){
+    opdVisitDate.value = type;
+  }
+
+  RxString selectState = ''.obs;
+  void selectStateChange(String type){
+    selectState.value = type;
+  }
+
+  RxString selectGender = ''.obs;
+  void selectGenderChange(String type){
+    selectGender.value = type;
+  }
+
+  RxString selectClaim = ''.obs;
+  void selectClaimChange(String type){
+    selectClaim.value = type;
+  }
+
+  RxList prescriptionList = [].obs;
+  void prescriptionListChange(List type){
+    prescriptionList.value = type;
+  }
+
+  RxString countryCode = ''.obs;
+  void countryCodeChange(String type){
+    countryCode.value = type;
+  }
+
+  RxString flagCode = ''.obs;
+  void flagCodeChange(String type){
+    flagCode.value = type;
+  }
+
 }

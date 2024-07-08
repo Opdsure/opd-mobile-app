@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
-import 'package:opdsure/pages/claims_page.dart';
-import 'package:opdsure/pages/complaints_page.dart';
+import 'package:opdsure/pages/file_claim_page.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
 import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
@@ -15,6 +14,7 @@ import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../pages/add_family_details/add_family_details.dart';
 import '../pages/otp_page/otp_page_controller.dart';
 import '../pages/plan/plans_page/plans_page_controller.dart';
 
