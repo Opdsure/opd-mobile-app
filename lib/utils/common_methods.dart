@@ -60,4 +60,34 @@ class CommonMethods{
     DateTime tempDate = DateFormat(from).parse(dateStr);
     return DateFormat(to).format(tempDate);
   }
+
+  static String genderKey(String gender){
+    switch(gender){
+      case 'Male':
+        return '1';
+      case 'Female':
+        return '2';
+      case 'Other':
+        return '3';
+      default:
+        return '';
+    }
+  }
+
+  static void showAlertDialog(BuildContext context){
+    AlertDialog alert=AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(margin: EdgeInsets.only(left: 5),child:Text("Loading" )),
+        ],),
+    );
+    showDialog(barrierDismissible: false,
+      context:context,
+      builder:(BuildContext context){
+        return alert;
+      },
+    );
+  }
+
 }

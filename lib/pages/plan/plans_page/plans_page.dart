@@ -215,49 +215,6 @@ class PlansPageView extends StatelessWidget {
             ],
           ),
         ),
-        // bottomNavigationBar: NavigationBar(
-        //   onDestinationSelected: (int index) {
-        //     OpdSure.of(context).client.logout();
-        //   },
-        //   backgroundColor: Colors.white,
-        //   indicatorColor: Colors.transparent,
-        //   selectedIndex: 1,
-        //   destinations: <Widget>[
-        //     NavigationDestination(
-        //       // selectedIcon: Image.asset('assets/images/bottom_home.png'),
-        //       icon: Image.asset(
-        //         'assets/images/bottom_home.png',
-        //         height: 30.0,
-        //         width: 30.0,
-        //       ),
-        //       label: 'Home',
-        //     ),
-        //     NavigationDestination(
-        //       icon: Image.asset(
-        //         'assets/images/bottom_claim.png',
-        //         height: 30.0,
-        //         width: 30.0,
-        //       ),
-        //       label: 'Claims',
-        //     ),
-        //     NavigationDestination(
-        //       icon: Image.asset(
-        //         'assets/images/bottom_appointment.png',
-        //         height: 30.0,
-        //         width: 30.0,
-        //       ),
-        //       label: 'Appointment',
-        //     ),
-        //     NavigationDestination(
-        //       icon: Image.asset(
-        //         'assets/images/bottom_profile.png',
-        //         height: 30.0,
-        //         width: 30.0,
-        //       ),
-        //       label: 'Profile',
-        //     ),
-        //   ],
-        // ),
       ),
     );
   }

@@ -167,9 +167,8 @@ class Api {
 
   Future addFamilyMember({String? name,
     String? relation,String? dob,String? gender, String? phone,String? countryCode,String? address,}) async {
-    baseUri ??= Uri.parse('https://dev.opdsure.net/');
     final requestUri = Uri(path: 'api/v1/user/add-member');
-    final request = Request('PUT', baseUri!.resolveUri(requestUri));
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.bodyBytes = utf8.encode(jsonEncode({
@@ -185,17 +184,29 @@ class Api {
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    final json = jsonDecode(responseString);
-    return jsonDecode(json);
+    return responseString;
   }
 
   Future getFamilyMember() async {
-    var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImludGlsZW90ZWFtNDA5QGdtYWlsLmNvbSIsIl9pZCI6IjY2ODhjY2Q1MWJmYTc4YzFjYjI3ZGY0OSIsImlhdCI6MTcyMDMzMjQ4MiwiZXhwIjoxNzIwNTA1MjgyfQ.jQuDFt0pbLjmhO6pOSXYX66_GomKXm-lYQE6LhYhPgQ';
     final requestUri = Uri(path: 'api/v1/public/get-members');
     baseUri ??= Uri.parse('https://dev.opdsure.net');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
-    request.headers['Authorization'] = 'Bearer $token';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    // final json = jsonDecode(responseString);
+    return responseString;
+  }
+
+  Future getRelation() async {
+    final requestUri = Uri(path: 'api/v1/public/get-relations');
+    baseUri ??= Uri.parse('https://dev.opdsure.net');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);

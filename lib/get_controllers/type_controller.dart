@@ -52,6 +52,16 @@ class TypeController extends GetxController{
     selectGender.value = type;
   }
 
+  RxString selectRelation = ''.obs;
+  void selectRelationChange(String type){
+    selectRelation.value = type;
+  }
+
+  RxString selectRelationKey = ''.obs;
+  void selectRelationKeyChange(String type){
+    selectRelationKey.value = type;
+  }
+
   RxString selectClaim = ''.obs;
   void selectClaimChange(String type){
     selectClaim.value = type;

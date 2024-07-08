@@ -159,7 +159,7 @@ abstract class AppRoutes {
                     pageBuilder: (context, state) => defaultPageBuilder(
                       context,
                       state,
-                      const ViewPlansPage(),
+                      AddFamilyDetails(),
                     ),
                     routes: [
                       GoRoute(
