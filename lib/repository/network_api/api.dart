@@ -136,7 +136,6 @@ class Api {
 
   Future getAllState() async {
     final requestUri = Uri(path: 'api/v1/public/get-states');
-    baseUri ??= Uri.parse('https://dev.opdsure.net');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     final response = await httpClient.send(request);
@@ -188,8 +187,7 @@ class Api {
   }
 
   Future getFamilyMember() async {
-    final requestUri = Uri(path: 'api/v1/public/get-members');
-    baseUri ??= Uri.parse('https://dev.opdsure.net');
+    final requestUri = Uri(path: 'api/v1/user/get-members');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
@@ -211,7 +209,6 @@ class Api {
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    // final json = jsonDecode(responseString);
     return responseString;
   }
 
@@ -224,7 +221,6 @@ class Api {
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    // final json = jsonDecode(responseString);
     return responseString;
   }
 

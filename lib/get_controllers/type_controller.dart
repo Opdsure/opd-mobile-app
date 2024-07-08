@@ -1,6 +1,8 @@
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
+import '../model/my_member_model.dart';
+
 class TypeController extends GetxController{
   RxString countryFlag = ''.obs;
   void countryFlagChange(String type){
@@ -80,6 +82,11 @@ class TypeController extends GetxController{
   RxString flagCode = ''.obs;
   void flagCodeChange(String type){
     flagCode.value = type;
+  }
+
+  var memberList = <MemberList>[].obs;
+  void memberListChange(MemberList claim) {
+    memberList.add(claim);
   }
 
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui';
 
@@ -14,10 +15,13 @@ import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_border_box.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
+import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/common_map/claim_type_model.dart';
 import 'package:opdsure/model/file_type_size_model.dart';
+import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/utils/app_var.dart';
+import 'package:opdsure/widget/opd_widget.dart';
 import '../custom_ui/app_bottom_sheet.dart';
 import '../custom_ui/app_edit_text.dart';
 import '../custom_ui/app_mobile_field.dart';
@@ -117,24 +121,77 @@ class FileClaimPage extends StatelessWidget{
             fontWeight: FontWeight.w500,
             color: Color(0xFF1D2939),
           ),
-          const AppEditText(
-            hint: 'Select User',
-            disableText: true,
-            viewSuffix: true,
-            suffixWidget: Icon(
-              Icons.keyboard_arrow_down_sharp,
-              color: Color(0xff667085),
-              size: 24.0,
-            ),
+          FutureBuilder(
+            future: OpdSure.of(context).client.getFamilyMember(),
+            builder: (context,snapshot){
+              if(snapshot.data == null){
+                return const AppEditText(
+                  hint: 'getting users...',
+                  disableText: true,
+                  viewSuffix: true,
+                  suffixWidget: Icon(
+                    Icons.keyboard_arrow_down_sharp,
+                    color: Color(0xff667085),
+                    size: 24.0,
+                  ),
+                );
+              }
+              else{
+                return InkWell(
+                  onTap: (){
+                    MyMemberModel myMemberModel = MyMemberModel.fromJson(jsonDecode(snapshot.data));
+                    List<MemberList>? memberList = myMemberModel.data;
+                    AppBottomSheet(
+                        height: 600,
+                        mChild: ListView.builder(
+                          itemCount: memberList!.length,
+                          itemBuilder: (context, index){
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10.0),
+                              child: InkWell(
+                                onTap: (){
+                                  typeController.memberListChange(memberList[index]);
+                                  Navigator.pop(context);
+                                },
+                                child: Column(
+                                  children: [
+                                    AppTextView(
+                                      text: memberList[index].name!,
+                                      size: 16.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    AppTextView(
+                                      text: '${memberList[index].phone!}',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                    ).modalBottomSheetMenu(context);
+                  },
+                  child: AppBorderBox(
+                    myChild: Obx((){
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          AppTextView(
+                            text: typeController.memberList.value.isEmpty?'Select User':typeController.memberList.first.name!,
+                          ),
+                          const Icon(
+                            Icons.keyboard_arrow_down_sharp,
+                            color: Color(0xff667085),
+                            size: 24.0,
+                          )
+                        ],
+                      );
+                    }),
+                  ),
+                );
+              }
+            },
           ),
-          const SizedBox(height: 15.0),
-          const AppTextView(
-            text: 'Doctor Name',
-            size: 14.0,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1D2939),
-          ),
-          const AppEditText(hint: 'Enter the name'),
           const SizedBox(height: 15.0,),
           const AppTextView(
             text: 'OPD Visit Date',
@@ -164,12 +221,28 @@ class FileClaimPage extends StatelessWidget{
           }),
           const SizedBox(height: 15.0),
           const AppTextView(
+            text: 'Doctor Name',
+            size: 14.0,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1D2939),
+          ),
+          const AppEditText(hint: 'Enter the name'),
+          const SizedBox(height: 15.0),
+          const AppTextView(
             text: 'Doc Reg. Number',
             size: 14.0,
             fontWeight: FontWeight.w500,
             color: Color(0xFF1D2939),
           ),
           const AppEditText(hint: 'Enter doc Reg. Number'),
+          const SizedBox(height: 15.0),
+          const AppTextView(
+            text: 'Specialization',
+            size: 14.0,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1D2939),
+          ),
+          const AppEditText(hint: 'Enter Specialization'),
           const SizedBox(height: 15.0),
           const AppTextView(
             text: 'Hospital Name',
@@ -186,6 +259,14 @@ class FileClaimPage extends StatelessWidget{
             color: Color(0xFF1D2939),
           ),
           const AppEditText(hint: 'Enter hospital Address'),
+          const SizedBox(height: 15.0),
+          const AppTextView(
+            text: 'Email',
+            size: 14.0,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1D2939),
+          ),
+          const AppEditText(hint: 'Enter email'),
           const SizedBox(height: 15.0),
           const AppTextView(
             text: 'Hospital Contact Info.',
@@ -227,13 +308,122 @@ class FileClaimPage extends StatelessWidget{
           const AppEditText(hint: 'Enter diagnosis'),
           const SizedBox(height: 15.0),
           const AppTextView(
+            text: 'Remark',
+            size: 14.0,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1D2939),
+          ),
+          const AppEditText(hint: 'Enter remark'),
+
+          SizedBox(
+
+            child: const Row(
+              children: [
+                Column(
+                  children: [
+                    const SizedBox(height: 15.0),
+                    const AppTextView(
+                      text: 'Doctor Fees',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
+                    ),
+                    const AppEditText(hint: 'Enter doctor fees'),
+
+                    const SizedBox(height: 15.0),
+                    const AppTextView(
+                      text: 'Bill Amt. for Pharmacy',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
+                    ),
+                    const AppEditText(hint: 'Enter value'),
+
+                    const SizedBox(height: 15.0),
+                    const AppTextView(
+                      text: 'Bill Amnt. for Diagnostics',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
+                    ),
+                    const AppEditText(hint: 'Enter value'),
+
+                    const SizedBox(height: 15.0),
+                    const AppTextView(
+                      text: 'Grand Total',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
+                    ),
+                    const AppBorderBox(
+                      myChild: Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: AppTextView(
+                          text: '500',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: [
+                    const SizedBox(height: 15.0),
+                    const AppTextView(
+                      text: 'Doctor Fees',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
+                    ),
+                    const AppEditText(hint: 'Enter doctor fees'),
+
+                    const SizedBox(height: 15.0),
+                    const AppTextView(
+                      text: 'Bill Amt. for Pharmacy',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
+                    ),
+                    const AppEditText(hint: 'Enter value'),
+
+                    const SizedBox(height: 15.0),
+                    const AppTextView(
+                      text: 'Bill Amnt. for Diagnostics',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
+                    ),
+                    const AppEditText(hint: 'Enter value'),
+
+                    const SizedBox(height: 15.0),
+                    const AppTextView(
+                      text: 'Grand Total',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
+                    ),
+                    const AppBorderBox(
+                      myChild: Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: AppTextView(
+                          text: '500',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 15.0),
+          const AppTextView(
             text: 'Upload Prescription',
             size: 14.0,
             fontWeight: FontWeight.w500,
             color: Color(0xFF1D2939),
           ),
           FutureBuilder(
-            future: Api().getAllState(),
+            future: OpdSure.of(context).client.getFileTypeAndSize(),
             builder: (context,snapshot){
               if(snapshot.data == null){
                 return Container();
