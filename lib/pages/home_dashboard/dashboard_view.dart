@@ -1,26 +1,36 @@
-import 'package:flutter/cupertino.dart';
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 
-import '../widget/opd_widget.dart';
+class DashboardPageView extends StatelessWidget {
+  final DashBoardPageController controller;
 
-class DashboardPage extends StatefulWidget{
-  @override
-  State<DashboardPage> createState() => _DashboardPageState();
-}
+  const DashboardPageView(this.controller, {super.key});
 
-class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
-
-      bottomNavigationBar: NavigationBar(
-        onDestinationSelected: (int index) {
-          OpdSure.of(context).client.logout();
+      body: PageTransitionSwitcher(
+        transitionBuilder: (
+          Widget child,
+          Animation<double> primaryAnimation,
+          Animation<double> secondaryAnimation,
+        ) {
+          return SharedAxisTransition(
+            animation: primaryAnimation,
+            secondaryAnimation: secondaryAnimation,
+            transitionType: SharedAxisTransitionType.vertical,
+            fillColor: Theme.of(context).scaffoldBackgroundColor,
+            child: child,
+          );
         },
+        child: controller.getBodyByActiveDestination(),
+      ),
+      bottomNavigationBar: NavigationBar(
+        onDestinationSelected: controller.onDestinationSelected,
         backgroundColor: Colors.white,
         indicatorColor: Colors.transparent,
-        selectedIndex: 1,
+        selectedIndex: controller.selectedIndex,
         destinations: <Widget>[
           NavigationDestination(
             // selectedIcon: Image.asset('assets/images/bottom_home.png'),
@@ -45,7 +55,7 @@ class _DashboardPageState extends State<DashboardPage> {
               height: 30.0,
               width: 30.0,
             ),
-            label: 'Appointment',
+            label: 'Health Check-up',
           ),
           NavigationDestination(
             icon: Image.asset(

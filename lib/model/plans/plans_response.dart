@@ -3,11 +3,7 @@ import 'package:opdsure/model/database_type_key.dart';
 
 part 'plans_response.g.dart';
 
-enum PlanType{
-  individual,
-  family,
-  both
-}
+enum PlanType { individual, family, both }
 
 @HiveType(typeId: DatabaseTypeKey.planBox)
 class PlansResponse {
@@ -78,7 +74,10 @@ class PlansData {
   @HiveField(1)
   Pagination? _pagination;
 
-  List<Records>? get records => _records ?? [];
+  List<Records>? get records {
+    List<Records>? newRecords = _records ?? [];
+    return newRecords.reversed.toList();
+  }
 
   Pagination? get pagination => _pagination ?? Pagination();
 
@@ -281,9 +280,9 @@ class Records {
   List<PlanBenefits>? get planBenefits => _planBenefits ?? [];
 
   List<MembershipOptions>? get membershipOptions {
-    _membershipOptions?.removeWhere((v) => v.charges == 0 || v.walletBalance == 0 );
-    //_membershipOptions?.insert(0,MembershipOptions(membershipLabel: "Select plan type"));
-    return _membershipOptions ?? [];
+    List<MembershipOptions>? membersOptions = _membershipOptions ?? [];
+    membersOptions.removeWhere((v) => v.charges == 0 || v.walletBalance == 0);
+    return membersOptions;
   }
 
   List<String>? get files => _files ?? [];
@@ -295,32 +294,31 @@ class Records {
   int? get v => _v ?? 0;
 
   PlanType? get planType {
-    if(_membershipOptions != null) {
+    if (_membershipOptions != null) {
       final firstOption = _membershipOptions![0];
-      final isIndividual = firstOption.charges != 0 ||
-          firstOption.walletBalance != 0;
+      final isIndividual =
+          firstOption.charges != 0 || firstOption.walletBalance != 0;
       final isFamilyList = _membershipOptions!.skip(1).toList();
       final isFamily = _isFamily(isFamilyList);
-      if (isIndividual && !isFamily){
+      if (isIndividual && !isFamily) {
         return PlanType.individual;
       }
-      if(!isIndividual && isFamily){
+      if (!isIndividual && isFamily) {
         return PlanType.family;
       }
 
-      if(isIndividual && isFamily){
+      if (isIndividual && isFamily) {
         return PlanType.both;
       }
     }
     return PlanType.both;
-
   }
 
-  bool _isFamily(List<MembershipOptions> options){
-    for(var option in options){
-      if(option.charges! == 0 || option.walletBalance! == 0){
+  bool _isFamily(List<MembershipOptions> options) {
+    for (var option in options) {
+      if (option.charges! == 0 || option.walletBalance! == 0) {
         continue;
-      }else{
+      } else {
         return true;
       }
     }

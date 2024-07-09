@@ -1,6 +1,8 @@
 import 'package:hive/hive.dart';
 import 'package:opdsure/model/client/client_box.dart';
+import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
+import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/repository/database_api/database_api.dart';
@@ -12,9 +14,31 @@ class OpdDatabaseApi extends DatabaseApi {
   late Box<ClientBox> _clientBox;
   late Box<PlansResponse> _planBox;
   late Box<UserProfile> _userProfileBox;
+  late Box<Relations> _relationsBox;
+  late Box<MyMemberModel> _familyMemberBox;
 
   OpdDatabaseApi(this.name);
 
+  Future<void> open() async {
+    Hive.registerAdapter(ClientBoxAdapter());
+    Hive.registerAdapter(PlansResponseAdapter());
+    Hive.registerAdapter(PlansDataAdapter());
+    Hive.registerAdapter(RecordsAdapter());
+    Hive.registerAdapter(PaginationAdapter());
+    Hive.registerAdapter(MembershipOptionsAdapter());
+    Hive.registerAdapter(PlanBenefitsAdapter());
+    Hive.registerAdapter(UserProfileAdapter());
+    Hive.registerAdapter(ProfileDataAdapter());
+    Hive.registerAdapter(RelationsAdapter());
+    Hive.registerAdapter(RelationsDataAdapter());
+    Hive.registerAdapter(MyMemberModelAdapter());
+    Hive.registerAdapter(MemberListAdapter());
+    _clientBox = await Hive.openBox(name);
+    _planBox = await Hive.openBox(DatabaseBoxKey.planBoxName);
+    _userProfileBox = await Hive.openBox(DatabaseBoxKey.userProfileBoxName);
+    _relationsBox = await Hive.openBox(DatabaseBoxKey.relationsBox);
+    _familyMemberBox = await Hive.openBox(DatabaseBoxKey.familyMembersBox);
+  }
 
   @override
   Future<ClientBox?> getClient(String name) async {
@@ -34,6 +58,7 @@ class OpdDatabaseApi extends DatabaseApi {
             userId: userId,
             accessToken: accessToken,
             baseServerUrl: baseUri,
+            isPlanPurchased: isPlanPurchased,
             id: 0),
       );
       return 0;
@@ -52,18 +77,15 @@ class OpdDatabaseApi extends DatabaseApi {
     if (clientBox != null) {
       if (userId != null) {
         clientBox.userId = userId;
-      } else {
-        clientBox.userId = null;
       }
       if (accessToken != null) {
         clientBox.accessToken = userId;
-      } else {
-        clientBox.accessToken = null;
       }
       if (baseUri != null) {
         clientBox.baseServerUrl = userId;
-      } else {
-        clientBox.baseServerUrl = null;
+      }
+      if (isPlanPurchased != null) {
+        clientBox.isPlanPurchased = isPlanPurchased;
       }
       await _clientBox.put(name, clientBox);
     } else {
@@ -75,21 +97,6 @@ class OpdDatabaseApi extends DatabaseApi {
               baseServerUrl: baseUri,
               id: 0));
     }
-  }
-
-  Future<void> open() async {
-    Hive.registerAdapter(ClientBoxAdapter());
-    Hive.registerAdapter(PlansResponseAdapter());
-    Hive.registerAdapter(PlansDataAdapter());
-    Hive.registerAdapter(RecordsAdapter());
-    Hive.registerAdapter(PaginationAdapter());
-    Hive.registerAdapter(MembershipOptionsAdapter());
-    Hive.registerAdapter(PlanBenefitsAdapter());
-    Hive.registerAdapter(UserProfileAdapter());
-    Hive.registerAdapter(ProfileDataAdapter());
-    _clientBox = await Hive.openBox(name);
-    _planBox = await Hive.openBox(DatabaseBoxKey.planBoxName);
-    _userProfileBox = await Hive.openBox(DatabaseBoxKey.userProfileBoxName);
   }
 
   @override
@@ -116,7 +123,7 @@ class OpdDatabaseApi extends DatabaseApi {
   @override
   Future updatePlanPurchasedStatus(bool value) async {
     ClientBox? clientBox = await getClient(name);
-    if(clientBox != null){
+    if (clientBox != null) {
       clientBox.isPlanPurchased = value;
       await _clientBox.put(name, clientBox);
     }
@@ -129,11 +136,12 @@ class OpdDatabaseApi extends DatabaseApi {
 
   @override
   Future<UserProfile?> getUserProfile() async {
-    return _userProfileBox.get(DatabaseBoxKey.userProfileBoxName, defaultValue: null);
+    return _userProfileBox.get(DatabaseBoxKey.userProfileBoxName,
+        defaultValue: null);
   }
 
   @override
-  Future deletePlans({PlansResponse? plans}) async{
+  Future deletePlans({PlansResponse? plans}) async {
     await _planBox.delete(DatabaseBoxKey.planBoxName);
   }
 
@@ -144,15 +152,64 @@ class OpdDatabaseApi extends DatabaseApi {
 
   @override
   Future insertUserProfile({UserProfile? userProfile}) async {
-    if(userProfile != null) {
+    if (userProfile != null) {
       await _userProfileBox.put(DatabaseBoxKey.userProfileBoxName, userProfile);
     }
   }
 
   @override
   Future updateUserProfile({UserProfile? userProfile}) async {
-    if(userProfile != null) {
+    if (userProfile != null) {
       await _userProfileBox.put(DatabaseBoxKey.userProfileBoxName, userProfile);
+    }
+  }
+
+  @override
+  Future deleteFamilyMembers() async {
+    await _familyMemberBox.delete(DatabaseBoxKey.familyMembersBox);
+  }
+
+  @override
+  Future deleteRelations() async {
+    await _relationsBox.delete(DatabaseBoxKey.relationsBox);
+  }
+
+  @override
+  Future<MyMemberModel?> getFamilyMembers() async {
+    return _familyMemberBox.get(DatabaseBoxKey.familyMembersBox,
+        defaultValue: null);
+  }
+
+  @override
+  Future<Relations?> getRelations() async {
+    return _relationsBox.get(DatabaseBoxKey.relationsBox, defaultValue: null);
+  }
+
+  @override
+  Future insertFamilyMembers({MyMemberModel? myMember}) async {
+    if (myMember != null) {
+      await _familyMemberBox.put(DatabaseBoxKey.relationsBox, myMember);
+    }
+  }
+
+  @override
+  Future insertRelations({Relations? relations}) async {
+    if(relations != null){
+      _relationsBox.put(DatabaseBoxKey.relationsBox, relations);
+    }
+  }
+
+  @override
+  Future updateFamilyMembers({MyMemberModel? myMember}) async {
+    if (myMember != null) {
+      await _familyMemberBox.put(DatabaseBoxKey.relationsBox, myMember);
+    }
+  }
+
+  @override
+  Future updateRelations({Relations? relations}) async  {
+    if(relations != null){
+      _relationsBox.put(DatabaseBoxKey.relationsBox, relations);
     }
   }
 }

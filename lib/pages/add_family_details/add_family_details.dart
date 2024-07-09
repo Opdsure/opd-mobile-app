@@ -1,12 +1,8 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:get/instance_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_border_box.dart';
@@ -16,11 +12,12 @@ import 'package:opdsure/custom_ui/app_edit_text.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
-import 'package:opdsure/model/relation_model.dart';
+import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/state_model.dart';
 import 'package:opdsure/repository/network_api/api.dart';
 import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import 'package:opdsure/utils/opd_extension/int_extention.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../custom_ui/app_mobile_field.dart';
@@ -100,30 +97,21 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
           ),
           InkWell(
             onTap: ()async{
-              var data = await OpdSure.of(context).client.getRelation();
-              RelationModel relationModel = relationModelFromJson(data);
-              List<Map<String,dynamic>> keys = [];
-              for (var entry in relationModel.data.toJson().entries) {
-                Map<String,dynamic> mMap = {
-                  'key':entry.key,
-                  'value':entry.value
-                };
-                keys.add(mMap);
-              }
+              Relations? data = await OpdSure.of(context).client.getRelation();
               AppBottomSheet(
                   height: 600,
                   mChild: ListView.builder(
-                    itemCount: keys.length,
+                    itemCount: data!.relationsData.length,
                     itemBuilder: (context, index){
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
                         child: AppTextView(
                           onClick: (){
-                            typeController.selectRelationChange(keys[index]['key']);
-                            typeController.selectRelationKeyChange('${keys[index]['value']}');
+                            typeController.selectRelationChange(data.relationsData[index]);
+                            typeController.selectRelationKeyChange(data.relationsData[index]);
                             Navigator.pop(context);
                           },
-                          text: keys[index]['key'],
+                          text: data.relationsData[index],
                         ),
                       );
                     },

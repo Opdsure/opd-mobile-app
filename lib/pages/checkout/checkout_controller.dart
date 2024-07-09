@@ -45,7 +45,7 @@ class CheckoutController extends State<CheckoutPage> {
   void openPaymentGateway(){
     Razorpay razorpay = Razorpay();
     var options = {
-      'key': 'rzp_live_bfAfUfkQ1esgjy',
+      'key': 'rzp_test_xru9wqPRtdHFOO',
       'amount': payAmount,
       'currency': "INR",
       'name': 'OPD Sure',
@@ -73,24 +73,18 @@ class CheckoutController extends State<CheckoutPage> {
   }
 
   void _handlePaymentErrorResponse(PaymentFailureResponse response) async  {
-    final opd = OpdSure.of(context);
-    await opd.client.updatePlanPurchasedStatus(true);
-    context.go('/home');
-    // _showAlertDialog(context, "failed", response.toString());
+    _showAlertDialog(context, "failed", response.toString());
   }
 
   void _handlePaymentSuccessResponse(PaymentSuccessResponse response) async {
     final opd = OpdSure.of(context);
     await opd.client.updatePlanPurchasedStatus(true);
-    context.go('/home');
+    context.go('/home/view_plans/add_members');
     //_showAlertDialog(context, "Success", response.toString());
   }
 
   void _handleExternalWalletSelected(ExternalWalletResponse response) async {
-    final opd = OpdSure.of(context);
-    await opd.client.updatePlanPurchasedStatus(true);
-    context.go('/home');
-    //_showAlertDialog(context, "External Wallet Selected", "${response.walletName}");
+    _showAlertDialog(context, "External Wallet Selected", "${response.walletName}");
   }
 
   void _showAlertDialog(BuildContext context, String title, String message) {

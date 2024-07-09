@@ -8,4 +8,8 @@ class DatabaseTypeKey{
   static const int  plansBenefits = 7;
   static const int  userBox = 8;
   static const int  userData = 9;
+  static const int  relationsBox = 10;
+  static const int  relationsData = 11;
+  static const int  familyMember = 12;
+  static const int  familyMemberData = 13;
 }

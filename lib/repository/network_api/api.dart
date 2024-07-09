@@ -1,11 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:get/get.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
+import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
 import 'package:opdsure/model/login/login_response.dart';
 import 'package:opdsure/model/register/register_response.dart';
+import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 
 import '../../config/app_config.dart';
@@ -199,7 +203,7 @@ class Api {
     return responseString;
   }
 
-  Future getRelation() async {
+  Future<Relations?> getRelation() async {
     final requestUri = Uri(path: 'api/v1/public/get-relations');
     baseUri ??= Uri.parse('https://dev.opdsure.net');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
@@ -209,7 +213,8 @@ class Api {
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    return responseString;
+    final json = jsonDecode(responseString);
+    return Relations.fromJson(json);
   }
 
   Future getFileTypeAndSize() async {
@@ -285,4 +290,18 @@ class Api {
     final json = jsonDecode(responseString);
   return jsonDecode(json);
   }
+
+  Future<FileUploadResponse?> uploadFile({required List<http.MultipartFile> results}) async {
+    final requestUri = Uri(path: 'api/v1/user/upload-file');
+    final request =  http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.files.addAll(results);
+    final response = await request.send();
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return FileUploadResponse.fromJson(json);
+  }
+
 }

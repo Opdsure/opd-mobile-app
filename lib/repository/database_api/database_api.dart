@@ -1,4 +1,6 @@
 import 'package:opdsure/model/client/client_box.dart';
+import 'package:opdsure/model/my_member_model.dart';
+import 'package:opdsure/model/relation/relations.dart';
 
 import '../../model/plans/plans_response.dart';
 import '../../model/user_profile/user_profile.dart';
@@ -34,4 +36,15 @@ Future<UserProfile?> getUserProfile();
 Future updateUserProfile({UserProfile? userProfile});
 Future insertUserProfile({UserProfile? userProfile});
 Future deleteUserProfile();
+
+
+Future<MyMemberModel?> getFamilyMembers();
+Future updateFamilyMembers({MyMemberModel? myMember});
+Future insertFamilyMembers({MyMemberModel? myMember});
+Future deleteFamilyMembers();
+
+Future<Relations?> getRelations();
+Future updateRelations({Relations? relations});
+Future insertRelations({Relations? relations});
+Future deleteRelations();
 }

@@ -1,7 +1,14 @@
+import 'package:hive/hive.dart';
+import 'package:opdsure/model/database_type_key.dart';
+
+part 'my_member_model.g.dart';
+
+
+@HiveType(typeId: DatabaseTypeKey.familyMember)
 class MyMemberModel {
   MyMemberModel({
-      List<MemberList>? data, 
-      bool? success, 
+      List<MemberList>? data,
+      bool? success,
       String? message,}){
     _data = data;
     _success = success;
@@ -18,13 +25,17 @@ class MyMemberModel {
     _success = json['success'];
     _message = json['message'];
   }
+
+  @HiveField(0)
   List<MemberList>? _data;
+  @HiveField(1)
   bool? _success;
+  @HiveField(2)
   String? _message;
 
-  List<MemberList>? get data => _data;
-  bool? get success => _success;
-  String? get message => _message;
+  List<MemberList>? get data => _data ?? [];
+  bool? get success => _success ?? false;
+  String? get message => _message ?? "";
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -38,21 +49,22 @@ class MyMemberModel {
 
 }
 
+@HiveType(typeId: DatabaseTypeKey.familyMemberData)
 class MemberList {
   MemberList({
-      String? id, 
-      String? name, 
-      int? phone, 
-      String? countryCode, 
-      int? gender, 
-      String? dob, 
-      String? userId, 
-      String? address, 
-      int? relation, 
-      int? planStatus, 
-      int? reviewStatus, 
-      String? createdAt, 
-      String? updatedAt, 
+      String? id,
+      String? name,
+      int? phone,
+      String? countryCode,
+      int? gender,
+      String? dob,
+      String? userId,
+      String? address,
+      int? relation,
+      int? planStatus,
+      int? reviewStatus,
+      String? createdAt,
+      String? updatedAt,
       int? v,}){
     _id = id;
     _name = name;
@@ -86,19 +98,34 @@ class MemberList {
     _updatedAt = json['updatedAt'];
     _v = json['__v'];
   }
+
+  @HiveField(0)
   String? _id;
+  @HiveField(1)
   String? _name;
+  @HiveField(2)
   int? _phone;
+  @HiveField(3)
   String? _countryCode;
+  @HiveField(4)
   int? _gender;
+  @HiveField(5)
   String? _dob;
+  @HiveField(6)
   String? _userId;
+  @HiveField(7)
   String? _address;
+  @HiveField(8)
   int? _relation;
+  @HiveField(9)
   int? _planStatus;
+  @HiveField(10)
   int? _reviewStatus;
+  @HiveField(11)
   String? _createdAt;
+  @HiveField(12)
   String? _updatedAt;
+  @HiveField(13)
   int? _v;
 
   String? get id => _id;

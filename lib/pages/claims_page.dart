@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_border_box.dart';
 import 'package:opdsure/custom_ui/app_bottom_sheet.dart';
@@ -101,47 +102,48 @@ class ClaimsPage extends StatelessWidget{
                     AppButton(
                       text: 'File a claim',
                       onClick: (){
-                        AppBottomSheet(
-                          height: h*0.3,
-                          mChild: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Image.asset(
-                                'assets/images/error.png',
-                                height: 30.0,
-                                width: 30.0,
-                              ),
-                              const SizedBox(height: 10.0,),
-                              const AppTextView(
-                                text: 'Bank account not added',
-                                size: 18.0,
-                                color: Color(0xFF101828),
-                                fontWeight: FontWeight.w500,
-                              ),
-                              const SizedBox(height: 5.0,),
-                              const AppTextView(
-                                text: 'You won’t be able to receive your reimbursement until bank account not added.',
-                                size: 12.0,
-                                color: Color(0xFF667085),
-                                fontWeight: FontWeight.w500,
-                              ),
-                              const SizedBox(height: 10.0,),
-                              const AppButton(text: 'Add',),
-                              const SizedBox(height: 10.0,),
-                              const AppBorderBox(
-                                myChild: Center(
-                                  child: AppTextView(
-                                    text: 'Cancel',
-                                    size: 16.0,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                boxColor: Color(0xFF344054),
-                              )
-                            ],
-                          )
-                        ).modalBottomSheetMenu(context);
+                        context.push('/home/file_claim');
+                        // AppBottomSheet(
+                        //   height: h*0.3,
+                        //   mChild: Column(
+                        //     crossAxisAlignment: CrossAxisAlignment.start,
+                        //     children: [
+                        //       Image.asset(
+                        //         'assets/images/error.png',
+                        //         height: 30.0,
+                        //         width: 30.0,
+                        //       ),
+                        //       const SizedBox(height: 10.0,),
+                        //       const AppTextView(
+                        //         text: 'Bank account not added',
+                        //         size: 18.0,
+                        //         color: Color(0xFF101828),
+                        //         fontWeight: FontWeight.w500,
+                        //       ),
+                        //       const SizedBox(height: 5.0,),
+                        //       const AppTextView(
+                        //         text: 'You won’t be able to receive your reimbursement until bank account not added.',
+                        //         size: 12.0,
+                        //         color: Color(0xFF667085),
+                        //         fontWeight: FontWeight.w500,
+                        //       ),
+                        //       const SizedBox(height: 10.0,),
+                        //       const AppButton(text: 'Add',),
+                        //       const SizedBox(height: 10.0,),
+                        //       const AppBorderBox(
+                        //         myChild: Center(
+                        //           child: AppTextView(
+                        //             text: 'Cancel',
+                        //             size: 16.0,
+                        //             fontWeight: FontWeight.w600,
+                        //             color: Colors.black,
+                        //           ),
+                        //         ),
+                        //         boxColor: Color(0xFF344054),
+                        //       )
+                        //     ],
+                        //   )
+                        // ).modalBottomSheetMenu(context);
                       },
                     )
                   ],

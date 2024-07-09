@@ -18,9 +18,9 @@ class LoginPageController extends State<LoginPage> {
   TextEditingController emailTextController =
       TextEditingController();
   TextEditingController passwordTextController =
-      TextEditingController();
+      TextEditingController(text: 'Intileo@123');
   TextEditingController phoneTextController =
-      TextEditingController();
+      TextEditingController(text: '8510819003');
 
   String? emailError;
   String? passwordError;
@@ -104,7 +104,7 @@ class LoginPageController extends State<LoginPage> {
       await opdSure.getLoginClient().login(
         loginType: isWithEmail ? 0 : 1,
         countryCode: isWithEmail ? null : countryCode,
-        emailAddress: emailTextController.text,
+        emailAddress: isWithEmail ? emailTextController.text : null,
         password: passwordTextController.text,
         phone: isWithEmail ? null : phoneTextController.text);
     } catch (e) {

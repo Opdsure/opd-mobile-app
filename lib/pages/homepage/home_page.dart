@@ -1,8 +1,13 @@
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_gradient.dart';
 import 'package:opdsure/custom_ui/app_border_box.dart';
@@ -14,7 +19,7 @@ import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/logs/logs.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
-class HomePage extends StatelessWidget{
+class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double h = CommonMethods.deviceHeight(context);
@@ -26,7 +31,9 @@ class HomePage extends StatelessWidget{
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: ListView(
           children: [
-            const SizedBox(height: 16.0,),
+            const SizedBox(
+              height: 16.0,
+            ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -40,18 +47,13 @@ class HomePage extends StatelessWidget{
                               style: GoogleFonts.montserrat(
                                   fontSize: 22.0,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.black
-                              )
-                          ),
+                                  color: Colors.black)),
                           TextSpan(
                               text: OpdSure.of(context).profileData!.name!,
                               style: GoogleFonts.montserrat(
                                   fontSize: 22.0,
                                   fontWeight: FontWeight.w600,
-                                  color: buttonColor
-                              )
-                          ),
-
+                                  color: buttonColor)),
                         ],
                       ),
                     )
@@ -64,7 +66,9 @@ class HomePage extends StatelessWidget{
                       height: 30.0,
                       width: 30.0,
                     ),
-                    const SizedBox(width: 15.0,),
+                    const SizedBox(
+                      width: 15.0,
+                    ),
                     Image.asset(
                       'assets/images/bell_icon.png',
                       height: 30.0,
@@ -78,7 +82,9 @@ class HomePage extends StatelessWidget{
               text: 'Have a great day',
               color: Color(0xFF667085),
             ),
-            SizedBox(height: h*0.03,),
+            SizedBox(
+              height: h * 0.03,
+            ),
             AppGradient(
               mChild: Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -92,30 +98,36 @@ class HomePage extends StatelessWidget{
                           height: 30.0,
                           width: 30.0,
                         ),
-                        const SizedBox(width: 15.0,),
+                        const SizedBox(
+                          width: 15.0,
+                        ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 2,),
+                            const SizedBox(
+                              height: 2,
+                            ),
                             SizedBox(
-                              width: w*0.75,
+                              width: w * 0.75,
                               child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       AppTextView(
                                         text: '100 + Claims Filed',
                                         size: 13.0,
                                         color: Color(0xFF667085),
-                                        fontWeight:FontWeight.w600,
+                                        fontWeight: FontWeight.w600,
                                       ),
                                       AppTextView(
                                         text: 'File an OPD Claim',
                                         size: 16.0,
                                         color: Colors.black,
-                                        fontWeight:FontWeight.w500,
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ],
                                   ),
@@ -123,11 +135,14 @@ class HomePage extends StatelessWidget{
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 5.0,),
+                            const SizedBox(
+                              height: 5.0,
+                            ),
                             SizedBox(
-                              width: w*0.7,
+                              width: w * 0.7,
                               child: const AppTextView(
-                                text: 'File your OPD Claim quickly and effortlessly, and let us take care of the rest',
+                                text:
+                                    'File your OPD Claim quickly and effortlessly, and let us take care of the rest',
                                 size: 14.0,
                                 color: Color(0xFF667085),
                               ),
@@ -146,7 +161,9 @@ class HomePage extends StatelessWidget{
                 Color(0xFFd3dff7),
               ],
             ),
-            const SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             AppGradient(
               mChild: Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -167,31 +184,39 @@ class HomePage extends StatelessWidget{
                             ),
                           ),
                         ),
-                        const SizedBox(width: 15.0,),
+                        const SizedBox(
+                          width: 15.0,
+                        ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 2,),
+                            const SizedBox(
+                              height: 2,
+                            ),
                             SizedBox(
-                              width: w*0.75,
+                              width: w * 0.75,
                               child: const Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   AppTextView(
                                     text: 'Book Free Health Check-up',
                                     size: 16.0,
                                     color: Colors.black,
-                                    fontWeight:FontWeight.w500,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                   Icon(Icons.keyboard_arrow_right_sharp)
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 5.0,),
+                            const SizedBox(
+                              height: 5.0,
+                            ),
                             SizedBox(
-                              width: w*0.7,
+                              width: w * 0.7,
                               child: const AppTextView(
-                                text: 'Book your free health check -up today and prioritize your well-being with confidence.',
+                                text:
+                                    'Book your free health check -up today and prioritize your well-being with confidence.',
                                 size: 14.0,
                                 color: Color(0xFF667085),
                               ),
@@ -210,7 +235,9 @@ class HomePage extends StatelessWidget{
                 Color(0xFFcaebff),
               ],
             ),
-            const SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -236,12 +263,14 @@ class HomePage extends StatelessWidget{
                 )
               ],
             ),
-            const SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             AppBorderBox(
               mCallback: () {
                 OpdSure.of(context).client.logout();
               },
-              height: h*0.12,
+              height: h * 0.12,
               myChild: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -254,7 +283,9 @@ class HomePage extends StatelessWidget{
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Image.asset('assets/images/accident.png'),
-                            const SizedBox(width: 10,),
+                            const SizedBox(
+                              width: 10,
+                            ),
                             const Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -291,7 +322,9 @@ class HomePage extends StatelessWidget{
                         )
                       ],
                     ),
-                    const SizedBox(height: 10,),
+                    const SizedBox(
+                      height: 10,
+                    ),
                     const Align(
                       alignment: Alignment.centerRight,
                       child: AppTextView(
@@ -304,6 +337,20 @@ class HomePage extends StatelessWidget{
                   ],
                 ),
               ),
+            ),
+            AppTextView(
+              onClick: () async {
+                FilePickerResult? result = await FilePicker.platform.pickFiles(
+                  type: FileType.any,
+                  allowMultiple: true,
+                );
+                if (result != null) {
+                  OpdSure.of(context).client.uploadFiles(results: result);
+                } else {
+                  print(result);
+                }
+              },
+              text: "Upload",
             )
           ],
         ),

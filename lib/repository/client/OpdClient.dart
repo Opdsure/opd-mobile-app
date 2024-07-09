@@ -1,9 +1,13 @@
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:opdsure/config/app_config.dart';
+import 'package:opdsure/model/fileUpload/file_upload_response.dart';
+import 'package:opdsure/model/my_member_model.dart';
+import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/repository/network_api/opd_api.dart';
 import 'package:http/http.dart' as http;
@@ -427,6 +431,52 @@ class OpdClient extends OpdApi {
       return null;
     }
     return response;
+  }
+
+
+  @override
+  Future<MyMemberModel?> getFamilyMember() async  {
+    MyMemberModel? myMembers;
+
+      final database = this.database;
+      if(database != null){
+        myMembers = await database.getFamilyMembers();
+        myMembers ?? await super.getFamilyMember();
+        await database.updateFamilyMembers(myMember: myMembers);
+      }else{
+        return null;
+      }
+    return myMembers;
+  }
+
+
+  @override
+  Future<Relations?> getRelations() async {
+    Relations? relations;
+    final database = this.database;
+    if(database!= null){
+      relations = await database.getRelations();
+      relations ?? await super.getRelation();
+      await database.updateRelations(relations: relations);
+    }else{
+      return null;
+    }
+    return relations;
+  }
+
+  Future<FileUploadResponse?> uploadFiles({required FilePickerResult results}) async {
+    var files =  results.files.map((file) async  {
+      return  await http.MultipartFile.fromPath(
+        'files',
+        file.path!,
+        filename: file.name,
+      );
+    });
+    List<http.MultipartFile> newFile = [];
+    for(var file in files.toList()) {
+      newFile.add(await file);
+    }
+    return super.uploadFile(results: newFile);
   }
 
 }

@@ -20,7 +20,6 @@ class PlansPageController extends State<PlansPage> {
   List<Tab>? plansTab;
   int? plansLength = 0;
   PlansResponse? plans;
-  String? plansPrice;
   String planType = 'Individual';
   bool isIndividual = true;
   MembershipOptions? familyOptions;
@@ -77,19 +76,21 @@ class PlansPageController extends State<PlansPage> {
   void getIndexedRecords({required int index}) {
     setState(() {
       record = widget.plans!.data!.records![index];
-      plansPrice = plans!.data!.records![index].membershipOptions![0].charges!
-          .toString();
+      options = plans!.data!.records![index].membershipOptions![0];
+      isIndividual = true;
+      planType = 'Individual';
+      familyOptions = null;
     });
   }
 
   @override
   void initState() {
+    super.initState();
     plans = widget.plans;
     plansLength = widget.plans!.data!.records!.length;
     options = plans!.data!.records![0].membershipOptions![0];
     _getTabs();
     getIndexedRecords(index: 0);
-    super.initState();
   }
 
   @override

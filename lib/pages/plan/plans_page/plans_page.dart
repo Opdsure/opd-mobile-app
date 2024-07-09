@@ -316,10 +316,6 @@ class PlansPageView extends StatelessWidget {
                     AppButton(
                       text: 'Continue',
                       onClick: () async {
-                        await OpdSure.of(context)
-                            .client
-                            .updatePlanPurchasedStatus(true);
-                        context.go('/home');
                       },
                     )
                   ],

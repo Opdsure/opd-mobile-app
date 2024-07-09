@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
+import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/claims_page.dart';
 import 'package:opdsure/pages/file_claim_page.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
+import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
 import 'package:opdsure/pages/name_email_number/name_email_number_controller.dart';
@@ -33,17 +35,17 @@ abstract class AppRoutes {
   ) =>
       OpdSure.of(context).client.isLogged ? null : '/signup';
 
-  static FutureOr<String?> isPlanPurchasedRedirect(
-    BuildContext context,
-    GoRouterState state,
-  ) =>
-      OpdSure.of(context).client.isLogged
-          ? OpdSure.of(context).client.isPlanPurchased
-              ? null
-              : OpdSure.of(context).isSelectPlans
-                  ? '/home/view_plans/select_plans'
-                  : '/home/view_plans'
-          : '/signup';
+  // static FutureOr<String?> isPlanPurchasedRedirect(
+  //   BuildContext context,
+  //   GoRouterState state,
+  // ) =>
+  //     OpdSure.of(context).client.isLogged
+  //         ? OpdSure.of(context).client.isPlanPurchased
+  //             ? null
+  //             : OpdSure.of(context).isSelectPlans
+  //                 ? '/home/view_plans/select_plans'
+  //                 : '/home/view_plans'
+  //         : '/signup';
 
   static FutureOr<String?> getRedirectNameForHome(
       BuildContext context, GoRouterState state) {
@@ -56,6 +58,7 @@ abstract class AppRoutes {
       }
       if (opd.client.isPlanPurchased) {
         return null;
+       // return '/home/view_plans/add_members';
       } else {
         if (opd.isSelectPlans) {
           if (opd.isPlansSelect) {
@@ -139,7 +142,7 @@ abstract class AppRoutes {
             path: '/home',
             redirect: getRedirectNameForHome,
             pageBuilder: (context, state) =>
-                defaultPageBuilder(context, state, HomePage()),
+                defaultPageBuilder(context, state, const DashBoardPage()),
             routes: [
               ShellRoute(
                 pageBuilder: defaultPageBuilder,
@@ -152,6 +155,14 @@ abstract class AppRoutes {
                       const NameEmailNumber(),
                     ),
                   ),
+                  GoRoute(
+                    path: "file_claim",
+                    pageBuilder: (context, state) => defaultPageBuilder(
+                      context,
+                      state,
+                      FileClaimPage(),
+                    ),
+                  ),
                 ],
               ),
               ShellRoute(
@@ -162,7 +173,7 @@ abstract class AppRoutes {
                     pageBuilder: (context, state) => defaultPageBuilder(
                       context,
                       state,
-                      FileClaimPage(),
+                      const ViewPlansPage(),
                     ),
                     routes: [
                       GoRoute(
@@ -198,6 +209,28 @@ abstract class AppRoutes {
                               CheckoutPage(
                                 records: records,
                                 options: options,
+                              ),
+                            );
+                          }),
+                      GoRoute(
+                          path: 'add_members',
+                          pageBuilder: (context, state) {
+                            Map<String, dynamic>? data;
+                            Records? records;
+                            MembershipOptions? options;
+                            if (state.extra != null) {
+                              data = state.extra as Map<String, dynamic>;
+                              records = data['records'] as Records;
+                              if(data['options'] != null){
+                                options = data['options'] as MembershipOptions;
+                              }
+                            }
+                            return defaultPageBuilder(
+                              context,
+                              state,
+                              AddFamilyDetails(
+                                // records: records,
+                                // options: options,
                               ),
                             );
                           }),

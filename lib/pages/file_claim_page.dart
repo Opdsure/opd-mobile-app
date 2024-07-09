@@ -121,7 +121,7 @@ class FileClaimPage extends StatelessWidget{
             fontWeight: FontWeight.w500,
             color: Color(0xFF1D2939),
           ),
-          FutureBuilder(
+          FutureBuilder<MyMemberModel?>(
             future: OpdSure.of(context).client.getFamilyMember(),
             builder: (context,snapshot){
               if(snapshot.data == null){
@@ -139,7 +139,7 @@ class FileClaimPage extends StatelessWidget{
               else{
                 return InkWell(
                   onTap: (){
-                    MyMemberModel myMemberModel = MyMemberModel.fromJson(jsonDecode(snapshot.data));
+                    MyMemberModel myMemberModel = snapshot.data!;
                     List<MemberList>? memberList = myMemberModel.data;
                     AppBottomSheet(
                         height: 600,
