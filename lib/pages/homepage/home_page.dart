@@ -351,7 +351,7 @@ class HomePage extends StatelessWidget {
                 }
               },
               text: "Upload",
-            )
+            ),
           ],
         ),
       ),
