@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -229,66 +228,17 @@ class Api {
     return responseString;
   }
 
-  Future fileAClaim({
-    String memberId = '',
-    String opdDate = '',
-    String docCountryCode = '',
-    String docPhone = '',
-    String docFee = '',
-    String pharmacyFee = '',
-    String labTestFee = '',
-    String claimableDoctorFee = '',
-    String claimablePharmacyFee = '',
-    String claimableLabTestFee = '',
-    String claimType = '',
-    String docName = '',
-    String docRegistration = '',
-    String diagonosisDetail = '',
-    String hospital = '',
-    String prescription = '',
-    String pharmacyReceipt = '',
-    String feeReceipt = '',
-    String billAmount = '',
-    String claimableAmount = '',
-    String state = '',
-    String city = '',
-    String specialization = '',
-  }) async {
+  Future fileAClaim(String jsonData) async {
     final requestUri = Uri(path: 'api/v1/user/add-claim');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
-    request.bodyBytes = utf8.encode(jsonEncode({
-      "member_id": memberId,
-      "opd_date": opdDate,
-      "doc_country_code": docCountryCode,
-      "doc_phone": docPhone,
-      "doctor_fee": docFee,
-      "pharmacy_fee": pharmacyFee,
-      "lab_test_fee": labTestFee,
-      "claimable_doctor_fee": claimableDoctorFee,
-      "claimable_pharmacy_fee": claimablePharmacyFee,
-      "claimable_lab_test_fee": claimableLabTestFee,
-      "claim_type": claimType,
-      "doc_name": docName,
-      "doc_registration": docRegistration,
-      "diagonosis_detail": diagonosisDetail,
-      "hospital": hospital,
-      "prescription": ["url"],
-      "pharmacy_receipt": ["user/92b0bf06-f98f-4e0f-8210-3fad7240f778/file-sample_150kB.pdf"],
-      "fee_receipt": ["user/92b0bf06-f98f-4e0f-8210-3fad7240f778/file-sample_150kB.pdf", "url"],
-      "bill_amount": billAmount,
-      "claimable_amount": claimableAmount,
-      "state": state,
-      "city": city,
-      "specialization": specialization,
-    }));
+    request.bodyBytes = utf8.encode(jsonData);
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    final json = jsonDecode(responseString);
-  return jsonDecode(json);
+    return responseString;
   }
 
   Future<FileUploadResponse?> uploadFile({required List<http.MultipartFile> results}) async {

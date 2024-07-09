@@ -434,20 +434,20 @@ class OpdClient extends OpdApi {
   }
 
 
-  @override
-  Future<MyMemberModel?> getFamilyMember() async  {
-    MyMemberModel? myMembers;
-
-      final database = this.database;
-      if(database != null){
-        myMembers = await database.getFamilyMembers();
-        myMembers ?? await super.getFamilyMember();
-        await database.updateFamilyMembers(myMember: myMembers);
-      }else{
-        return null;
-      }
-    return myMembers;
-  }
+  // @override
+  // Future<MyMemberModel?> getFamilyMember() async  {
+  //   MyMemberModel? myMembers;
+  //
+  //     final database = this.database;
+  //     if(database != null){
+  //       myMembers = await database.getFamilyMembers();
+  //       myMembers ?? await super.getFamilyMember();
+  //       await database.updateFamilyMembers(myMember: myMembers);
+  //     }else{
+  //       return null;
+  //     }
+  //   return myMembers;
+  // }
 
 
   @override

@@ -24,6 +24,7 @@ class AppBasePage extends StatelessWidget{
       color: Colors.white,
       child: SafeArea(
         child: Scaffold(
+          resizeToAvoidBottomInset: true,
           backgroundColor: pageBackColor,
           body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0),

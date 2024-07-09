@@ -1,7 +1,9 @@
+import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 
 import '../model/my_member_model.dart';
+import '../model/state_model.dart';
 
 class TypeController extends GetxController{
   RxString countryFlag = ''.obs;
@@ -74,7 +76,22 @@ class TypeController extends GetxController{
     prescriptionList.value = type;
   }
 
-  RxString countryCode = ''.obs;
+  RxList docFeeRcpt = [].obs;
+  void docFeeRcptChange(List type){
+    docFeeRcpt.value = type;
+  }
+
+  RxList pharmacyRcpt = [].obs;
+  void pharmacyRcptChange(List type){
+    pharmacyRcpt.value = type;
+  }
+
+  RxList labTestRcpt = [].obs;
+  void labTestRcptChange(List type){
+    labTestRcpt.value = type;
+  }
+
+  RxString countryCode = '+91'.obs;
   void countryCodeChange(String type){
     countryCode.value = type;
   }
@@ -87,6 +104,16 @@ class TypeController extends GetxController{
   var memberList = <MemberList>[].obs;
   void memberListChange(MemberList claim) {
     memberList.add(claim);
+  }
+
+  var stateList = <StateListData>[].obs;
+  void stateListChange(StateListData state) {
+    stateList.add(state);
+  }
+
+  RxDouble totalBill = 0.0.obs;
+  void totalBillChange(double type){
+    totalBill.value = type;
   }
 
 }

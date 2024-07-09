@@ -20,6 +20,7 @@ class AppEditText extends StatelessWidget {
   final String? errorText;
   final TextStyle? errorStyle;
   final VoidCallback? viewCallback;
+  final ValueChanged? mOnChanged;
 
   const AppEditText({
     required this.hint,
@@ -36,7 +37,8 @@ class AppEditText extends StatelessWidget {
     this.viewSuffix = false,
     this.disableText = false,
     this.suffixWidget,
-    this.viewCallback
+    this.viewCallback,
+    this.mOnChanged
   });
 
   @override
@@ -50,6 +52,7 @@ class AppEditText extends StatelessWidget {
           style: GoogleFonts.montserrat(fontSize: size, color: color),
           obscureText: isViewPassword,
           textAlignVertical: TextAlignVertical.center,
+          onChanged: mOnChanged,
           decoration: InputDecoration(
             errorText: errorText,
             errorStyle: errorStyle,
