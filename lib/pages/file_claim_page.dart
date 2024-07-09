@@ -141,18 +141,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
     }
   }
   List<Claim> claimList = [Claim(id: '0', value: 'OPD'),Claim(id: '1', value: 'PHARMACY'),Claim(id: '2', value: 'LAB_TEST')];
-  String getClaimName(String id){
-    switch(id){
-      case '0':
-        return 'OPD';
-      case '1':
-        return 'PHARMACY';
-      case '2':
-        return 'LAB_TEST';
-      default:
-        return 'OPD';
-    }
-  }
+
 
   Widget compulsoryField(String text){
     return Text.rich(
@@ -214,7 +203,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       AppTextView(
-                        text: typeController.selectClaim.value==''?'Select Claim':getClaimName(typeController.selectClaim.value),
+                        text: typeController.selectClaim.value==''?'Select Claim':CommonMethods.getClaimNameById(typeController.selectClaim.value),
                       ),
                       const Icon(
                         Icons.keyboard_arrow_down_sharp,

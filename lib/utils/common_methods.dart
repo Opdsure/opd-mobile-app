@@ -76,7 +76,7 @@ class CommonMethods{
 
   static void showAlertDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
-      content: new Row(
+      content: Row(
         children: [
           CircularProgressIndicator(),
           Container(margin: EdgeInsets.only(left: 5),child:Text("Loading" )),
@@ -88,6 +88,40 @@ class CommonMethods{
         return alert;
       },
     );
+  }
+
+  static String getClaimNameById(String id){
+    switch(id){
+      case '0':
+        return 'OPD';
+      case '1':
+        return 'PHARMACY';
+      case '2':
+        return 'LAB_TEST';
+      default:
+        return 'OPD';
+    }
+  }
+
+  static String getClaimStatus(String id){
+    switch(id){
+      case '0':
+        return 'PENDING';
+      case '1':
+        return 'APPROVED';
+      case '2':
+        return 'REJECTED';
+      case '3':
+        return 'DUPLICATE';
+      case '4':
+        return 'IN_PROCESS';
+      case '6':
+        return 'CLARIFICATION';
+      case '7':
+        return 'INVALID';
+      default:
+        return '';
+    }
   }
 
 }

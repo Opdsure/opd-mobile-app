@@ -254,4 +254,16 @@ class Api {
     return FileUploadResponse.fromJson(json);
   }
 
+  Future getAllClaims() async {
+    final requestUri = Uri(path: 'api/v1/user/get-claims');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    return responseString;
+  }
+
 }

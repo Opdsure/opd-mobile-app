@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:buttons_tabbar/buttons_tabbar.dart';
@@ -11,8 +12,10 @@ import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
+import 'package:opdsure/model/my_claims_model.dart';
 import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import 'package:opdsure/widget/opd_widget.dart';
 
 import '../utils/app_colors.dart';
 
@@ -191,100 +194,109 @@ class ClaimsPage extends StatelessWidget{
               const SizedBox(height: 10.0,),
               SizedBox(
                 height: h*0.6,
-                child: ListView.builder(
-                  itemCount: 5,
-                  itemBuilder: (context,index){
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5.0),
-                      child: AppCardView(
-                        mChaild: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                AppTextView(
-                                  text: 'Car Accident',
-                                  size: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.black,
-                                ),
-                                Icon(
-                                  Icons.keyboard_arrow_right_sharp,
-                                  color: Colors.black,
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 2.0,),
-                            const AppTextView(
-                              text: 'Max Hospital',
-                              size: 12.0,
-                              color: Color(0xFF667085),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            const AppTextView(
-                              text: 'Claim Number : 3523723080937',
-                              size: 12.0,
-                              color: Color(0xFF667085),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            Text.rich(
-                              TextSpan(
+                child: FutureBuilder(
+                  future: OpdSure.of(context).client.getAllClaims(),
+                  builder: (context,snapshot){
+                    if(snapshot.data == null){
+                      return const Center(
+                        child: AppTextView(
+                          text: 'Claims are loading...',
+                        ),
+                      );
+                    }
+                    else{
+                      print(snapshot.data);
+                      MyClaimsModel myClaimsModel = MyClaimsModel.fromJson(jsonDecode(snapshot.data));
+                      List<Records> listData = myClaimsModel.data!.records!;
+                      print(listData);
+                      return ListView.builder(
+                        itemCount: listData.length,
+                        itemBuilder: (context,index){
+                          Records records = listData[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5.0),
+                            child: AppCardView(
+                              mChaild: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  TextSpan(
-                                      text: 'Reimbursed Amount : ',
-                                      style: GoogleFonts.montserrat(
-                                        fontSize: 12.0,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      AppTextView(
+                                        text: CommonMethods.getClaimNameById('${records.claimType}'),
+                                        size: 16,
                                         fontWeight: FontWeight.w500,
-                                        color: const Color(0xFF667085),
+                                        color: Colors.black,
+                                      ),
+                                      const Icon(
+                                        Icons.keyboard_arrow_right_sharp,
+                                        color: Colors.black,
                                       )
+                                    ],
                                   ),
-                                  TextSpan(
-                                    text: '$rupeeSymbol 400/mo',
-                                    style: GoogleFonts.montserrat(
-                                        fontSize: 12.0,
-                                        fontWeight: FontWeight.w500,
-                                        color: const Color(0xFF027A48)
+                                  const SizedBox(height: 2.0,),
+                                  AppTextView(
+                                    text: records.hospital!,
+                                    size: 12.0,
+                                    color: const Color(0xFF667085),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  AppTextView(
+                                    text: 'Claim Number : ${records.claimId}',
+                                    size: 12.0,
+                                    color: const Color(0xFF667085),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                            text: 'Reimbursed Amount : ',
+                                            style: GoogleFonts.montserrat(
+                                              fontSize: 12.0,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xFF667085),
+                                            )
+                                        ),
+                                        TextSpan(
+                                          text: '$rupeeSymbol ${records.claimableAmount}/mo',
+                                          style: GoogleFonts.montserrat(
+                                              fontSize: 12.0,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xFF027A48)
+                                          ),
+                                        ),
+                                      ],
                                     ),
+                                  ),
+                                  const Row(
+                                    children: [
+                                      AppTextView(
+                                        text: 'Status : ',
+                                        size: 12.0,
+                                        color: Color(0xFF667085),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      Icon(
+                                        Icons.access_time_outlined,
+                                        color: Color(0xFFEF6C00),
+                                        size: 15.0,
+                                      ),
+                                      AppTextView(
+                                        text: 'Processing',
+                                        size: 12.0,
+                                        color: Color(0xFFEF6C00),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ),
-                            Row(
-                              children: [
-                                const AppTextView(
-                                  text: 'Status : ',
-                                  size: 12.0,
-                                  color: Color(0xFF667085),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                (index!=2)?const Icon(
-                                  Icons.access_time_outlined,
-                                  color: Color(0xFFEF6C00),
-                                  size: 15.0,
-                                ):const Icon(
-                                  Icons.check_circle_outline_rounded,
-                                  color: Color(0xFF027A48),
-                                  size: 15.0,
-                                ),
-                                const SizedBox(width: 3,),
-                                (index!=2)?const AppTextView(
-                                  text: 'Processing',
-                                  size: 12.0,
-                                  color: Color(0xFFEF6C00),
-                                  fontWeight: FontWeight.w500,
-                                ):const AppTextView(
-                                  text: 'Settled',
-                                  size: 12.0,
-                                  color: Color(0xFF027A48),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                          );
+                        },
+                      );
+                    }
                   },
                 ),
               )

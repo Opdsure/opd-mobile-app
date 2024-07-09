@@ -173,7 +173,7 @@ abstract class AppRoutes {
                     pageBuilder: (context, state) => defaultPageBuilder(
                       context,
                       state,
-                      FileClaimPage(),
+                      ClaimsPage(),
                     ),
                     routes: [
                       GoRoute(
