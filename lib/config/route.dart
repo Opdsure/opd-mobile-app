@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
+import 'package:opdsure/custom_ui/empty_page.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/claims_page.dart';
@@ -15,7 +16,9 @@ import 'package:opdsure/pages/name_email_number/name_email_number_controller.dar
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
+import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_widget.dart';
+import 'package:opdsure/custom_ui/two_column_layout.dart';
 
 import '../pages/add_family_details/add_family_details.dart';
 import '../pages/checkout/checkout_controller.dart';
@@ -73,14 +76,40 @@ abstract class AppRoutes {
     }
   }
 
+  static bool displayRailNavigation(BuildContext context, GoRouterState state) {
+    final opd = OpdSure.of(context);
+    if (opd.client.isLogged) {
+      if (opd.profileData!.phone!.isEmpty || opd.profileData!.email!.isEmpty) {
+        opd.isWithEmail = opd.profileData!.email!.isEmpty;
+        return false;
+      }
+      if (opd.client.isPlanPurchased) {
+        return OpdThemes.isColumnMode(context);
+        //return '/home/view_plans/add_members';
+      } else {
+        if (opd.isSelectPlans) {
+          if (opd.isPlansSelect) {
+            return false;
+          }
+          return false;
+        } else {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+  }
+
   AppRoutes();
 
   static final List<RouteBase> routes = [
     GoRoute(
         path: '/',
-        redirect: (context, state) => !OpdSure.of(context).isOnboardScreenActive
-            ? "/on_board_screen"
-            : '/signup'),
+        redirect: (context, state) =>
+            !OpdSure.of(context).isOnboardScreenActive && !PlatformInfos.isWeb
+                ? "/on_board_screen"
+                : '/signup'),
     GoRoute(
       path: '/on_board_screen',
       pageBuilder: (context, state) => defaultPageBuilder(
@@ -135,13 +164,30 @@ abstract class AppRoutes {
           ),
         ]),
     ShellRoute(
-      pageBuilder: defaultPageBuilder,
+      pageBuilder: (context, state, child) => defaultPageBuilder(
+          context,
+          state,
+          OpdThemes.isColumnMode(context) && displayRailNavigation(context, state)
+              ? TwoColumnLayout(
+                  mainView: DashBoardPage(
+                    displayNavigationRail:
+                        displayRailNavigation(context, state),
+                  ),
+                  sideView: child,
+                  displayNavigationRail: displayRailNavigation(context, state),
+                )
+              : child),
       routes: [
         GoRoute(
             path: '/home',
             redirect: getRedirectNameForHome,
-            pageBuilder: (context, state) =>
-                defaultPageBuilder(context, state, const DashBoardPage()),
+            pageBuilder: (context, state) => defaultPageBuilder(
+                  context,
+                  state,
+                  OpdThemes.isColumnMode(context)
+                      ? const EmptyPage()
+                      : const DashBoardPage(),
+                ),
             routes: [
               ShellRoute(
                 pageBuilder: defaultPageBuilder,
@@ -197,10 +243,9 @@ abstract class AppRoutes {
                             if (state.extra != null) {
                               data = state.extra as Map<String, dynamic>;
                               records = data['records'] as Records;
-                              if(data['options'] != null){
+                              if (data['options'] != null) {
                                 options = data['options'] as MembershipOptions;
                               }
-
                             }
                             return defaultPageBuilder(
                               context,
@@ -220,7 +265,7 @@ abstract class AppRoutes {
                             if (state.extra != null) {
                               data = state.extra as Map<String, dynamic>;
                               records = data['records'] as Records;
-                              if(data['options'] != null){
+                              if (data['options'] != null) {
                                 options = data['options'] as MembershipOptions;
                               }
                             }
@@ -228,9 +273,9 @@ abstract class AppRoutes {
                               context,
                               state,
                               AddFamilyDetails(
-                                // records: records,
-                                // options: options,
-                              ),
+                                  // records: records,
+                                  // options: options,
+                                  ),
                             );
                           }),
                     ],

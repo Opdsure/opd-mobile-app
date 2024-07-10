@@ -20,11 +20,12 @@ class OpdSureApp extends StatelessWidget {
     required this.store,
     this.testWidget,
     super.key});
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  static final GoRouter router = GoRouter(routes: AppRoutes.routes, navigatorKey: navigatorKey);
+  // static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GoRouter router = GoRouter(routes: AppRoutes.routes);
   @override
   Widget build(BuildContext context) {
-    return ThemeBuilder(builder: (context, mode, color) => MaterialApp.router(
+    return ThemeBuilder(
+      builder: (context, mode, color) => MaterialApp.router(
         title: AppConfig.applicationName,
         themeMode: mode,
         theme: OpdThemes.buildTheme(context, Brightness.light, color),

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_border_box.dart';
@@ -63,10 +64,13 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
       appHeader: AppHeader(
         headerName: 'Add Details',
         showRightView: true,
-        rightView: const AppTextView(
+        rightView: AppTextView(
           text: 'Skip',
           color: Color(0xFF475467),
           size: 16.0,
+          onClick: (){
+            context.go('/home');
+          },
         ),
       ),
       childContent: ListView(

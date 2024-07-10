@@ -10,6 +10,7 @@ import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_edit_text.dart';
 import 'package:opdsure/custom_ui/app_mobile_field.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
+import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
@@ -25,8 +26,8 @@ class SignUpView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
+    return LoginScaffold(
+      enforceMobileMode: OpdSure.of(context).client.isLogged,
       body: Stack(
         children: [
           Padding(

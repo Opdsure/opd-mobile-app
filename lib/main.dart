@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/repository/client/client_manager.dart';
@@ -6,14 +5,11 @@ import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_sure_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'utils/firebase_options.dart';
 
 
 void main() async  {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
   final store = await SharedPreferences.getInstance();
   final clients = await ClientManager.getClients(store: store);
 

@@ -4,23 +4,18 @@ import 'package:opdsure/pages/home_dashboard/dashboard_view.dart';
 import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/profile_page.dart';
 
-enum ActiveDestination {
-  home,
-  claim,
-  checkup,
-  profile
-}
+enum ActiveDestination { home, claim, checkup, profile }
 
 class DashBoardPage extends StatefulWidget {
-  const DashBoardPage({super.key});
+  final bool displayNavigationRail;
+
+  const DashBoardPage({this.displayNavigationRail = false, super.key});
 
   @override
   State<DashBoardPage> createState() => DashBoardPageController();
 }
 
-
 class DashBoardPageController extends State<DashBoardPage> {
-
   ActiveDestination activeDestination = ActiveDestination.home;
 
   ActiveDestination getActiveDestinationByIndex(int? i) {
@@ -56,8 +51,8 @@ class DashBoardPageController extends State<DashBoardPage> {
     }
   }
 
-  Widget getBodyByActiveDestination(){
-    switch(activeDestination){
+  Widget getBodyByActiveDestination() {
+    switch (activeDestination) {
       case ActiveDestination.home:
         return HomePage();
       case ActiveDestination.claim:

@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 
 import '../../../custom_ui/app_button.dart';
 import '../../../custom_ui/app_text_view.dart';
+import '../../../widget/opd_widget.dart';
 
 class ViewPlanPageView extends StatelessWidget{
 
@@ -14,8 +16,8 @@ class ViewPlanPageView extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Scaffold(
-      backgroundColor: Colors.white,
+    return LoginScaffold(
+      enforceMobileMode: !OpdSure.of(context).client.isLogged,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [

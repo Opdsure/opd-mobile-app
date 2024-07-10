@@ -4,8 +4,10 @@ import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_round_view.dart';
+import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../custom_ui/app_text_view.dart';
 import '../../utils/app_colors.dart';
@@ -19,8 +21,8 @@ class CheckoutPageView extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: pageBackColor,
+    return LoginScaffold(
+      enforceMobileMode: !OpdSure.of(context).client.isLogged,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0),
         child: ListView(

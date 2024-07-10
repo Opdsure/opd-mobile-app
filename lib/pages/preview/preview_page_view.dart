@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
+import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
@@ -22,8 +23,8 @@ class PreviewPageView extends StatelessWidget{
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
     double h = CommonMethods.deviceHeight(context);
-    return Scaffold(
-      backgroundColor: Colors.white,
+    return LoginScaffold(
+      enforceMobileMode: !OpdSure.of(context).client.isLogged,
       body: ListView(
         physics: const NeverScrollableScrollPhysics(),
         children: [

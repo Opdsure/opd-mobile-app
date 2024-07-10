@@ -6,7 +6,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
+import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../../custom_ui/app_border_box.dart';
 import '../../../custom_ui/app_button.dart';
@@ -24,8 +26,8 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
+    return LoginScaffold(
+      enforceMobileMode: OpdSure.of(context).client.isLogged,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: ListView(

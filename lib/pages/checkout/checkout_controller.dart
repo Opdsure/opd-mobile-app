@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/checkout/checkout_page_view.dart';
+import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -44,9 +45,19 @@ class CheckoutController extends State<CheckoutPage> {
   }
 
   void openPaymentGateway() async {
+    if(PlatformInfos.isWeb){
+      final opd = OpdSure.of(context);
+      await opd.client.updateUserProfile(plan: {
+        "purchased" : true,
+        "membership_id": options!.membershipId!,
+        "id" :records!.id!});
+      await opd.client.updatePlanPurchasedStatus(true);
+      context.go('/home/view_plans/add_members');
+      return;
+    }
     UserProfile? profile = await OpdSure.of(context).client.getProfile();
     Razorpay razorpay = Razorpay();
-    var options = {
+    var paymentOptions = {
       'key': 'rzp_test_xru9wqPRtdHFOO',
       'amount': payAmount,
       'currency': "INR",
@@ -72,7 +83,7 @@ class CheckoutController extends State<CheckoutPage> {
     razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
     razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
     razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
-    razorpay.open(options);
+    razorpay.open(paymentOptions);
   }
 
   void _handlePaymentErrorResponse(PaymentFailureResponse response) async  {

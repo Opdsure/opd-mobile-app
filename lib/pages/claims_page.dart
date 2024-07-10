@@ -105,7 +105,7 @@ class ClaimsPage extends StatelessWidget{
                     AppButton(
                       text: 'File a claim',
                       onClick: (){
-                        context.push('/home/file_claim');
+                        context.go('/home/file_claim');
                         // AppBottomSheet(
                         //   height: h*0.3,
                         //   mChild: Column(

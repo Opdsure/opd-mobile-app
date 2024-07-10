@@ -85,7 +85,7 @@ class AppMobileField extends StatelessWidget {
             thickness: 0.5,
           ),
           Flexible(
-            child: TextField(
+            child: TextFormField(
               controller: textEditingController,
               style: GoogleFonts.montserrat(
                   fontSize: size,

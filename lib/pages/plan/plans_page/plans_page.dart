@@ -8,6 +8,7 @@ import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_drop_down.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
+import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/custom_ui/select_plan.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/plan/plans_page/plans_page_controller.dart';
@@ -44,8 +45,8 @@ class PlansPageView extends StatelessWidget {
     // TODO: implement build
     return DefaultTabController(
       length: controller.plansLength!,
-      child: Scaffold(
-        backgroundColor: Colors.white,
+      child: LoginScaffold(
+        enforceMobileMode: !OpdSure.of(context).client.isLogged,
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15.0),
           child: ListView(

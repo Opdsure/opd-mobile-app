@@ -45,7 +45,7 @@ class AppEditText extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppBorderBox(
       myChild: Center(
-        child: TextField(
+        child: TextFormField(
           controller: textEditingController,
           keyboardType: textInputType,
           readOnly: disableText,
