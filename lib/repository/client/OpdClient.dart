@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -148,6 +149,9 @@ class OpdClient extends OpdApi {
         _initLock = false;
         return;
       }
+      final profile = await getProfile(update: true);
+      profileData = profile.data!;
+
 
       final database = this.database;
       if (database != null) {
@@ -168,8 +172,6 @@ class OpdClient extends OpdApi {
 
       _initLock = false;
 
-      final profile = await getProfile();
-      profileData = profile.data!;
       onLoginStateChanged.add(LoginState.loggedIn);
       Logs().i(
         'Successfully connected as $userId with ${baseServerUri.toString()}',
@@ -309,10 +311,15 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<UserProfile> getProfile() async {
+  Future<UserProfile> getProfile({bool update = true}) async {
     UserProfile? userProfile;
     final database = this.database;
     if (database != null) {
+      if(update){
+        userProfile = await super.getProfile();
+        await database.updateUserProfile(userProfile: userProfile);
+        return userProfile;
+      }
       userProfile = await database.getUserProfile();
       userProfile ??= await super.getProfile();
       await database.updateUserProfile(userProfile: userProfile);
@@ -409,9 +416,9 @@ class OpdClient extends OpdApi {
 
   @override
   Future<UserProfile?> updateUserProfile(
-      {String? name, String? email, String? phone}) async {
+      {String? name, String? email, String? phone, Map<String, dynamic>? plan}) async {
     final response = await super.updateUserProfile(
-        name: name, email: email, phone: phone);
+        name: name, email: email, phone: phone, plan: plan);
     if (response != null) {
       final database = this.database;
       if (database != null) {
@@ -434,20 +441,25 @@ class OpdClient extends OpdApi {
   }
 
 
-  // @override
-  // Future<MyMemberModel?> getFamilyMember() async  {
-  //   MyMemberModel? myMembers;
-  //
-  //     final database = this.database;
-  //     if(database != null){
-  //       myMembers = await database.getFamilyMembers();
-  //       myMembers ?? await super.getFamilyMember();
-  //       await database.updateFamilyMembers(myMember: myMembers);
-  //     }else{
-  //       return null;
-  //     }
-  //   return myMembers;
-  // }
+  @override
+  Future<MyMemberModel?> getFamilyMember({bool update = false}) async  {
+    MyMemberModel? myMembers;
+      final database = this.database;
+
+      if(database != null){
+        if(update){
+          myMembers ??= await super.getFamilyMember();
+          await database.updateFamilyMembers(myMember: myMembers);
+          return myMembers;
+        }
+        myMembers = await database.getFamilyMembers();
+        myMembers ??= await super.getFamilyMember();
+        await database.updateFamilyMembers(myMember: myMembers);
+      }else{
+        return null;
+      }
+    return myMembers;
+  }
 
 
   @override
@@ -477,6 +489,15 @@ class OpdClient extends OpdApi {
       newFile.add(await file);
     }
     return super.uploadFile(results: newFile);
+  }
+
+  Future<Records?> getPlanById({required String? planId, int? memberShipId})async {
+    Records? records;
+    final database = this.database;
+    if(database != null){
+      records = await database.getPlanById(planId: planId, memberShipId: memberShipId);
+    }
+    return records;
   }
 
 }

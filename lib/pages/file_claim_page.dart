@@ -18,6 +18,7 @@ import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/claim_json_model.dart';
 import 'package:opdsure/model/common_map/claim_type_model.dart';
 import 'package:opdsure/model/my_member_model.dart';
+import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/upload_file_claim_doc.dart';
 import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/widget/opd_widget.dart';
@@ -68,7 +69,6 @@ class _FileClaimPageState extends State<FileClaimPage> {
   TextEditingController billAmntDiaClCtrl = TextEditingController();
 
 
-
   double _value1 = 0.0;
   double _value2 = 0.0;
   double _value3 = 0.0;
@@ -78,51 +78,85 @@ class _FileClaimPageState extends State<FileClaimPage> {
   double totalBillAmnt = 0.0;
   double totalClaimableAmnt = 0.0;
 
-  void _calculateSum(bool isDocFee) {
+  Records? records;
+
+  void _calculateSum() {
     setState(() {
-      if(isDocFee){
-        totalBillAmnt = _value1 + _value2 + _value3;
-      }
-      else{
         totalClaimableAmnt = _value11 + _value12 + _value13;
-      }
+        totalBillAmnt = _value1 + _value2 + _value3;
     });
   }
 
-  void _onChanged1(String value,bool isDocFee) {
+  void docFee({String? value = '0'}) {
+    final int amount = int.tryParse(value!) ?? 0;
+    final maxFeeAmount = records!.opdMaxDiscount!;
+    final maxFeePer = records!.opdPrecentDiscount!;
+    double? discountAmount = 0.0;
+    if(amount != 0){
+      if(amount > maxFeeAmount){
+        discountAmount = double.tryParse(maxFeeAmount.toString());
+      }else{
+        discountAmount = amount * maxFeePer /100;
+      }
+    }
     setState(() {
-      if(isDocFee) {
-        _value1 = double.tryParse(value) ?? 0.0;
-      }
-      else{
-        _value11 = double.tryParse(value) ?? 0.0;
-      }
-      _calculateSum(isDocFee);
+        _value11 = discountAmount ?? 0.0;
+        _value1 = double.tryParse(amount.toString()) ??0.0;
+        docFeeClCtrl.text = _value11.toStringAsFixed(0);
+      _calculateSum();
     });
   }
 
-  void _onChanged2(String value,bool isDocFee) {
+  void pharmaBill({String? value = '0'}) {
+    final int amount = int.tryParse(value!) ?? 0;
+    final maxFeeAmount = records!.pharmacyMaxDiscount!;
+    final maxFeePer = records!.pharmacyPrecentDiscount!;
+    double? discountAmount = 0.0;
+    if(amount != 0){
+      if(amount > maxFeeAmount){
+        discountAmount = double.tryParse(maxFeeAmount.toString());
+      }else{
+        discountAmount = amount * maxFeePer /100;
+      }
+    }
     setState(() {
-      if(isDocFee) {
-        _value2 = double.tryParse(value) ?? 0.0;
-      }
-      else{
-        _value12 = double.tryParse(value) ?? 0.0;
-      }
-      _calculateSum(isDocFee);
+      _value12 = discountAmount ?? 0.0;
+      _value2 = double.tryParse(amount.toString()) ??0.0;
+      billAmntPhrClCtrl.text = _value12.toStringAsFixed(0);
+      _calculateSum();
     });
   }
 
-  void _onChanged3(String value,bool isDocFee) {
+  void labBill({String? value = '0'}) {
+    final int amount = int.tryParse(value!) ?? 0;
+    final maxFeeAmount = records!.labMaxDiscount!;
+    final maxFeePer = records!.labPrecentDiscount!;
+    double? discountAmount = 0.0;
+    if(amount != 0){
+      if(amount > maxFeeAmount){
+        discountAmount = double.tryParse(maxFeeAmount.toString());
+      }else{
+        discountAmount = amount * maxFeePer /100;
+      }
+    }
     setState(() {
-      if(isDocFee) {
-        _value3 = double.tryParse(value) ?? 0.0;
-      }
-      else{
-        _value13 = double.tryParse(value) ?? 0.0;
-      }
-      _calculateSum(isDocFee);
+      _value13 = discountAmount ?? 0.0;
+      _value3 = double.tryParse(amount.toString()) ?? 0.0;
+      billAmntDiaClCtrl.text = _value13.toStringAsFixed(0);
+      _calculateSum();
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+_getInitState();
+  }
+
+  _getInitState() async {
+    final opd = OpdSure.of(context);
+    final profile = await opd.client.getProfile();
+    records = await opd.client.getPlanById(planId: profile.data!.plan!.id!, memberShipId: profile.data!.plan!.membershipId!);
   }
 
   final countryPicker = const FlCountryCodePicker();
@@ -140,8 +174,19 @@ class _FileClaimPageState extends State<FileClaimPage> {
       typeController.opdVisitDateChange(formattedDate);
     }
   }
-  List<Claim> claimList = [Claim(id: '0', value: 'OPD'),Claim(id: '1', value: 'PHARMACY'),Claim(id: '2', value: 'LAB_TEST')];
-
+  List<Claim> claimList = [Claim(id: '0', value: 'OPD'),Claim(id: '1', value: 'PHARMACY'),Claim(id: '2', value: 'LAB TEST')];
+  String getClaimName(String id){
+    switch(id){
+      case '0':
+        return 'OPD';
+      case '1':
+        return 'PHARMACY';
+      case '2':
+        return 'LAB TEST';
+      default:
+        return 'OPD';
+    }
+  }
 
   Widget compulsoryField(String text){
     return Text.rich(
@@ -235,7 +280,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 else{
                   return InkWell(
                     onTap: (){
-                      MyMemberModel myMemberModel = MyMemberModel.fromJson(jsonDecode(snapshot.data));
+                      MyMemberModel myMemberModel = snapshot.data!;
                       List<MemberList>? memberList = myMemberModel.data;
                       AppBottomSheet(
                           height: 600,
@@ -344,12 +389,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
               textEditingController: hsptlNameCtrl,
               textInputType: TextInputType.name,),
             const SizedBox(height: 15.0,),
-            const AppTextView(
-              text: 'State',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
-            ),
+            compulsoryField('State'),
             InkWell(
               onTap: ()async{
                 var data = await OpdSure.of(context).client.getAllState();
@@ -396,12 +436,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
               ),
             ),
             const SizedBox(height: 15.0,),
-            const AppTextView(
-              text: 'City',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
-            ),
+        compulsoryField('City'),
             AppEditText(
               hint: 'Enter the city',
               textEditingController: cityCtrl,
@@ -491,7 +526,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                         textEditingController: docFeeCtrl,
                         textInputType: TextInputType.number,
                         mOnChanged: (value){
-                          _onChanged1(value,true);
+                          docFee(value: value);
                         },
                       ),
                     ],
@@ -509,11 +544,12 @@ class _FileClaimPageState extends State<FileClaimPage> {
                         color: Color(0xFF1D2939),
                       ),
                       AppEditText(
+                        disableText: true,
                         hint: '',
                         textEditingController: docFeeClCtrl,
                         textInputType: TextInputType.number,
                         mOnChanged: (value){
-                          _onChanged1(value,false);
+                          docFee(value : value);
                         },
                       ),
                     ],
@@ -536,16 +572,18 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   textEditingController: billAmntPhrCtrl,
                   textInputType: TextInputType.number,
                   mOnChanged: (value){
-                    _onChanged2(value,true);
+                    pharmaBill(value: value);
+
                   },
                 )),
                 const SizedBox(width: 10,),
                 Flexible(child: AppEditText(
                   hint: '',
+                  disableText: true,
                   textEditingController: billAmntPhrClCtrl,
                   textInputType: TextInputType.number,
                   mOnChanged: (value){
-                    _onChanged2(value,false);
+                    pharmaBill(value: value);
                   },
                 ))
               ],
@@ -564,15 +602,16 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   textEditingController: billAmntDiaCtrl,
                   textInputType: TextInputType.number,
                   mOnChanged: (value){
-                    _onChanged3(value,true);
+                    labBill(value: value);
                   },
                 )),
                 const SizedBox(width: 10,),
                 Flexible(child: AppEditText(hint: '',
+                  disableText: true,
                   textEditingController: billAmntDiaClCtrl,
                   textInputType: TextInputType.number,
                   mOnChanged: (value){
-                    _onChanged3(value,false);
+                    labBill(value: value);
                   },
                 ))
               ],
@@ -615,6 +654,71 @@ class _FileClaimPageState extends State<FileClaimPage> {
             AppButton(
               text: 'Next',
               onClick: (){
+                if(typeController.selectClaim.value.isEmpty){
+                  CommonMethods.showToast('select claim type');
+                  return;
+                }
+                if(typeController.memberList.value.isEmpty){
+                  CommonMethods.showToast('select user');
+                  return;
+                }
+                if(typeController.opdVisitDate.value.isEmpty){
+                  CommonMethods.showToast('select opd visit date');
+                  return;
+                }
+                if(docNameCtrl.text.isEmpty){
+                  CommonMethods.showToast('enter doctor name.');
+                  return;
+                }
+                if(regNumCtrl.text.isEmpty){
+                  CommonMethods.showToast('enter doctor regs no.');
+                  return;
+                }else{
+                  if(regNumCtrl.text.length < 4){
+                    CommonMethods.showToast('doctor regs no should be 4 digit');
+                    return;
+                  }
+                }
+                if(hsptlNameCtrl.text.isEmpty){
+                  CommonMethods.showToast('enter hospital name.');
+                  return;
+                }
+                if(typeController.stateList.value.isEmpty){
+                  CommonMethods.showToast('select state');
+                  return;
+                }
+                if(cityCtrl.text.isEmpty){
+                  CommonMethods.showToast('enter city.');
+                  return;
+                }
+                if(phoneCtrl.text.isEmpty){
+                  CommonMethods.showToast('enter phone no.');
+                  return;
+                }
+                if(diagnosisCtrl.text.isEmpty){
+                  CommonMethods.showToast('enter diagnosis details no.');
+                  return;
+                }
+                if(docFeeCtrl.text.isEmpty){
+                  docFeeCtrl.text ='0';
+                }
+                if(billAmntPhrCtrl.text.isEmpty){
+                  billAmntPhrCtrl.text ='0';
+                }
+                if(billAmntDiaCtrl.text.isEmpty){
+                  billAmntDiaCtrl.text ='0';
+                }
+                if(docFeeClCtrl.text.isEmpty){
+                  docFeeClCtrl.text ='0';
+                }
+                if(billAmntPhrClCtrl.text.isEmpty){
+                  billAmntPhrClCtrl.text ='0';
+                }
+                if(billAmntDiaClCtrl.text.isEmpty){
+                  billAmntDiaClCtrl.text ='0';
+                }
+
+
                 ClaimJsonModel claimJsonModel = ClaimJsonModel(
                   memberId: typeController.memberList.value.first.id,
                   opdDate: typeController.opdVisitDate.value,
@@ -623,9 +727,9 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   doctorFee: docFeeCtrl.text,
                   pharmacyFee: billAmntPhrCtrl.text,
                   labTestFee: billAmntDiaCtrl.text,
-                  claimableDoctorFee: docFeeClCtrl.text,
-                  claimablePharmacyFee: billAmntPhrClCtrl.text,
-                  claimableLabTestFee: billAmntDiaClCtrl.text,
+                  claimableDoctorFee: int.tryParse(docFeeClCtrl.text),
+                  claimablePharmacyFee: int.tryParse(billAmntPhrClCtrl.text),
+                  claimableLabTestFee: int.tryParse(billAmntDiaClCtrl.text),
                   claimType: typeController.selectClaim.value,
                   docName: docNameCtrl.text,
                   docRegistration: regNumCtrl.text,
@@ -633,7 +737,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   hospital: hsptlNameCtrl.text,
                   city: cityCtrl.text,
                   state: typeController.stateList.value.first.id,
-                  specialization: specialCtrl.text,
+                  specialization: specialCtrl.text.isEmpty ? null : specialCtrl.text,
                   billAmount: '$totalBillAmnt',
                   claimableAmount: '$totalClaimableAmnt'
                 );

@@ -107,11 +107,11 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
                         child: AppTextView(
                           onClick: (){
-                            typeController.selectRelationChange(data.relationsData[index]);
-                            typeController.selectRelationKeyChange(data.relationsData[index]);
+                            typeController.selectRelationChange(data.relationsData[index].name);
+                            typeController.selectRelationKeyChange(data.relationsData[index].value);
                             Navigator.pop(context);
                           },
-                          text: data.relationsData[index],
+                          text: data.relationsData[index].name,
                         ),
                       );
                     },
@@ -237,7 +237,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
           ),
           InkWell(
             onTap: ()async{
-              var data = await Api().getAllState();
+              var data = await OpdSure.of(context).client.getAllState();
               StateModel stateModel = statemodelFromJson(data);
               List<StateListData> stateListData = stateModel.data;
               AppBottomSheet(
@@ -304,6 +304,41 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
             text: 'Save',
             onClick: ()async{
               CommonMethods.showAlertDialog(context);
+              if(nameCtrl.text.isEmpty){
+                CommonMethods.showToast('name is blank');
+                Navigator.of(context).pop();
+                return;
+              }
+              if(phoneCtrl.text.isEmpty){
+                CommonMethods.showToast('phone is blank');
+                Navigator.of(context).pop();
+                return;
+              }
+              if(typeController.familyMemDOB.value.isEmpty){
+                CommonMethods.showToast('Date of birth is blank');
+                Navigator.of(context).pop();
+                return;
+              }
+              if(typeController.selectGender.value.isEmpty){
+                CommonMethods.showToast('gender is blank');
+                Navigator.of(context).pop();
+                return;
+              }
+              if(typeController.selectRelationKey.value == 100){
+                CommonMethods.showToast('relation is blank');
+                Navigator.of(context).pop();
+                return;
+              }
+              if(cityCtrl.text.isEmpty){
+                CommonMethods.showToast('city is blank');
+                Navigator.of(context).pop();
+                return;
+              }
+              if(pinCodeCtrl.text.isEmpty){
+                CommonMethods.showToast('pincode is blank');
+                Navigator.of(context).pop();
+                return;
+              }
               var data = await OpdSure.of(context).client.addFamilyMember(
                   name: nameCtrl.text,
                   relation: typeController.selectRelationKey.value,
@@ -313,7 +348,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                   countryCode: '+91',
                   address: '${cityCtrl.text} ${pinCodeCtrl.text}'
               );
-              Navigator.of(context,rootNavigator: true).pop();
+              Navigator.of(context).pop();
               print(data);
               Map<String,dynamic> resMap = jsonDecode(data);
               if(resMap['success']){
@@ -328,7 +363,6 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
             textColor: buttonColor,
             borderColor: buttonColor,
             onClick: (){
-              Navigator.of(context,rootNavigator: true).pop();
               Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyDetails()));
             },
           )

@@ -61,8 +61,8 @@ class TypeController extends GetxController{
     selectRelation.value = type;
   }
 
-  RxString selectRelationKey = ''.obs;
-  void selectRelationKeyChange(String type){
+  RxInt selectRelationKey = 100.obs;
+  void selectRelationKeyChange(int type){
     selectRelationKey.value = type;
   }
 

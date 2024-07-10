@@ -7,9 +7,9 @@ class ClaimJsonModel {
       String? doctorFee, 
       String? pharmacyFee, 
       String? labTestFee, 
-      String? claimableDoctorFee, 
-      String? claimablePharmacyFee, 
-      String? claimableLabTestFee, 
+      int? claimableDoctorFee,
+      int? claimablePharmacyFee,
+      int? claimableLabTestFee,
       String? claimType,
       String? docName, 
       String? docRegistration, 
@@ -83,9 +83,9 @@ class ClaimJsonModel {
   String? _doctorFee;
   String? _pharmacyFee;
   String? _labTestFee;
-  String? _claimableDoctorFee;
-  String? _claimablePharmacyFee;
-  String? _claimableLabTestFee;
+  int? _claimableDoctorFee;
+  int? _claimablePharmacyFee;
+  int? _claimableLabTestFee;
   String? _claimType;
   String? _docName;
   String? _docRegistration;
@@ -108,9 +108,9 @@ class ClaimJsonModel {
   String? get doctorFee => _doctorFee;
   String? get pharmacyFee => _pharmacyFee;
   String? get labTestFee => _labTestFee;
-  String? get claimableDoctorFee => _claimableDoctorFee;
-  String? get claimablePharmacyFee => _claimablePharmacyFee;
-  String? get claimableLabTestFee => _claimableLabTestFee;
+  int? get claimableDoctorFee => _claimableDoctorFee;
+  int? get claimablePharmacyFee => _claimablePharmacyFee;
+  int? get claimableLabTestFee => _claimableLabTestFee;
   String? get claimType => _claimType;
   String? get docName => _docName;
   String? get docRegistration => _docRegistration;
@@ -151,7 +151,7 @@ class ClaimJsonModel {
     map['claimable_amount'] = _claimableAmount;
     map['state'] = _state;
     map['city'] = _city;
-    map['specialization'] = _specialization;
+    if(_specialization != null) map['specialization'] = _specialization;
     return map;
   }
 

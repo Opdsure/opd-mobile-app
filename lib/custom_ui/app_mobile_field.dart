@@ -94,6 +94,7 @@ class AppMobileField extends StatelessWidget {
               obscureText: isViewPassword,
               textAlignVertical: TextAlignVertical.center,
               inputFormatters: inputFormatters,
+              keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                 isDense: true,
                 hintText: hint,

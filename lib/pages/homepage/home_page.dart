@@ -338,20 +338,6 @@ class HomePage extends StatelessWidget {
                 ),
               ),
             ),
-            AppTextView(
-              onClick: () async {
-                FilePickerResult? result = await FilePicker.platform.pickFiles(
-                  type: FileType.any,
-                  allowMultiple: true,
-                );
-                if (result != null) {
-                  OpdSure.of(context).client.uploadFiles(results: result);
-                } else {
-                  print(result);
-                }
-              },
-              text: "Upload",
-            ),
           ],
         ),
       ),

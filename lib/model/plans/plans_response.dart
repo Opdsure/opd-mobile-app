@@ -314,6 +314,11 @@ class Records {
     return PlanType.both;
   }
 
+
+  set membershipOptions(List<MembershipOptions>? value) {
+    _membershipOptions = value;
+  }
+
   bool _isFamily(List<MembershipOptions> options) {
     for (var option in options) {
       if (option.charges! == 0 || option.walletBalance! == 0) {

@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
+import 'package:opdsure/model/claim/file_claim_response.dart';
 import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
 import 'package:opdsure/model/login/login_response.dart';
@@ -12,6 +13,7 @@ import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 
 import '../../config/app_config.dart';
+import '../../model/my_member_model.dart';
 import '../../model/plans/plans_response.dart';
 
 class Api {
@@ -149,7 +151,7 @@ class Api {
     return responseString;
   }
 
-  Future<UserProfile?> updateUserProfile({String? name, String? email, String? phone,}) async {
+  Future<UserProfile?> updateUserProfile({String? name, String? email, String? phone, Map<String, dynamic>? plan}) async {
     final requestUri = Uri(path: 'api/v1/user/update-profile');
     final request = Request('PUT', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -157,7 +159,8 @@ class Api {
     request.bodyBytes = utf8.encode(jsonEncode({
       if (email != null) 'email': email,
       if (phone != null) 'phone': phone,
-      if (name != null) 'name': name
+      if (name != null) 'name': name,
+      if(plan != null) 'plan' : plan
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -168,7 +171,7 @@ class Api {
   }
 
   Future addFamilyMember({String? name,
-    String? relation,String? dob,String? gender, String? phone,String? countryCode,String? address,}) async {
+    int? relation,String? dob,String? gender, String? phone,String? countryCode,String? address,}) async {
     final requestUri = Uri(path: 'api/v1/user/add-member');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -189,7 +192,7 @@ class Api {
     return responseString;
   }
 
-  Future getFamilyMember() async {
+  Future<MyMemberModel?> getFamilyMember() async {
     final requestUri = Uri(path: 'api/v1/user/get-members');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -198,8 +201,8 @@ class Api {
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    // final json = jsonDecode(responseString);
-    return responseString;
+    final json = jsonDecode(responseString);
+    return MyMemberModel.fromJson(json);
   }
 
   Future<Relations?> getRelation() async {
@@ -228,7 +231,7 @@ class Api {
     return responseString;
   }
 
-  Future fileAClaim(String jsonData) async {
+  Future<FileClaimResponse?> fileAClaim(String jsonData) async {
     final requestUri = Uri(path: 'api/v1/user/add-claim');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -238,7 +241,8 @@ class Api {
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    return responseString;
+    final json = jsonDecode(responseString);
+    return FileClaimResponse.fromJson(json);
   }
 
   Future<FileUploadResponse?> uploadFile({required List<http.MultipartFile> results}) async {

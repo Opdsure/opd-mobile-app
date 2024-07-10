@@ -89,7 +89,7 @@ class NameEmailNumberView extends StatelessWidget {
                         setState(() =>
                             controller.inputType = InputType.emailOrPhone);
                       case InputType.emailOrPhone:
-                        if (controller.isWithEmail) {
+                        if (!controller.isWithEmail) {
                           if (controller.phoneTextController.text.isEmpty) {
                             setState(() =>
                                 controller.phoneError = 'Phone no is empty');
@@ -159,7 +159,7 @@ class InputFields extends StatelessWidget {
           textEditingController: controller.lastNameControllerTextController,
         );
       case InputType.emailOrPhone:
-        return !controller.isWithEmail
+        return controller.isWithEmail
             ? AppEditText(
                 hint: 'Enter your email address',
                 size: 14.0,

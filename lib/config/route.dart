@@ -51,14 +51,13 @@ abstract class AppRoutes {
       BuildContext context, GoRouterState state) {
     final opd = OpdSure.of(context);
     if (opd.client.isLogged) {
-      if (opd.profileData!.phone == null || opd.profileData!.email == null) {
-        opd.isWithEmail =
-            opd.profileData!.email == null && opd.profileData!.email!.isEmpty;
+      if (opd.profileData!.phone!.isEmpty || opd.profileData!.email!.isEmpty) {
+        opd.isWithEmail = opd.profileData!.email!.isEmpty;
         return '/home/name_email_number';
       }
       if (opd.client.isPlanPurchased) {
         return null;
-       // return '/home/view_plans/add_members';
+        //return '/home/view_plans/add_members';
       } else {
         if (opd.isSelectPlans) {
           if (opd.isPlansSelect) {
@@ -173,7 +172,7 @@ abstract class AppRoutes {
                     pageBuilder: (context, state) => defaultPageBuilder(
                       context,
                       state,
-                      ClaimsPage(),
+                      ViewPlansPage(),
                     ),
                     routes: [
                       GoRoute(

@@ -342,9 +342,8 @@ class UploadFileClaimDoc extends StatelessWidget{
               print(jsonEncode(data));
               var response = await OpdSure.of(context).client.fileAClaim(jsonEncode(data));
               print(response);
-              Navigator.of(context,rootNavigator: true).pop();
-              Map<String,dynamic> resMap = jsonDecode(response);
-              if(resMap['success']){
+              context.go('/home');
+              if(response!.success!){
                 CommonMethods.showToast('Claim added successfully');
               }
               else{

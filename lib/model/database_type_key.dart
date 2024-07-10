@@ -12,4 +12,6 @@ class DatabaseTypeKey{
   static const int  relationsData = 11;
   static const int  familyMember = 12;
   static const int  familyMemberData = 13;
+  static const int  userPlan = 14;
+  static const int  userVerified = 15;
 }

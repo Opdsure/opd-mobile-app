@@ -13,15 +13,12 @@ class NameEmailNumber extends StatefulWidget {
 }
 
 class NameEmailNumberController extends State<NameEmailNumber> {
-
   TextEditingController emailTextController = TextEditingController();
   TextEditingController firstNameTextController = TextEditingController();
   TextEditingController middleNameTextController = TextEditingController();
   TextEditingController lastNameControllerTextController =
-  TextEditingController();
-  TextEditingController phoneTextController =
-  TextEditingController();
-
+      TextEditingController();
+  TextEditingController phoneTextController = TextEditingController();
 
   String? emailError;
   String? phoneError;
@@ -35,7 +32,6 @@ class NameEmailNumberController extends State<NameEmailNumber> {
   InputType inputType = InputType.firstName;
 
   String flagUri = 'packages/fl_country_code_picker/assets/flags/in.png';
-
 
   @override
   void initState() {
@@ -56,7 +52,7 @@ class NameEmailNumberController extends State<NameEmailNumber> {
       nameParts.add(lastNameControllerTextController.text);
     }
 
-    if(nameParts.join(' ') .isEmpty){
+    if (nameParts.join(' ').isEmpty) {
       return null;
     }
     return nameParts.join(' ');
@@ -66,7 +62,7 @@ class NameEmailNumberController extends State<NameEmailNumber> {
     final picked = await countryPicker.showPicker(context: context);
     if (picked != null) {
       flagUri =
-      'packages/fl_country_code_picker/assets/flags/${picked.code.toLowerCase()}.png';
+          'packages/fl_country_code_picker/assets/flags/${picked.code.toLowerCase()}.png';
       countryCode = picked.dialCode;
       setState(() {});
     }
@@ -74,13 +70,14 @@ class NameEmailNumberController extends State<NameEmailNumber> {
 
   void updateProfile() async {
     final opd = OpdSure.of(context);
-    final response = await opd.client.updateUserProfile(name: _getFullName(), phone: isWithEmail ? null : phoneTextController.text, );
-    if(response != null){
+    final response = await opd.client.updateUserProfile(
+      name: _getFullName(),
+      phone: isWithEmail ? null : phoneTextController.text,
+      email: isWithEmail ? emailTextController.text : null
+    );
+    if (response != null) {
       context.pushReplacement('/home');
-    }else{
-
-    }
-
+    } else {}
   }
 
   @override

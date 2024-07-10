@@ -33,10 +33,10 @@ class Relations {
   bool? get success => _success;
   String? get message => _message;
 
-  List<String> get relationsData{
-    List<String> relations = [];
+  List<Relation> get relationsData{
+    List<Relation> relations = [];
     for (var entry in _data!.toJson().entries) {
-      relations.add(entry.value!.getRelation());
+      relations.add(Relation(entry.value!.getRelation(), entry.value!));
   }
     return relations;
   }
@@ -144,5 +144,11 @@ class RelationsData {
     map['MOTHER_IN_LAW'] = _motherinlaw;
     return map;
   }
+}
 
+class Relation{
+  String name;
+  int value;
+
+  Relation(this.name, this.value);
 }

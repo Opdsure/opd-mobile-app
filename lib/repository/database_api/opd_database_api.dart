@@ -33,6 +33,8 @@ class OpdDatabaseApi extends DatabaseApi {
     Hive.registerAdapter(RelationsDataAdapter());
     Hive.registerAdapter(MyMemberModelAdapter());
     Hive.registerAdapter(MemberListAdapter());
+    Hive.registerAdapter(PlanAdapter());
+    Hive.registerAdapter(VerifiedAdapter());
     _clientBox = await Hive.openBox(name);
     _planBox = await Hive.openBox(DatabaseBoxKey.planBoxName);
     _userProfileBox = await Hive.openBox(DatabaseBoxKey.userProfileBoxName);
@@ -188,13 +190,13 @@ class OpdDatabaseApi extends DatabaseApi {
   @override
   Future insertFamilyMembers({MyMemberModel? myMember}) async {
     if (myMember != null) {
-      await _familyMemberBox.put(DatabaseBoxKey.relationsBox, myMember);
+      await _familyMemberBox.put(DatabaseBoxKey.familyMembersBox, myMember);
     }
   }
 
   @override
   Future insertRelations({Relations? relations}) async {
-    if(relations != null){
+    if (relations != null) {
       _relationsBox.put(DatabaseBoxKey.relationsBox, relations);
     }
   }
@@ -202,14 +204,33 @@ class OpdDatabaseApi extends DatabaseApi {
   @override
   Future updateFamilyMembers({MyMemberModel? myMember}) async {
     if (myMember != null) {
-      await _familyMemberBox.put(DatabaseBoxKey.relationsBox, myMember);
+      await _familyMemberBox.put(DatabaseBoxKey.familyMembersBox, myMember);
     }
   }
 
   @override
-  Future updateRelations({Relations? relations}) async  {
-    if(relations != null){
+  Future updateRelations({Relations? relations}) async {
+    if (relations != null) {
       _relationsBox.put(DatabaseBoxKey.relationsBox, relations);
+    }
+  }
+
+  @override
+  Future getPlanById({required String? planId, int? memberShipId}) async {
+    final plans = await getPlans();
+
+    if (plans != null) {
+      final records = plans.data!.records!
+          .where((records) => records.id == planId!)
+          .toList();
+      final memberShipOption = records[0]
+          .membershipOptions!
+          .where((options) => options.membershipId == memberShipId)
+          .toList();
+      records[0].membershipOptions = memberShipOption;
+      return records[0];
+    } else {
+      return null;
     }
   }
 }

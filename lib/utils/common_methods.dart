@@ -84,6 +84,7 @@ class CommonMethods{
     );
     showDialog(barrierDismissible: false,
       context:context,
+      useRootNavigator: false,
       builder:(BuildContext context){
         return alert;
       },

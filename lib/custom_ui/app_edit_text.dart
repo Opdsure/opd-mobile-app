@@ -79,6 +79,7 @@ class AppEditText extends StatelessWidget {
                 : null,
             hintStyle: GoogleFonts.montserrat(),
           ),
+
         ),
       ),
       mCallback: viewCallback,

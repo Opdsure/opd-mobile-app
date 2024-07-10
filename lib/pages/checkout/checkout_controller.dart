@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
+import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/checkout/checkout_page_view.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -42,7 +43,8 @@ class CheckoutController extends State<CheckoutPage> {
     payAmount = (netAmountWithGst * 100).toString();
   }
 
-  void openPaymentGateway(){
+  void openPaymentGateway() async {
+    UserProfile? profile = await OpdSure.of(context).client.getProfile();
     Razorpay razorpay = Razorpay();
     var options = {
       'key': 'rzp_test_xru9wqPRtdHFOO',
@@ -61,9 +63,10 @@ class CheckoutController extends State<CheckoutPage> {
       },
       'prefill': {
         'contact':
-        "+91",
-        "email": '',
-        "name": ''
+        "+91${profile.data!.phone!}",
+        "email": profile.data!.email!,
+        "name": profile.data!.name!
+
       }
     };
     razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
@@ -78,6 +81,10 @@ class CheckoutController extends State<CheckoutPage> {
 
   void _handlePaymentSuccessResponse(PaymentSuccessResponse response) async {
     final opd = OpdSure.of(context);
+    await opd.client.updateUserProfile(plan: {
+      "purchased" : true,
+      "membership_id": options!.membershipId!,
+    "id" :records!.id!});
     await opd.client.updatePlanPurchasedStatus(true);
     context.go('/home/view_plans/add_members');
     //_showAlertDialog(context, "Success", response.toString());
