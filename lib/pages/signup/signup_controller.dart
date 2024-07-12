@@ -21,26 +21,26 @@ class SignUpPage extends StatefulWidget {
 class SignUpController extends State<SignUpPage> {
   late TapGestureRecognizer loginRecognizer;
   TextEditingController emailTextController = TextEditingController();
-  TextEditingController passwordTextController =
-  TextEditingController();
-  TextEditingController confirmPasswordTextController =
-  TextEditingController();
+  TextEditingController passwordTextController = TextEditingController();
+  TextEditingController confirmPasswordTextController = TextEditingController();
   TextEditingController firstNameTextController = TextEditingController();
   TextEditingController middleNameTextController = TextEditingController();
-  TextEditingController lastNameControllerTextController =
-  TextEditingController();
-  TextEditingController phoneTextController =
-  TextEditingController();
+  TextEditingController lastNameControllerTextController = TextEditingController();
+  TextEditingController phoneTextController = TextEditingController();
 
   final countryPicker = const FlCountryCodePicker();
   bool isTermAndConditions = false;
 
-  String? emailError;
-  String? passwordError;
-  String? confirmPasswordError;
-  String? phoneError;
+  String emailError='';
+  String passwordError='';
+  String confirmPasswordError='';
+  String phoneError = '';
   String? nameError;
   bool loading = false;
+  bool isShowEmailError = false;
+  bool isShowErrorMobile = false;
+  bool isShowErrorPassword = false;
+  bool isShowErrorCPassword = false;
 
   bool isWithEmail = false;
   bool isPasswordObscure = true;
@@ -136,72 +136,113 @@ class SignUpController extends State<SignUpPage> {
 
   void register() async {
     final opdSure = OpdSure.of(context);
+    bool evOk = true;
     if (!isWithEmail) {
       if (phoneTextController.text.isEmpty) {
-        setState(() => phoneError = 'Phone no is empty');
-        return;
-      } else {
-        if (!phoneTextController.text.isValidPhoneNumber) {
-          setState(() => phoneError = 'Enter a valid phone no');
-          return;
-        }
+        setState((){
+          phoneError = 'Phone no is empty';
+          isShowErrorMobile = true;
+          evOk = false;
+        });
+        // return;
       }
-    } else {
-      if (emailTextController.text.isEmpty) {
-        setState(() => emailError = 'Email address is empty');
-        return;
-      } else {
-        if (!emailTextController.text.isValidEmail) {
-          setState(() => emailError = 'Enter a valid email address');
-          return;
+      if(!phoneTextController.text.isValidPhoneNumber) {
+          setState((){
+            phoneError = 'Enter a valid phone no';
+            isShowErrorMobile = true;
+            evOk = false;
+          });
+          // return;
         }
+      else{
+        setState((){
+          isShowErrorMobile = false;
+        });
       }
     }
-    if (passwordTextController.text.isEmpty) {
-      setState(() => passwordError = 'password is empty');
-      return;
-    } else {
-      if (!passwordTextController.text.isValidPassword) {
-        setState(() => passwordError = 'Enter a valid password');
-        return;
+    else{
+      if(emailTextController.text.isEmpty){
+        setState((){
+          emailError = 'Email address is empty';
+          isShowEmailError = true;
+          evOk = false;
+        });
       }
+      if (!emailTextController.text.isValidEmail) {
+        setState((){
+          emailError = 'Enter a valid email address';
+          isShowEmailError = true;
+          evOk = false;
+        });
+        // return;
+      }
+    }
+    if(passwordTextController.text.isEmpty){
+      setState((){
+        passwordError = 'password is empty';
+        isShowErrorPassword = true;
+        evOk = false;
+      });
+    }
+    else if(passwordTextController.text.length<8){
+      setState((){
+        passwordError = 'password must be 8 character';
+        isShowErrorPassword = true;
+        evOk = false;
+      });
+    }
+    else{
+      setState((){
+        isShowErrorPassword = false;
+      });
     }
     if (confirmPasswordTextController.text.isEmpty) {
-      setState(() => confirmPasswordError = 'confirm password is empty');
-      return;
-    } else {
-      if (passwordTextController.text != confirmPasswordTextController.text) {
-        setState(() => confirmPasswordError = 'Password not matched');
-        return;
-      }
+      setState(() {
+        confirmPasswordError = 'confirm password is empty';
+        isShowErrorCPassword = true;
+        evOk = false;
+      });
     }
-
+    else{
+      setState(() {
+        isShowErrorCPassword = false;
+      });
+    }
+    if (passwordTextController.text != confirmPasswordTextController.text) {
+      setState((){
+        confirmPasswordError = 'Password not matched';
+        isShowErrorCPassword = true;
+        evOk = false;
+      });
+      // return;
+    }
     if (!isTermAndConditions) {
       CommonMethods.showToast('Please accept term and conditions.');
-      return;
+      evOk = false;
+      // return;
     }
-
-    setState(() => loading = true);
-
-    if(!isWithEmail){
-      sendOtp();
-    }else{
-      try {
-        await opdSure.getLoginClient().register(
-          emailAddress: isWithEmail ? emailTextController.text : null,
-          password: passwordTextController.text,
-          confirmPassword: confirmPasswordTextController.text,
-          phone: isWithEmail ? null : phoneTextController.text,
-          countryCode: isWithEmail ? null : countryCode,
-          termAndCondition: isTermAndConditions,
-          loginType: isWithEmail ? 0: 1,
-        );
-      } catch (e) {
-        setState(() => confirmPasswordError = e.toString());
-        return setState(() => loading = false);
+    if(evOk){
+      CommonMethods.showAlertDialog(context);
+      if(!isWithEmail){
+        sendOtp();
+      }else{
+        try {
+          await opdSure.getLoginClient().register(
+            emailAddress: isWithEmail ? emailTextController.text : null,
+            password: passwordTextController.text,
+            confirmPassword: confirmPasswordTextController.text,
+            phone: isWithEmail ? null : phoneTextController.text,
+            countryCode: isWithEmail ? null : countryCode,
+            termAndCondition: isTermAndConditions,
+            loginType: isWithEmail ? 0: 1,
+          );
+          Navigator.of(context,rootNavigator: false).pop();
+        } catch (e) {
+          setState(() => confirmPasswordError = e.toString());
+          return setState(() => loading = false);
+        }
       }
     }
-
 
     if (mounted) setState(() => loading = false);
   }

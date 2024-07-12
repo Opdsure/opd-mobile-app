@@ -5,11 +5,11 @@ import 'package:opdsure/utils/common_methods.dart';
 import 'app_header.dart';
 
 class AppBasePage extends StatelessWidget{
-  final AppHeader appHeader;
+  final Widget? appHeader;
   final Widget childContent;
 
   const AppBasePage({super.key,
-    required this.appHeader,
+    this.appHeader,
     required this.childContent,
   });
 

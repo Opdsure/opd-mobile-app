@@ -37,9 +37,18 @@ class OtpPageView extends StatelessWidget{
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Icon(
-                  Icons.arrow_back_ios,
-                  color: backIconCl,
+                InkWell(
+                  onTap: (){
+                    Navigator.pop(context);
+                  },
+                  child: const SizedBox(
+                    height: 40,
+                    width: 40,
+                    child: Icon(
+                      Icons.arrow_back_ios,
+                      color: backIconCl,
+                    ),
+                  ),
                 ),
                 Image.asset(
                   'assets/images/app_logo.png',

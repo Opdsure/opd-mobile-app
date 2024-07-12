@@ -60,7 +60,7 @@ abstract class AppRoutes {
       }
       if (opd.client.isPlanPurchased) {
         return null;
-        //return '/home/view_plans/add_members';
+        // return '/home/view_plans/add_members';
       } else {
         if (opd.isSelectPlans) {
           if (opd.isPlansSelect) {
@@ -218,7 +218,7 @@ abstract class AppRoutes {
                     pageBuilder: (context, state) => defaultPageBuilder(
                       context,
                       state,
-                      ViewPlansPage(),
+                      DashBoardPage(),
                     ),
                     routes: [
                       GoRoute(

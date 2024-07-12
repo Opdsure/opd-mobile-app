@@ -76,14 +76,16 @@ class SignUpView extends StatelessWidget {
                         size: 14.0,
                         textInputType: TextInputType.emailAddress,
                         textEditingController: controller.emailTextController,
-                        errorText: controller.emailError,
+                        errorMessage: controller.emailError!,
+                        showErrorMessage: controller.isShowEmailError,
                       )
                     : AppMobileField(
                         hint: 'Enter your mobile number',
                         countryCode: controller.countryCode,
                         textEditingController: controller.phoneTextController,
                         flagUri: controller.flagUri,
-                        errorText: controller.phoneError,
+                        errorMessage: controller.phoneError,
+                        showErrorMessage: controller.isShowErrorMobile,
                         inputFormatters: [
                           LengthLimitingTextInputFormatter(13),
                         ],
@@ -101,8 +103,9 @@ class SignUpView extends StatelessWidget {
                   isViewPassword: controller.isPasswordObscure,
                   textEditingController: controller.passwordTextController,
                   viewSuffix: true,
-                  errorText: controller.passwordError,
                   eyeCallback: controller.togglePassword,
+                  errorMessage: controller.passwordError,
+                  showErrorMessage: controller.isShowErrorPassword,
                 ),
                 const SizedBox(
                   height: 5.0,
@@ -125,8 +128,9 @@ class SignUpView extends StatelessWidget {
                   viewSuffix: true,
                   isViewPassword: controller.isConfirmPasswordObscure,
                   textEditingController: controller.confirmPasswordTextController,
-                  errorText: controller.confirmPasswordError,
                   eyeCallback: controller.toggleConfirmPassword,
+                  errorMessage: controller.confirmPasswordError,
+                  showErrorMessage: controller.isShowErrorCPassword,
                 ),
                 const SizedBox(
                   height: 24.0,
@@ -237,7 +241,7 @@ class SignUpView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.asset(
-                          !controller.isWithEmail
+                          controller.isWithEmail
                               ? 'assets/images/phone_img.png'
                               : 'assets/images/mail_icon.png',
                           height: 24.0,
@@ -247,7 +251,7 @@ class SignUpView extends StatelessWidget {
                           width: 10.0,
                         ),
                         AppTextView(
-                          text: !controller.isWithEmail
+                          text: controller.isWithEmail
                               ? 'Continue with Phone'
                               : 'Continue with Email',
                           size: 16.0,

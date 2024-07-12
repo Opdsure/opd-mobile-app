@@ -20,11 +20,26 @@ class AppHeader extends StatelessWidget{
     // TODO: implement build
     return Stack(
       children: [
-        const Align(
+        Align(
           alignment: Alignment.centerLeft,
-          child: Icon(
-            Icons.arrow_back_ios,
-            color: backIconCl,
+          child: InkWell(
+            onTap: (){
+              if(headerName=='Add Details'){
+                Navigator.of(context,rootNavigator: false).pop();
+                Navigator.of(context,rootNavigator: false).pop();
+              }
+              else{
+                Navigator.of(context,rootNavigator: false).pop();
+              }
+            },
+            child: const SizedBox(
+              height: 40.0,
+              width: 40.0,
+              child: Icon(
+                Icons.arrow_back_ios,
+                color: backIconCl,
+              ),
+            ),
           ),
         ),
         Align(

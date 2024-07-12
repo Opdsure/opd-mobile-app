@@ -5,7 +5,7 @@ class AppCardView extends StatelessWidget{
   final Widget mChaild;
 
   AppCardView({
-    required this.mChaild
+    required this.mChaild,
   });
 
   @override

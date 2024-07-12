@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
@@ -10,6 +11,7 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/custom_ui/select_plan.dart';
+import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/plan/plans_page/plans_page_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
@@ -42,6 +44,7 @@ class PlansPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    TypeController typeController = Get.put(TypeController());
     // TODO: implement build
     return DefaultTabController(
       length: controller.plansLength!,
@@ -54,9 +57,12 @@ class PlansPageView extends StatelessWidget {
               const SizedBox(
                 height: 16.0,
               ),
-              AppHeader(
-                headerName: 'Select Plan',
-              ),
+              Obx((){
+                var planName = typeController.planName.value;
+                return AppHeader(
+                  headerName: '$planName Plan',
+                );
+              }),
               const SizedBox(
                 height: 30.0,
               ),
@@ -87,7 +93,12 @@ class PlansPageView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  AppTextView(
+                  (!controller.isIndividual && controller.familyOptions==null)?AppTextView(
+                    text: 'Select Member',
+                    color: textColor,
+                    size: 16.0,
+                    fontWeight: FontWeight.w700,
+                  ):AppTextView(
                     text: '₹ ${controller.options!.charges!}',
                     color: textColor,
                     size: 40.0,
@@ -152,7 +163,7 @@ class PlansPageView extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
               if ((controller.record!.planType! == PlanType.family ||
-                      controller.record!.planType! == PlanType.both) &&
+                  controller.record!.planType! == PlanType.both) &&
                   !controller.isIndividual) ...[
                 const SizedBox(
                   height: 10.0,
@@ -183,7 +194,7 @@ class PlansPageView extends StatelessWidget {
                         title: AppTextView(
                           color: Colors.black,
                           text:
-                              controller.record!.planBenefits![index].planLabel!,
+                          controller.record!.planBenefits![index].planLabel!,
                           size: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -194,23 +205,15 @@ class PlansPageView extends StatelessWidget {
                       );
                     }),
               ),
-              // commonRow(
-              // context, 'unlimited_doctor', controller.record!.name!),
-              // const SizedBox(height: 10.0,),
-              // commonRow(context,'max_limit','Maximum limit of INR 500/- per Doctor Consultation.'),
-              // const SizedBox(height: 10.0,),
-              // commonRow(context,'pharmacy_labs','Prescribed pharmacy & lab test - 50% reimbursement or INR 500/- (whichever lower).'),
-              // const SizedBox(height: 10.0,),
-              // commonRow(context,'free_annual','Free Preventive Annual Health Check-up - 87 parameters.'),
-              // const SizedBox(height: 10.0,),
-              // commonRow(context,'easy_claim','Easy claim Processing and cashless OPD with network doctors.'),
-              // const SizedBox(height: 10.0,),
-              // commonRow(context,'add_family','Add family members at 50% discount.'),
-              // const SizedBox(height: 20.0,),
               AppButton(
                 text: 'Select',
+                color: (!controller.isIndividual && controller.familyOptions==null)?const Color(0xFFD9D7D7):buttonColor,
+                textColor: (!controller.isIndividual && controller.familyOptions==null)?Colors.black:Colors.white,
+                borderColor: (!controller.isIndividual && controller.familyOptions==null)?const Color(0xFFD9D7D7):buttonColor,
                 onClick: () {
-                  controller.goToCheckout();
+                  if(!(!controller.isIndividual && controller.familyOptions==null)){
+                    controller.goToCheckout();
+                  }
                 },
               )
             ],
@@ -242,7 +245,7 @@ class PlansPageView extends StatelessWidget {
               ),
               child: Padding(
                 padding:
-                    const EdgeInsets.only(left: 10.0, right: 10.0, top: 15.0),
+                const EdgeInsets.only(left: 10.0, right: 10.0, top: 15.0),
                 child: ListView(
                   children: [
                     Row(
@@ -298,7 +301,7 @@ class PlansPageView extends StatelessWidget {
                           children: [
                             TextSpan(
                                 text:
-                                    'You can cancel whenever you want. By confirming, you agree to the ',
+                                'You can cancel whenever you want. By confirming, you agree to the ',
                                 style: GoogleFonts.montserrat(
                                     color: const Color(0xFF667085))),
                             TextSpan(

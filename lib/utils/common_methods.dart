@@ -74,6 +74,19 @@ class CommonMethods{
     }
   }
 
+  static String getGenderByKey(int gender){
+    switch(gender){
+      case 1:
+        return 'Male';
+      case 2:
+        return 'Female';
+      case 3:
+        return 'Other';
+      default:
+        return '';
+    }
+  }
+
   static void showAlertDialog(BuildContext context){
     AlertDialog alert=AlertDialog(
       content: Row(

@@ -11,6 +11,7 @@ import 'package:opdsure/model/login/login_response.dart';
 import 'package:opdsure/model/register/register_response.dart';
 import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
+import 'package:opdsure/utils/common_methods.dart';
 
 import '../../config/app_config.dart';
 import '../../model/my_member_model.dart';
@@ -26,6 +27,7 @@ class Api {
       : httpClient = httpClient ?? Client();
 
   Never unexpectedResponse(BaseResponse response, Uint8List body) {
+    CommonMethods.showToast('User does not exist');
     throw Exception('http error response');
   }
 

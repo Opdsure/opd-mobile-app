@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/plan/plans_page/plans_page.dart';
 import 'package:opdsure/utils/common_methods.dart';
@@ -28,6 +30,10 @@ class PlansPageController extends State<PlansPage> {
   void toggleIndividual(bool value) => setState(() {
         isIndividual = value;
         planType = value ? "Individual" : "Family";
+        if(value){
+          int index = Get.put(TypeController()).planIndex.value;
+          getIndexedRecords(index: index);
+        }
       });
 
   List<DropdownMenuItem<MembershipOptions>> getPlanItem() {
@@ -74,8 +80,11 @@ class PlansPageController extends State<PlansPage> {
   }
 
   void getIndexedRecords({required int index}) {
+    TypeController typeController = Get.put(TypeController());
     setState(() {
       record = widget.plans!.data!.records![index];
+      typeController.planNameChange(widget.plans!.data!.records![index].name!);
+      typeController.planIndexChange(index);
       options = plans!.data!.records![index].membershipOptions![0];
       isIndividual = true;
       planType = 'Individual';

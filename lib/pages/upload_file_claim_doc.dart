@@ -333,21 +333,46 @@ class UploadFileClaimDoc extends StatelessWidget{
           AppButton(
             text: 'Continue',
             onClick: ()async{
-              CommonMethods.showAlertDialog(context);
               Map<String,dynamic> data = claimJsonModel!.toJson();
               data['prescription'] = filesUrl['prescription'];
               data['fee_receipt'] = filesUrl['doc_receipt'];
               data['pharmacy_receipt'] = filesUrl['pharmacy_receipt'];
               data['test_receipt'] = filesUrl['test_receipt'];
-              print(jsonEncode(data));
-              var response = await OpdSure.of(context).client.fileAClaim(jsonEncode(data));
-              print(response);
-              context.go('/home');
-              if(response!.success!){
-                CommonMethods.showToast('Claim added successfully');
+              if(filesUrl['prescription']==null){
+                CommonMethods.showToast('Please upload one Prescription');
+              }
+              else if(filesUrl['doc_receipt']==null){
+                CommonMethods.showToast('Please upload one Fee Receipt');
+              }
+              else if(filesUrl['pharmacy_receipt']==null){
+                CommonMethods.showToast('Please upload one Pharmacy Receipt');
+              }
+              else if(filesUrl['test_receipt']==null){
+                CommonMethods.showToast('Please upload one Test Receipt');
               }
               else{
-                CommonMethods.showToast('Something went wrong');
+                CommonMethods.showAlertDialog(context);
+                print(jsonEncode(data));
+                var response = await OpdSure.of(context).client.fileAClaim(jsonEncode(data));
+                print(response);
+                Navigator.of(context,rootNavigator: false).pop();
+                if(response!.success!){
+                  typeController.refreshClaimListChange(false);
+                  typeController.refreshClaimListChange(true);
+                  typeController.prescriptionListChange([]);
+                  typeController.docFeeRcptChange([]);
+                  typeController.pharmacyRcptChange([]);
+                  typeController.labTestRcptChange([]);
+                  // typeController.memberListChange(<MemberList>[]);
+                  typeController.selectClaimChange('');
+                  typeController.opdVisitDateChange('');
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  CommonMethods.showToast('Claim added successfully');
+                }
+                else{
+                  CommonMethods.showToast('Something went wrong');
+                }
               }
             },
           ),

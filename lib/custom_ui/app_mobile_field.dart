@@ -21,6 +21,8 @@ class AppMobileField extends StatelessWidget {
   final String? errorText;
   final TextStyle? errorStyle;
   final List<TextInputFormatter>? inputFormatters;
+  final String errorMessage;
+  final bool showErrorMessage;
 
   const AppMobileField({
     required this.hint,
@@ -35,81 +37,93 @@ class AppMobileField extends StatelessWidget {
     this.isPasswordField = false,
     this.isViewPassword = false,
     this.countryCallback,
-    this.inputFormatters
+    this.inputFormatters,
+    this.errorMessage = '',
+    this.showErrorMessage = false
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: 50,
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFFFF),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          width: 2,
-          color: const Color(0xFFEAECF0),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFFFF),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              width: 2,
+              color: const Color(0xFFEAECF0),
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0D101828), // spotColor and ambientColor combined
+                blurRadius: 2,
+                offset: Offset(0, 2), // assuming the shadow elevation is 2.dp
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: countryCallback,
+                child: Row(
+                  children: [
+                    Image.asset(
+                      flagUri,
+                      fit: BoxFit.fill,
+                      width: 30.0,
+                    ),
+                    const SizedBox(width: 5,),
+                    AppTextView(text: countryCode),
+                    const SizedBox(width: 5,),
+                    const Icon(
+                      Icons.keyboard_arrow_down_sharp,
+                      color: backIconCl,
+                    )
+                  ],
+                ),
+              ),
+              const VerticalDivider(
+                color: backIconCl,
+                thickness: 0.5,
+              ),
+              Flexible(
+                child: TextField(
+                  controller: textEditingController,
+                  style: GoogleFonts.montserrat(
+                      fontSize: size,
+                      color: color
+                  ),
+                  obscureText: isViewPassword,
+                  textAlignVertical: TextAlignVertical.center,
+                  inputFormatters: inputFormatters,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    hintText: hint,
+                    border: InputBorder.none,
+                    fillColor: Colors.white,
+                    hintStyle: GoogleFonts.montserrat(
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0D101828), // spotColor and ambientColor combined
-            blurRadius: 2,
-            offset: Offset(0, 2), // assuming the shadow elevation is 2.dp
+        Visibility(
+          visible: showErrorMessage,
+          child: AppTextView(
+            text: errorMessage,
+            color: Colors.red,
+            size: 12.0,
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: countryCallback,
-            child: Row(
-              children: [
-                Image.asset(
-                  flagUri,
-                  fit: BoxFit.fill,
-                  width: 30.0,
-                ),
-                const SizedBox(width: 5,),
-                AppTextView(text: countryCode),
-                const SizedBox(width: 5,),
-                const Icon(
-                  Icons.keyboard_arrow_down_sharp,
-                  color: backIconCl,
-                )
-              ],
-            ),
-          ),
-          const VerticalDivider(
-            color: backIconCl,
-            thickness: 0.5,
-          ),
-          Flexible(
-            child: TextFormField(
-              controller: textEditingController,
-              style: GoogleFonts.montserrat(
-                  fontSize: size,
-                  color: color
-              ),
-              obscureText: isViewPassword,
-              textAlignVertical: TextAlignVertical.center,
-              inputFormatters: inputFormatters,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                isDense: true,
-                hintText: hint,
-                border: InputBorder.none,
-                fillColor: Colors.white,
-                errorText: errorText,
-                errorStyle: errorStyle,
-                hintStyle: GoogleFonts.montserrat(
-
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
+        )
+      ],
     );
   }
 }

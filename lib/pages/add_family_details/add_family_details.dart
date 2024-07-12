@@ -56,321 +56,332 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
     }
   }
 
+  Future<bool> _onWillPop() async {
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
     // TODO: implement build
-    return AppBasePage(
-      appHeader: AppHeader(
-        headerName: 'Add Details',
-        showRightView: true,
-        rightView: AppTextView(
-          text: 'Skip',
-          color: Color(0xFF475467),
-          size: 16.0,
-          onClick: (){
-            context.go('/home');
-          },
-        ),
-      ),
-      childContent: ListView(
-        children: [
-          const AppTextView(
-            text: 'Fill Your Details',
-            size: 18.0,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF101828),
-          ),
-          const SizedBox(height: 16.0,),
-          const AppTextView(
-            text: 'Name',
-            size: 14.0,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1D2939),
-          ),
-          AppEditText(
-            hint: 'Enter the name',
-            textEditingController: nameCtrl,
-          ),
-          const SizedBox(height: 15.0,),
-          const AppTextView(
-            text: 'Relation',
-            size: 14.0,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1D2939),
-          ),
-          InkWell(
-            onTap: ()async{
-              Relations? data = await OpdSure.of(context).client.getRelation();
-              AppBottomSheet(
-                  height: 600,
-                  mChild: ListView.builder(
-                    itemCount: data!.relationsData.length,
-                    itemBuilder: (context, index){
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: AppTextView(
-                          onClick: (){
-                            typeController.selectRelationChange(data.relationsData[index].name);
-                            typeController.selectRelationKeyChange(data.relationsData[index].value);
-                            Navigator.pop(context);
-                          },
-                          text: data.relationsData[index].name,
-                        ),
-                      );
-                    },
-                  )
-              ).modalBottomSheetMenu(context);
-            },
-            child: AppBorderBox(
-              myChild: Obx((){
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppTextView(
-                      text: typeController.selectRelation.value==''?'Select Relation':typeController.selectRelation.value,
-                    ),
-                    const Icon(
-                      Icons.keyboard_arrow_down_sharp,
-                      color: Color(0xff667085),
-                      size: 24.0,
-                    )
-                  ],
-                );
-              }),
-            ),
-          ),
-          const SizedBox(height: 15.0,),
-          const AppTextView(
-            text: 'DOB',
-            size: 14.0,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1D2939),
-          ),
-          Obx((){
-            String dob = typeController.familyMemDOB.value;
-            String showDate = '';
-            if(dob!=''){
-              showDate = CommonMethods.changeDateFormat(dob,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy');
-            }
-            return AppEditText(
-              hint: dob==''?'Enter date of birth':showDate,
-              disableText: true,
-              viewSuffix: true,
-              suffixWidget: const Icon(
-                Icons.calendar_today_outlined,
-                color: Color(0xff667085),
-                size: 24.0,
-              ),
-              eyeCallback: (){
-                _selectDOB(context, typeController);
-              },
-
-            );
-          }),
-          const SizedBox(height: 15.0,),
-          const AppTextView(
-            text: 'Gender',
-            size: 14.0,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1D2939),
-          ),
-          InkWell(
-            onTap: ()async{
-              AppBottomSheet(
-                  height: 300,
-                  mChild: ListView.builder(
-                    itemCount: genderList.length,
-                    itemBuilder: (context, index){
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: AppTextView(
-                          onClick: (){
-                            typeController.selectGenderChange(genderList[index]);
-                            Navigator.pop(context);
-                          },
-                          text: genderList[index],
-                        ),
-                      );
-                    },
-                  )
-              ).modalBottomSheetMenu(context);
-            },
-            child: AppBorderBox(
-              myChild: Obx((){
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppTextView(
-                      text: typeController.selectGender.value==''?'Select Gender':typeController.selectGender.value,
-                    ),
-                    const Icon(
-                      Icons.keyboard_arrow_down_sharp,
-                      color: Color(0xff667085),
-                      size: 24.0,
-                    )
-                  ],
-                );
-              }),
-            ),
-          ),
-          const SizedBox(height: 15.0,),
-          const AppTextView(
-            text: 'Phone Number',
-            size: 14.0,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1D2939),
-          ),
-          AppMobileField(
-            hint: 'Enter your mobile number',
-            countryCode: '+91',
-            textEditingController: phoneCtrl,
-            countryCallback: ()async{
-              // Show the country code picker when tapped.
-              final picked= await countryPicker.showPicker(context: context);
-              // Null check
-              if (picked!= null) print(picked);
-            },
-          ),
-          const SizedBox(height: 15.0,),
-          const AppTextView(
-            text: 'State',
-            size: 14.0,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1D2939),
-          ),
-          InkWell(
-            onTap: ()async{
-              var data = await OpdSure.of(context).client.getAllState();
-              StateModel stateModel = statemodelFromJson(data);
-              List<StateListData> stateListData = stateModel.data;
-              AppBottomSheet(
-                  height: 600,
-                  mChild: ListView.builder(
-                    itemCount: stateListData.length,
-                    itemBuilder: (context, index){
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: AppTextView(
-                          onClick: (){
-                            typeController.selectStateChange(stateListData[index].name);
-                            Navigator.pop(context);
-                          },
-                          text: stateListData[index].name,
-                        ),
-                      );
-                    },
-                  )
-              ).modalBottomSheetMenu(context);
-            },
-            child: AppBorderBox(
-              myChild: Obx((){
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    AppTextView(
-                      text: typeController.selectState.value==''?'Select State':typeController.selectState.value,
-                    ),
-                    const Icon(
-                      Icons.keyboard_arrow_down_sharp,
-                      color: Color(0xff667085),
-                      size: 24.0,
-                    )
-                  ],
-                );
-              }),
-            ),
-          ),
-          const SizedBox(height: 15.0,),
-          const AppTextView(
-            text: 'City',
-            size: 14.0,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1D2939),
-          ),
-          AppEditText(
-            hint: 'Enter the city',
-            textEditingController: cityCtrl,
-          ),
-          const SizedBox(height: 15.0,),
-          const AppTextView(
-            text: 'Pin code',
-            size: 14.0,
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF1D2939),
-          ),
-          AppEditText(
-            hint: 'Enter the pin code',
-            textEditingController: pinCodeCtrl,
-          ),
-          const SizedBox(height: 20.0,),
-          AppButton(
-            text: 'Save',
-            onClick: ()async{
-              CommonMethods.showAlertDialog(context);
-              if(nameCtrl.text.isEmpty){
-                CommonMethods.showToast('name is blank');
-                Navigator.of(context).pop();
-                return;
-              }
-              if(phoneCtrl.text.isEmpty){
-                CommonMethods.showToast('phone is blank');
-                Navigator.of(context).pop();
-                return;
-              }
-              if(typeController.familyMemDOB.value.isEmpty){
-                CommonMethods.showToast('Date of birth is blank');
-                Navigator.of(context).pop();
-                return;
-              }
-              if(typeController.selectGender.value.isEmpty){
-                CommonMethods.showToast('gender is blank');
-                Navigator.of(context).pop();
-                return;
-              }
-              if(typeController.selectRelationKey.value == 100){
-                CommonMethods.showToast('relation is blank');
-                Navigator.of(context).pop();
-                return;
-              }
-              if(cityCtrl.text.isEmpty){
-                CommonMethods.showToast('city is blank');
-                Navigator.of(context).pop();
-                return;
-              }
-              if(pinCodeCtrl.text.isEmpty){
-                CommonMethods.showToast('pincode is blank');
-                Navigator.of(context).pop();
-                return;
-              }
-              var data = await OpdSure.of(context).client.addFamilyMember(
-                  name: nameCtrl.text,
-                  relation: typeController.selectRelationKey.value,
-                  dob: typeController.familyMemDOB.value,
-                  gender: CommonMethods.genderKey(typeController.selectGender.value),
-                  phone: phoneCtrl.text,
-                  countryCode: '+91',
-                  address: '${cityCtrl.text} ${pinCodeCtrl.text}'
-              );
-              Navigator.of(context).pop();
-              print(data);
-              Map<String,dynamic> resMap = jsonDecode(data);
-              if(resMap['success']){
-                CommonMethods.showToast('Member Added successfully');
-              }
-            },
-          ),
-          const SizedBox(height: 15.0,),
-          AppButton(
-            text: 'Add Another Member',
-            color: Color(0xFFebecf1),
-            textColor: buttonColor,
-            borderColor: buttonColor,
+    return WillPopScope(
+      onWillPop: (){
+        Navigator.of(context,rootNavigator: false).pop();
+        Navigator.of(context,rootNavigator: false).pop();
+        return Future.value(false);
+      },
+      child: AppBasePage(
+        appHeader: AppHeader(
+          headerName: 'Add Details',
+          showRightView: true,
+          rightView: AppTextView(
+            text: 'Skip',
+            color: const Color(0xFF475467),
+            size: 16.0,
             onClick: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyDetails()));
+              context.go('/home');
             },
-          )
-        ],
+          ),
+        ),
+        childContent: ListView(
+          children: [
+            const AppTextView(
+              text: 'Fill Your Details',
+              size: 18.0,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF101828),
+            ),
+            const SizedBox(height: 16.0,),
+            const AppTextView(
+              text: 'Name',
+              size: 14.0,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1D2939),
+            ),
+            AppEditText(
+              hint: 'Enter the name',
+              textEditingController: nameCtrl,
+            ),
+            const SizedBox(height: 15.0,),
+            const AppTextView(
+              text: 'Relation',
+              size: 14.0,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1D2939),
+            ),
+            InkWell(
+              onTap: ()async{
+                Relations? data = await OpdSure.of(context).client.getRelation();
+                AppBottomSheet(
+                    height: 600,
+                    mChild: ListView.builder(
+                      itemCount: data!.relationsData.length,
+                      itemBuilder: (context, index){
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: AppTextView(
+                            onClick: (){
+                              typeController.selectRelationChange(data.relationsData[index].name);
+                              typeController.selectRelationKeyChange(data.relationsData[index].value);
+                              Navigator.pop(context);
+                            },
+                            text: data.relationsData[index].name,
+                          ),
+                        );
+                      },
+                    )
+                ).modalBottomSheetMenu(context);
+              },
+              child: AppBorderBox(
+                myChild: Obx((){
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppTextView(
+                        text: typeController.selectRelation.value==''?'Select Relation':typeController.selectRelation.value,
+                      ),
+                      const Icon(
+                        Icons.keyboard_arrow_down_sharp,
+                        color: Color(0xff667085),
+                        size: 24.0,
+                      )
+                    ],
+                  );
+                }),
+              ),
+            ),
+            const SizedBox(height: 15.0,),
+            const AppTextView(
+              text: 'DOB',
+              size: 14.0,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1D2939),
+            ),
+            Obx((){
+              String dob = typeController.familyMemDOB.value;
+              String showDate = '';
+              if(dob!=''){
+                showDate = CommonMethods.changeDateFormat(dob,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy');
+              }
+              return AppEditText(
+                hint: dob==''?'Enter date of birth':showDate,
+                disableText: true,
+                viewSuffix: true,
+                suffixWidget: const Icon(
+                  Icons.calendar_today_outlined,
+                  color: Color(0xff667085),
+                  size: 24.0,
+                ),
+                eyeCallback: (){
+                  _selectDOB(context, typeController);
+                },
+
+              );
+            }),
+            const SizedBox(height: 15.0,),
+            const AppTextView(
+              text: 'Gender',
+              size: 14.0,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1D2939),
+            ),
+            InkWell(
+              onTap: ()async{
+                AppBottomSheet(
+                    height: 300,
+                    mChild: ListView.builder(
+                      itemCount: genderList.length,
+                      itemBuilder: (context, index){
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: AppTextView(
+                            onClick: (){
+                              typeController.selectGenderChange(genderList[index]);
+                              Navigator.pop(context);
+                            },
+                            text: genderList[index],
+                          ),
+                        );
+                      },
+                    )
+                ).modalBottomSheetMenu(context);
+              },
+              child: AppBorderBox(
+                myChild: Obx((){
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppTextView(
+                        text: typeController.selectGender.value==''?'Select Gender':typeController.selectGender.value,
+                      ),
+                      const Icon(
+                        Icons.keyboard_arrow_down_sharp,
+                        color: Color(0xff667085),
+                        size: 24.0,
+                      )
+                    ],
+                  );
+                }),
+              ),
+            ),
+            const SizedBox(height: 15.0,),
+            const AppTextView(
+              text: 'Phone Number',
+              size: 14.0,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1D2939),
+            ),
+            AppMobileField(
+              hint: 'Enter your mobile number',
+              countryCode: '+91',
+              textEditingController: phoneCtrl,
+              countryCallback: ()async{
+                // Show the country code picker when tapped.
+                final picked= await countryPicker.showPicker(context: context);
+                // Null check
+                if (picked!= null) print(picked);
+              },
+            ),
+            const SizedBox(height: 15.0,),
+            const AppTextView(
+              text: 'State',
+              size: 14.0,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1D2939),
+            ),
+            InkWell(
+              onTap: ()async{
+                var data = await OpdSure.of(context).client.getAllState();
+                StateModel stateModel = statemodelFromJson(data);
+                List<StateListData> stateListData = stateModel.data;
+                AppBottomSheet(
+                    height: 600,
+                    mChild: ListView.builder(
+                      itemCount: stateListData.length,
+                      itemBuilder: (context, index){
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10.0),
+                          child: AppTextView(
+                            onClick: (){
+                              typeController.selectStateChange(stateListData[index].name);
+                              Navigator.pop(context);
+                            },
+                            text: stateListData[index].name,
+                          ),
+                        );
+                      },
+                    )
+                ).modalBottomSheetMenu(context);
+              },
+              child: AppBorderBox(
+                myChild: Obx((){
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      AppTextView(
+                        text: typeController.selectState.value==''?'Select State':typeController.selectState.value,
+                      ),
+                      const Icon(
+                        Icons.keyboard_arrow_down_sharp,
+                        color: Color(0xff667085),
+                        size: 24.0,
+                      )
+                    ],
+                  );
+                }),
+              ),
+            ),
+            const SizedBox(height: 15.0,),
+            const AppTextView(
+              text: 'City',
+              size: 14.0,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1D2939),
+            ),
+            AppEditText(
+              hint: 'Enter the city',
+              textEditingController: cityCtrl,
+            ),
+            const SizedBox(height: 15.0,),
+            const AppTextView(
+              text: 'Pin code',
+              size: 14.0,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1D2939),
+            ),
+            AppEditText(
+              hint: 'Enter the pin code',
+              textEditingController: pinCodeCtrl,
+            ),
+            const SizedBox(height: 20.0,),
+            AppButton(
+              text: 'Save',
+              onClick: ()async{
+                CommonMethods.showAlertDialog(context);
+                if(nameCtrl.text.isEmpty){
+                  CommonMethods.showToast('name is blank');
+                  Navigator.of(context).pop();
+                  return;
+                }
+                if(phoneCtrl.text.isEmpty){
+                  CommonMethods.showToast('phone is blank');
+                  Navigator.of(context).pop();
+                  return;
+                }
+                if(typeController.familyMemDOB.value.isEmpty){
+                  CommonMethods.showToast('Date of birth is blank');
+                  Navigator.of(context).pop();
+                  return;
+                }
+                if(typeController.selectGender.value.isEmpty){
+                  CommonMethods.showToast('gender is blank');
+                  Navigator.of(context).pop();
+                  return;
+                }
+                if(typeController.selectRelationKey.value == 100){
+                  CommonMethods.showToast('relation is blank');
+                  Navigator.of(context).pop();
+                  return;
+                }
+                if(cityCtrl.text.isEmpty){
+                  CommonMethods.showToast('city is blank');
+                  Navigator.of(context).pop();
+                  return;
+                }
+                if(pinCodeCtrl.text.isEmpty){
+                  CommonMethods.showToast('pincode is blank');
+                  Navigator.of(context).pop();
+                  return;
+                }
+                var data = await OpdSure.of(context).client.addFamilyMember(
+                    name: nameCtrl.text,
+                    relation: typeController.selectRelationKey.value,
+                    dob: typeController.familyMemDOB.value,
+                    gender: CommonMethods.genderKey(typeController.selectGender.value),
+                    phone: phoneCtrl.text,
+                    countryCode: '+91',
+                    address: '${cityCtrl.text} ${pinCodeCtrl.text}'
+                );
+                Navigator.of(context).pop();
+                print(data);
+                Map<String,dynamic> resMap = jsonDecode(data);
+                if(resMap['success']){
+                  CommonMethods.showToast('Member Added successfully');
+                }
+              },
+            ),
+            const SizedBox(height: 15.0,),
+            AppButton(
+              text: 'Add Another Member',
+              color: Color(0xFFebecf1),
+              textColor: buttonColor,
+              borderColor: buttonColor,
+              onClick: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyDetails()));
+              },
+            )
+          ],
+        ),
       ),
     );
   }

@@ -101,6 +101,16 @@ class TypeController extends GetxController{
     flagCode.value = type;
   }
 
+  RxString planName = 'Care'.obs;
+  void planNameChange(String type){
+    planName.value = type;
+  }
+
+  RxInt planIndex = 0.obs;
+  void planIndexChange(int type){
+    planIndex.value = type;
+  }
+
   var memberList = <MemberList>[].obs;
   void memberListChange(MemberList claim) {
     memberList.add(claim);
@@ -114,6 +124,11 @@ class TypeController extends GetxController{
   RxDouble totalBill = 0.0.obs;
   void totalBillChange(double type){
     totalBill.value = type;
+  }
+
+  RxBool refreshClaimList = true.obs;
+  void refreshClaimListChange(bool type){
+    refreshClaimList.value = type;
   }
 
 }
