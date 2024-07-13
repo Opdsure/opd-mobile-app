@@ -33,7 +33,6 @@ class OpdApi extends Api {
       final resp = json.decode(utf8.decode(body));
       if (resp is Map<String, Object?>) {
         super.unexpectedResponse(response, body);
-        //throw MatrixException.fromJson(resp);
       }
     }
     super.unexpectedResponse(response, body);

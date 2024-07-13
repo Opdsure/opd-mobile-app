@@ -1,13 +1,15 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:file_picker/file_picker.dart';
+
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:opdsure/model/claim/file_claim_response.dart';
 import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
+import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/login/login_response.dart';
+import 'package:opdsure/model/payment_models/create_order.dart';
 import 'package:opdsure/model/register/register_response.dart';
 import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
@@ -27,10 +29,9 @@ class Api {
       : httpClient = httpClient ?? Client();
 
   Never unexpectedResponse(BaseResponse response, Uint8List body) {
-    if(response.reasonPhrase == 'Conflict'){
+    if (response.reasonPhrase == 'Conflict') {
       CommonMethods.showToast('Email or mobile already exist');
-    }
-    else if(response.reasonPhrase == 'Not Found'){
+    } else if (response.reasonPhrase == 'Not Found') {
       CommonMethods.showToast('Email/Mobile or password is incorrect');
     }
     throw Exception('http error response');
@@ -158,7 +159,11 @@ class Api {
     return responseString;
   }
 
-  Future<UserProfile?> updateUserProfile({String? name, String? email, String? phone, Map<String, dynamic>? plan}) async {
+  Future<UserProfile?> updateUserProfile(
+      {String? name,
+      String? email,
+      String? phone,
+      Map<String, dynamic>? plan}) async {
     final requestUri = Uri(path: 'api/v1/user/update-profile');
     final request = Request('PUT', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -167,7 +172,7 @@ class Api {
       if (email != null) 'email': email,
       if (phone != null) 'phone': phone,
       if (name != null) 'name': name,
-      if(plan != null) 'plan' : plan
+      if (plan != null) 'plan': plan
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -177,8 +182,15 @@ class Api {
     return UserProfile.fromJson(json);
   }
 
-  Future addFamilyMember({String? name,
-    int? relation,String? dob,String? gender, String? phone,String? countryCode,String? address,}) async {
+  Future addFamilyMember({
+    String? name,
+    int? relation,
+    String? dob,
+    String? gender,
+    String? phone,
+    String? countryCode,
+    String? address,
+  }) async {
     final requestUri = Uri(path: 'api/v1/user/add-member');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -190,7 +202,7 @@ class Api {
       "gender": gender,
       "phone": phone,
       "country_code": countryCode,
-      "address" : address
+      "address": address
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -252,7 +264,8 @@ class Api {
     return FileClaimResponse.fromJson(json);
   }
 
-  Future<FileClaimResponse?> updateAClaim(String claimId, String jsonData) async {
+  Future<FileClaimResponse?> updateAClaim(
+      String claimId, String jsonData) async {
     final requestUri = Uri(path: 'api/v1/user/edit-claim/$claimId');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -266,9 +279,11 @@ class Api {
     return FileClaimResponse.fromJson(json);
   }
 
-  Future<FileUploadResponse?> uploadFile({required List<http.MultipartFile> results}) async {
+  Future<FileUploadResponse?> uploadFile(
+      {required List<http.MultipartFile> results}) async {
     final requestUri = Uri(path: 'api/v1/user/upload-file');
-    final request =  http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
+    final request =
+        http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.files.addAll(results);
     final response = await request.send();
@@ -291,8 +306,9 @@ class Api {
     return responseString;
   }
 
-  Future calculateClaimPrice(String type,double amount) async {
-    final requestUri = Uri.parse('api/v1/user/get-claimable-amount?parameter=$type&amount=$amount');
+  Future calculateClaimPrice(String type, double amount) async {
+    final requestUri = Uri.parse(
+        'api/v1/user/get-claimable-amount?parameter=$type&amount=$amount');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
@@ -303,4 +319,50 @@ class Api {
     return responseString;
   }
 
+  Future<CreateOrder?> createOrder(String? planId, int? membershipId) async {
+    final requestUri = Uri(path: 'api/v1/user/create-orders');
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8
+        .encode(jsonEncode({"plan_id": planId, "membership_id": membershipId}));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return CreateOrder.fromJson(json);
+  }
+
+  Future<CreateOrder?> verifyOrder(String? orderId, String? paymentId, String? signature) async {
+    final requestUri = Uri(path: 'api/v1/user/verify-payment');
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8
+        .encode(jsonEncode({
+      "razorpay_order_id" : orderId,
+      "razorpay_payment_id" : paymentId,
+      "razorpay_signature" : signature
+    }));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return CreateOrder.fromJson(json);
+  }
+
+  Future<HealthCheckup?> getHealthCheckupPlan() async {
+    final requestUri = Uri(path: 'api/v1/public/get-health-checkup-plans');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return HealthCheckup.fromJson(json);
+  }
 }

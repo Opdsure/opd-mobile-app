@@ -45,6 +45,7 @@ class CheckoutController extends State<CheckoutPage> {
   }
 
   void openPaymentGateway() async {
+    final opd = OpdSure.of(context);
     if(PlatformInfos.isWeb){
       final opd = OpdSure.of(context);
       await opd.client.updateUserProfile(plan: {
@@ -55,35 +56,37 @@ class CheckoutController extends State<CheckoutPage> {
       context.go('/home/view_plans/add_members');
       return;
     }
-    UserProfile? profile = await OpdSure.of(context).client.getProfile();
-    Razorpay razorpay = Razorpay();
-    var paymentOptions = {
-      'key': 'rzp_test_CoQN9cJgWANAEO',
-      'amount': payAmount,
-      'currency': "INR",
-      'name': 'OPD Sure',
-      'order_id': '',
-      'description': '',
-      'retry': {'enabled': false, 'max_count': 1},
-      'send_sms_hash': true,
-      'model': {
-        'backdropclose': false,
-        'escape': false,
-        'handleback': true,
-        'confirm_close': true
-      },
-      'prefill': {
-        'contact':
-        "+91${profile.data!.phone!}",
-        "email": profile.data!.email!,
-        "name": profile.data!.name!
+    UserProfile? profile = await opd.client.getProfile();
+    final createPaymentResponse = await opd.client.createOrder(records!.id!, options!.membershipId!);
+      Razorpay razorpay = Razorpay();
+      var paymentOptions = {
+        'key': 'rzp_test_CoQN9cJgWANAEO',
+        'amount': createPaymentResponse!.data!.amount!,
+        'currency': createPaymentResponse.data!.currency!,
+        'name': 'OPD Sure',
+        'order_id': createPaymentResponse.data!.id,
+        'description': '${records!.name!} + ${options!.membershipLabel!}',
+        'retry': {'enabled': false, 'max_count': 1},
+        'send_sms_hash': true,
+        'model': {
+          'backdropclose': false,
+          'escape': false,
+          'handleback': true,
+          'confirm_close': true
+        },
+        'prefill': {
+          'contact':
+          "+91${profile.data!.phone!}",
+          "email": profile.data!.email!,
+          "name": profile.data!.name!
 
-      }
-    };
-    razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
-    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
-    razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
-    razorpay.open(paymentOptions);
+        }
+      };
+      razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
+      razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
+      razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
+      razorpay.open(paymentOptions);
+
   }
 
   void _handlePaymentErrorResponse(PaymentFailureResponse response) async  {
@@ -93,12 +96,20 @@ class CheckoutController extends State<CheckoutPage> {
   void _handlePaymentSuccessResponse(PaymentSuccessResponse response) async {
     final opd = OpdSure.of(context);
     await opd.client.updateUserProfile(plan: {
-      "purchased" : true,
+      "purchased" : false,
       "membership_id": options!.membershipId!,
     "id" :records!.id!});
-    await opd.client.updatePlanPurchasedStatus(true);
-    context.go('/home/view_plans/add_members');
-    //_showAlertDialog(context, "Success", response.toString());
+
+
+    final verificationResponse = await opd.client.verifyOrder(response.orderId, response.paymentId, response.signature);
+    if(verificationResponse!.success!){
+      await opd.client.updatePlanPurchasedStatus(true);
+     context.go('/home/view_plans/add_members');
+    }else{
+      _showAlertDialog(context, "Payment Failed", verificationResponse.message!);
+    }
+
+
   }
 
   void _handleExternalWalletSelected(ExternalWalletResponse response) async {

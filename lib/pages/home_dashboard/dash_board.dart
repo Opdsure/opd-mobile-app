@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opdsure/pages/claims_page.dart';
+import 'package:opdsure/pages/health_check_up/health_checkup_controller.dart';
 import 'package:opdsure/pages/home_dashboard/dashboard_view.dart';
 import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/profile_page.dart';
@@ -59,7 +60,7 @@ class DashBoardPageController extends State<DashBoardPage> {
       case ActiveDestination.claim:
         return ClaimsPage();
       case ActiveDestination.checkup:
-        return HomePage();
+        return const HealthCheckup();
       case ActiveDestination.profile:
         return ProfilePage();
       default:
