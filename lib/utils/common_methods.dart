@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CommonMethods{
 
@@ -136,6 +137,28 @@ class CommonMethods{
       default:
         return '';
     }
+  }
+
+  static setStringPref(String key, String value)async{
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    mPref.setString(key, value);
+  }
+
+  static setBoolPref(String key, bool value)async{
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    mPref.setBool(key, value);
+  }
+
+  static Future<String> getStringPref(String key)async{
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    String data = mPref.getString(key) ?? '';
+    return data;
+  }
+
+  static Future<bool> getBoolPref(String key)async{
+    SharedPreferences mPref = await SharedPreferences.getInstance();
+    bool? data = mPref.getBool(key);
+    return data ?? false;
   }
 
 }

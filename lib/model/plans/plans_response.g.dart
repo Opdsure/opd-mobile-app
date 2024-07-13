@@ -19,19 +19,22 @@ class PlansResponseAdapter extends TypeAdapter<PlansResponse> {
     return PlansResponse()
       .._data = fields[0] as PlansData?
       .._success = fields[1] as bool?
-      .._message = fields[2] as String?;
+      .._message = fields[2] as String?
+      .._error = fields[3] as String?;
   }
 
   @override
   void write(BinaryWriter writer, PlansResponse obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj._data)
       ..writeByte(1)
       ..write(obj._success)
       ..writeByte(2)
-      ..write(obj._message);
+      ..write(obj._message)
+      ..writeByte(3)
+      ..write(obj._error);
   }
 
   @override
@@ -145,17 +148,17 @@ class RecordsAdapter extends TypeAdapter<Records> {
       .._frequency = fields[2] as int?
       .._subscriberType = fields[3] as int?
       .._opdMaxDiscount = fields[4] as int?
-      .._opdPrecentDiscount = fields[6] as int?
-      .._labMaxDiscount = fields[7] as int?
-      .._labPrecentDiscount = fields[8] as int?
-      .._pharmacyMaxDiscount = fields[9] as int?
-      .._pharmacyPrecentDiscount = fields[10] as int?
-      .._planBenefits = (fields[11] as List?)?.cast<PlanBenefits>()
-      .._membershipOptions = (fields[12] as List?)?.cast<MembershipOptions>()
-      .._files = (fields[13] as List?)?.cast<String>()
-      .._createdAt = fields[14] as String?
-      .._updatedAt = fields[15] as String?
-      .._v = fields[16] as int?;
+      .._opdPrecentDiscount = fields[5] as int?
+      .._labMaxDiscount = fields[6] as int?
+      .._labPrecentDiscount = fields[7] as int?
+      .._pharmacyMaxDiscount = fields[8] as int?
+      .._pharmacyPrecentDiscount = fields[9] as int?
+      .._planBenefits = (fields[10] as List?)?.cast<PlanBenefits>()
+      .._membershipOptions = (fields[11] as List?)?.cast<MembershipOptions>()
+      .._files = (fields[12] as List?)?.cast<String>()
+      .._createdAt = fields[13] as String?
+      .._updatedAt = fields[14] as String?
+      .._v = fields[15] as int?;
   }
 
   @override
@@ -172,27 +175,27 @@ class RecordsAdapter extends TypeAdapter<Records> {
       ..write(obj._subscriberType)
       ..writeByte(4)
       ..write(obj._opdMaxDiscount)
-      ..writeByte(6)
+      ..writeByte(5)
       ..write(obj._opdPrecentDiscount)
-      ..writeByte(7)
+      ..writeByte(6)
       ..write(obj._labMaxDiscount)
-      ..writeByte(8)
+      ..writeByte(7)
       ..write(obj._labPrecentDiscount)
-      ..writeByte(9)
+      ..writeByte(8)
       ..write(obj._pharmacyMaxDiscount)
-      ..writeByte(10)
+      ..writeByte(9)
       ..write(obj._pharmacyPrecentDiscount)
-      ..writeByte(11)
+      ..writeByte(10)
       ..write(obj._planBenefits)
-      ..writeByte(12)
+      ..writeByte(11)
       ..write(obj._membershipOptions)
-      ..writeByte(13)
+      ..writeByte(12)
       ..write(obj._files)
-      ..writeByte(14)
+      ..writeByte(13)
       ..write(obj._createdAt)
-      ..writeByte(15)
+      ..writeByte(14)
       ..write(obj._updatedAt)
-      ..writeByte(16)
+      ..writeByte(15)
       ..write(obj._v);
   }
 

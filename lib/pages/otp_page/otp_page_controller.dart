@@ -5,22 +5,13 @@ import '../../../widget/opd_widget.dart';
 import 'otp_page.dart';
 
 class OtpPage extends StatefulWidget {
-  String? phone;
-  String? email;
-  String? password;
-  String? confirmPassword;
-  String? countryCode;
-  bool? termCondition;
-  bool? isWithEmail;
+  String? accessToken;
+  String? userId;
+
 
   OtpPage(
-      {this.password,
-      this.confirmPassword,
-      this.termCondition,
-      this.countryCode,
-      this.phone,
-      this.email,
-      this.isWithEmail,
+      {this.accessToken,
+      this.userId,
       super.key});
 
   @override
@@ -28,41 +19,24 @@ class OtpPage extends StatefulWidget {
 }
 
 class OtpPageController extends State<OtpPage> {
-  bool loading = false;
 
-  String? phone;
-  String? email;
-  String? password;
-  String? confirmPassword;
-  String? countryCode;
-  bool? termCondition;
-  bool isWithEmail = false;
+  String? accessToken;
+  String? userId;
+  bool? loading;
+
 
   @override
   void initState() {
     super.initState();
-    phone = widget.phone;
-    email = widget.email;
-    password = widget.password;
-    confirmPassword = widget.confirmPassword;
-    termCondition = widget.termCondition;
-    countryCode = widget.countryCode;
-    isWithEmail = widget.isWithEmail ?? false;
+    accessToken = widget.accessToken??'';
+    userId = widget.userId??'';
   }
 
   void otpVerify(String otp) async {
     final user = await OpdSure.of(context).client.signInWithOTP(otp);
     if(user != null) {
       try {
-        await OpdSure.of(context).getLoginClient().register(
-          emailAddress: isWithEmail ? email : null,
-          password: password,
-          confirmPassword: confirmPassword,
-          phone: isWithEmail ? null : phone,
-          countryCode: isWithEmail ? null : countryCode,
-          termAndCondition: termCondition,
-          loginType: isWithEmail ? 0 : 1,
-        );
+        await OpdSure.of(context).client.init(newUserId: userId, newAccessToken: accessToken, newIsPlanPurchased: false);
       } catch (e) {
         return setState(() => loading = false);
       }

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -15,10 +16,12 @@ import 'package:opdsure/custom_ui/app_border_box.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
+import 'package:opdsure/model/claim/calculate_claim_model.dart';
 import 'package:opdsure/model/claim_json_model.dart';
 import 'package:opdsure/model/common_map/claim_type_model.dart';
 import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
+import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/upload_file_claim_doc.dart';
 import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/widget/opd_widget.dart';
@@ -87,61 +90,34 @@ class _FileClaimPageState extends State<FileClaimPage> {
     });
   }
 
-  void docFee({String? value = '0'}) {
-    final int amount = int.tryParse(value!) ?? 0;
-    final maxFeeAmount = records!.opdMaxDiscount!;
-    final maxFeePer = records!.opdPrecentDiscount!;
-    double? discountAmount = 0.0;
-    if(amount != 0){
-      if(amount > maxFeeAmount){
-        discountAmount = double.tryParse(maxFeeAmount.toString());
-      }else{
-        discountAmount = amount * maxFeePer /100;
-      }
-    }
+  void docFee({String? value = '0'}) async {
+    var data = await OpdSure.of(context).client.calculateClaimPrice('0', double.parse(value!));
+    CalculateClaimModel calculateClaimModel = CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
-        _value11 = discountAmount ?? 0.0;
-        _value1 = double.tryParse(amount.toString()) ??0.0;
+        _value11 = double.parse('${calculateClaimModel.data!.finalPrice}');
+        _value1 = double.tryParse(value.toString()) ??0.0;
         docFeeClCtrl.text = _value11.toStringAsFixed(0);
       _calculateSum();
     });
   }
 
-  void pharmaBill({String? value = '0'}) {
-    final int amount = int.tryParse(value!) ?? 0;
-    final maxFeeAmount = records!.pharmacyMaxDiscount!;
-    final maxFeePer = records!.pharmacyPrecentDiscount!;
-    double? discountAmount = 0.0;
-    if(amount != 0){
-      if(amount > maxFeeAmount){
-        discountAmount = double.tryParse(maxFeeAmount.toString());
-      }else{
-        discountAmount = amount * maxFeePer /100;
-      }
-    }
+  void pharmaBill({String? value = '0'}) async {
+    var data = await OpdSure.of(context).client.calculateClaimPrice('1', double.parse(value!));
+    CalculateClaimModel calculateClaimModel = CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
-      _value12 = discountAmount ?? 0.0;
-      _value2 = double.tryParse(amount.toString()) ??0.0;
+      _value12 = double.parse('${calculateClaimModel.data!.finalPrice}');
+      _value2 = double.tryParse(value.toString()) ??0.0;
       billAmntPhrClCtrl.text = _value12.toStringAsFixed(0);
       _calculateSum();
     });
   }
 
-  void labBill({String? value = '0'}) {
-    final int amount = int.tryParse(value!) ?? 0;
-    final maxFeeAmount = records!.labMaxDiscount!;
-    final maxFeePer = records!.labPrecentDiscount!;
-    double? discountAmount = 0.0;
-    if(amount != 0){
-      if(amount > maxFeeAmount){
-        discountAmount = double.tryParse(maxFeeAmount.toString());
-      }else{
-        discountAmount = amount * maxFeePer /100;
-      }
-    }
+  void labBill({String? value = '0'}) async {
+    var data = await OpdSure.of(context).client.calculateClaimPrice('2', double.parse(value!));
+    CalculateClaimModel calculateClaimModel = CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
-      _value13 = discountAmount ?? 0.0;
-      _value3 = double.tryParse(amount.toString()) ?? 0.0;
+      _value13 = double.parse('${calculateClaimModel.data!.finalPrice}');
+      _value3 = double.tryParse(value.toString()) ?? 0.0;
       billAmntDiaClCtrl.text = _value13.toStringAsFixed(0);
       _calculateSum();
     });
@@ -215,7 +191,7 @@ _getInitState();
     double w = CommonMethods.deviceWidth(context);
     // TODO: implement build
     return AppBasePage(
-      appHeader: AppHeader(headerName: 'File a Claims',),
+      appHeader: AppHeader(headerName: 'File a Claim',),
       childContent: Padding(
         padding: MediaQuery.of(context).viewInsets,
         child: ListView(
@@ -284,8 +260,35 @@ _getInitState();
                       List<MemberList>? memberList = myMemberModel.data;
                       AppBottomSheet(
                           height: 600,
-                          mChild: ListView.builder(
-                            itemCount: memberList!.length,
+                          mChild: memberList!.isEmpty?InkWell(
+                            onTap: (){
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyDetails()));
+                            },
+                            child: const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AppTextView(
+                                    text: 'No Family member added',
+                                    color: buttonColor,
+                                    size: 16.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  SizedBox(height: 10.0,),
+                                  Icon(
+                                    Icons.add_circle,
+                                    color: buttonColor,
+                                  ),
+                                  AppTextView(
+                                    text: 'Add Member',
+                                    color: buttonColor,
+                                    size: 12.0,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ):ListView.builder(
+                            itemCount: memberList.length,
                             itemBuilder: (context, index){
                               return Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -741,6 +744,10 @@ _getInitState();
                   billAmount: '$totalBillAmnt',
                   claimableAmount: '$totalClaimableAmnt'
                 );
+                typeController.prescriptionListChange([]);
+                typeController.docFeeRcptChange([]);
+                typeController.pharmacyRcptChange([]);
+                typeController.labTestRcptChange([]);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(claimJsonModel)),

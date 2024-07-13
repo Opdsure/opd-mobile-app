@@ -29,6 +29,8 @@ class PlansResponse {
   bool? _success;
   @HiveField(2)
   String? _message;
+  @HiveField(3)
+  String? _error;
 
   PlansData? get data => _data ?? PlansData();
 
@@ -234,27 +236,27 @@ class Records {
   int? _subscriberType;
   @HiveField(4)
   int? _opdMaxDiscount;
-  @HiveField(6)
+  @HiveField(5)
   int? _opdPrecentDiscount;
-  @HiveField(7)
+  @HiveField(6)
   int? _labMaxDiscount;
-  @HiveField(8)
+  @HiveField(7)
   int? _labPrecentDiscount;
-  @HiveField(9)
+  @HiveField(8)
   int? _pharmacyMaxDiscount;
-  @HiveField(10)
+  @HiveField(9)
   int? _pharmacyPrecentDiscount;
-  @HiveField(11)
+  @HiveField(10)
   List<PlanBenefits>? _planBenefits;
-  @HiveField(12)
+  @HiveField(11)
   List<MembershipOptions>? _membershipOptions;
-  @HiveField(13)
+  @HiveField(12)
   List<String>? _files;
-  @HiveField(14)
+  @HiveField(13)
   String? _createdAt;
-  @HiveField(15)
+  @HiveField(14)
   String? _updatedAt;
-  @HiveField(16)
+  @HiveField(15)
   int? _v;
 
   String? get id => _id ?? "";

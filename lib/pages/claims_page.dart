@@ -54,7 +54,7 @@ class ClaimsPage extends StatelessWidget{
                         width: 35.0,
                       ),
                       const SizedBox(width: 10.0,),
-                      Column(
+                      const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const AppTextView(
@@ -63,15 +63,15 @@ class ClaimsPage extends StatelessWidget{
                             color: Colors.black,
                             fontWeight: FontWeight.w600,
                           ),
-                          SizedBox(
-                            width: w*0.7,
-                            child: const AppTextView(
-                              text: 'There are 18+ benefits available to you, and there are 6+ hospitals network.',
-                              size: 12.0,
-                              color: Color(0xFF667085),
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
+                          // SizedBox(
+                          //   width: w*0.7,
+                          //   child: const AppTextView(
+                          //     text: 'There are 18+ benefits available to you, and there are 6+ hospitals network.',
+                          //     size: 12.0,
+                          //     color: Color(0xFF667085),
+                          //     fontWeight: FontWeight.w400,
+                          //   ),
+                          // ),
                         ],
                       )
                     ],
@@ -175,7 +175,7 @@ class ClaimsPage extends StatelessWidget{
             Obx((){
               bool refresh = typeController.refreshClaimList.value;
               return SizedBox(
-                height: h*0.6,
+                height: h*0.5,
                 child: refresh?FutureBuilder(
                   future: OpdSure.of(context).client.getAllClaims(),
                   builder: (context,snapshot){

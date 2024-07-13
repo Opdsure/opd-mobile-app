@@ -4,23 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/custom_ui/empty_page.dart';
+import 'package:opdsure/custom_ui/two_column_layout.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
-import 'package:opdsure/pages/claims_page.dart';
 import 'package:opdsure/pages/file_claim_page.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
 import 'package:opdsure/pages/home_dashboard/dash_board.dart';
-import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
 import 'package:opdsure/pages/name_email_number/name_email_number_controller.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
-import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
+import 'package:opdsure/pages/signup/signup_controller.dart';
+import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_widget.dart';
-import 'package:opdsure/custom_ui/two_column_layout.dart';
 
-import '../pages/add_family_details/add_family_details.dart';
 import '../pages/checkout/checkout_controller.dart';
 import '../pages/otp_page/otp_page_controller.dart';
 import '../pages/plan/plans_page/plans_page_controller.dart';
@@ -51,7 +49,7 @@ abstract class AppRoutes {
   //         : '/signup';
 
   static FutureOr<String?> getRedirectNameForHome(
-      BuildContext context, GoRouterState state) {
+      BuildContext context, GoRouterState state) async {
     final opd = OpdSure.of(context);
     if (opd.client.isLogged) {
       if (opd.profileData!.phone!.isEmpty || opd.profileData!.email!.isEmpty) {
@@ -135,13 +133,9 @@ abstract class AppRoutes {
                   context,
                   state,
                   OtpPage(
-                      password: otpMap['password'],
-                      email: otpMap['email'],
-                      confirmPassword: otpMap['confirmPassword'],
-                      phone: otpMap['phone'],
-                      termCondition: otpMap['termCondition'],
-                      isWithEmail: otpMap['isWithEmail'],
-                      countryCode: otpMap['countryCode']),
+                    userId: otpMap['user_id'],
+                    accessToken: otpMap['access_token'],
+                  ),
                 );
               }),
           GoRoute(
@@ -167,7 +161,8 @@ abstract class AppRoutes {
       pageBuilder: (context, state, child) => defaultPageBuilder(
           context,
           state,
-          OpdThemes.isColumnMode(context) && displayRailNavigation(context, state)
+          OpdThemes.isColumnMode(context) &&
+                  displayRailNavigation(context, state)
               ? TwoColumnLayout(
                   mainView: DashBoardPage(
                     displayNavigationRail:
@@ -218,7 +213,7 @@ abstract class AppRoutes {
                     pageBuilder: (context, state) => defaultPageBuilder(
                       context,
                       state,
-                      DashBoardPage(),
+                      ViewPlansPage(),
                     ),
                     routes: [
                       GoRoute(

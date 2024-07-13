@@ -12,6 +12,7 @@ import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/repository/network_api/opd_api.dart';
 import 'package:http/http.dart' as http;
+import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/exception/exception.dart';
 import 'package:opdsure/utils/http_timeout.dart';
 import 'package:opdsure/utils/logs/logs.dart';
@@ -151,6 +152,7 @@ class OpdClient extends OpdApi {
       }
       final profile = await getProfile(update: true);
       profileData = profile.data!;
+      isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
 
 
       final database = this.database;
@@ -213,12 +215,6 @@ class OpdClient extends OpdApi {
         phone: phone,
         loginType: loginType,
         termAndCondition: termAndCondition);
-    if (response.success!) {
-      await init(
-          newAccessToken: response.data!.token!,
-          newUserId: response.data!.userId!,
-          newIsPlanPurchased: false);
-    }
 
     if (response.data == null) {
       throw Exception(response.toString());
@@ -280,6 +276,7 @@ class OpdClient extends OpdApi {
     final database = this.database;
     if (database != null) {
       database.deleteClient();
+      database.deleteUserProfile();
     }
     onLoginStateChanged.add(LoginState.loggedOut);
   }

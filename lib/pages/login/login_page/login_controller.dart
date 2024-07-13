@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opdsure/pages/login/login_page/login_page_view.dart';
 import 'package:opdsure/utils/opd_extension/string_extension.dart';
 
+import '../../../utils/common_methods.dart';
 import '../../../widget/opd_widget.dart';
 
 class LoginPage extends StatefulWidget {
@@ -123,15 +124,19 @@ class LoginPageController extends State<LoginPage> {
     setState(() => loading = true);
 
     try {
+      CommonMethods.showAlertDialog(context);
       await opdSure.getLoginClient().login(
         loginType: isWithEmail ? 0 : 1,
         countryCode: isWithEmail ? null : countryCode,
         emailAddress: isWithEmail ? emailTextController.text : null,
         password: passwordTextController.text,
         phone: isWithEmail ? null : phoneTextController.text);
+      Navigator.of(context,rootNavigator: false).pop();
     } catch (e) {
       // setState(() => passwordError = e.toString());
+      Navigator.of(context,rootNavigator: false).pop();
       return setState(() => loading = false);
+
     }
 
     if (mounted) setState(() => loading = false);

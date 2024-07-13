@@ -27,7 +27,12 @@ class Api {
       : httpClient = httpClient ?? Client();
 
   Never unexpectedResponse(BaseResponse response, Uint8List body) {
-    CommonMethods.showToast('User does not exist');
+    if(response.reasonPhrase == 'Conflict'){
+      CommonMethods.showToast('Email or mobile already exist');
+    }
+    else if(response.reasonPhrase == 'Not Found'){
+      CommonMethods.showToast('Email/Mobile or password is incorrect');
+    }
     throw Exception('http error response');
   }
 
@@ -262,6 +267,18 @@ class Api {
 
   Future getAllClaims() async {
     final requestUri = Uri(path: 'api/v1/user/get-claims');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    return responseString;
+  }
+
+  Future calculateClaimPrice(String type,double amount) async {
+    final requestUri = Uri.parse('api/v1/user/get-claimable-amount?parameter=$type&amount=$amount');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';

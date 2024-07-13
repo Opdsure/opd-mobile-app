@@ -92,7 +92,7 @@ class SignUpController extends State<SignUpPage> {
             .path}/login');
   }
 
-  void sendOtp() async {
+  void sendOtp(String accessToken, String userId) async {
     setState(() => loading = true);
       OpdSure
           .of(context)
@@ -105,13 +105,8 @@ class SignUpController extends State<SignUpPage> {
           codeSent: (_, __) {
             setState(() => loading = true);
             context.push('/signup/otp', extra: {
-              "email": emailTextController.text,
-              "phone": phoneTextController.text,
-              "password": passwordTextController.text,
-              "confirmPassword": confirmPasswordTextController.text,
-              "termCondition": isTermAndConditions,
-              "isWithEmail" : isWithEmail,
-              "countryCode" : countryCode
+              "access_token": accessToken,
+              "user_id": userId
             });
           },
           verificationCompleted: (_) {
@@ -223,11 +218,9 @@ class SignUpController extends State<SignUpPage> {
     }
     if(evOk){
       CommonMethods.showAlertDialog(context);
-      if(!isWithEmail){
-        sendOtp();
-      }else{
+
         try {
-          await opdSure.getLoginClient().register(
+        final response = await opdSure.getLoginClient().register(
             emailAddress: isWithEmail ? emailTextController.text : null,
             password: passwordTextController.text,
             confirmPassword: confirmPasswordTextController.text,
@@ -236,12 +229,29 @@ class SignUpController extends State<SignUpPage> {
             termAndCondition: isTermAndConditions,
             loginType: isWithEmail ? 0: 1,
           );
+
+
+          if (response.success!) {
+
+            if(!isWithEmail){
+              sendOtp(response.data!.token!, response.data!.userId!);
+            }else{
+              await opdSure.client.init(
+                  newAccessToken: response.data!.token!,
+                  newUserId: response.data!.userId!,
+                  newIsPlanPurchased: false);
+            }
+
+          }else{
+            ///TODO: handel response
+          }
+
           Navigator.of(context,rootNavigator: false).pop();
         } catch (e) {
           setState(() => confirmPasswordError = e.toString());
           return setState(() => loading = false);
         }
-      }
+
     }
 
     if (mounted) setState(() => loading = false);

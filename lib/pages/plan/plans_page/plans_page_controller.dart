@@ -49,7 +49,7 @@ class PlansPageController extends State<PlansPage> {
       if (option!.membershipLabel == 'Individual') {
         isIndividual = true;
         planType = 'Individual';
-        familyOptions = option;
+        familyOptions = null;
         options = plans!.data!.records![0].membershipOptions![0];
       } else {
         familyOptions = option;
