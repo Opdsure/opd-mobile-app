@@ -177,7 +177,7 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
               OpdSureApp.router.go("/home");
             }
           }else{
-            OpdSureApp.router.go('/signup/login');
+            OpdSureApp.router.go('/login');
           }
 
         }
@@ -199,9 +199,11 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Provider(
-      create: (_) => this,
-      child: widget.child,
+    return SafeArea(
+      child: Provider(
+        create: (_) => this,
+        child: widget.child,
+      ),
     );
   }
 }

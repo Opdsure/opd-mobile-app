@@ -5,16 +5,18 @@ import 'package:opdsure/utils/app_colors.dart';
 
 class AppButton extends StatelessWidget {
   final String text;
-  final double size;
+  final double? height;
+  final double? width;
   final FontWeight fontWeight;
   final Color color;
   final Color textColor;
   final Color borderColor;
   final VoidCallback? onClick;
 
-  const AppButton({
+  const AppButton({super.key,
     required this.text,
-    this.size = 15.0,
+    this.height = 45.0,
+    this.width = double.infinity,
     this.fontWeight = FontWeight.normal,
     this.color = buttonColor,
     this.borderColor = buttonColor,
@@ -27,8 +29,8 @@ class AppButton extends StatelessWidget {
     return InkWell(
       onTap: onClick,
       child: Container(
-        width: double.infinity,
-          height: 45.0,
+        width: width,
+          height: height,
           decoration: BoxDecoration(
             color: color,
             borderRadius: const BorderRadius.all(Radius.circular(10)),

@@ -2,8 +2,6 @@ import 'dart:ui';
 
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_drop_down.dart';
@@ -11,7 +9,6 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/custom_ui/select_plan.dart';
-import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/plan/plans_page/plans_page_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
@@ -44,8 +41,6 @@ class PlansPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TypeController typeController = Get.put(TypeController());
-    // TODO: implement build
     return DefaultTabController(
       length: controller.plansLength!,
       child: LoginScaffold(
@@ -57,12 +52,9 @@ class PlansPageView extends StatelessWidget {
               const SizedBox(
                 height: 16.0,
               ),
-              Obx((){
-                var planName = typeController.planName.value;
-                return AppHeader(
-                  headerName: '$planName Plan',
-                );
-              }),
+              AppHeader(
+                headerName: '${controller.record!.name} Plan',
+              ),
               const SizedBox(
                 height: 30.0,
               ),
@@ -93,18 +85,17 @@ class PlansPageView extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  (!controller.isIndividual && controller.familyOptions==null)?AppTextView(
-                    text: 'Select Member',
+                  AppTextView(
+                    text: (!controller.isIndividual &&
+                            controller.familyOptions == null)
+                        ? 'Select Member'
+                        : '₹ ${controller.options!.charges!}',
                     color: textColor,
-                    size: 16.0,
-                    fontWeight: FontWeight.w700,
-                  ):AppTextView(
-                    text: '₹ ${controller.options!.charges!}',
-                    color: textColor,
-                    size: 40.0,
+                    size: (!controller.isIndividual &&
+                        controller.familyOptions == null) ? 16.0 : 40.0,
                     fontWeight: FontWeight.w700,
                   ),
-                  if (controller.record!.planType == PlanType.both)...[
+                  if (controller.record!.planType == PlanType.both) ...[
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -136,7 +127,8 @@ class PlansPageView extends StatelessWidget {
                           ],
                         ),
                         AppTextView(
-                          text: 'Toggle for ${controller.isIndividual ? "family" : "individual"}',
+                          text:
+                              'Toggle for ${controller.isIndividual ? "family" : "individual"}',
                           size: 12,
                           color: textColor,
                         ),
@@ -149,7 +141,8 @@ class PlansPageView extends StatelessWidget {
                 height: 15.0,
               ),
               AppTextView(
-                text: CommonMethods.getPlanFrequency(controller.record!.frequency!),
+                text: CommonMethods.getPlanFrequency(
+                    controller.record!.frequency!),
                 size: 16.0,
                 fontWeight: FontWeight.w600,
               ),
@@ -163,7 +156,7 @@ class PlansPageView extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
               if ((controller.record!.planType! == PlanType.family ||
-                  controller.record!.planType! == PlanType.both) &&
+                      controller.record!.planType! == PlanType.both) &&
                   !controller.isIndividual) ...[
                 const SizedBox(
                   height: 10.0,
@@ -184,7 +177,8 @@ class PlansPageView extends StatelessWidget {
                 child: ListView.builder(
                     itemCount: controller.record!.planBenefits!.length,
                     physics: const BouncingScrollPhysics(
-                      decelerationRate: ScrollDecelerationRate.fast,),
+                      decelerationRate: ScrollDecelerationRate.fast,
+                    ),
                     itemBuilder: (context, index) {
                       return ListTile(
                         leading: Icon(
@@ -193,8 +187,8 @@ class PlansPageView extends StatelessWidget {
                         ),
                         title: AppTextView(
                           color: Colors.black,
-                          text:
-                          controller.record!.planBenefits![index].planLabel!,
+                          text: controller
+                              .record!.planBenefits![index].planLabel!,
                           size: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -207,11 +201,21 @@ class PlansPageView extends StatelessWidget {
               ),
               AppButton(
                 text: 'Select',
-                color: (!controller.isIndividual && controller.familyOptions==null)?const Color(0xFFD9D7D7):buttonColor,
-                textColor: (!controller.isIndividual && controller.familyOptions==null)?Colors.black:Colors.white,
-                borderColor: (!controller.isIndividual && controller.familyOptions==null)?const Color(0xFFD9D7D7):buttonColor,
+                color: (!controller.isIndividual &&
+                        controller.familyOptions == null)
+                    ? const Color(0xFFD9D7D7)
+                    : buttonColor,
+                textColor: (!controller.isIndividual &&
+                        controller.familyOptions == null)
+                    ? Colors.black
+                    : Colors.white,
+                borderColor: (!controller.isIndividual &&
+                        controller.familyOptions == null)
+                    ? const Color(0xFFD9D7D7)
+                    : buttonColor,
                 onClick: () {
-                  if(!(!controller.isIndividual && controller.familyOptions==null)){
+                  if (!(!controller.isIndividual &&
+                      controller.familyOptions == null)) {
                     controller.goToCheckout();
                   }
                 },
@@ -229,8 +233,7 @@ class PlansPageView extends StatelessWidget {
     showModalBottomSheet(
         context: context,
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width -
-              20, // here increase or decrease in width
+          maxWidth: MediaQuery.of(context).size.width - 20,
         ),
         builder: (builder) {
           return StatefulBuilder(builder: (stateFullBuilder, setState) {
@@ -245,7 +248,7 @@ class PlansPageView extends StatelessWidget {
               ),
               child: Padding(
                 padding:
-                const EdgeInsets.only(left: 10.0, right: 10.0, top: 15.0),
+                    const EdgeInsets.only(left: 10.0, right: 10.0, top: 15.0),
                 child: ListView(
                   children: [
                     Row(
@@ -301,7 +304,7 @@ class PlansPageView extends StatelessWidget {
                           children: [
                             TextSpan(
                                 text:
-                                'You can cancel whenever you want. By confirming, you agree to the ',
+                                    'You can cancel whenever you want. By confirming, you agree to the ',
                                 style: GoogleFonts.montserrat(
                                     color: const Color(0xFF667085))),
                             TextSpan(
@@ -319,8 +322,7 @@ class PlansPageView extends StatelessWidget {
                     ),
                     AppButton(
                       text: 'Continue',
-                      onClick: () async {
-                      },
+                      onClick: () async {},
                     )
                   ],
                 ),

@@ -58,7 +58,7 @@ class LoginPageController extends State<LoginPage> {
   }
 
   forgetPassword() {
-    context.push('/signup/login/forget_password');
+    context.push('/forget_password');
   }
 
   getCountryCode() async {

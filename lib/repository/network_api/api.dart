@@ -252,6 +252,20 @@ class Api {
     return FileClaimResponse.fromJson(json);
   }
 
+  Future<FileClaimResponse?> updateAClaim(String claimId, String jsonData) async {
+    final requestUri = Uri(path: 'api/v1/user/edit-claim/$claimId');
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8.encode(jsonData);
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return FileClaimResponse.fromJson(json);
+  }
+
   Future<FileUploadResponse?> uploadFile({required List<http.MultipartFile> results}) async {
     final requestUri = Uri(path: 'api/v1/user/upload-file');
     final request =  http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));

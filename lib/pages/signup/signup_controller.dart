@@ -64,32 +64,17 @@ class SignUpController extends State<SignUpPage> {
       };
   }
 
-  Future<User?> signInWithGoogle({required BuildContext context}) async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+  void signInWithGoogle({required BuildContext context}) async {
     try {
-      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleSignInAuthentication.accessToken,
-        idToken: googleSignInAuthentication.idToken,
-      );
-      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      final User? user = userCredential.user;
+      final user = await OpdSure.of(context).client.signInWithGoogle();
       print(user);
-      // Use the user object for further operations or navigate to a new screen.
     } catch (e) {
       print(e.toString());
     }
   }
 
   _login() {
-    context.push(
-        '${GoRouter
-            .of(context)
-            .routeInformationProvider
-            .value
-            .uri
-            .path}/login');
+    context.push('/login');
   }
 
   void sendOtp(String accessToken, String userId) async {

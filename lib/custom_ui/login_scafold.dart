@@ -28,6 +28,7 @@ class LoginScaffold extends StatelessWidget {
         enforceMobileMode || !OpdThemes.isColumnMode(context);
     final scaffold = Scaffold(
       key: const Key('LoginScaffold'),
+      resizeToAvoidBottomInset: true,
       appBar: appBar == null
           ? null
           : AppBar(

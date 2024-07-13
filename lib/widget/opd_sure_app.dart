@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/config/route.dart';
@@ -9,6 +10,7 @@ import 'package:opdsure/widget/theme_builder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../repository/client/OpdClient.dart';
+
 
 
 class OpdSureApp extends StatelessWidget {
@@ -24,6 +26,10 @@ class OpdSureApp extends StatelessWidget {
   static final GoRouter router = GoRouter(routes: AppRoutes.routes);
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     return ThemeBuilder(
       builder: (context, mode, color) => MaterialApp.router(
         title: AppConfig.applicationName,

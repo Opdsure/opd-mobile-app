@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
@@ -15,29 +16,28 @@ import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import '../../utils/app_var.dart';
 
-class PreviewPageView extends StatelessWidget{
+class PreviewPageView extends StatelessWidget {
   final PreviewPageController controller;
+
   const PreviewPageView(this.controller, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    TypeController typeController = Get.put(TypeController());
     double h = CommonMethods.deviceHeight(context);
+    double w = CommonMethods.deviceWidth(context);
     return LoginScaffold(
       enforceMobileMode: !OpdSure.of(context).client.isLogged,
-      body: ListView(
-        physics: const NeverScrollableScrollPhysics(),
+      body: Column(
         children: [
-          const SizedBox(height: 16.0,),
-           Align(
+          const SizedBox(
+            height: 16.0,
+          ),
+          Align(
             alignment: Alignment.centerRight,
             child: Padding(
-              padding: const  EdgeInsets.only(right: 10.0),
+              padding: const EdgeInsets.only(right: 10.0),
               child: AppTextView(
-                onClick: () async {
-                  await OpdSure.of(context).store.setBool(AppKey.onBoardScreen, true);
-                  context.go("/signup");
-                },
+                onClick: controller.skip,
                 text: 'Skip',
                 color: buttonColor,
                 size: 16.0,
@@ -52,34 +52,48 @@ class PreviewPageView extends StatelessWidget{
               width: 100.0,
             ),
           ),
-          SizedBox(height: h*0.04,),
           SizedBox(
-            height: h*0.61,
+            height: h * 0.04,
+          ),
+          SizedBox(
+            height: h * 0.61,
             child: PageView(
               controller: controller.pageController,
+              onPageChanged: controller.onPageChanged,
               children: controller.getAllPreview(context),
             ),
           ),
-          const SizedBox(height: 15.0,),
+          const SizedBox(
+            height: 15.0,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15.0),
-            child: AppButton(
-              text: 'Next',
-              onClick: (){
-                int count = typeController.previewCount.value;
-                if(count<5) {
-                  typeController.previewCountChange(count + 1);
-                  controller.nextPage();
-                }else{
-                  OpdSure.of(context).store.setBool(AppKey.onBoardScreen, true);
-                  context.go("/signup");
-                }
-              },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (controller.initialPage != 0)...[
+                  AppButton(
+                    width: w * 0.4,
+                    text: 'Previous',
+                    onClick: () => controller.previousPage(),
+                  ),
+                ],
+                AppButton(
+                  width: controller.initialPage == 0 ? w - 30 : w * 0.4,
+                  text: 'Next',
+                  onClick: () {
+                    if (controller.initialPage != 3) {
+                      controller.nextPage();
+                    } else {
+                      controller.skip();
+                    }
+                  },
+                ),
+              ],
             ),
           )
         ],
       ),
     );
   }
-
 }

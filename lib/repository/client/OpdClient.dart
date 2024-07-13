@@ -282,23 +282,15 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<PlansResponse?> getAllPlans() async {
+  Future<PlansResponse?> getAllPlans({bool update = true}) async {
     PlansResponse? plansResponse;
     final database = this.database;
-    if (database != null) {
+    if (database != null && update) {
       plansResponse = await database.getPlans();
       plansResponse ??= await super.getAllPlans();
       await database.updatePlans(plans: plansResponse);
     } else {
       plansResponse = await super.getAllPlans();
-
-      final databaseBuilder = this.databaseBuilder;
-      if (databaseBuilder != null) {
-        _database ??= await runBenchmarked(
-          'Build database',
-              () async => databaseBuilder(this),
-        );
-      }
       final database = this.database;
       if (database != null) {
         await database.insertPlans(plans: plansResponse);

@@ -20,9 +20,9 @@ class NameEmailNumberController extends State<NameEmailNumber> {
       TextEditingController();
   TextEditingController phoneTextController = TextEditingController();
 
-  String? emailError;
-  String? phoneError;
-  String? nameError;
+  String emailError = '';
+  String phoneError = '';
+  String nameError = '';
   bool loading = false;
 
   final countryPicker = const FlCountryCodePicker();

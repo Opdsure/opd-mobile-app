@@ -83,7 +83,6 @@ abstract class AppRoutes {
       }
       if (opd.client.isPlanPurchased) {
         return OpdThemes.isColumnMode(context);
-        //return '/home/view_plans/add_members';
       } else {
         if (opd.isSelectPlans) {
           if (opd.isPlansSelect) {
@@ -138,25 +137,26 @@ abstract class AppRoutes {
                   ),
                 );
               }),
-          GoRoute(
-            path: 'login',
-            pageBuilder: (context, state) => defaultPageBuilder(
-              context,
-              state,
-              const LoginPage(),
-            ),
-            routes: [
-              GoRoute(
-                path: 'forget_password',
-                pageBuilder: (context, state) => defaultPageBuilder(
-                  context,
-                  state,
-                  const ForgetPasswordPage(),
-                ),
-              ),
-            ],
-          ),
+
         ]),
+    GoRoute(
+      path: '/login',
+      pageBuilder: (context, state) => defaultPageBuilder(
+        context,
+        state,
+        const LoginPage(),
+      ),
+      routes: [
+        GoRoute(
+          path: 'forget_password',
+          pageBuilder: (context, state) => defaultPageBuilder(
+            context,
+            state,
+            const ForgetPasswordPage(),
+          ),
+        ),
+      ],
+    ),
     ShellRoute(
       pageBuilder: (context, state, child) => defaultPageBuilder(
           context,

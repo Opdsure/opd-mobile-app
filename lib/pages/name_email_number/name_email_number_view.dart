@@ -142,7 +142,7 @@ class InputFields extends StatelessWidget {
           size: 14.0,
           textInputType: TextInputType.name,
           textEditingController: controller.firstNameTextController,
-          errorText: controller.nameError,
+          errorMessage: controller.nameError,
         );
       case InputType.middleName:
         return AppEditText(
@@ -165,7 +165,7 @@ class InputFields extends StatelessWidget {
                 size: 14.0,
                 textInputType: TextInputType.emailAddress,
                 textEditingController: controller.emailTextController,
-                errorText: controller.emailError,
+                errorMessage: controller.emailError,
               )
             : AppMobileField(
                 hint: 'Enter your mobile number',

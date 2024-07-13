@@ -19,8 +19,6 @@ class AppEditText extends StatelessWidget {
   final bool disableText;
   final Widget? suffixWidget;
   final TextEditingController? textEditingController;
-  final String? errorText;
-  final TextStyle? errorStyle;
   final VoidCallback? viewCallback;
   final ValueChanged? mOnChanged;
   final String errorMessage;
@@ -30,8 +28,6 @@ class AppEditText extends StatelessWidget {
     required this.hint,
     this.textEditingController,
     this.size = 15.0,
-    this.errorText,
-    this.errorStyle,
     this.fontWeight = FontWeight.normal,
     this.color = backIconCl,
     this.textInputType = TextInputType.text,
@@ -107,8 +103,6 @@ class AppEditText extends StatelessWidget {
               textAlignVertical: TextAlignVertical.center,
               onChanged: mOnChanged,
               decoration: InputDecoration(
-                errorText: errorText,
-                errorStyle: errorStyle,
                 isDense: true,
                 hintText: hint,
                 border: InputBorder.none,
