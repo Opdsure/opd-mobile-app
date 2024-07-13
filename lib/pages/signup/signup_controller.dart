@@ -223,8 +223,7 @@ class SignUpController extends State<SignUpPage> {
             }else{
               await opdSure.client.init(
                   newAccessToken: response.data!.token!,
-                  newUserId: response.data!.userId!,
-                  newIsPlanPurchased: false);
+                  newUserId: response.data!.userId!);
             }
 
           }else{

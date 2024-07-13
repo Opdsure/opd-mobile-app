@@ -58,7 +58,7 @@ class CheckoutController extends State<CheckoutPage> {
     UserProfile? profile = await OpdSure.of(context).client.getProfile();
     Razorpay razorpay = Razorpay();
     var paymentOptions = {
-      'key': 'rzp_test_xru9wqPRtdHFOO',
+      'key': 'rzp_test_CoQN9cJgWANAEO',
       'amount': payAmount,
       'currency': "INR",
       'name': 'OPD Sure',

@@ -270,7 +270,7 @@ class HomePage extends StatelessWidget {
                       itemCount: listData.length>3?3:listData.length,
                       itemBuilder: (context,index){
                         Records records = listData[index];
-                        ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(records.claimType!);
+                        ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(records.status!);
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
                           child: InkWell(
@@ -318,7 +318,7 @@ class HomePage extends StatelessWidget {
                                             )
                                         ),
                                         TextSpan(
-                                          text: '$rupeeSymbol ${records.claimableAmount}/mo',
+                                          text: '$rupeeSymbol ${records.claimableAmount}',
                                           style: GoogleFonts.montserrat(
                                               fontSize: 12.0,
                                               fontWeight: FontWeight.w500,

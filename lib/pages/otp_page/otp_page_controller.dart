@@ -36,7 +36,7 @@ class OtpPageController extends State<OtpPage> {
     final user = await OpdSure.of(context).client.signInWithOTP(otp);
     if(user != null) {
       try {
-        await OpdSure.of(context).client.init(newUserId: userId, newAccessToken: accessToken, newIsPlanPurchased: false);
+        await OpdSure.of(context).client.init(newUserId: userId, newAccessToken: accessToken);
       } catch (e) {
         return setState(() => loading = false);
       }

@@ -112,7 +112,7 @@ class CommonMethods{
       case '1':
         return 'PHARMACY';
       case '2':
-        return 'LAB_TEST';
+        return 'LAB TEST';
       default:
         return 'OPD';
     }
@@ -129,7 +129,7 @@ class CommonMethods{
       case '3':
         return 'DUPLICATE';
       case '4':
-        return 'IN_PROCESS';
+        return 'IN PROCESS';
       case '6':
         return 'CLARIFICATION';
       case '7':

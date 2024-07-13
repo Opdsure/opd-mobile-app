@@ -42,7 +42,7 @@ class ClaimsDetailsPage extends StatelessWidget{
   Widget build(BuildContext context) {
     double w = CommonMethods.deviceWidth(context);
     double h = CommonMethods.deviceHeight(context);
-    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(oneClaim.claimType!);
+    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(oneClaim.status!);
     // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(headerName: 'Claim Details',),

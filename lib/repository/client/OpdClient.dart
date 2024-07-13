@@ -88,14 +88,11 @@ class OpdClient extends OpdApi {
   Map<String, Map<String, String>> get accountData => _accountData;
 
   Future<void> init({String? newUserId,
-    String? newAccessToken,
-    bool? newIsPlanPurchased}) async {
+    String? newAccessToken}) async {
     if ((newUserId != null ||
-        newAccessToken != null ||
-        newIsPlanPurchased != null) &&
+        newAccessToken != null) &&
         (newUserId == null ||
-            newAccessToken == null ||
-            newIsPlanPurchased == null)) {
+            newAccessToken == null)) {
       throw OpdClientInitPreconditionError(
         'If one of [userId, accessToken, isPlanPurchased] is set then all of them must be set!',
       );
@@ -136,12 +133,9 @@ class OpdClient extends OpdApi {
       if (newUserId != null) {
         userId = _userId = newUserId;
         accessToken = this.accessToken = newAccessToken;
-        isPlanPurchased = isPlanBuy = newIsPlanPurchased ?? false;
       } else {
         accessToken = this.accessToken = newAccessToken ?? accessToken;
         userId = _userId = newUserId ?? userId;
-        isPlanPurchased = this.isPlanPurchased =
-            newIsPlanPurchased ?? isPlanPurchased ?? false;
       }
 
       if (this.accessToken == null || this.userId == null) {
@@ -242,8 +236,7 @@ class OpdClient extends OpdApi {
     if (response.success!) {
       await init(
           newAccessToken: response.data!.token!,
-          newUserId: response.data!.userId!,
-          newIsPlanPurchased: false);
+          newUserId: response.data!.userId!);
     }
 
     if (response.data == null) {
