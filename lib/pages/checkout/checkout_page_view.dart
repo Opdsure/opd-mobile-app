@@ -72,21 +72,25 @@ class CheckoutPageView extends StatelessWidget{
                       )
                     ],
                   ),
-                  /*AppTextView(
-                    text: '$rupeeSymbol ${controller.options!.charges!}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
-                    color: const Color(0xFF667085),
-                  ),
-                  const SizedBox(height: 15.0,),
-                  const AppTextView(
-                    text: 'Users',
-                    color: Colors.black,
-                    size: 16.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  AppTextView(
-                    text: controller.options!.membershipLabel!,
-                    color: const Color(0xFF667085),
-                  ),*/
+
+                  if(controller.widget.paymentType == PaymentType.buyPlan)...[
+                    AppTextView(
+                      text: '$rupeeSymbol ${controller.options!.charges!}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
+                      color: const Color(0xFF667085),
+                    ),
+                    const SizedBox(height: 15.0,),
+                    const AppTextView(
+                      text: 'Users',
+                      color: Colors.black,
+                      size: 16.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    AppTextView(
+                      text: controller.options!.membershipLabel!,
+                      color: const Color(0xFF667085),
+                    ),
+                  ],
+
 
 
                   // const Row(

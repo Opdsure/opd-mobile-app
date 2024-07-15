@@ -344,7 +344,7 @@ class Api {
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.bodyBytes = utf8
         .encode(jsonEncode({
-      "payment_type" : type,
+      "order_for" : type,
       if(planId != null) "plan_id": planId,
       if(planId != null) "membership_id": membershipId,
       if(healthId != null) "health_id" : healthId

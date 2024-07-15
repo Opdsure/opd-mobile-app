@@ -90,7 +90,7 @@ class CheckoutController extends State<CheckoutPage> {
         type: widget.paymentType.index,
         planId: records?.id!,
         membershipId: options?.membershipId!,
-        healthId: healthCheckupRecords!.id!);
+        healthId: healthCheckupRecords?.id!);
     Razorpay razorpay = Razorpay();
     var paymentOptions = {
       'key': 'rzp_test_CoQN9cJgWANAEO',
@@ -98,7 +98,7 @@ class CheckoutController extends State<CheckoutPage> {
       'currency': createPaymentResponse.data!.currency!,
       'name': 'OPD Sure',
       'order_id': createPaymentResponse.data!.id,
-      'description': createPaymentResponse.data!.description,
+      'description': widget.paymentType == PaymentType.buyPlan ? '${records!.name!} + ${options!.membershipLabel!}' : healthCheckupRecords!.name!,
       'retry': {'enabled': false, 'max_count': 1},
       'send_sms_hash': true,
       'model': {
@@ -155,13 +155,11 @@ class CheckoutController extends State<CheckoutPage> {
         Navigator.pop(context);
       },
     );
-    // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title: Text(title),
       content: Text(message),
       actions: [continueButton],
     );
-    // show the dialog
     showDialog(
       useRootNavigator: false,
       context: context,
