@@ -7,9 +7,11 @@ import 'app_header.dart';
 class AppBasePage extends StatelessWidget{
   final Widget? appHeader;
   final Widget childContent;
+  final Widget? bottomContent;
 
   const AppBasePage({super.key,
     this.appHeader,
+    this.bottomContent,
     required this.childContent,
   });
 
@@ -45,6 +47,7 @@ class AppBasePage extends StatelessWidget{
               ],
             ),
           ),
+          bottomNavigationBar: bottomContent
         ),
       ),
     );

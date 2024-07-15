@@ -1,33 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
+import 'package:opdsure/custom_ui/app_home_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
-import 'package:opdsure/model/health_checkup/health_checkup.dart';
-import 'package:opdsure/pages/health_check_up/health_checkup_details/health_checkup_details_view.dart';
-import 'package:opdsure/widget/opd_widget.dart';
+import 'package:opdsure/utils/common_methods.dart';
 
 import '../health_checkup_details/health_checkup_details_controller.dart';
+import 'health_checkup_controller.dart';
 
 class HealthCheckupView extends StatelessWidget {
-  const HealthCheckupView({super.key});
+  HealthCheckupController controller;
+
+  HealthCheckupView(this.controller, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return AppBasePage(
-      childContent: FutureBuilder<HealthCheckup?>(
-          future: OpdSure.of(context).client.getHealthCheckupPlan(),
-          builder: (context, snapshot) {
-            return ListView.builder(
-              itemCount: 10,
-                itemBuilder: (context, index) {
-              return ListTile(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context) =>const HealthCheckupDetails() ));
-                },
-                title: AppTextView(text: 'Testn Name'),
-                subtitle: AppTextView(text: ' test price'),
-              );
-            });
-          }),
+      appHeader: AppHomeHeader(
+        titleUi: const AppTextView(
+            text: 'Health Checkup',
+            size: 22.0,
+            fontWeight: FontWeight.w600,
+            color: Colors.black),
+      ),
+      childContent: controller.healthCheckupResponse == null
+          ? Container()
+          : ListView.builder(
+              itemCount:
+                  controller.healthCheckupResponse!.data!.records!.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: Material(
+                    elevation: 8,
+                    borderRadius: BorderRadius.circular(8),
+                    type: MaterialType.card,
+                    child: InkWell(
+                      onTap: () {
+                        context.push('/home/health_checkup_details', extra: controller.healthCheckupResponse!
+                            .data!.records![index]);
+
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppTextView(
+                              text: controller.healthCheckupResponse!.data!
+                                  .records![index].name!),
+                          AppTextView(
+                              text: controller.healthCheckupResponse!.data!
+                                  .records![index].basePrice!
+                                  .toString()),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
     );
   }
 }

@@ -44,33 +44,35 @@ class CheckoutPageView extends StatelessWidget{
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       AppTextView(
-                        text: controller.records!.name!,
+                        text: controller.name,
                         color: Colors.black,
                         size: 16.0,
                         fontWeight: FontWeight.w500,
                       ),
-                      Container(
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: const Color(0xFF8A48B3),
-                              ),
-                              borderRadius: BorderRadius.all(Radius.circular(20))
-                          ),
-                          child: const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(5.0),
-                              child: AppTextView(
-                                text: 'Change Plan',
-                                size: 12.0,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF8A48B3),
-                              ),
+                      InkWell(
+                        child: Container(
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: const Color(0xFF8A48B3),
+                                ),
+                                borderRadius: BorderRadius.all(Radius.circular(20))
                             ),
-                          )
+                            child: const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(5.0),
+                                child: AppTextView(
+                                  text: 'Change Plan',
+                                  size: 12.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF8A48B3),
+                                ),
+                              ),
+                            )
+                        ),
                       )
                     ],
                   ),
-                  AppTextView(
+                  /*AppTextView(
                     text: '$rupeeSymbol ${controller.options!.charges!}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
                     color: const Color(0xFF667085),
                   ),
@@ -84,7 +86,9 @@ class CheckoutPageView extends StatelessWidget{
                   AppTextView(
                     text: controller.options!.membershipLabel!,
                     color: const Color(0xFF667085),
-                  ),
+                  ),*/
+
+
                   // const Row(
                   //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   //   children: [

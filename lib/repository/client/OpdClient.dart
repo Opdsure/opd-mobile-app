@@ -146,6 +146,7 @@ class OpdClient extends OpdApi {
         return;
       }
       final profile = await getProfile(update: true);
+      await getAllPlans();
       profileData = profile.data!;
       isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
 

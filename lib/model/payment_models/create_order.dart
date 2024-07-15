@@ -46,7 +46,8 @@ class CreatePaymentData {
       Notes? notes, 
       dynamic offerId, 
       String? receipt, 
-      String? status,}){
+      String? status,
+      String? description,}){
     _amount = amount;
     _amountDue = amountDue;
     _amountPaid = amountPaid;
@@ -59,6 +60,7 @@ class CreatePaymentData {
     _offerId = offerId;
     _receipt = receipt;
     _status = status;
+    _description = description;
 }
 
   CreatePaymentData.fromJson(dynamic json) {
@@ -74,6 +76,7 @@ class CreatePaymentData {
     _offerId = json['offer_id'];
     _receipt = json['receipt'];
     _status = json['status'];
+    _description = json['description'];
   }
   int? _amount;
   int? _amountDue;
@@ -87,6 +90,7 @@ class CreatePaymentData {
   dynamic _offerId;
   String? _receipt;
   String? _status;
+  String? _description;
 
   int? get amount => _amount;
   int? get amountDue => _amountDue;
@@ -100,6 +104,7 @@ class CreatePaymentData {
   dynamic get offerId => _offerId;
   String? get receipt => _receipt;
   String? get status => _status;
+  String? get description => _description ?? "";
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -117,6 +122,7 @@ class CreatePaymentData {
     map['offer_id'] = _offerId;
     map['receipt'] = _receipt;
     map['status'] = _status;
+    map['description'] = _description;
     return map;
   }
 

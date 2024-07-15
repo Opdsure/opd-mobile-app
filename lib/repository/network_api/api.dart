@@ -160,7 +160,11 @@ class Api {
     return responseString;
   }
 
-  Future<UserProfile?> updateUserProfile({String? name, String? email, String? phone, Map<String, dynamic>? plan}) async {
+  Future<UserProfile?> updateUserProfile(
+      {String? name,
+      String? email,
+      String? phone,
+      Map<String, dynamic>? plan}) async {
     final requestUri = Uri(path: 'api/v1/user/update-profile');
     final request = Request('PUT', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -169,7 +173,7 @@ class Api {
       if (email != null) 'email': email,
       if (phone != null) 'phone': phone,
       if (name != null) 'name': name,
-      if(plan != null) 'plan' : plan
+      if (plan != null) 'plan': plan
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -179,8 +183,15 @@ class Api {
     return UserProfile.fromJson(json);
   }
 
-  Future addFamilyMember({String? name,
-    int? relation,String? dob,String? gender, String? phone,String? countryCode,String? address,}) async {
+  Future addFamilyMember({
+    String? name,
+    int? relation,
+    String? dob,
+    String? gender,
+    String? phone,
+    String? countryCode,
+    String? address,
+  }) async {
     final requestUri = Uri(path: 'api/v1/user/add-member');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -192,7 +203,7 @@ class Api {
       "gender": gender,
       "phone": phone,
       "country_code": countryCode,
-      "address" : address
+      "address": address
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -254,7 +265,8 @@ class Api {
     return FileClaimResponse.fromJson(json);
   }
 
-  Future<FileClaimResponse?> updateAClaim(String claimId, String jsonData) async {
+  Future<FileClaimResponse?> updateAClaim(
+      String claimId, String jsonData) async {
     final requestUri = Uri(path: 'api/v1/user/edit-claim/$claimId');
     final request = Request('PATCH', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -268,10 +280,12 @@ class Api {
     return FileClaimResponse.fromJson(json);
   }
 
-  Future<FileUploadResponse?> uploadFile({required List<http.MultipartFile> results}) async {
+  Future<FileUploadResponse?> uploadFile(
+      {required List<http.MultipartFile> results}) async {
     final requestUri = Uri(path: 'api/v1/user/upload-file');
 
-    final request =  http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
+    final request =
+        http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.files.addAll(results);
     final response = await request.send();
@@ -306,8 +320,9 @@ class Api {
     return responseString;
   }
 
-  Future calculateClaimPrice(String type,double amount) async {
-    final requestUri = Uri.parse('api/v1/user/get-claimable-amount?parameter=$type&amount=$amount');
+  Future calculateClaimPrice(String type, double amount) async {
+    final requestUri = Uri.parse(
+        'api/v1/user/get-claimable-amount?parameter=$type&amount=$amount');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
@@ -318,31 +333,21 @@ class Api {
     return responseString;
   }
 
-  Future<CreateOrder?> createOrder(String? planId, int? membershipId) async {
+  Future<CreateOrder?> createOrder(
+      {String? planId,
+      int? membershipId,
+      String? healthId,
+      required int type}) async {
     final requestUri = Uri(path: 'api/v1/user/create-orders');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.bodyBytes = utf8
-        .encode(jsonEncode({"plan_id": planId, "membership_id": membershipId}));
-    final response = await httpClient.send(request);
-    final responseBody = await response.stream.toBytes();
-    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
-    final responseString = utf8.decode(responseBody);
-    final json = jsonDecode(responseString);
-    return CreateOrder.fromJson(json);
-  }
-
-  Future<CreateOrder?> verifyOrder(String? orderId, String? paymentId, String? signature) async {
-    final requestUri = Uri(path: 'api/v1/user/verify-payment');
-    final request = Request('POST', baseUri!.resolveUri(requestUri));
-    request.headers['content-type'] = 'application/json';
-    request.headers['Authorization'] = 'Bearer $bearerToken';
-    request.bodyBytes = utf8
         .encode(jsonEncode({
-      "razorpay_order_id" : orderId,
-      "razorpay_payment_id" : paymentId,
-      "razorpay_signature" : signature
+      "payment_type" : type,
+      if(planId != null) "plan_id": planId,
+      if(planId != null) "membership_id": membershipId,
+      if(healthId != null) "health_id" : healthId
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -352,7 +357,26 @@ class Api {
     return CreateOrder.fromJson(json);
   }
 
-  Future<HealthCheckup?> getHealthCheckupPlan() async {
+  Future<CreateOrder?> verifyOrder(
+      String? orderId, String? paymentId, String? signature) async {
+    final requestUri = Uri(path: 'api/v1/user/verify-payment');
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8.encode(jsonEncode({
+      "razorpay_order_id": orderId,
+      "razorpay_payment_id": paymentId,
+      "razorpay_signature": signature
+    }));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return CreateOrder.fromJson(json);
+  }
+
+  Future<HealthCheckupResponse?> getHealthCheckupPlan() async {
     final requestUri = Uri(path: 'api/v1/public/get-health-checkup-plans');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -362,6 +386,6 @@ class Api {
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
-    return HealthCheckup.fromJson(json);
+    return HealthCheckupResponse.fromJson(json);
   }
 }

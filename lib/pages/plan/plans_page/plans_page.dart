@@ -19,9 +19,9 @@ import '../../../utils/app_colors.dart';
 class PlansPageView extends StatelessWidget {
   final PlansPageController controller;
 
-  PlansPageView(this.controller, {super.key});
+  const PlansPageView(this.controller, {super.key});
 
-  Color textColor = const Color(0xFF8A48B3);
+  final Color textColor = const Color(0xFF8A48B3);
 
   Widget commonRow(BuildContext context, String imgUri, String desc) {
     double w = CommonMethods.deviceWidth(context);

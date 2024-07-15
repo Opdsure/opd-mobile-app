@@ -5,10 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/custom_ui/empty_page.dart';
 import 'package:opdsure/custom_ui/two_column_layout.dart';
+import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/file_claim_page.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
+import 'package:opdsure/pages/health_check_up/health_checkup_details/health_checkup_details_controller.dart';
 import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
 import 'package:opdsure/pages/name_email_number/name_email_number_controller.dart';
@@ -246,6 +248,7 @@ abstract class AppRoutes {
                               context,
                               state,
                               CheckoutPage(
+                                paymentType: PaymentType.buyPlan,
                                 records: records,
                                 options: options,
                               ),
@@ -277,6 +280,36 @@ abstract class AppRoutes {
                   ),
                 ],
               ),
+              ShellRoute(
+                  pageBuilder: defaultPageBuilder,
+                  routes: [
+                    GoRoute(
+                        path: 'health_checkup_details',
+                        pageBuilder: (context, state) {
+                          HealthCheckupRecords? records;
+                          if (state.extra != null) {
+                            records = state.extra as HealthCheckupRecords;
+                          }
+                          return defaultPageBuilder(
+                            context,
+                            state,
+                            HealthCheckupDetails(records: records),
+                          );
+                        }),
+                    GoRoute(
+                        path: 'health_checkup_checkout',
+                        pageBuilder: (context, state) {
+                          HealthCheckupRecords? records;
+                          if (state.extra != null) {
+                            records = state.extra as HealthCheckupRecords;
+                          }
+                          return defaultPageBuilder(
+                            context,
+                            state,
+                            CheckoutPage(paymentType: PaymentType.buyHealthCheckup, healthCheckupRecords: records,),
+                          );
+                        }),
+                  ])
             ]),
       ],
     ),

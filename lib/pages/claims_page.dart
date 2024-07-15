@@ -226,7 +226,7 @@ class ClaimsPage extends StatelessWidget {
                                             vertical: 5.0),
                                         child: InkWell(
                                           onTap: () {
-                                            if (records.status == 6 ) {
+                                            if (records.status == 6 && !records.subscriberReaction!) {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(

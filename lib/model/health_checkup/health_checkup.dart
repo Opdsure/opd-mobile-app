@@ -1,5 +1,5 @@
-class HealthCheckup {
-  HealthCheckup({
+class HealthCheckupResponse {
+  HealthCheckupResponse({
       HealthCheckUpData? data,
       bool? success, 
       String? message,}){
@@ -8,7 +8,7 @@ class HealthCheckup {
     _message = message;
 }
 
-  HealthCheckup.fromJson(dynamic json) {
+  HealthCheckupResponse.fromJson(dynamic json) {
     _data = json['data'] != null ? HealthCheckUpData.fromJson(json['data']) : null;
     _success = json['success'];
     _message = json['message'];
@@ -35,7 +35,7 @@ class HealthCheckup {
 
 class HealthCheckUpData {
   HealthCheckUpData({
-      List<Records>? records, 
+      List<HealthCheckupRecords>? records,
       Pagination? pagination,}){
     _records = records;
     _pagination = pagination;
@@ -45,15 +45,15 @@ class HealthCheckUpData {
     if (json['records'] != null) {
       _records = [];
       json['records'].forEach((v) {
-        _records?.add(Records.fromJson(v));
+        _records?.add(HealthCheckupRecords.fromJson(v));
       });
     }
     _pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
   }
-  List<Records>? _records;
+  List<HealthCheckupRecords>? _records;
   Pagination? _pagination;
 
-  List<Records>? get records => _records ?? [];
+  List<HealthCheckupRecords>? get records => _records ?? [HealthCheckupRecords()];
   Pagination? get pagination => _pagination ?? Pagination();
 
   Map<String, dynamic> toJson() {
@@ -120,8 +120,8 @@ class Pagination {
 
 }
 
-class Records {
-  Records({
+class HealthCheckupRecords {
+  HealthCheckupRecords({
       String? id, 
       String? checkupCode, 
       String? name, 
@@ -144,7 +144,7 @@ class Records {
     _v = v;
 }
 
-  Records.fromJson(dynamic json) {
+  HealthCheckupRecords.fromJson(dynamic json) {
     _id = json['_id'];
     _checkupCode = json['checkup_code'];
     _name = json['name'];
@@ -221,8 +221,12 @@ class TestDetails {
   String? _subParameter;
   int? _subParameterCount;
 
-  String? get testsName => _testsName ?? "";
-  String? get subParameter => _subParameter ?? "";
+  String? get testsName {
+    return _testsName?.replaceAll('\n', '') ?? "";
+  }
+  String? get subParameter {
+    return _subParameter?.replaceAll('\n', '') ?? "";
+  }
   int? get subParameterCount => _subParameterCount ?? 0;
 
   Map<String, dynamic> toJson() {
