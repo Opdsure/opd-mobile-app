@@ -473,8 +473,8 @@ class OpdClient extends OpdApi {
     return super.uploadFile(results: newFile);
   }
 
-  Future<Records?> getPlanById({required String? planId, int? memberShipId})async {
-    Records? records;
+  Future<PlanRecords?> getPlanById({required String? planId, int? memberShipId})async {
+    PlanRecords? records;
     final database = this.database;
     if(database != null){
       records = await database.getPlanById(planId: planId, memberShipId: memberShipId);

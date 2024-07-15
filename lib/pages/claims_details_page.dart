@@ -15,7 +15,7 @@ import 'package:opdsure/utils/app_colors.dart';
 import '../utils/common_methods.dart';
 
 class ClaimsDetailsPage extends StatelessWidget{
-  final Records oneClaim;
+  final ClaimRecords oneClaim;
   ClaimsDetailsPage(this.oneClaim);
 
   Widget commonRow(String key, String value){

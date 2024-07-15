@@ -261,7 +261,7 @@ class HomePage extends StatelessWidget {
                   else{
                     print(snapshot.data);
                     MyClaimsModel myClaimsModel = MyClaimsModel.fromJson(jsonDecode(snapshot.data));
-                    List<Records> listData = myClaimsModel.data!.records!;
+                    List<ClaimRecords> listData = myClaimsModel.data!.records!;
                     return listData.isEmpty?const Center(
                       child: AppTextView(
                         text: 'No Claim Found',
@@ -269,7 +269,7 @@ class HomePage extends StatelessWidget {
                     ):ListView.builder(
                       itemCount: listData.length>3?3:listData.length,
                       itemBuilder: (context,index){
-                        Records records = listData[index];
+                        ClaimRecords records = listData[index];
                         ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(records.status!);
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),

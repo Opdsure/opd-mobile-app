@@ -8,7 +8,7 @@ import 'package:opdsure/widget/opd_widget.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class CheckoutPage extends StatefulWidget {
-  final Records? records;
+  final PlanRecords? records;
   final MembershipOptions? options;
   const CheckoutPage({this.records, this.options, super.key});
 
@@ -18,7 +18,7 @@ class CheckoutPage extends StatefulWidget {
 
 class CheckoutController extends State<CheckoutPage> {
 
-  Records? records;
+  PlanRecords? records;
   MembershipOptions? options;
 
   double planCharge = 0.0;

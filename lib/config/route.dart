@@ -200,7 +200,7 @@ abstract class AppRoutes {
                     pageBuilder: (context, state) => defaultPageBuilder(
                       context,
                       state,
-                      FileClaimPage(),
+                      FileClaimPage(isUpdate: false,),
                     ),
                   ),
                 ],
@@ -233,11 +233,11 @@ abstract class AppRoutes {
                           path: 'plans_payment',
                           pageBuilder: (context, state) {
                             Map<String, dynamic>? data;
-                            Records? records;
+                            PlanRecords? records;
                             MembershipOptions? options;
                             if (state.extra != null) {
                               data = state.extra as Map<String, dynamic>;
-                              records = data['records'] as Records;
+                              records = data['records'] as PlanRecords;
                               if (data['options'] != null) {
                                 options = data['options'] as MembershipOptions;
                               }
@@ -255,11 +255,11 @@ abstract class AppRoutes {
                           path: 'add_members',
                           pageBuilder: (context, state) {
                             Map<String, dynamic>? data;
-                            Records? records;
+                            PlanRecords? records;
                             MembershipOptions? options;
                             if (state.extra != null) {
                               data = state.extra as Map<String, dynamic>;
-                              records = data['records'] as Records;
+                              records = data['records'] as PlanRecords;
                               if (data['options'] != null) {
                                 options = data['options'] as MembershipOptions;
                               }

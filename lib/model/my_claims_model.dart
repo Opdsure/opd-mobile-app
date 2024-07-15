@@ -35,7 +35,7 @@ class MyClaimsModel {
 
 class Data {
   Data({
-      List<Records>? records, 
+      List<ClaimRecords>? records,
       Pagination? pagination,}){
     _records = records;
     _pagination = pagination;
@@ -45,15 +45,15 @@ class Data {
     if (json['records'] != null) {
       _records = [];
       json['records'].forEach((v) {
-        _records?.add(Records.fromJson(v));
+        _records?.add(ClaimRecords.fromJson(v));
       });
     }
     _pagination = json['pagination'] != null ? Pagination.fromJson(json['pagination']) : null;
   }
-  List<Records>? _records;
+  List<ClaimRecords>? _records;
   Pagination? _pagination;
 
-  List<Records>? get records => _records;
+  List<ClaimRecords>? get records => _records;
   Pagination? get pagination => _pagination;
 
   Map<String, dynamic> toJson() {
@@ -120,8 +120,8 @@ class Pagination {
 
 }
 
-class Records {
-  Records({
+class ClaimRecords {
+  ClaimRecords({
       String? id, 
       String? opdDate, 
       String? docName, 
@@ -192,7 +192,7 @@ class Records {
     _v = v;
 }
 
-  Records.fromJson(dynamic json) {
+  ClaimRecords.fromJson(dynamic json) {
     _id = json['_id'];
     _opdDate = json['opd_date'];
     _docName = json['doc_name'];

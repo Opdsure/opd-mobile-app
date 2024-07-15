@@ -83,7 +83,7 @@ class ClaimsPage extends StatelessWidget{
                     text: 'File a claim',
                     onClick: (){
                       Navigator.push(context, MaterialPageRoute(
-                        builder: (context)=>FileClaimPage(),
+                        builder: (context)=>FileClaimPage(isUpdate: false,),
                       ));
                       // context.push('/home/file_claim');
                       // AppBottomSheet(
@@ -189,7 +189,7 @@ class ClaimsPage extends StatelessWidget{
                     else{
                       print(snapshot.data);
                       MyClaimsModel myClaimsModel = MyClaimsModel.fromJson(jsonDecode(snapshot.data));
-                      List<Records> listData = myClaimsModel.data!.records!;
+                      List<ClaimRecords> listData = myClaimsModel.data!.records!;
                       return listData.isEmpty?const Center(
                         child: AppTextView(
                           text: 'No Claim Found',
@@ -197,7 +197,7 @@ class ClaimsPage extends StatelessWidget{
                       ):ListView.builder(
                         itemCount: listData.length,
                         itemBuilder: (context,index){
-                          Records records = listData[index];
+                          ClaimRecords records = listData[index];
                           ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(records.status!);
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5.0),
@@ -205,7 +205,7 @@ class ClaimsPage extends StatelessWidget{
                               onTap: (){
                                 Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (context)=>ClaimsDetailsPage(records)),
+                                  MaterialPageRoute(builder: (context)=>(records.status==6)?FileClaimPage(isUpdate: true,records: records,):ClaimsDetailsPage(records)),
                                 );
                               },
                               child: AppCardView(

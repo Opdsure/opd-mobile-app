@@ -49,7 +49,7 @@ class ClaimStatusModel{
       case 6:
         return ClaimStatusModel(
             statusName: 'Clarification',
-            statusColor: const Color(0xFFEF6C00),
+            statusColor: const Color(0xFFfaad14),
             iconData: Icons.info_outline
         );
       case 7:

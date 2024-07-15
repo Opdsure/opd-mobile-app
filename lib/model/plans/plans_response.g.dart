@@ -59,7 +59,7 @@ class PlansDataAdapter extends TypeAdapter<PlansData> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return PlansData()
-      .._records = (fields[0] as List?)?.cast<Records>()
+      .._records = (fields[0] as List?)?.cast<PlanRecords>()
       .._pagination = fields[1] as Pagination?;
   }
 
@@ -132,17 +132,17 @@ class PaginationAdapter extends TypeAdapter<Pagination> {
           typeId == other.typeId;
 }
 
-class RecordsAdapter extends TypeAdapter<Records> {
+class RecordsAdapter extends TypeAdapter<PlanRecords> {
   @override
   final int typeId = 5;
 
   @override
-  Records read(BinaryReader reader) {
+  PlanRecords read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return Records()
+    return PlanRecords()
       .._id = fields[0] as String?
       .._name = fields[1] as String?
       .._frequency = fields[2] as int?
@@ -162,7 +162,7 @@ class RecordsAdapter extends TypeAdapter<Records> {
   }
 
   @override
-  void write(BinaryWriter writer, Records obj) {
+  void write(BinaryWriter writer, PlanRecords obj) {
     writer
       ..writeByte(16)
       ..writeByte(0)

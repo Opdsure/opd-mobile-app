@@ -52,7 +52,7 @@ class PlansResponse {
 @HiveType(typeId: DatabaseTypeKey.planData)
 class PlansData {
   PlansData({
-    List<Records>? records,
+    List<PlanRecords>? records,
     Pagination? pagination,
   }) {
     _records = records;
@@ -63,7 +63,7 @@ class PlansData {
     if (json['records'] != null) {
       _records = [];
       json['records'].forEach((v) {
-        _records?.add(Records.fromJson(v));
+        _records?.add(PlanRecords.fromJson(v));
       });
     }
     _pagination = json['pagination'] != null
@@ -72,12 +72,12 @@ class PlansData {
   }
 
   @HiveField(0)
-  List<Records>? _records;
+  List<PlanRecords>? _records;
   @HiveField(1)
   Pagination? _pagination;
 
-  List<Records>? get records {
-    List<Records>? newRecords = _records ?? [];
+  List<PlanRecords>? get records {
+    List<PlanRecords>? newRecords = _records ?? [];
     return newRecords.reversed.toList();
   }
 
@@ -160,8 +160,8 @@ class Pagination {
 }
 
 @HiveType(typeId: DatabaseTypeKey.planRecords)
-class Records {
-  Records({
+class PlanRecords {
+  PlanRecords({
     String? id,
     String? name,
     int? frequency,
@@ -197,7 +197,7 @@ class Records {
     _v = v;
   }
 
-  Records.fromJson(dynamic json) {
+  PlanRecords.fromJson(dynamic json) {
     _id = json['_id'];
     _name = json['name'];
     _frequency = json['frequency'];

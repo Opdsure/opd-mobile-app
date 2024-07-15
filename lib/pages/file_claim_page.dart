@@ -20,7 +20,7 @@ import 'package:opdsure/model/claim/calculate_claim_model.dart';
 import 'package:opdsure/model/claim_json_model.dart';
 import 'package:opdsure/model/common_map/claim_type_model.dart';
 import 'package:opdsure/model/my_member_model.dart';
-import 'package:opdsure/model/plans/plans_response.dart';
+import 'package:opdsure/model/single_claim_model.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/upload_file_claim_doc.dart';
 import 'package:opdsure/utils/app_var.dart';
@@ -29,6 +29,8 @@ import '../custom_ui/app_bottom_sheet.dart';
 import '../custom_ui/app_edit_text.dart';
 import '../custom_ui/app_mobile_field.dart';
 import '../custom_ui/app_text_view.dart';
+import '../model/my_claims_model.dart';
+import '../model/plans/plans_response.dart';
 import '../model/state_model.dart';
 import '../repository/network_api/api.dart';
 import '../utils/app_colors.dart';
@@ -36,6 +38,9 @@ import '../utils/common_methods.dart';
 import  'package:fl_country_code_picker/fl_country_code_picker.dart' as flc;
 
 class FileClaimPage extends StatefulWidget{
+  final ClaimRecords? records;
+  final bool? isUpdate;
+  FileClaimPage({this.records, this.isUpdate});
   @override
   State<FileClaimPage> createState() => _FileClaimPageState();
 }
@@ -80,8 +85,11 @@ class _FileClaimPageState extends State<FileClaimPage> {
   double _value13 = 0.0;
   double totalBillAmnt = 0.0;
   double totalClaimableAmnt = 0.0;
+  String claimId = '';
 
-  Records? records;
+  PlanRecords? records;
+  ClaimRecords? cRecords;
+  SingleClaimModel? singleClaimModel;
 
   void _calculateSum() {
     setState(() {
@@ -126,7 +134,42 @@ class _FileClaimPageState extends State<FileClaimPage> {
   @override
   void initState() {
     super.initState();
-_getInitState();
+    _getInitState();
+    if(widget.isUpdate!){
+      TypeController typeController = Get.put(TypeController());
+      cRecords = widget.records!;
+      claimId = cRecords!.id!;
+      typeController.selectClaimChange('${cRecords!.claimType!}');
+      OpdSure.of(context).client.getAllState().then((value){
+        StateModel stateModel = statemodelFromJson(value);
+        List<StateListData> stateListData = stateModel.data;
+        if(typeController.stateList.value.isNotEmpty){
+          typeController.stateList.value.clear();
+        }
+        typeController.stateListChange(stateListData[cRecords!.state!]);
+      });
+      MemberList memberList = MemberList(id: cRecords!.memberId!.id,name: cRecords!.memberId!.name,relation: cRecords!.memberId!.relation);
+      typeController.memberListChange(memberList);
+      typeController.opdVisitDateChange(cRecords!.opdDate!);
+      phoneCtrl.text = '${cRecords!.docPhone!}';
+      docNameCtrl.text = cRecords!.docName!;
+      regNumCtrl.text = cRecords!.docRegistration!;
+      specialCtrl.text = cRecords!.specialization??'';
+      hsptlNameCtrl.text = cRecords!.hospital!;
+      cityCtrl.text = cRecords!.city!;
+      // emailCtrl.text = cRecords!.email!;
+      diagnosisCtrl.text = cRecords!.diagonosisDetail!;
+      // remarkCtrl.text = cRecords!.remark!
+      docFeeCtrl.text = '${cRecords!.doctorFee!}';
+      docFeeClCtrl.text = '${cRecords!.claimableDoctorFee!}';
+      billAmntPhrCtrl.text = '${cRecords!.pharmacyFee!}';
+      billAmntPhrClCtrl.text = '${cRecords!.claimablePharmacyFee!}';
+      billAmntDiaCtrl.text = '${cRecords!.labTestFee!}';
+      billAmntDiaClCtrl.text = '${cRecords!.claimableLabTestFee!}';
+      OpdSure.of(context).client.getSingleClaims(cRecords!.id!).then((value){
+        singleClaimModel = SingleClaimModel.fromJson(jsonDecode(value));
+      });
+    }
   }
 
   _getInitState() async {
@@ -742,7 +785,11 @@ _getInitState();
                   state: typeController.stateList.value.first.id,
                   specialization: specialCtrl.text.isEmpty ? null : specialCtrl.text,
                   billAmount: '$totalBillAmnt',
-                  claimableAmount: '$totalClaimableAmnt'
+                  claimableAmount: '$totalClaimableAmnt',
+                  prescription: widget.isUpdate!?singleClaimModel!.data!.prescription:[],
+                  feeReceipt: widget.isUpdate!?singleClaimModel!.data!.feeReceipt:[],
+                  pharmacyReceipt: widget.isUpdate!?singleClaimModel!.data!.pharmacyReceipt:[],
+                  testReceipt: widget.isUpdate!?singleClaimModel!.data!.testReceipt:[],
                 );
                 typeController.prescriptionListChange([]);
                 typeController.docFeeRcptChange([]);
@@ -750,7 +797,7 @@ _getInitState();
                 typeController.labTestRcptChange([]);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(claimJsonModel)),
+                  MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(claimJsonModel,isUpdate: widget.isUpdate,claimId: claimId,)),
                 );
               },
             ),

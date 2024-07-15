@@ -10,6 +10,7 @@ import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../custom_ui/app_border_box.dart';
 import '../custom_ui/app_button.dart';
@@ -18,13 +19,35 @@ import '../model/claim_json_model.dart';
 import '../model/file_type_size_model.dart';
 import '../utils/app_colors.dart';
 import '../widget/opd_widget.dart';
+import 'package:http/http.dart' as http;
 
 class UploadFileClaimDoc extends StatelessWidget{
   final ClaimJsonModel? claimJsonModel;
-  UploadFileClaimDoc(this.claimJsonModel);
+  final bool? isUpdate;
+  final String? claimId;
+  UploadFileClaimDoc(this.claimJsonModel,{this.isUpdate,this.claimId});
 
   List<File> files = [];
   Map<String,dynamic> filesUrl = {};
+
+  Future<File> asyncMethod() async {
+    //comment out the next two lines to prevent the device from getting
+    // the image from the web in order to prove that the picture is
+    // coming from the device instead of the web.
+    var url = "https://opdsurexintileo.s3.ap-south-1.amazonaws.com/user/08a6db82-31c0-4bb0-86d3-93dcd8f064d7/IMG-20240610-WA0005.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA4MUSEL74CQEBWZ6R%2F20240713%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20240713T113528Z&X-Amz-Expires=900&X-Amz-Signature=814c08b199c20c5e1930a41c30819cd9060b5e7168820dd6e15bc78f82097a09&X-Amz-SignedHeaders=host&response-content-disposition=inline&x-id=GetObject"; // <-- 1
+    var response = await http.get(Uri.parse(url)); // <--2
+    var documentDirectory = await getApplicationDocumentsDirectory();
+    var firstPath = "${documentDirectory.path}/images";
+    var filePathAndName = '${documentDirectory.path}/images/pic.jpg';
+    //comment out the next three lines to prevent the image from being saved
+    //to the device to show that it's coming from the internet
+    await Directory(firstPath).create(recursive: true); // <-- 1
+    File file2 = File(filePathAndName);
+    return file2;// <-- 2
+    // file2.writeAsBytesSync(response.bodyBytes);         // <-- 3
+    // print(filePathAndName);
+  }
+
   @override
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
@@ -43,6 +66,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                 return Container();
               }
               else{
+                asyncMethod();
                 print(snapshot.data);
                 FileTypeSizeModel fileTypeSizeModel = fileTypeSizeModelFromJson(snapshot.data);
                 List<TypeSizeList> typeSizeList = fileTypeSizeModel.data;
@@ -57,6 +81,21 @@ class UploadFileClaimDoc extends StatelessWidget{
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF1D2939),
                     ),
+                    // FutureBuilder(
+                    //   future: asyncMethod(),
+                    //   builder: (context, snapshot){
+                    //     if(snapshot.data == null){
+                    //       return Container();
+                    //     }
+                    //     else{
+                    //       return Image.file(
+                    //         snapshot.data!,
+                    //         height: 100,
+                    //         width: 100,
+                    //       );
+                    //     }
+                    //   },
+                    // ),
                     AppBorderBox(
                       mCallback: ()async{
                         FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -116,7 +155,6 @@ class UploadFileClaimDoc extends StatelessWidget{
                       ),
                       height: 100.0,
                     ),
-
                     const SizedBox(height: 15.0),
                     const AppTextView(
                       text: 'Doctor Fees Receipts',
@@ -353,7 +391,13 @@ class UploadFileClaimDoc extends StatelessWidget{
               else{
                 CommonMethods.showAlertDialog(context);
                 print(jsonEncode(data));
-                var response = await OpdSure.of(context).client.fileAClaim(jsonEncode(data));
+                var response;
+                if(isUpdate!){
+                  response = await OpdSure.of(context).client.updateAClaim(claimId!,jsonEncode(data));
+                }
+                else{
+                  response = await OpdSure.of(context).client.fileAClaim(jsonEncode(data));
+                }
                 print(response);
                 Navigator.of(context,rootNavigator: false).pop();
                 if(response!.success!){
@@ -368,7 +412,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                   typeController.opdVisitDateChange('');
                   Navigator.pop(context);
                   Navigator.pop(context);
-                  CommonMethods.showToast('Claim added successfully');
+                  CommonMethods.showToast(isUpdate!?'Claim added successfully':'Claim added successfully');
                 }
                 else{
                   CommonMethods.showToast('Something went wrong');

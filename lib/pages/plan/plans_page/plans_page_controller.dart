@@ -18,7 +18,7 @@ class PlansPage extends StatefulWidget {
 }
 
 class PlansPageController extends State<PlansPage> {
-  Records? record;
+  PlanRecords? record;
   List<Tab>? plansTab;
   int? plansLength = 0;
   PlansResponse? plans;
