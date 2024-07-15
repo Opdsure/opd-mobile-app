@@ -22,7 +22,7 @@ import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import '../utils/app_colors.dart';
 
-class ClaimsPage extends StatelessWidget{
+class ClaimsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double w = CommonMethods.deviceWidth(context);
@@ -37,8 +37,7 @@ class ClaimsPage extends StatelessWidget{
               text: 'Claims',
               size: 22.0,
               fontWeight: FontWeight.w600,
-              color: Colors.black
-          ),
+              color: Colors.black),
         ),
         childContent: ListView(
           children: [
@@ -53,7 +52,9 @@ class ClaimsPage extends StatelessWidget{
                         height: 35.0,
                         width: 35.0,
                       ),
-                      const SizedBox(width: 10.0,),
+                      const SizedBox(
+                        width: 10.0,
+                      ),
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -76,15 +77,26 @@ class ClaimsPage extends StatelessWidget{
                       )
                     ],
                   ),
-                  const SizedBox(height: 15.0,),
-                  const Divider(color: Color(0xFFEAECF0),height: 0.5,),
-                  const SizedBox(height: 15.0,),
+                  const SizedBox(
+                    height: 15.0,
+                  ),
+                  const Divider(
+                    color: Color(0xFFEAECF0),
+                    height: 0.5,
+                  ),
+                  const SizedBox(
+                    height: 15.0,
+                  ),
                   AppButton(
                     text: 'File a claim',
-                    onClick: (){
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context)=>FileClaimPage(isUpdate: false,),
-                      ));
+                    onClick: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FileClaimPage(
+                              isUpdate: false,
+                            ),
+                          ));
                       // context.push('/home/file_claim');
                       // AppBottomSheet(
                       //   height: h*0.3,
@@ -132,28 +144,29 @@ class ClaimsPage extends StatelessWidget{
                 ],
               ),
             ),
-            const SizedBox(height: 20.0,),
+            const SizedBox(
+              height: 20.0,
+            ),
             Center(
               child: AppRoundView(
                 mChild: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0,horizontal: 5.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 2.0, horizontal: 5.0),
                   child: ButtonsTabBar(
                     backgroundColor: buttonColor,
                     unselectedBackgroundColor: Colors.transparent,
                     labelStyle: GoogleFonts.montserrat(
                         color: Colors.white,
                         fontSize: 14.0,
-                        fontWeight: FontWeight.w500
-                    ),
+                        fontWeight: FontWeight.w500),
                     borderColor: buttonColor,
                     height: 45.0,
-                    width: w*0.45,
+                    width: w * 0.45,
                     contentCenter: true,
                     unselectedLabelStyle: GoogleFonts.montserrat(
                         color: Colors.black,
                         fontSize: 14.0,
-                        fontWeight: FontWeight.w500
-                    ),
+                        fontWeight: FontWeight.w500),
                     borderWidth: 1,
                     unselectedBorderColor: Colors.transparent,
                     radius: 5,
@@ -171,128 +184,180 @@ class ClaimsPage extends StatelessWidget{
                 corner: 5.0,
               ),
             ),
-            const SizedBox(height: 10.0,),
-            Obx((){
+            const SizedBox(
+              height: 10.0,
+            ),
+            Obx(() {
               bool refresh = typeController.refreshClaimList.value;
               return SizedBox(
-                height: h*0.5,
-                child: refresh?FutureBuilder(
-                  future: OpdSure.of(context).client.getAllClaims(),
-                  builder: (context,snapshot){
-                    if(snapshot.data == null){
-                      return const Center(
-                        child: AppTextView(
-                          text: 'Claims are loading...',
-                        ),
-                      );
-                    }
-                    else{
-                      print(snapshot.data);
-                      MyClaimsModel myClaimsModel = MyClaimsModel.fromJson(jsonDecode(snapshot.data));
-                      List<ClaimRecords> listData = myClaimsModel.data!.records!;
-                      return listData.isEmpty?const Center(
-                        child: AppTextView(
-                          text: 'No Claim Found',
-                        ),
-                      ):ListView.builder(
-                        itemCount: listData.length,
-                        itemBuilder: (context,index){
-                          ClaimRecords records = listData[index];
-                          ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(records.status!);
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5.0),
-                            child: InkWell(
-                              onTap: (){
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context)=>(records.status==6)?FileClaimPage(isUpdate: true,records: records,):ClaimsDetailsPage(records)),
-                                );
-                              },
-                              child: AppCardView(
-                                mChaild: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        AppTextView(
-                                          text: CommonMethods.getClaimNameById('${records.claimType}'),
-                                          size: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.black,
-                                        ),
-                                        const Icon(
-                                          Icons.keyboard_arrow_right_sharp,
-                                          color: Colors.black,
-                                        )
-                                      ],
+                height: h * 0.5,
+                child: refresh
+                    ? FutureBuilder(
+                        future: OpdSure.of(context).client.getAllClaims(),
+                        builder: (context, snapshot) {
+                          if (snapshot.data == null) {
+                            return const Center(
+                              child: AppTextView(
+                                text: 'Claims are loading...',
+                              ),
+                            );
+                          } else {
+                            print(snapshot.data);
+                            MyClaimsModel myClaimsModel =
+                                MyClaimsModel.fromJson(
+                                    jsonDecode(snapshot.data));
+                            List<ClaimRecords> listData =
+                                myClaimsModel.data!.records!;
+                            return listData.isEmpty
+                                ? const Center(
+                                    child: AppTextView(
+                                      text: 'No Claim Found',
                                     ),
-                                    const SizedBox(height: 2.0,),
-                                    AppTextView(
-                                      text: records.hospital!,
-                                      size: 12.0,
-                                      color: const Color(0xFF667085),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    AppTextView(
-                                      text: 'Claim Number : ${records.claimId}',
-                                      size: 12.0,
-                                      color: const Color(0xFF667085),
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    Text.rich(
-                                      TextSpan(
-                                        children: [
-                                          TextSpan(
-                                              text: 'Reimbursed Amount : ',
-                                              style: GoogleFonts.montserrat(
-                                                fontSize: 12.0,
-                                                fontWeight: FontWeight.w500,
-                                                color: const Color(0xFF667085),
-                                              )
-                                          ),
-                                          TextSpan(
-                                            text: '$rupeeSymbol ${records.claimableAmount}',
-                                            style: GoogleFonts.montserrat(
-                                                fontSize: 12.0,
-                                                fontWeight: FontWeight.w500,
-                                                color: const Color(0xFF027A48)
+                                  )
+                                : ListView.builder(
+                                    itemCount: listData.length,
+                                    itemBuilder: (context, index) {
+                                      ClaimRecords records = listData[index];
+                                      ClaimStatusModel claimStatusModel =
+                                          ClaimStatusModel().getClaimBuStatus(
+                                              records.status!);
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 5.0),
+                                        child: InkWell(
+                                          onTap: () {
+                                            if (records.status == 6 ) {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      FileClaimPage(
+                                                    isUpdate: true,
+                                                    records: records,
+                                                  ),
+                                                ),
+                                              );
+                                            } else {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      ClaimsDetailsPage(
+                                                          records),
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: AppCardView(
+                                            mChaild: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    AppTextView(
+                                                      text: CommonMethods
+                                                          .getClaimNameById(
+                                                              '${records.claimType}'),
+                                                      size: 16,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Colors.black,
+                                                    ),
+                                                    const Icon(
+                                                      Icons
+                                                          .keyboard_arrow_right_sharp,
+                                                      color: Colors.black,
+                                                    )
+                                                  ],
+                                                ),
+                                                const SizedBox(
+                                                  height: 2.0,
+                                                ),
+                                                AppTextView(
+                                                  text: records.hospital!,
+                                                  size: 12.0,
+                                                  color:
+                                                      const Color(0xFF667085),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                AppTextView(
+                                                  text:
+                                                      'Claim Number : ${records.claimId}',
+                                                  size: 12.0,
+                                                  color:
+                                                      const Color(0xFF667085),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                                Text.rich(
+                                                  TextSpan(
+                                                    children: [
+                                                      TextSpan(
+                                                          text:
+                                                              'Reimbursed Amount : ',
+                                                          style: GoogleFonts
+                                                              .montserrat(
+                                                            fontSize: 12.0,
+                                                            fontWeight:
+                                                                FontWeight.w500,
+                                                            color: const Color(
+                                                                0xFF667085),
+                                                          )),
+                                                      TextSpan(
+                                                        text:
+                                                            '$rupeeSymbol ${records.claimableAmount}',
+                                                        style: GoogleFonts
+                                                            .montserrat(
+                                                                fontSize: 12.0,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                                color: const Color(
+                                                                    0xFF027A48)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    const AppTextView(
+                                                      text: 'Status : ',
+                                                      size: 12.0,
+                                                      color: Color(0xFF667085),
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                    Icon(
+                                                      claimStatusModel.iconData,
+                                                      color: claimStatusModel
+                                                          .statusColor,
+                                                      size: 15.0,
+                                                    ),
+                                                    AppTextView(
+                                                      text:
+                                                          ' ${claimStatusModel.statusName}',
+                                                      size: 12.0,
+                                                      color: claimStatusModel
+                                                          .statusColor!,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        const AppTextView(
-                                          text: 'Status : ',
-                                          size: 12.0,
-                                          color: Color(0xFF667085),
-                                          fontWeight: FontWeight.w500,
                                         ),
-                                        Icon(
-                                          claimStatusModel.iconData,
-                                          color: claimStatusModel.statusColor,
-                                          size: 15.0,
-                                        ),
-                                        AppTextView(
-                                          text: ' ${claimStatusModel.statusName}',
-                                          size: 12.0,
-                                          color: claimStatusModel.statusColor!,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
+                                      );
+                                    },
+                                  );
+                          }
                         },
-                      );
-                    }
-                  },
-                ):Container(),
+                      )
+                    : Container(),
               );
             })
           ],

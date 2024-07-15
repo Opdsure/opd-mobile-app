@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mime/mime.dart';
 import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/my_member_model.dart';
@@ -12,7 +13,7 @@ import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/repository/network_api/opd_api.dart';
 import 'package:http/http.dart' as http;
-import 'package:opdsure/utils/common_methods.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:opdsure/utils/exception/exception.dart';
 import 'package:opdsure/utils/http_timeout.dart';
 import 'package:opdsure/utils/logs/logs.dart';
@@ -460,10 +461,12 @@ class OpdClient extends OpdApi {
 
   Future<FileUploadResponse?> uploadFiles({required FilePickerResult results}) async {
     var files =  results.files.map((file) async  {
+      final mimeTypeData = lookupMimeType(file.path!, headerBytes: [0xFF, 0xD8])?.split('/');
       return  await http.MultipartFile.fromPath(
         'files',
         file.path!,
         filename: file.name,
+        contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
       );
     });
     List<http.MultipartFile> newFile = [];

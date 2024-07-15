@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
+import 'package:mime/mime.dart';
 import 'package:opdsure/model/claim/file_claim_response.dart';
 import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
@@ -255,7 +256,7 @@ class Api {
 
   Future<FileClaimResponse?> updateAClaim(String claimId, String jsonData) async {
     final requestUri = Uri(path: 'api/v1/user/edit-claim/$claimId');
-    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    final request = Request('PATCH', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.bodyBytes = utf8.encode(jsonData);
@@ -269,6 +270,7 @@ class Api {
 
   Future<FileUploadResponse?> uploadFile({required List<http.MultipartFile> results}) async {
     final requestUri = Uri(path: 'api/v1/user/upload-file');
+
     final request =  http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.files.addAll(results);
