@@ -12,12 +12,14 @@ import 'package:opdsure/custom_ui/app_mobile_field.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
+import 'package:opdsure/pages/terms_condition_page.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../custom_ui/app_border_box.dart';
 import '../../get_controllers/type_controller.dart';
 import '../../utils/app_colors.dart';
+import '../my_web_view.dart';
 
 class SignUpView extends StatelessWidget {
   final SignUpController controller;
@@ -148,20 +150,28 @@ class SignUpView extends StatelessWidget {
                     onChanged: controller.onTermAndConditions,
                   ),
                 ),
-                SizedBox(
-                  height: 20,
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                            text: 'I agree to the ',
-                            style: GoogleFonts.montserrat()),
-                        TextSpan(
-                          text: 'Terms and Conditions.',
-                          style: GoogleFonts.montserrat(
-                              fontWeight: FontWeight.bold),
-                        ),
-                      ],
+                InkWell(
+                  onTap: (){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context)=>TermsConditionPage(termsType: 'SIGNUP',)),
+                    );
+                  },
+                  child: SizedBox(
+                    height: 20,
+                    child: Text.rich(
+                      TextSpan(
+                        children: [
+                          TextSpan(
+                              text: 'I agree to the ',
+                              style: GoogleFonts.montserrat()),
+                          TextSpan(
+                            text: 'Terms and Conditions.',
+                            style: GoogleFonts.montserrat(
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 )

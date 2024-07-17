@@ -1,9 +1,6 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mime/mime.dart';
 import 'package:opdsure/config/app_config.dart';
@@ -19,7 +16,6 @@ import 'package:opdsure/utils/http_timeout.dart';
 import 'package:opdsure/utils/logs/logs.dart';
 import 'package:opdsure/utils/run_banchmark.dart';
 import 'package:opdsure/utils/streams/cached_stream_controller.dart';
-
 import '../../model/forget_password/forget_password_response.dart';
 import '../../model/login/login_response.dart';
 import '../../model/plans/plans_response.dart';
@@ -148,6 +144,7 @@ class OpdClient extends OpdApi {
       final profile = await getProfile(update: true);
       await getAllPlans();
       profileData = profile.data!;
+      await getAllPlans();
       isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
 
 

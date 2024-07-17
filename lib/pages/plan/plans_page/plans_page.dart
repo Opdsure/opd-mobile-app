@@ -2,7 +2,9 @@ import 'dart:ui';
 
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_drop_down.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
@@ -16,12 +18,19 @@ import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../../utils/app_colors.dart';
 
-class PlansPageView extends StatelessWidget {
+class PlansPageView extends StatefulWidget {
   final PlansPageController controller;
 
   const PlansPageView(this.controller, {super.key});
 
+  @override
+  State<PlansPageView> createState() => _PlansPageViewState();
+}
+
+class _PlansPageViewState extends State<PlansPageView> with SingleTickerProviderStateMixin{
   final Color textColor = const Color(0xFF8A48B3);
+
+  late final TabController tabController = TabController(length: 4, vsync: this);
 
   Widget commonRow(BuildContext context, String imgUri, String desc) {
     double w = CommonMethods.deviceWidth(context);
@@ -42,186 +51,187 @@ class PlansPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: controller.plansLength!,
-      child: LoginScaffold(
+      length: widget.controller.plansLength!,
+      child: AppBasePage(
         enforceMobileMode: !OpdSure.of(context).client.isLogged,
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
-          child: ListView(
-            children: [
-              const SizedBox(
-                height: 16.0,
+        appHeader: AppHeader(
+          headerName: 'Plans',
+        ),
+        childContent: ListView(
+          children: [
+            // const SizedBox(
+            //   height: 16.0,
+            // ),
+            // AppHeader(
+            //   headerName: '${controller.record!.name} Plan',
+            // ),
+            // const SizedBox(
+            //   height: 30.0,
+            // ),
+            ButtonsTabBar(
+              controller: tabController,
+              backgroundColor: Colors.transparent,
+              unselectedBackgroundColor: Colors.white,
+              labelStyle: GoogleFonts.montserrat(
+                color: buttonColor,
               ),
-              AppHeader(
-                headerName: '${controller.record!.name} Plan',
+              borderColor: buttonColor,
+              height: 40.0,
+              width: 100.0,
+              contentCenter: true,
+              unselectedLabelStyle: GoogleFonts.montserrat(
+                color: Colors.black,
               ),
-              const SizedBox(
-                height: 30.0,
-              ),
-              ButtonsTabBar(
-                backgroundColor: Colors.transparent,
-                unselectedBackgroundColor: Colors.white,
-                labelStyle: GoogleFonts.montserrat(
-                  color: buttonColor,
+              borderWidth: 1,
+              unselectedBorderColor: const Color(0xFFEAECF0),
+              radius: 15,
+              tabs: widget.controller.plansTab!,
+              onTap: (index) {
+                widget.controller.getIndexedRecords(index: index);
+              },
+            ),
+            const SizedBox(
+              height: 15.0,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                AppTextView(
+                  text: (!widget.controller.isIndividual &&
+                      widget.controller.familyOptions == null)
+                      ? 'Select Member'
+                      : '₹ ${widget.controller.options!.charges!}',
+                  color: textColor,
+                  size: (!widget.controller.isIndividual &&
+                      widget.controller.familyOptions == null) ? 16.0 : 40.0,
+                  fontWeight: FontWeight.w700,
                 ),
-                borderColor: buttonColor,
-                height: 40.0,
-                width: 100.0,
-                contentCenter: true,
-                unselectedLabelStyle: GoogleFonts.montserrat(
-                  color: Colors.black,
-                ),
-                borderWidth: 1,
-                unselectedBorderColor: const Color(0xFFEAECF0),
-                radius: 15,
-                tabs: controller.plansTab!,
-                onTap: (index) {
-                  controller.getIndexedRecords(index: index);
-                },
-              ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  AppTextView(
-                    text: (!controller.isIndividual &&
-                            controller.familyOptions == null)
-                        ? 'Select Member'
-                        : '₹ ${controller.options!.charges!}',
-                    color: textColor,
-                    size: (!controller.isIndividual &&
-                        controller.familyOptions == null) ? 16.0 : 40.0,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  if (controller.record!.planType == PlanType.both) ...[
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Row(
-                          children: [
-                            AppTextView(
-                              text: controller.planType,
-                              color: textColor,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            Switch(
-                              value: controller.isIndividual,
-                              onChanged: controller.toggleIndividual,
-                              activeTrackColor: textColor,
-                              inactiveTrackColor: textColor,
-                              trackOutlineColor: controller.isIndividual
-                                  ? null
-                                  : WidgetStatePropertyAll<Color>(textColor),
-                              inactiveThumbColor: Colors.white,
-                              thumbIcon: WidgetStatePropertyAll<Icon>(
-                                Icon(
-                                  controller.isIndividual
-                                      ? Icons.person
-                                      : Icons.family_restroom,
-                                  color: textColor,
-                                ),
+                if (widget.controller.record!.planType == PlanType.both) ...[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        children: [
+                          AppTextView(
+                            text: widget.controller.planType,
+                            color: textColor,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          Switch(
+                            value: widget.controller.isIndividual,
+                            onChanged: widget.controller.toggleIndividual,
+                            activeTrackColor: textColor,
+                            inactiveTrackColor: textColor,
+                            trackOutlineColor: widget.controller.isIndividual
+                                ? null
+                                : WidgetStatePropertyAll<Color>(textColor),
+                            inactiveThumbColor: Colors.white,
+                            thumbIcon: WidgetStatePropertyAll<Icon>(
+                              Icon(
+                                widget.controller.isIndividual
+                                    ? Icons.person
+                                    : Icons.family_restroom,
+                                color: textColor,
                               ),
                             ),
-                          ],
-                        ),
-                        AppTextView(
-                          text:
-                              'Toggle for ${controller.isIndividual ? "family" : "individual"}',
-                          size: 12,
-                          color: textColor,
-                        ),
-                      ],
-                    ),
-                  ]
-                ],
-              ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              AppTextView(
-                text: CommonMethods.getPlanFrequency(
-                    controller.record!.frequency!),
-                size: 16.0,
-                fontWeight: FontWeight.w600,
-              ),
-              const SizedBox(
-                height: 15.0,
-              ),
-              AppTextView(
-                text: 'Benefits of ${controller.record!.name!}',
-                size: 20.0,
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-              ),
-              if ((controller.record!.planType! == PlanType.family ||
-                      controller.record!.planType! == PlanType.both) &&
-                  !controller.isIndividual) ...[
-                const SizedBox(
-                  height: 10.0,
-                ),
-                AppDropDown<MembershipOptions>(
-                    hint: const AppTextView(
-                      text: "Select plan type",
-                    ),
-                    items: controller.getPlanItem(),
-                    onChanged: controller.setPlanItem,
-                    value: controller.familyOptions),
+                          ),
+                        ],
+                      ),
+                      AppTextView(
+                        text:
+                        'Toggle for ${widget.controller.isIndividual ? "family" : "individual"}',
+                        size: 12,
+                        color: textColor,
+                      ),
+                    ],
+                  ),
+                ]
               ],
+            ),
+            const SizedBox(
+              height: 15.0,
+            ),
+            AppTextView(
+              text: CommonMethods.getPlanFrequency(
+                  widget.controller.record!.frequency!),
+              size: 16.0,
+              fontWeight: FontWeight.w600,
+            ),
+            const SizedBox(
+              height: 15.0,
+            ),
+            AppTextView(
+              text: 'Benefits of ${widget.controller.record!.name!}',
+              size: 20.0,
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+            ),
+            if ((widget.controller.record!.planType! == PlanType.family ||
+                widget.controller.record!.planType! == PlanType.both) &&
+                !widget.controller.isIndividual) ...[
               const SizedBox(
                 height: 10.0,
               ),
-              SizedBox(
-                height: 400,
-                child: ListView.builder(
-                    itemCount: controller.record!.planBenefits!.length,
-                    physics: const BouncingScrollPhysics(
-                      decelerationRate: ScrollDecelerationRate.fast,
-                    ),
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: Icon(
-                          Icons.verified,
-                          color: textColor,
-                        ),
-                        title: AppTextView(
-                          color: Colors.black,
-                          text: controller
-                              .record!.planBenefits![index].planLabel!,
-                          size: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        subtitle: AppTextView(
-                            color: Colors.black,
-                            text: controller
-                                .record!.planBenefits![index].planFeature!),
-                      );
-                    }),
-              ),
-              AppButton(
-                text: 'Select',
-                color: (!controller.isIndividual &&
-                        controller.familyOptions == null)
-                    ? const Color(0xFFD9D7D7)
-                    : buttonColor,
-                textColor: (!controller.isIndividual &&
-                        controller.familyOptions == null)
-                    ? Colors.black
-                    : Colors.white,
-                borderColor: (!controller.isIndividual &&
-                        controller.familyOptions == null)
-                    ? const Color(0xFFD9D7D7)
-                    : buttonColor,
-                onClick: () {
-                  if (!(!controller.isIndividual &&
-                      controller.familyOptions == null)) {
-                    controller.goToCheckout();
-                  }
-                },
-              )
+              AppDropDown<MembershipOptions>(
+                  hint: const AppTextView(
+                    text: "Select plan type",
+                  ),
+                  items: widget.controller.getPlanItem(),
+                  onChanged: widget.controller.setPlanItem,
+                  value: widget.controller.familyOptions),
             ],
-          ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            SizedBox(
+              height: 400,
+              child: ListView.builder(
+                  itemCount: widget.controller.record!.planBenefits!.length,
+                  physics: const BouncingScrollPhysics(
+                    decelerationRate: ScrollDecelerationRate.fast,
+                  ),
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: Icon(
+                        Icons.verified,
+                        color: textColor,
+                      ),
+                      title: AppTextView(
+                        color: Colors.black,
+                        text: widget.controller
+                            .record!.planBenefits![index].planLabel!,
+                        size: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      subtitle: AppTextView(
+                          color: Colors.black,
+                          text: widget.controller
+                              .record!.planBenefits![index].planFeature!),
+                    );
+                  }),
+            ),
+            AppButton(
+              text: 'Select',
+              color: (!widget.controller.isIndividual &&
+                  widget.controller.familyOptions == null)
+                  ? const Color(0xFFD9D7D7)
+                  : buttonColor,
+              textColor: (!widget.controller.isIndividual &&
+                  widget.controller.familyOptions == null)
+                  ? Colors.black
+                  : Colors.white,
+              borderColor: (!widget.controller.isIndividual &&
+                  widget.controller.familyOptions == null)
+                  ? const Color(0xFFD9D7D7)
+                  : buttonColor,
+              onClick: () {
+                if (!(!widget.controller.isIndividual &&
+                    widget.controller.familyOptions == null)) {
+                  widget.controller.goToCheckout();
+                }
+              },
+            )
+          ],
         ),
       ),
     );

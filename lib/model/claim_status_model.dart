@@ -18,7 +18,7 @@ class ClaimStatusModel{
     switch(status){
       case 0:
         return ClaimStatusModel(
-          statusName: 'Processing',
+          statusName: 'Pending',
           statusColor: const Color(0xFFEF6C00),
           iconData: Icons.access_time_outlined
         );

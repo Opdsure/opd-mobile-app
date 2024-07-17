@@ -64,26 +64,22 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
     // TODO: implement build
-    return WillPopScope(
-      onWillPop: (){
-        Navigator.of(context,rootNavigator: false).pop();
-        Navigator.of(context,rootNavigator: false).pop();
-        return Future.value(false);
-      },
-      child: AppBasePage(
-        appHeader: AppHeader(
-          headerName: 'Add Details',
-          showRightView: true,
-          rightView: AppTextView(
-            text: 'Skip',
-            color: const Color(0xFF475467),
-            size: 16.0,
-            onClick: (){
-              context.go('/home');
-            },
-          ),
+    return AppBasePage(
+      appHeader: AppHeader(
+        headerName: 'Add Details',
+        showRightView: true,
+        rightView: AppTextView(
+          text: 'Done',
+          color: const Color(0xFF475467),
+          size: 16.0,
+          onClick: (){
+            context.pop();
+          },
         ),
-        childContent: ListView(
+      ),
+      childContent: Padding(
+        padding: MediaQuery.of(context).viewInsets,
+        child: ListView(
           children: [
             const AppTextView(
               text: 'Fill Your Details',
@@ -117,15 +113,23 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                     mChild: ListView.builder(
                       itemCount: data!.relationsData.length,
                       itemBuilder: (context, index){
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: AppTextView(
-                            onClick: (){
-                              typeController.selectRelationChange(data.relationsData[index].name);
-                              typeController.selectRelationKeyChange(data.relationsData[index].value);
-                              Navigator.pop(context);
-                            },
-                            text: data.relationsData[index].name,
+                        return InkWell(
+                          onTap: (){
+                            typeController.selectRelationChange(data.relationsData[index].name);
+                            typeController.selectRelationKeyChange(data.relationsData[index].value);
+                            Navigator.pop(context);
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                child: AppTextView(
+                                  text: data.relationsData[index].name,
+                                ),
+                              ),
+                              const Divider(height: 1,color: Color(0x1A101828),),
+                            ],
                           ),
                         );
                       },
@@ -163,19 +167,32 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
               if(dob!=''){
                 showDate = CommonMethods.changeDateFormat(dob,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy');
               }
-              return AppEditText(
-                hint: dob==''?'Enter date of birth':showDate,
-                disableText: true,
-                viewSuffix: true,
-                suffixWidget: const Icon(
-                  Icons.calendar_today_outlined,
-                  color: Color(0xff667085),
-                  size: 24.0,
-                ),
-                eyeCallback: (){
-                  _selectDOB(context, typeController);
-                },
+              return Stack(
+                children: [
+                  AppEditText(
+                    hint: dob==''?'Enter date of birth':showDate,
+                    disableText: true,
+                    viewSuffix: true,
+                    suffixWidget: const Icon(
+                      Icons.calendar_today_outlined,
+                      color: Color(0xff667085),
+                      size: 24.0,
+                    ),
+                    eyeCallback: (){
+                      _selectDOB(context, typeController);
+                    },
 
+                  ),
+                  InkWell(
+                    onTap: (){
+                      _selectDOB(context, typeController);
+                    },
+                    child: const SizedBox(
+                      height: 40,
+                      width: 400,
+                    ),
+                  )
+                ],
               );
             }),
             const SizedBox(height: 15.0,),
@@ -188,18 +205,26 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
             InkWell(
               onTap: ()async{
                 AppBottomSheet(
-                    height: 300,
+                    height: 200,
                     mChild: ListView.builder(
                       itemCount: genderList.length,
                       itemBuilder: (context, index){
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: AppTextView(
-                            onClick: (){
-                              typeController.selectGenderChange(genderList[index]);
-                              Navigator.pop(context);
-                            },
-                            text: genderList[index],
+                        return InkWell(
+                          onTap: (){
+                            typeController.selectGenderChange(genderList[index]);
+                            Navigator.pop(context);
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                child: AppTextView(
+                                  text: genderList[index],
+                                ),
+                              ),
+                              const Divider(height: 1,color: Color(0x1A101828),),
+                            ],
                           ),
                         );
                       },
@@ -235,6 +260,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
               hint: 'Enter your mobile number',
               countryCode: '+91',
               textEditingController: phoneCtrl,
+              maxLength: 13,
               countryCallback: ()async{
                 // Show the country code picker when tapped.
                 final picked= await countryPicker.showPicker(context: context);
@@ -259,16 +285,34 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                     mChild: ListView.builder(
                       itemCount: stateListData.length,
                       itemBuilder: (context, index){
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: AppTextView(
-                            onClick: (){
-                              typeController.selectStateChange(stateListData[index].name);
-                              Navigator.pop(context);
-                            },
-                            text: stateListData[index].name,
+                        return InkWell(
+                          onTap: (){
+                            typeController.selectStateChange(stateListData[index].name);
+                            Navigator.pop(context);
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                child: AppTextView(
+                                  text: stateListData[index].name,
+                                ),
+                              ),
+                              const Divider(height: 1,color: Color(0x1A101828),),
+                            ],
                           ),
                         );
+                        // return Padding(
+                        //   padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        //   child: AppTextView(
+                        //     onClick: (){
+                        //       typeController.selectStateChange(stateListData[index].name);
+                        //       Navigator.pop(context);
+                        //     },
+                        //     text: stateListData[index].name,
+                        //   ),
+                        // );
                       },
                     )
                 ).modalBottomSheetMenu(context);
@@ -312,6 +356,8 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
             AppEditText(
               hint: 'Enter the pin code',
               textEditingController: pinCodeCtrl,
+              textInputType: TextInputType.number,
+              maxLength: 6,
             ),
             const SizedBox(height: 20.0,),
             AppButton(
@@ -366,20 +412,43 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                 print(data);
                 Map<String,dynamic> resMap = jsonDecode(data);
                 if(resMap['success']){
+                  typeController.refreshMemberListChange(false);
+                  typeController.refreshMemberListChange(true);
                   CommonMethods.showToast('Member Added successfully');
+                  nameCtrl.text = '';
+                  phoneCtrl.text = '';
+                  cityCtrl.text = '';
+                  pinCodeCtrl.text = '';
+                  typeController.familyMemDOBChange('');
+                  typeController.selectStateChange('');
+                  typeController.selectGenderChange('');
+                  typeController.selectRelationChange('');
+                  typeController.selectRelationKeyChange(100);
                 }
               },
             ),
             const SizedBox(height: 15.0,),
-            AppButton(
-              text: 'Add Another Member',
-              color: Color(0xFFebecf1),
-              textColor: buttonColor,
-              borderColor: buttonColor,
-              onClick: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyDetails()));
-              },
-            )
+            Visibility(
+              visible: false,
+              child: AppButton(
+                text: 'Add Another Member',
+                color: const Color(0xFFebecf1),
+                textColor: buttonColor,
+                borderColor: buttonColor,
+                onClick: (){
+                  nameCtrl.text = '';
+                  phoneCtrl.text = '';
+                  cityCtrl.text = '';
+                  pinCodeCtrl.text = '';
+                  typeController.familyMemDOBChange('');
+                  typeController.selectStateChange('');
+                  typeController.selectGenderChange('');
+                  typeController.selectRelationChange('');
+                  typeController.selectRelationKeyChange(100);
+                },
+              ),
+            ),
+            const SizedBox(height: 50.0,),
           ],
         ),
       ),

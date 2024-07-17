@@ -2,6 +2,7 @@ import 'package:hive/hive.dart';
 import 'package:opdsure/model/database_type_key.dart';
 import 'package:opdsure/utils/app_keys/database_box_key.dart';
 import 'package:opdsure/utils/opd_extension/int_extention.dart';
+import 'package:opdsure/utils/opd_extension/string_extension.dart';
 
 part 'relations.g.dart';
 
@@ -36,7 +37,7 @@ class Relations {
   List<Relation> get relationsData{
     List<Relation> relations = [];
     for (var entry in _data!.toJson().entries) {
-      relations.add(Relation(entry.value!.getRelation(), entry.value!));
+      relations.add(Relation(entry.key.toLowerCase().replaceAll('_', ' ').capitalize, entry.value!));
   }
     return relations;
   }

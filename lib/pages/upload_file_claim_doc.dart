@@ -3,20 +3,23 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
-import 'package:go_router/go_router.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
+import 'package:opdsure/pages/view_image_page.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../custom_ui/app_border_box.dart';
 import '../custom_ui/app_button.dart';
+import '../custom_ui/app_card_view.dart';
 import '../custom_ui/app_text_view.dart';
 import '../model/claim_json_model.dart';
 import '../model/file_type_size_model.dart';
+import '../model/single_claim_model.dart';
 import '../utils/app_colors.dart';
 import '../widget/opd_widget.dart';
 import 'package:http/http.dart' as http;
@@ -51,6 +54,7 @@ class UploadFileClaimDoc extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
+    double h = CommonMethods.deviceHeight(context);
     // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(
@@ -59,6 +63,187 @@ class UploadFileClaimDoc extends StatelessWidget{
       childContent: ListView(
         children: [
           const SizedBox(height: 15.0),
+          isUpdate!?AppCardView(
+            mChaild: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FutureBuilder(
+                  future: OpdSure.of(context).client.getSingleClaims(claimId!),
+                  builder: (context, snapshot){
+                    if(snapshot.data == null){
+                      return Container();
+                    }
+                    else{
+                      SingleClaimModel singleClaimModel = SingleClaimModel.fromJson(jsonDecode(snapshot.data));
+                      List<String> prescriptionImageList = singleClaimModel.data!.prescription!;
+                      List<String> pharmacyImageList = singleClaimModel.data!.pharmacyReceipt!;
+                      List<String> feeImageList = singleClaimModel.data!.feeReceipt!;
+                      List<String> testImageList = singleClaimModel.data!.testReceipt!;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const AppTextView(
+                            text: 'Uploaded Documents',
+                            size: 16.0,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                          const SizedBox(height: 10.0,),
+                          const AppTextView(
+                            text: 'Prescription',
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            height: h*0.1,
+                            child: ListView.builder(
+                              itemCount: prescriptionImageList.length,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index){
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 8.0),
+                                      child: InkWell(
+                                        onTap: (){
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context)=>ViewImagePage('Prescription', prescriptionImageList[index])),
+                                          );
+                                        },
+                                        child: Image.network(
+                                          prescriptionImageList[index],
+                                          height: h*0.1,
+                                          width: h*0.1,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 10.0,),
+                          const AppTextView(
+                            text: 'Fees Receipt',
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            height: h*0.1,
+                            child: ListView.builder(
+                              itemCount: feeImageList.length,
+                              scrollDirection: Axis.horizontal,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index){
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 8.0),
+                                      child: InkWell(
+                                        onTap: (){
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context)=>ViewImagePage('Fees Receipt', feeImageList[index])),
+                                          );
+                                        },
+                                        child: Image.network(
+                                          feeImageList[index],
+                                          height: h*0.1,
+                                          width: h*0.1,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 10.0,),
+                          const AppTextView(
+                            text: 'Pharmacy Receipt',
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            height: h*0.1,
+                            child: ListView.builder(
+                              itemCount: pharmacyImageList.length,
+                              scrollDirection: Axis.horizontal,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index){
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 8.0),
+                                      child: InkWell(
+                                        onTap: (){
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context)=>ViewImagePage('Pharmacy Receipt', pharmacyImageList[index])),
+                                          );
+                                        },
+                                        child: Image.network(
+                                          pharmacyImageList[index],
+                                          height: h*0.1,
+                                          width: h*0.1,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 10.0,),
+                          const AppTextView(
+                            text: 'Test Receipt',
+                            color: Colors.black,
+                          ),
+                          SizedBox(
+                            height: h*0.1,
+                            child: ListView.builder(
+                              itemCount: testImageList.length,
+                              scrollDirection: Axis.horizontal,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index){
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 8.0),
+                                      child: InkWell(
+                                        onTap: (){
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context)=>ViewImagePage('Test Receipt', testImageList[index])),
+                                          );
+                                        },
+                                        child: Image.network(
+                                          testImageList[index],
+                                          height: h*0.1,
+                                          width: h*0.1,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+          ):Container(),
+          const SizedBox(height: 15.0,),
           FutureBuilder(
             future: OpdSure.of(context).client.getFileTypeAndSize(),
             builder: (context,snapshot){
@@ -376,16 +561,16 @@ class UploadFileClaimDoc extends StatelessWidget{
               data['fee_receipt'] = filesUrl['doc_receipt'];
               data['pharmacy_receipt'] = filesUrl['pharmacy_receipt'];
               data['test_receipt'] = filesUrl['test_receipt'];
-              if(filesUrl['prescription']==null){
+              if(filesUrl['prescription']==null && !(isUpdate!)){
                 CommonMethods.showToast('Please upload one Prescription');
               }
-              else if(filesUrl['doc_receipt']==null){
+              else if(filesUrl['doc_receipt']==null && !(isUpdate!)){
                 CommonMethods.showToast('Please upload one Fee Receipt');
               }
-              else if(filesUrl['pharmacy_receipt']==null){
+              else if(filesUrl['pharmacy_receipt']==null && !(isUpdate!)){
                 CommonMethods.showToast('Please upload one Pharmacy Receipt');
               }
-              else if(filesUrl['test_receipt']==null){
+              else if(filesUrl['test_receipt']==null && !(isUpdate!)){
                 CommonMethods.showToast('Please upload one Test Receipt');
               }
               else{
@@ -399,8 +584,9 @@ class UploadFileClaimDoc extends StatelessWidget{
                   response = await OpdSure.of(context).client.fileAClaim(jsonEncode(data));
                 }
                 print(response);
-                Navigator.of(context,rootNavigator: false).pop();
-                if(response!.success!){
+                Map<String,dynamic> resMap = jsonDecode(response);
+                if(resMap['success'] && isUpdate!){
+                  Navigator.of(context,rootNavigator: false).pop();
                   typeController.refreshClaimListChange(false);
                   typeController.refreshClaimListChange(true);
                   typeController.prescriptionListChange([]);
@@ -410,12 +596,38 @@ class UploadFileClaimDoc extends StatelessWidget{
                   // typeController.memberListChange(<MemberList>[]);
                   typeController.selectClaimChange('');
                   typeController.opdVisitDateChange('');
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                  CommonMethods.showToast(isUpdate!?'Claim added successfully':'Claim added successfully');
+                  CommonMethods.showOneButtonDialog(context,isUpdate!?'Claim updated successfully':'Claim submitted successfully',(){
+                    Navigator.of(context,rootNavigator: true).pop();
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  });
+                }
+                else if(isUpdate! && resMap['message'] == 'Action on claim already taken'){
+                  CommonMethods.showToast(resMap['message']);
+                  Navigator.of(context,rootNavigator: false).pop();
                 }
                 else{
-                  CommonMethods.showToast('Something went wrong');
+                  Navigator.of(context,rootNavigator: false).pop();
+                  if(resMap['success']){
+                    typeController.refreshClaimListChange(false);
+                    typeController.refreshClaimListChange(true);
+                    typeController.prescriptionListChange([]);
+                    typeController.docFeeRcptChange([]);
+                    typeController.pharmacyRcptChange([]);
+                    typeController.labTestRcptChange([]);
+                    // typeController.memberListChange(<MemberList>[]);
+                    typeController.selectClaimChange('');
+                    typeController.opdVisitDateChange('');
+                    CommonMethods.showOneButtonDialog(context,isUpdate!?'Claim updated successfully':'Claim submitted successfully',(){
+                      Navigator.of(context,rootNavigator: true).pop();
+                      Navigator.pop(context);
+                      Navigator.pop(context);
+                    });
+                    // CommonMethods.showToast(isUpdate!?'Claim updated successfully':'Claim added successfully');
+                  }
+                  else{
+                    CommonMethods.showToast('Something went wrong');
+                  }
                 }
               }
             },

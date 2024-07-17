@@ -32,7 +32,7 @@ class ViewPlansPageController extends State<ViewPlansPage> {
       OpdSure
           .of(context)
           .isSelectPlans = true;
-      context.go('/home/view_plans/select_plans', extra: plansResponse);
+      context.pushReplacement('/home/view_plans/select_plans', extra: plansResponse);
     }else{
 
     }

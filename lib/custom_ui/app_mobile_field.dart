@@ -23,6 +23,7 @@ class AppMobileField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final String errorMessage;
   final bool showErrorMessage;
+  final int? maxLength;
 
   const AppMobileField({
     required this.hint,
@@ -39,7 +40,8 @@ class AppMobileField extends StatelessWidget {
     this.countryCallback,
     this.inputFormatters,
     this.errorMessage = '',
-    this.showErrorMessage = false
+    this.showErrorMessage = false,
+    this.maxLength,
   });
 
   @override
@@ -102,11 +104,13 @@ class AppMobileField extends StatelessWidget {
                   textAlignVertical: TextAlignVertical.center,
                   inputFormatters: inputFormatters,
                   keyboardType: TextInputType.phone,
+                  maxLength: maxLength,
                   decoration: InputDecoration(
                     isDense: true,
                     hintText: hint,
                     border: InputBorder.none,
                     fillColor: Colors.white,
+                    counterText: '',
                     hintStyle: GoogleFonts.montserrat(
                     ),
                   ),

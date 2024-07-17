@@ -25,14 +25,15 @@ import '../../model/claim_status_model.dart';
 import '../../model/my_claims_model.dart';
 import '../../utils/app_var.dart';
 import '../claims_details_page.dart';
-
+typedef ValueCallback = void Function(int value);
 class HomePage extends StatelessWidget {
+  final ValueCallback callback;
+  const HomePage({required this.callback, super.key});
   @override
   Widget build(BuildContext context) {
     double h = CommonMethods.deviceHeight(context);
     double w = CommonMethods.deviceWidth(context);
     TypeController typeController = Get.put(TypeController());
-    // TODO: implement build
     return AppBasePage(
       appHeader: AppHomeHeader(
         titleUi: Text.rich(
@@ -132,6 +133,9 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
+            mCallback: (){
+              callback.call(1);
+            },
             colorList: const [
               Color(0xFFfcf2f9),
               Color(0xFFede0f2),
@@ -206,6 +210,9 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
+            mCallback: (){
+              callback.call(2);
+            },
             colorList: const [
               Color(0xFFeff9ff),
               Color(0xFFd8f1ff),
@@ -301,16 +308,34 @@ class HomePage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 2.0,),
                                   AppTextView(
-                                    text: 'Claim No: ${records.claimId}',
+                                    text:
+                                    'Applicant name : ${records.memberId!.name}',
                                     size: 12.0,
-                                    color: const Color(0xFF667085),
+                                    color:
+                                    const Color(0xFF667085),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  AppTextView(
+                                    text:
+                                    'Hospital : ${records.hospital!}',
+                                    size: 12.0,
+                                    color:
+                                    const Color(0xFF667085),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  AppTextView(
+                                    text:
+                                    'Claim ID : ${records.claimId}',
+                                    size: 12.0,
+                                    color:
+                                    const Color(0xFF667085),
                                     fontWeight: FontWeight.w500,
                                   ),
                                   Text.rich(
                                     TextSpan(
                                       children: [
                                         TextSpan(
-                                            text: 'Reimbursed Amount: ',
+                                            text: 'Claimable Amount: ',
                                             style: GoogleFonts.montserrat(
                                               fontSize: 12.0,
                                               fontWeight: FontWeight.w500,
@@ -353,7 +378,7 @@ class HomePage extends StatelessWidget {
                                         ],
                                       ),
                                       AppTextView(
-                                        text: 'OPD Date: ${CommonMethods.changeDateFormat(records.opdDate!,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy')}',
+                                        text: 'Claim Date: ${CommonMethods.formatIsoDateString(records.createdAt!)}',
                                         size: 10.0,
                                         color: const Color(0xFF667085),
                                         fontWeight: FontWeight.w500,

@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
+import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CommonMethods{
@@ -118,6 +119,31 @@ class CommonMethods{
     }
   }
 
+  static showOneButtonDialog(BuildContext context,String message,VoidCallback mCallback) {
+
+    // set up the button
+    Widget okButton = TextButton(
+      onPressed: mCallback,
+      child: const AppTextView(text: 'OK',),
+    );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const AppTextView(text: "Success!"),
+      content: AppTextView(text: message),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   static String getClaimStatus(String id){
     switch(id){
       case '0':
@@ -159,6 +185,12 @@ class CommonMethods{
     SharedPreferences mPref = await SharedPreferences.getInstance();
     bool? data = mPref.getBool(key);
     return data ?? false;
+  }
+
+  static String formatIsoDateString(String isoString) {
+    DateTime dateTime = DateTime.parse(isoString);
+    String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+    return formattedDate;
   }
 
 }

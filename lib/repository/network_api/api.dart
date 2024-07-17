@@ -19,6 +19,7 @@ import 'package:opdsure/utils/common_methods.dart';
 import '../../config/app_config.dart';
 import '../../model/my_member_model.dart';
 import '../../model/plans/plans_response.dart';
+import '../../model/subscribed_plan_model.dart';
 
 class Api {
   Client httpClient;
@@ -136,6 +137,19 @@ class Api {
     return UserProfile.fromJson(json);
   }
 
+  Future<SubscribedPlanModel> getSubscribedPlan() async {
+    final requestUri = Uri(path: 'api/v1/user/get-subscribed-plan');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return SubscribedPlanModel.fromJson(json);
+  }
+
   Future<PlansResponse?> getAllPlans() async {
     final requestUri = Uri(path: 'api/v1/public/plan');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
@@ -251,7 +265,7 @@ class Api {
     return responseString;
   }
 
-  Future<FileClaimResponse?> fileAClaim(String jsonData) async {
+  Future fileAClaim(String jsonData) async {
     final requestUri = Uri(path: 'api/v1/user/add-claim');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -261,12 +275,11 @@ class Api {
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    final json = jsonDecode(responseString);
-    return FileClaimResponse.fromJson(json);
+    // final json = jsonDecode(responseString);
+    return responseString;
   }
 
-  Future<FileClaimResponse?> updateAClaim(
-      String claimId, String jsonData) async {
+  Future updateAClaim(String claimId, String jsonData) async {
     final requestUri = Uri(path: 'api/v1/user/edit-claim/$claimId');
     final request = Request('PATCH', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -274,18 +287,21 @@ class Api {
     request.bodyBytes = utf8.encode(jsonData);
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
-    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
-    final responseString = utf8.decode(responseBody);
-    final json = jsonDecode(responseString);
-    return FileClaimResponse.fromJson(json);
+    if (response.statusCode != 200){
+      // unexpectedResponse(response, responseBody);
+      return utf8.decode(responseBody);
+    }
+    else{
+      final responseString = utf8.decode(responseBody);
+      final json = jsonDecode(responseString);
+      return responseString;
+    }
+
   }
 
-  Future<FileUploadResponse?> uploadFile(
-      {required List<http.MultipartFile> results}) async {
+  Future<FileUploadResponse?> uploadFile({required List<http.MultipartFile> results}) async {
     final requestUri = Uri(path: 'api/v1/user/upload-file');
-
-    final request =
-        http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
+    final request = http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.files.addAll(results);
     final response = await request.send();
@@ -344,7 +360,7 @@ class Api {
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.bodyBytes = utf8
         .encode(jsonEncode({
-      "payment_type" : type,
+      "order_for" : type,
       if(planId != null) "plan_id": planId,
       if(planId != null) "membership_id": membershipId,
       if(healthId != null) "health_id" : healthId
@@ -387,5 +403,17 @@ class Api {
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return HealthCheckupResponse.fromJson(json);
+  }
+
+  Future getTermsConditions(String type) async {
+    final requestUri = Uri.parse('api/v1/public/get-terms-and-condition?TC_TYPE_ENUM=$type');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    // final json = jsonDecode(responseString);
+    return responseString;
   }
 }

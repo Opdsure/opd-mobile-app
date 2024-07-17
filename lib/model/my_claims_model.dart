@@ -133,16 +133,19 @@ class ClaimRecords {
       String? city, 
       String? diagonosisDetail, 
       int? doctorFee, 
-      int? pharmacyFee, 
-      int? labTestFee, 
+      int? combinedPharmacyTestFees, 
       int? claimableDoctorFee, 
-      int? claimablePharmacyFee, 
-      int? claimableLabTestFee, 
+      int? claimableCombinedPharmacyTestFees, 
       int? billAmount, 
-      double? claimableAmount, 
+      int? claimableAmount, 
       String? specialization, 
       int? claimType, 
-      String? hospital, 
+      int? claimCombination, 
+      int? claimablePharmacyFee,
+      int? pharmacyFee,
+      int? labTestFee,
+      int? claimableLabTestFee,
+      String? hospital,
       List<String>? feeReceipt, 
       List<String>? prescription, 
       List<String>? pharmacyReceipt, 
@@ -167,17 +170,20 @@ class ClaimRecords {
     _city = city;
     _diagonosisDetail = diagonosisDetail;
     _doctorFee = doctorFee;
-    _pharmacyFee = pharmacyFee;
-    _labTestFee = labTestFee;
+    _combinedPharmacyTestFees = combinedPharmacyTestFees;
     _claimableDoctorFee = claimableDoctorFee;
-    _claimablePharmacyFee = claimablePharmacyFee;
-    _claimableLabTestFee = claimableLabTestFee;
+    _claimableCombinedPharmacyTestFees = claimableCombinedPharmacyTestFees;
     _billAmount = billAmount;
     _claimableAmount = claimableAmount;
     _specialization = specialization;
     _claimType = claimType;
+    _pharmacyFee = pharmacyFee;
+    _labTestFee = labTestFee;
+    _claimableLabTestFee = claimableLabTestFee;
+    _claimCombination = claimCombination;
     _hospital = hospital;
     _feeReceipt = feeReceipt;
+    _claimablePharmacyFee = claimablePharmacyFee;
     _prescription = prescription;
     _pharmacyReceipt = pharmacyReceipt;
     _testReceipt = testReceipt;
@@ -204,15 +210,14 @@ class ClaimRecords {
     _city = json['city'];
     _diagonosisDetail = json['diagonosis_detail'];
     _doctorFee = json['doctor_fee'];
-    _pharmacyFee = json['pharmacy_fee'];
-    _labTestFee = json['lab_test_fee'];
+    _combinedPharmacyTestFees = json['combined_pharmacy_test_fees'];
     _claimableDoctorFee = json['claimable_doctor_fee'];
-    _claimablePharmacyFee = json['claimable_pharmacy_fee'];
-    _claimableLabTestFee = json['claimable_lab_test_fee'];
+    _claimableCombinedPharmacyTestFees = json['claimable_combined_pharmacy_test_fees'];
     _billAmount = json['bill_amount'];
     _claimableAmount = json['claimable_amount'];
     _specialization = json['specialization'];
     _claimType = json['claim_type'];
+    _claimCombination = json['claim_combination'];
     _hospital = json['hospital'];
     _feeReceipt = json['fee_receipt'] != null ? json['fee_receipt'].cast<String>() : [];
     _prescription = json['prescription'] != null ? json['prescription'].cast<String>() : [];
@@ -223,11 +228,15 @@ class ClaimRecords {
     _userId = json['user_id'];
     _subscriberReaction = json['subscriber_reaction'];
     _resubmission = json['resubmission'];
+    _pharmacyFee = json['pharmacy_fee'];
+    _labTestFee = json['lab_test_fee'];
+    _claimableLabTestFee = json['claimable_lab_test_fee'];
+    _claimablePharmacyFee = json['claimable_pharmacy_fee'];
     if (json['subscriber_remark'] != null) {
       _subscriberRemark = [];
-      json['subscriber_remark'].forEach((v) {
-        // _subscriberRemark?.add(dynamic.fromJson(v));
-      });
+      // json['subscriber_remark'].forEach((v) {
+      //   _subscriberRemark?.add(Dynamic.fromJson(v));
+      // });
     }
     _createdAt = json['createdAt'];
     _updatedAt = json['updatedAt'];
@@ -244,15 +253,18 @@ class ClaimRecords {
   String? _city;
   String? _diagonosisDetail;
   int? _doctorFee;
-  int? _pharmacyFee;
-  int? _labTestFee;
+  int? _combinedPharmacyTestFees;
   int? _claimableDoctorFee;
-  int? _claimablePharmacyFee;
-  int? _claimableLabTestFee;
+  int? _claimableCombinedPharmacyTestFees;
   int? _billAmount;
-  dynamic _claimableAmount;
+  int? _claimableAmount;
   String? _specialization;
   int? _claimType;
+  int? _claimCombination;
+  int? _pharmacyFee;
+  int? _labTestFee;
+  int? _claimableLabTestFee;
+  int? _claimablePharmacyFee;
   String? _hospital;
   List<String>? _feeReceipt;
   List<String>? _prescription;
@@ -279,17 +291,20 @@ class ClaimRecords {
   String? get city => _city;
   String? get diagonosisDetail => _diagonosisDetail;
   int? get doctorFee => _doctorFee;
-  int? get pharmacyFee => _pharmacyFee;
-  int? get labTestFee => _labTestFee;
+  int? get combinedPharmacyTestFees => _combinedPharmacyTestFees;
   int? get claimableDoctorFee => _claimableDoctorFee;
-  int? get claimablePharmacyFee => _claimablePharmacyFee;
-  int? get claimableLabTestFee => _claimableLabTestFee;
+  int? get claimableCombinedPharmacyTestFees => _claimableCombinedPharmacyTestFees;
   int? get billAmount => _billAmount;
-  dynamic get claimableAmount => _claimableAmount;
+  int? get claimableAmount => _claimableAmount;
   String? get specialization => _specialization;
   int? get claimType => _claimType;
+  int? get claimCombination => _claimCombination;
   String? get hospital => _hospital;
   List<String>? get feeReceipt => _feeReceipt;
+  int? get pharmacyFee => _pharmacyFee;
+  int? get labTestFee => _labTestFee;
+  int? get claimableLabTestFee => _claimableLabTestFee;
+  int? get claimablePharmacyFee => _claimablePharmacyFee;
   List<String>? get prescription => _prescription;
   List<String>? get pharmacyReceipt => _pharmacyReceipt;
   List<String>? get testReceipt => _testReceipt;
@@ -316,17 +331,20 @@ class ClaimRecords {
     map['city'] = _city;
     map['diagonosis_detail'] = _diagonosisDetail;
     map['doctor_fee'] = _doctorFee;
-    map['pharmacy_fee'] = _pharmacyFee;
-    map['lab_test_fee'] = _labTestFee;
+    map['combined_pharmacy_test_fees'] = _combinedPharmacyTestFees;
     map['claimable_doctor_fee'] = _claimableDoctorFee;
-    map['claimable_pharmacy_fee'] = _claimablePharmacyFee;
-    map['claimable_lab_test_fee'] = _claimableLabTestFee;
+    map['claimable_combined_pharmacy_test_fees'] = _claimableCombinedPharmacyTestFees;
     map['bill_amount'] = _billAmount;
     map['claimable_amount'] = _claimableAmount;
     map['specialization'] = _specialization;
     map['claim_type'] = _claimType;
+    map['claim_combination'] = _claimCombination;
     map['hospital'] = _hospital;
     map['fee_receipt'] = _feeReceipt;
+    map['pharmacy_fee'] = _pharmacyFee;
+    map['lab_test_fee'] = _labTestFee;
+    map['claimable_lab_test_fee'] = _claimableLabTestFee;
+    map['claimable_pharmacy_fee'] = _claimablePharmacyFee;
     map['prescription'] = _prescription;
     map['pharmacy_receipt'] = _pharmacyReceipt;
     map['test_receipt'] = _testReceipt;

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_border_box.dart';
 import 'package:opdsure/utils/app_colors.dart';
@@ -23,6 +24,8 @@ class AppEditText extends StatelessWidget {
   final ValueChanged? mOnChanged;
   final String errorMessage;
   final bool showErrorMessage;
+  final int? maxLength;
+  final List<TextInputFormatter>? inputFormatters;
 
   const AppEditText({
     required this.hint,
@@ -40,53 +43,11 @@ class AppEditText extends StatelessWidget {
     this.viewCallback,
     this.mOnChanged,
     this.errorMessage = '',
-    this.showErrorMessage = false
+    this.showErrorMessage = false,
+    this.maxLength,
+    this.inputFormatters,
   });
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return AppBorderBox(
-  //     myChild: Center(
-  //       child: TextField(
-  //         controller: textEditingController,
-  //         keyboardType: textInputType,
-  //         readOnly: disableText,
-  //         style: GoogleFonts.montserrat(fontSize: size, color: color),
-  //         obscureText: isViewPassword,
-  //         textAlignVertical: TextAlignVertical.center,
-  //         onChanged: mOnChanged,
-  //         decoration: InputDecoration(
-  //           errorText: errorText,
-  //           errorStyle: errorStyle,
-  //           isDense: true,
-  //           hintText: hint,
-  //           border: InputBorder.none,
-  //           fillColor: Colors.white,
-  //           suffixIcon: viewSuffix
-  //               ? isPasswordField
-  //                   ? InkWell(
-  //                       onTap: eyeCallback,
-  //                       child: Icon(
-  //                         isViewPassword
-  //                             ? Icons.visibility_off_outlined
-  //                             : Icons.visibility_outlined,
-  //                         color: const Color(0xff667085),
-  //                         size: 24.0,
-  //                       ),
-  //                     )
-  //                   : InkWell(
-  //                       onTap: eyeCallback,
-  //                       child: suffixWidget,
-  //                     )
-  //               : null,
-  //           hintStyle: GoogleFonts.montserrat(),
-  //         ),
-  //
-  //       ),
-  //     ),
-  //     mCallback: viewCallback,
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -100,11 +61,14 @@ class AppEditText extends StatelessWidget {
               readOnly: disableText,
               style: GoogleFonts.montserrat(fontSize: size, color: color),
               obscureText: isViewPassword,
+              maxLength: maxLength,
               textAlignVertical: TextAlignVertical.center,
               onChanged: mOnChanged,
+              inputFormatters: inputFormatters,
               decoration: InputDecoration(
                 isDense: true,
                 hintText: hint,
+                counterText: '',
                 border: InputBorder.none,
                 fillColor: Colors.white,
                 suffixIcon: viewSuffix

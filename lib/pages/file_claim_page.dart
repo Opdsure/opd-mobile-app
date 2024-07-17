@@ -21,6 +21,7 @@ import 'package:opdsure/model/claim_json_model.dart';
 import 'package:opdsure/model/common_map/claim_type_model.dart';
 import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/model/single_claim_model.dart';
+import 'package:opdsure/model/subscribed_plan_model.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/upload_file_claim_doc.dart';
 import 'package:opdsure/utils/app_var.dart';
@@ -86,6 +87,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
   double totalBillAmnt = 0.0;
   double totalClaimableAmnt = 0.0;
   String claimId = '';
+  String claimCombination = '';
 
   PlanRecords? records;
   ClaimRecords? cRecords;
@@ -110,7 +112,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
   }
 
   void pharmaBill({String? value = '0'}) async {
-    var data = await OpdSure.of(context).client.calculateClaimPrice('1', double.parse(value!));
+    String calculator = claimCombination=='1'?'1':'3';
+    var data = await OpdSure.of(context).client.calculateClaimPrice(calculator, double.parse(value!));
     CalculateClaimModel calculateClaimModel = CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
       _value12 = double.parse('${calculateClaimModel.data!.finalPrice}');
@@ -134,9 +137,13 @@ class _FileClaimPageState extends State<FileClaimPage> {
   @override
   void initState() {
     super.initState();
+    TypeController typeController = Get.put(TypeController());
+    typeController.opdVisitDateChange('');
+    typeController.selectClaimChange('');
+    typeController.memberList.clear();
+    typeController.stateList.clear();
     _getInitState();
     if(widget.isUpdate!){
-      TypeController typeController = Get.put(TypeController());
       cRecords = widget.records!;
       claimId = cRecords!.id!;
       typeController.selectClaimChange('${cRecords!.claimType!}');
@@ -162,14 +169,34 @@ class _FileClaimPageState extends State<FileClaimPage> {
       // remarkCtrl.text = cRecords!.remark!
       docFeeCtrl.text = '${cRecords!.doctorFee!}';
       docFeeClCtrl.text = '${cRecords!.claimableDoctorFee!}';
-      billAmntPhrCtrl.text = '${cRecords!.pharmacyFee!}';
-      billAmntPhrClCtrl.text = '${cRecords!.claimablePharmacyFee!}';
-      billAmntDiaCtrl.text = '${cRecords!.labTestFee!}';
-      billAmntDiaClCtrl.text = '${cRecords!.claimableLabTestFee!}';
+
+
       OpdSure.of(context).client.getSingleClaims(cRecords!.id!).then((value){
         singleClaimModel = SingleClaimModel.fromJson(jsonDecode(value));
       });
     }
+    OpdSure.of(context).client.getSubscribedPlan().then((value){
+      SubscribedPlanModel subscribedPlanModel = value;
+      setState(() {
+        claimCombination = '${subscribedPlanModel.data!.claimCombination}';
+        if(widget.isUpdate!){
+          if(claimCombination == '2'){
+            totalBillAmnt = cRecords!.doctorFee!.toDouble()+(cRecords!.combinedPharmacyTestFees??0.0).toDouble();
+            totalClaimableAmnt = cRecords!.claimableDoctorFee!.toDouble()+(cRecords!.claimableCombinedPharmacyTestFees??0.0).toDouble();
+            billAmntPhrCtrl.text = '${cRecords!.combinedPharmacyTestFees}';
+            billAmntPhrClCtrl.text = '${cRecords!.claimableCombinedPharmacyTestFees}';
+          }
+          else{
+            billAmntPhrCtrl.text = cRecords!.pharmacyFee==null?'':'${cRecords!.pharmacyFee!}';
+            billAmntPhrClCtrl.text = cRecords!.claimablePharmacyFee==null?'':'${cRecords!.claimablePharmacyFee!}';
+            billAmntDiaCtrl.text = cRecords!.labTestFee==null?'':'${cRecords!.labTestFee!}';
+            billAmntDiaClCtrl.text = cRecords!.claimableLabTestFee==null?'':'${cRecords!.claimableLabTestFee!}';
+            totalBillAmnt = cRecords!.doctorFee!.toDouble()+(cRecords!.pharmacyFee??0.0).toDouble()+(cRecords!.labTestFee??0.0).toDouble();
+            totalClaimableAmnt = cRecords!.claimableDoctorFee!.toDouble()+(cRecords!.claimablePharmacyFee??0.0).toDouble()+(cRecords!.claimableLabTestFee??0.0).toDouble();
+          }
+        }
+      });
+    });
   }
 
   _getInitState() async {
@@ -185,8 +212,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
     final DateTime? picked = await showDatePicker(
         context: context,
         initialDate: selectedDate,
-        firstDate: DateTime(1901, 1),
-        lastDate: DateTime(2100));
+        firstDate: DateTime.now().add(const Duration(days: -6)),
+        lastDate: DateTime.now());
     if (picked != null && picked != selectedDate) {
       selectedDate = picked;
       String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
@@ -232,6 +259,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
     double w = CommonMethods.deviceWidth(context);
+    double h = CommonMethods.deviceHeight(context);
     // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(headerName: 'File a Claim',),
@@ -243,18 +271,26 @@ class _FileClaimPageState extends State<FileClaimPage> {
             InkWell(
               onTap: ()async{
                 AppBottomSheet(
-                    height: 300,
+                    height: h*0.3,
                     mChild: ListView.builder(
                       itemCount: claimList.length,
                       itemBuilder: (context, index){
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: AppTextView(
-                            onClick: (){
-                              typeController.selectClaimChange(claimList[index].id);
-                              Navigator.pop(context);
-                            },
-                            text: claimList[index].value,
+                        return InkWell(
+                          onTap: (){
+                            typeController.selectClaimChange(claimList[index].id);
+                            Navigator.pop(context);
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                child: AppTextView(
+                                  text: claimList[index].value,
+                                ),
+                              ),
+                              const Divider(height: 1,),
+                            ],
                           ),
                         );
                       },
@@ -334,7 +370,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                             itemCount: memberList.length,
                             itemBuilder: (context, index){
                               return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                padding: const EdgeInsets.all(8.0),
                                 child: InkWell(
                                   onTap: (){
                                     if(typeController.memberList.value.isNotEmpty){
@@ -344,15 +380,25 @@ class _FileClaimPageState extends State<FileClaimPage> {
                                     Navigator.pop(context);
                                   },
                                   child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      AppTextView(
-                                        text: memberList[index].name!,
-                                        size: 16.0,
-                                        fontWeight: FontWeight.w600,
+                                      InkWell(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            AppTextView(
+                                              text: memberList[index].name!,
+                                              size: 16.0,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            AppTextView(
+                                              text: '${memberList[index].phone!}',
+                                              size: 14.0,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                      AppTextView(
-                                        text: '${memberList[index].phone!}',
-                                      ),
+                                      const Divider(height: 1,color: Color(0x1A101828),),
                                     ],
                                   ),
                                 ),
@@ -390,18 +436,31 @@ class _FileClaimPageState extends State<FileClaimPage> {
               if(date!=''){
                 showDate = CommonMethods.changeDateFormat(date,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy');
               }
-              return AppEditText(
-                hint: date.isEmpty?'Enter OPD Visit Date':showDate,
-                disableText: true,
-                viewSuffix: true,
-                suffixWidget: const Icon(
-                  Icons.calendar_today_outlined,
-                  color: Color(0xff667085),
-                  size: 24.0,
-                ),
-                eyeCallback: (){
-                  _selectDate(context, typeController);
-                },
+              return Stack(
+                children: [
+                  AppEditText(
+                    hint: date.isEmpty?'Enter OPD Visit Date':showDate,
+                    disableText: true,
+                    viewSuffix: true,
+                    suffixWidget: const Icon(
+                      Icons.calendar_today_outlined,
+                      color: Color(0xff667085),
+                      size: 24.0,
+                    ),
+                    eyeCallback: (){
+                      _selectDate(context, typeController);
+                    },
+                  ),
+                  InkWell(
+                    onTap: (){
+                      _selectDate(context, typeController);
+                    },
+                    child: SizedBox(
+                      height: 40,
+                      width: w*0.8,
+                    ),
+                  )
+                ],
               );
             }),
             const SizedBox(height: 15.0),
@@ -416,7 +475,11 @@ class _FileClaimPageState extends State<FileClaimPage> {
             AppEditText(
               hint: 'Enter doc Reg. Number',
               textEditingController: regNumCtrl,
-              textInputType: TextInputType.name,),
+              textInputType: TextInputType.name,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+              ],
+            ),
             const SizedBox(height: 15.0),
             const AppTextView(
               text: 'Specialization',
@@ -446,17 +509,25 @@ class _FileClaimPageState extends State<FileClaimPage> {
                     mChild: ListView.builder(
                       itemCount: stateListData.length,
                       itemBuilder: (context, index){
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: AppTextView(
-                            onClick: (){
-                              if(typeController.stateList.value.isNotEmpty){
-                                typeController.stateList.value.clear();
-                              }
-                              typeController.stateListChange(stateListData[index]);
-                              Navigator.pop(context);
-                            },
-                            text: stateListData[index].name,
+                        return InkWell(
+                          onTap: (){
+                            if(typeController.stateList.value.isNotEmpty){
+                              typeController.stateList.value.clear();
+                            }
+                            typeController.stateListChange(stateListData[index]);
+                            Navigator.pop(context);
+                          },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                child: AppTextView(
+                                  text: stateListData[index].name,
+                                ),
+                              ),
+                              const Divider(height: 1,color: Color(0x1A101828),),
+                            ],
                           ),
                         );
                       },
@@ -605,11 +676,11 @@ class _FileClaimPageState extends State<FileClaimPage> {
             ),
 
             const SizedBox(height: 15.0),
-            const AppTextView(
-              text: 'Bill Amt. for Pharmacy',
+            AppTextView(
+              text: claimCombination == '2'?'Pharmacy + Diagnostics':'Bill Amt. for Pharmacy',
               size: 14.0,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
+              color: const Color(0xFF1D2939),
             ),
             Row(
               children: [
@@ -634,36 +705,39 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 ))
               ],
             ),
-
             const SizedBox(height: 15.0),
-            const AppTextView(
-              text: 'Bill Amnt. for Diagnostics',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
-            ),
-            Row(
+            claimCombination == '2'?Container():Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Flexible(child: AppEditText(hint: 'Enter value',
-                  textEditingController: billAmntDiaCtrl,
-                  textInputType: TextInputType.number,
-                  mOnChanged: (value){
-                    labBill(value: value);
-                  },
-                )),
-                const SizedBox(width: 10,),
-                Flexible(child: AppEditText(hint: '',
-                  disableText: true,
-                  textEditingController: billAmntDiaClCtrl,
-                  textInputType: TextInputType.number,
-                  mOnChanged: (value){
-                    labBill(value: value);
-                  },
-                ))
+                const AppTextView(
+                  text: 'Bill Amnt. for Diagnostics',
+                  size: 14.0,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF1D2939),
+                ),
+                Row(
+                  children: [
+                    Flexible(child: AppEditText(hint: 'Enter value',
+                      textEditingController: billAmntDiaCtrl,
+                      textInputType: TextInputType.number,
+                      mOnChanged: (value){
+                        labBill(value: value);
+                      },
+                    )),
+                    const SizedBox(width: 10,),
+                    Flexible(child: AppEditText(hint: '',
+                      disableText: true,
+                      textEditingController: billAmntDiaClCtrl,
+                      textInputType: TextInputType.number,
+                      mOnChanged: (value){
+                        labBill(value: value);
+                      },
+                    ))
+                  ],
+                ),
+                const SizedBox(height: 15.0),
               ],
             ),
-
-            const SizedBox(height: 15.0),
             const AppTextView(
               text: 'Grand Total',
               size: 14.0,
@@ -771,11 +845,12 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   docCountryCode: typeController.countryCode.value,
                   docPhone: phoneCtrl.text,
                   doctorFee: docFeeCtrl.text,
-                  pharmacyFee: billAmntPhrCtrl.text,
-                  labTestFee: billAmntDiaCtrl.text,
+                  // pharmacyFee: billAmntPhrCtrl.text,
+                  pharmacyFee: claimCombination=='1'?billAmntPhrCtrl.text:null,
+                  labTestFee: claimCombination=='1'?billAmntDiaCtrl.text:null,
                   claimableDoctorFee: int.tryParse(docFeeClCtrl.text),
-                  claimablePharmacyFee: int.tryParse(billAmntPhrClCtrl.text),
-                  claimableLabTestFee: int.tryParse(billAmntDiaClCtrl.text),
+                  claimablePharmacyFee: claimCombination=='1'?int.tryParse(billAmntPhrClCtrl.text):null,
+                  claimableLabTestFee: claimCombination=='1'?int.tryParse(billAmntDiaClCtrl.text):null,
                   claimType: typeController.selectClaim.value,
                   docName: docNameCtrl.text,
                   docRegistration: regNumCtrl.text,
@@ -790,6 +865,9 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   feeReceipt: widget.isUpdate!?singleClaimModel!.data!.feeReceipt:[],
                   pharmacyReceipt: widget.isUpdate!?singleClaimModel!.data!.pharmacyReceipt:[],
                   testReceipt: widget.isUpdate!?singleClaimModel!.data!.testReceipt:[],
+                  claimCombination: claimCombination,
+                  combinedPharmacyTestFees: claimCombination=='2'?billAmntPhrCtrl.text:null,
+                  claimableCombinedPharmacyTestFees: claimCombination=='2'?billAmntPhrClCtrl.text:null
                 );
                 typeController.prescriptionListChange([]);
                 typeController.docFeeRcptChange([]);
@@ -802,6 +880,23 @@ class _FileClaimPageState extends State<FileClaimPage> {
               },
             ),
             const SizedBox(height: 20.0),
+            Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(
+                      text: 'Disclaimer: ',
+                      style: GoogleFonts.montserrat(
+                        fontWeight: FontWeight.w600,
+                        color: buttonColor
+                      )),
+                  TextSpan(
+                    text: 'All the documents that are uploaded in the OPDSure Application, will be used only for the claim settlement. The uploaded documents will not be used for any other use in any scenario.',
+                    style: GoogleFonts.montserrat(color: buttonColor),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 50.0),
           ],
         ),
       ),

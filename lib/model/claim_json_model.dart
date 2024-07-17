@@ -21,7 +21,10 @@ class ClaimJsonModel {
       List<String>? testReceipt, 
       String? billAmount,
       String? claimableAmount,
-      int? state, 
+      String? claimableCombinedPharmacyTestFees,
+      String? combinedPharmacyTestFees,
+      String? claimCombination,
+      int? state,
       String? city, 
       String? specialization,}){
     _memberId = memberId;
@@ -45,6 +48,9 @@ class ClaimJsonModel {
     _testReceipt = testReceipt;
     _billAmount = billAmount;
     _claimableAmount = claimableAmount;
+    _claimableCombinedPharmacyTestFees = claimableCombinedPharmacyTestFees;
+    _combinedPharmacyTestFees = combinedPharmacyTestFees;
+    _claimCombination = claimCombination;
     _state = state;
     _city = city;
     _specialization = specialization;
@@ -72,6 +78,9 @@ class ClaimJsonModel {
     _testReceipt = json['test_receipt'] != null ? json['test_receipt'].cast<String>() : [];
     _billAmount = json['bill_amount'];
     _claimableAmount = json['claimable_amount'];
+    _combinedPharmacyTestFees = json['combined_pharmacy_test_fees'];
+    _claimableCombinedPharmacyTestFees = json['claimable_combined_pharmacy_test_fees'];
+    _claimCombination = json['claim_combination'];
     _state = json['state'];
     _city = json['city'];
     _specialization = json['specialization'];
@@ -97,6 +106,9 @@ class ClaimJsonModel {
   List<String>? _testReceipt;
   String? _billAmount;
   String? _claimableAmount;
+  String? _combinedPharmacyTestFees;
+  String? _claimableCombinedPharmacyTestFees;
+  String? _claimCombination;
   int? _state;
   String? _city;
   String? _specialization;
@@ -122,22 +134,25 @@ class ClaimJsonModel {
   List<String>? get testReceipt => _testReceipt;
   String? get billAmount => _billAmount;
   String? get claimableAmount => _claimableAmount;
+  String? get combinedPharmacyTestFees => _combinedPharmacyTestFees;
+  String? get claimableCombinedPharmacyTestFees => _claimableCombinedPharmacyTestFees;
+  String? get claimCombination => _claimCombination;
   int? get state => _state;
   String? get city => _city;
   String? get specialization => _specialization;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
-    map['member_id'] = _memberId;
+    if (_memberId != null) map['member_id'] = _memberId;
     map['opd_date'] = _opdDate;
     map['doc_country_code'] = _docCountryCode;
     map['doc_phone'] = _docPhone;
     map['doctor_fee'] = _doctorFee;
-    map['pharmacy_fee'] = _pharmacyFee;
-    map['lab_test_fee'] = _labTestFee;
+    if (_pharmacyFee != null) map['pharmacy_fee'] = _pharmacyFee;
+    if (_labTestFee != null) map['lab_test_fee'] = _labTestFee;
     map['claimable_doctor_fee'] = _claimableDoctorFee;
-    map['claimable_pharmacy_fee'] = _claimablePharmacyFee;
-    map['claimable_lab_test_fee'] = _claimableLabTestFee;
+    if (_claimablePharmacyFee != null) map['claimable_pharmacy_fee'] = _claimablePharmacyFee;
+    if (_claimableLabTestFee != null) map['claimable_lab_test_fee'] = _claimableLabTestFee;
     map['claim_type'] = _claimType;
     map['doc_name'] = _docName;
     map['doc_registration'] = _docRegistration;
@@ -149,6 +164,9 @@ class ClaimJsonModel {
     map['test_receipt'] = _testReceipt;
     map['bill_amount'] = _billAmount;
     map['claimable_amount'] = _claimableAmount;
+    if (_combinedPharmacyTestFees != null) map['combined_pharmacy_test_fees'] = _combinedPharmacyTestFees;
+    if (_claimableCombinedPharmacyTestFees != null) map['claimable_combined_pharmacy_test_fees'] = _claimableCombinedPharmacyTestFees;
+    map['claim_combination'] = _claimCombination;
     map['state'] = _state;
     map['city'] = _city;
     if(_specialization != null) map['specialization'] = _specialization;

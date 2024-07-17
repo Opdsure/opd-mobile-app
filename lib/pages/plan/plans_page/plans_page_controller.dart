@@ -72,7 +72,7 @@ class PlansPageController extends State<PlansPage> {
     if (record != null) {
       OpdSure.of(context).isPlansSelect = true;
 
-      context.push('/home/view_plans/plans_payment',
+      context.pushReplacement('/home/view_plans/plans_payment',
           extra: {"records": record, "options": options});
     } else {
       CommonMethods.showToast('Please select a plan');

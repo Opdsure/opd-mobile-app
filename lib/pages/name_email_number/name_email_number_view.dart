@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/utils/app_keys/app_key.dart';
+import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/opd_extension/string_extension.dart';
 
 import '../../custom_ui/app_button.dart';
@@ -75,8 +76,10 @@ class NameEmailNumberView extends StatelessWidget {
                     switch (controller.inputType) {
                       case InputType.firstName:
                         if (controller.firstNameTextController.text.isEmpty) {
-                          setState(() =>
-                              controller.nameError = 'First name is required');
+                          setState((){
+                            controller.nameError = 'First name is required';
+                            CommonMethods.showToast('Enter first name');
+                          });
                         } else {
                           setState(() =>
                               controller.inputType = InputType.middleName);
@@ -91,27 +94,37 @@ class NameEmailNumberView extends StatelessWidget {
                       case InputType.emailOrPhone:
                         if (!controller.isWithEmail) {
                           if (controller.phoneTextController.text.isEmpty) {
-                            setState(() =>
-                                controller.phoneError = 'Phone no is empty');
+                            setState((){
+                              controller.phoneError = 'Phone no is empty';
+                              CommonMethods.showToast('Enter mobile number');
+                            });
                             return;
                           } else {
                             if (!controller
                                 .phoneTextController.text.isValidPhoneNumber) {
-                              setState(() => controller.phoneError =
-                                  'Enter a valid phone no');
+                              setState((){
+                                controller.phoneError =
+                                'Enter a valid phone no';
+                                CommonMethods.showToast('Enter a valid phone no');
+                              });
                               return;
                             }
                           }
                         } else {
                           if (controller.emailTextController.text.isEmpty) {
-                            setState(() => controller.emailError =
-                                'Email address is empty');
+                            setState((){
+                              controller.emailError = 'Email address is empty';
+                              CommonMethods.showToast('Email address is empty');
+                            });
                             return;
                           } else {
                             if (!controller
                                 .emailTextController.text.isValidEmail) {
-                              setState(() => controller.emailError =
-                                  'Enter a valid email address');
+                              setState((){
+                                controller.emailError =
+                                'Enter a valid email address';
+                                CommonMethods.showToast('Enter a valid email address');
+                              });
                               return;
                             }
                           }

@@ -214,8 +214,6 @@ class SignUpController extends State<SignUpPage> {
             termAndCondition: isTermAndConditions,
             loginType: isWithEmail ? 0: 1,
           );
-
-
           if (response.success!) {
 
             if(!isWithEmail){
@@ -233,6 +231,7 @@ class SignUpController extends State<SignUpPage> {
           Navigator.of(context,rootNavigator: false).pop();
         } catch (e) {
           setState(() => confirmPasswordError = e.toString());
+          Navigator.of(context,rootNavigator: false).pop();
           return setState(() => loading = false);
         }
 

@@ -88,12 +88,12 @@ class CheckoutController extends State<CheckoutPage> {
     UserProfile? profile = await opd.client.getProfile();
     final createPaymentResponse = await opd.client.createOrder(
         type: widget.paymentType.index,
-        planId: records?.id!,
-        membershipId: options?.membershipId!,
-        healthId: healthCheckupRecords!.id!);
+        planId: widget.paymentType == PaymentType.buyPlan ? records?.id! : null,
+        membershipId: widget.paymentType == PaymentType.buyPlan ? options?.membershipId! : null,
+        healthId: widget.paymentType == PaymentType.buyPlan ? null : healthCheckupRecords?.id!);
     Razorpay razorpay = Razorpay();
     var paymentOptions = {
-      'key': 'rzp_test_CoQN9cJgWANAEO',
+      'key': 'rzp_test_sXPx4ftQc94AZA',
       'amount': createPaymentResponse!.data!.amount!,
       'currency': createPaymentResponse.data!.currency!,
       'name': 'OPD Sure',
@@ -135,7 +135,7 @@ class CheckoutController extends State<CheckoutPage> {
         .verifyOrder(response.orderId, response.paymentId, response.signature);
     if (verificationResponse!.success!) {
       await opd.client.updatePlanPurchasedStatus(true);
-      context.go('/home/view_plans/add_members');
+      context.pushReplacement('/home/view_plans/add_members');
     } else {
       _showAlertDialog(
           context, "Payment Failed", verificationResponse.message!);

@@ -23,7 +23,7 @@ extension IntExtention on int{
       case 9:
         return 'Father in law';
       case 10:
-        return 'Father in law';
+        return 'Mother in law';
       default:
         return 'Self';
     }

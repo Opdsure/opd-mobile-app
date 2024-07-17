@@ -24,13 +24,7 @@ class AppHeader extends StatelessWidget{
           alignment: Alignment.centerLeft,
           child: InkWell(
             onTap: (){
-              if(headerName=='Add Details'){
-                Navigator.of(context,rootNavigator: false).pop();
-                Navigator.of(context,rootNavigator: false).pop();
-              }
-              else{
-                Navigator.of(context,rootNavigator: false).pop();
-              }
+              Navigator.of(context,rootNavigator: false).pop();
             },
             child: const SizedBox(
               height: 40.0,

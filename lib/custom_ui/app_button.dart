@@ -12,16 +12,18 @@ class AppButton extends StatelessWidget {
   final Color textColor;
   final Color borderColor;
   final VoidCallback? onClick;
-
+  final double textSize;
   const AppButton({super.key,
     required this.text,
     this.height = 45.0,
     this.width = double.infinity,
-    this.fontWeight = FontWeight.normal,
+    this.fontWeight = FontWeight.w600,
     this.color = buttonColor,
     this.borderColor = buttonColor,
     this.onClick,
-    this.textColor = Colors.white
+    this.textColor = Colors.white,
+    this.textSize = 16.0,
+
   });
 
   @override
@@ -41,7 +43,7 @@ class AppButton extends StatelessWidget {
               text: text,
               color: textColor,
               size: 16.0,
-              fontWeight: FontWeight.w600,
+              fontWeight: fontWeight,
             ),
           )
       ),

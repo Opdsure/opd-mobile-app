@@ -35,8 +35,12 @@ class DashBoardPageController extends State<DashBoardPage> {
     }
   }
 
-  void onDestinationSelected(int index) =>
-      setState(() => activeDestination = getActiveDestinationByIndex(index));
+  void onDestinationSelected(int index){
+    setState((){
+      activeDestination = getActiveDestinationByIndex(index);
+    });
+  }
+
 
   int get selectedIndex {
     switch (activeDestination) {
@@ -56,7 +60,9 @@ class DashBoardPageController extends State<DashBoardPage> {
   Widget getBodyByActiveDestination() {
     switch (activeDestination) {
       case ActiveDestination.home:
-        return HomePage();
+        return HomePage(callback: (index){
+          onDestinationSelected(index);
+        },);
       case ActiveDestination.claim:
         return ClaimsPage();
       case ActiveDestination.checkup:
@@ -64,7 +70,9 @@ class DashBoardPageController extends State<DashBoardPage> {
       case ActiveDestination.profile:
         return ProfilePage();
       default:
-        return HomePage();
+        return HomePage(callback: (index){
+          onDestinationSelected(index);
+        },);
     }
   }
 

@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:intl/intl.dart';
 
 import '../model/my_member_model.dart';
 import '../model/state_model.dart';
@@ -129,6 +130,16 @@ class TypeController extends GetxController{
   RxBool refreshClaimList = true.obs;
   void refreshClaimListChange(bool type){
     refreshClaimList.value = type;
+  }
+
+  RxBool refreshMemberList = true.obs;
+  void refreshMemberListChange(bool type){
+    refreshMemberList.value = type;
+  }
+
+  RxInt pageIndex = 0.obs;
+  void pageIndexChange(int type){
+    pageIndex.value = type;
   }
 
 }

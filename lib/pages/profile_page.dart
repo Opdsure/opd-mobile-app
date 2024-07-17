@@ -1,23 +1,28 @@
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_home_header.dart';
 import 'package:opdsure/custom_ui/app_key_value.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
+import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
+import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/opd_extension/int_extention.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import '../custom_ui/app_button.dart';
 import '../custom_ui/app_round_view.dart';
+import '../model/plans/plans_response.dart';
 import '../model/user_profile/user_profile.dart';
 import '../utils/app_colors.dart';
 
 class ProfilePage extends StatelessWidget{
+  TypeController typeController = Get.put(TypeController());
   @override
   Widget build(BuildContext context) {
     double w = CommonMethods.deviceWidth(context);
@@ -68,7 +73,7 @@ class ProfilePage extends StatelessWidget{
             ),
 
             SizedBox(
-              height: 600,
+              height: h*1.2,
               child: TabBarView(children: [
                 Column(children: [
                   const SizedBox(height: 10,),
@@ -80,225 +85,300 @@ class ProfilePage extends StatelessWidget{
                       }
                       else{
                         UserProfile userProfile = snapshot.data!;
-                        return AppRoundView(
-                          corner: 10.0,
-                          color: const Color(0x1A486AB3),
-                          mChild: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        return Column(
+                          children: [
+                            AppRoundView(
+                              corner: 10.0,
+                              color: const Color(0x1A486AB3),
+                              mChild: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
                                   children: [
-                                    const AppTextView(
-                                      text: 'Personal Information',
-                                      size: 16.0,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.black,),
-                                    Image.asset(
-                                      'assets/images/edit_pen.png',
-                                      height: 20.0,
-                                      width: 20.0,
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const AppTextView(
+                                          text: 'Personal Information',
+                                          size: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black,),
+                                        Visibility(
+                                          visible: false,
+                                          child: Image.asset(
+                                            'assets/images/edit_pen.png',
+                                            height: 20.0,
+                                            width: 20.0,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10.0,),
+                                    AppKeyValue(
+                                      mKey: 'Name',
+                                      value: userProfile.data!.name!,
+                                    ),
+                                    const SizedBox(height: 5.0,),
+                                    AppKeyValue(
+                                      mKey: 'Age',
+                                      value: '25 Years',
+                                    ),
+                                    const SizedBox(height: 5.0,),
+                                    AppKeyValue(
+                                      mKey: 'Gender',
+                                      value: CommonMethods.getGenderByKey(userProfile.data!.gender!),
+                                    ),
+                                    const SizedBox(height: 5.0,),
+                                    AppKeyValue(
+                                      mKey: 'Date of Birth',
+                                      value: userProfile.data!.dob!,
+                                    ),
+                                    const SizedBox(height: 5.0,),
+                                    AppKeyValue(
+                                      mKey: 'Mobile Number',
+                                      value: '${userProfile.data!.countryCode!} ${userProfile.data!.phone!}',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10.0,),
+                            AppRoundView(
+                              corner: 10.0,
+                              color: const Color(0x1A486AB3),
+                              mChild: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const AppTextView(
+                                          text: 'Address',
+                                          size: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black,
+                                        ),
+                                        Visibility(
+                                          visible: false,
+                                          child: Image.asset(
+                                            'assets/images/edit_pen.png',
+                                            height: 20.0,
+                                            width: 20.0,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10.0,),
+                                    AppKeyValue(
+                                      mKey: 'Street',
+                                      value: userProfile.data!.address!,
+                                    ),
+                                    const SizedBox(height: 5.0,),
+                                    AppKeyValue(
+                                      mKey: 'City',
+                                      value: userProfile.data!.city!,
+                                    ),
+                                    const SizedBox(height: 5.0,),
+                                    AppKeyValue(
+                                      mKey: 'State',
+                                      value: '',
+                                    ),
+                                    const SizedBox(height: 5.0,),
+                                    AppKeyValue(
+                                      mKey: 'Pin code',
+                                      value: '${userProfile.data!.pinCode!}'=='0'?'':'${userProfile.data!.pinCode!}',
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10.0,),
+                            AppRoundView(
+                              corner: 10.0,
+                              color: const Color(0x1A486AB3),
+                              mChild: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const AppTextView(
+                                          text: 'Subscribed Plan',
+                                          size: 16.0,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black,
+                                        ),
+                                        Visibility(
+                                          visible: false,
+                                          child: Image.asset(
+                                            'assets/images/edit_pen.png',
+                                            height: 20.0,
+                                            width: 20.0,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2.0,),
+                                    FutureBuilder(
+                                      future: OpdSure.of(context).client.getPlanById(
+                                        planId: userProfile.data!.plan!.id,
+                                        memberShipId: userProfile.data!.plan!.membershipId,
+                                      ),
+                                      builder: (context,snapshot){
+                                        if(snapshot.data == null){
+                                          return Container();
+                                        }
+                                        else{
+                                          print(snapshot.data);
+                                          PlanRecords planRecord = snapshot.data!;
+                                          return snapshot.data==null?const AppTextView(text: 'No plan selected'):Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              AppTextView(
+                                                text: planRecord.name!,
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              const SizedBox(height: 5,),
+                                              SizedBox(
+                                                height:planRecord.planBenefits!.length*h*0.03,
+                                                child: ListView.builder(
+                                                  itemCount: planRecord.planBenefits!.length,
+                                                  itemBuilder: (context, index){
+                                                    return AppTextView(text: planRecord.planBenefits![index].planFeature!);
+                                                  },
+                                                ),
+                                              )
+                                            ],
+                                          );
+                                        }
+                                      },
                                     )
                                   ],
                                 ),
-                                const SizedBox(height: 10.0,),
-                                AppKeyValue(
-                                  mKey: 'Name',
-                                  value: userProfile.data!.name!,
-                                ),
-                                const SizedBox(height: 5.0,),
-                                AppKeyValue(
-                                  mKey: 'Age',
-                                  value: '25 Years',
-                                ),
-                                const SizedBox(height: 5.0,),
-                                AppKeyValue(
-                                  mKey: 'Gender',
-                                  value: CommonMethods.getGenderByKey(userProfile.data!.gender!),
-                                ),
-                                const SizedBox(height: 5.0,),
-                                AppKeyValue(
-                                  mKey: 'Date of Birth',
-                                  value: userProfile.data!.dob!,
-                                ),
-                                const SizedBox(height: 5.0,),
-                                AppKeyValue(
-                                  mKey: 'Mobile Number',
-                                  value: '${userProfile.data!.countryCode!} ${userProfile.data!.phone!}',
-                                ),
-                              ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 10.0,),
+                            AppRoundView(
+                              onClick: (){
+                                showAlertDialog(
+                                    context,'Are you sure want to logout','Logout','Yes','Cancel'
+                                );
+                              },
+                              corner: 10.0,
+                              color: const Color(0x1A486AB3),
+                              mChild: const Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    AppTextView(
+                                      text: 'Logout',
+                                      size: 16.0,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    Icon(
+                                      Icons.logout,
+                                      size: 20.0,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       }
                     },
-                  ),
-                  const SizedBox(height: 20.0,),
-                  AppRoundView(
-                    corner: 10.0,
-                    color: const Color(0x1A486AB3),
-                    mChild: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const AppTextView(
-                                text: 'Address',
-                                size: 16.0,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black,
-                              ),
-                              Image.asset(
-                                'assets/images/edit_pen.png',
-                                height: 20.0,
-                                width: 20.0,
-                              )
-                            ],
-                          ),
-                          const SizedBox(height: 10.0,),
-                          AppKeyValue(
-                            mKey: 'House No.',
-                            value: 'D-56',
-                          ),
-                          const SizedBox(height: 5.0,),
-                          AppKeyValue(
-                            mKey: 'Street',
-                            value: 'Sector 27',
-                          ),
-                          const SizedBox(height: 5.0,),
-                          AppKeyValue(
-                            mKey: 'City',
-                            value: 'Gurgaon',
-                          ),
-                          const SizedBox(height: 5.0,),
-                          AppKeyValue(
-                            mKey: 'State',
-                            value: 'Haryana',
-                          ),
-                          const SizedBox(height: 5.0,),
-                          AppKeyValue(
-                            mKey: 'Pin code',
-                            value: '201102',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20.0,),
-                  AppRoundView(
-                    onClick: (){
-                      showAlertDialog(
-                        context,'Are you sure want to logout','Logout','Yes','Cancel'
-                      );
-                    },
-                    corner: 10.0,
-                    color: const Color(0x1A486AB3),
-                    mChild: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          AppTextView(
-                            text: 'Logout',
-                            size: 16.0,
-                            color: Colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                          Icon(
-                            Icons.logout,
-                            size: 20.0,
-                          )
-                        ],
-                      ),
-                    ),
                   ),
                  ],
                 ),
                 Column(children: [
                   const SizedBox(height: 5,),
-                  FutureBuilder<MyMemberModel?>(
-                      future: OpdSure.of(context).client.getFamilyMember(),
-                      builder: (context, snapshot) {
-                        if(!snapshot.hasData){
-                          return const Center(child: CircularProgressIndicator(),);
-                        }else{
-                          return SizedBox(
-                            height: h*0.55,
-                            child: RefreshIndicator(
-                              onRefresh: () async {
-                                await OpdSure.of(context).client.getFamilyMember(update: true);
-                              },
-                              child: ListView.builder(
-                                  itemCount: snapshot.data!.data!.length,
-                                  itemBuilder: (context, index){
-                                    MemberList member = snapshot.data!.data![index];
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 7.5),
-                                      child: AppRoundView(
-                                        corner: 10.0,
-                                        color: const Color(0x1A486AB3),
-                                        mChild: Padding(
-                                          padding: const EdgeInsets.all(10.0),
-                                          child: Column(
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  AppTextView(
-                                                    text: member.relation!.getRelation(),
-                                                    size: 16.0,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.black,
-                                                  ),
-                                                  Image.asset(
-                                                    'assets/images/edit_pen.png',
-                                                    height: 20.0,
-                                                    width: 20.0,
-                                                  )
-                                                ],
-                                              ),
-                                              const SizedBox(height: 10.0,),
-                                              AppKeyValue(
-                                                  mKey: 'Name',
-                                                  value: member.name!
-                                              ),
-                                              const SizedBox(height: 5.0,),
-                                              AppKeyValue(
-                                                mKey: 'Age',
-                                                value: '34',
-                                              ),
-                                              const SizedBox(height: 5.0,),
-                                              AppKeyValue(
-                                                mKey: 'Date of Birth',
-                                                value: member.dob!,
-                                              ),
-                                              const SizedBox(height: 5.0,),
-                                              AppKeyValue(
-                                                mKey: 'Mobile',
-                                                value: '${member.phone!}',
-                                              ),
-                                              const SizedBox(height: 5.0,),
-                                              AppKeyValue(
-                                                mKey: 'Address',
-                                                value: member.address!,
-                                              ),
-                                            ],
+                  Obx((){
+                    bool refresh = typeController.refreshMemberList.value;
+                    return refresh?FutureBuilder<MyMemberModel?>(
+                        future: OpdSure.of(context).client.getFamilyMember(update: true),
+                        builder: (context, snapshot) {
+                          if(!snapshot.hasData){
+                            return const Center(child: CircularProgressIndicator(),);
+                          }else{
+                            return SizedBox(
+                              height: h*0.55,
+                              child: RefreshIndicator(
+                                onRefresh: () async {
+                                  await OpdSure.of(context).client.getFamilyMember(update: true);
+                                },
+                                child: ListView.builder(
+                                    itemCount: snapshot.data!.data!.length,
+                                    itemBuilder: (context, index){
+                                      MemberList member = snapshot.data!.data![index];
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 7.5),
+                                        child: AppRoundView(
+                                          corner: 10.0,
+                                          color: const Color(0x1A486AB3),
+                                          mChild: Padding(
+                                            padding: const EdgeInsets.all(10.0),
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    AppTextView(
+                                                      text: member.relation!.getRelation(),
+                                                      size: 16.0,
+                                                      fontWeight: FontWeight.w600,
+                                                      color: Colors.black,
+                                                    ),
+                                                    Image.asset(
+                                                      'assets/images/edit_pen.png',
+                                                      height: 20.0,
+                                                      width: 20.0,
+                                                    )
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 10.0,),
+                                                AppKeyValue(
+                                                    mKey: 'Name',
+                                                    value: member.name!
+                                                ),
+                                                const SizedBox(height: 5.0,),
+                                                AppKeyValue(
+                                                  mKey: 'Age',
+                                                  value: '34',
+                                                ),
+                                                const SizedBox(height: 5.0,),
+                                                AppKeyValue(
+                                                  mKey: 'Date of Birth',
+                                                  value: CommonMethods.changeDateFormat(member.dob!,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy'),
+                                                ),
+                                                const SizedBox(height: 5.0,),
+                                                AppKeyValue(
+                                                  mKey: 'Mobile',
+                                                  value: '${member.phone!}',
+                                                ),
+                                                const SizedBox(height: 5.0,),
+                                                AppKeyValue(
+                                                  mKey: 'Address',
+                                                  value: member.address!,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  }),
-                            ),
-                          );
-                        }
+                                      );
+                                    }),
+                              ),
+                            );
+                          }
 
-                      }
-                  ),
+                        }
+                    ):Container();
+                  }),
                   AppButton(
-                    text: 'Add Another Member',
+                    text: 'Add Member',
                     color: const Color(0xFFebecf1),
                     textColor: buttonColor,
                     borderColor: buttonColor,
