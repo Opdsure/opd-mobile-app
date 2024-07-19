@@ -137,7 +137,7 @@ class ClaimRecords {
       int? claimableDoctorFee, 
       int? claimableCombinedPharmacyTestFees, 
       int? billAmount, 
-      int? claimableAmount, 
+      dynamic claimableAmount,
       String? specialization, 
       int? claimType, 
       int? claimCombination, 
@@ -257,7 +257,7 @@ class ClaimRecords {
   int? _claimableDoctorFee;
   int? _claimableCombinedPharmacyTestFees;
   int? _billAmount;
-  int? _claimableAmount;
+  dynamic _claimableAmount;
   String? _specialization;
   int? _claimType;
   int? _claimCombination;
@@ -295,7 +295,7 @@ class ClaimRecords {
   int? get claimableDoctorFee => _claimableDoctorFee;
   int? get claimableCombinedPharmacyTestFees => _claimableCombinedPharmacyTestFees;
   int? get billAmount => _billAmount;
-  int? get claimableAmount => _claimableAmount;
+  dynamic get claimableAmount => _claimableAmount;
   String? get specialization => _specialization;
   int? get claimType => _claimType;
   int? get claimCombination => _claimCombination;

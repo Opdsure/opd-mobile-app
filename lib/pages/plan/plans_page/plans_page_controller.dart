@@ -66,8 +66,6 @@ class PlansPageController extends State<PlansPage> {
         .toList();
   }
 
-
-
   goToCheckout() {
     if (record != null) {
       OpdSure.of(context).isPlansSelect = true;

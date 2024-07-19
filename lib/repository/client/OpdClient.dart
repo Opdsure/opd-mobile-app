@@ -144,8 +144,7 @@ class OpdClient extends OpdApi {
       final profile = await getProfile(update: true);
       await getAllPlans();
       profileData = profile.data!;
-      await getAllPlans();
-      isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
+     isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
 
 
       final database = this.database;
@@ -269,15 +268,18 @@ class OpdClient extends OpdApi {
     if (database != null) {
       database.deleteClient();
       database.deleteUserProfile();
+      database.deleteFamilyMembers();
+      database.deletePlans();
+      database.deleteRelations();
     }
     onLoginStateChanged.add(LoginState.loggedOut);
   }
 
   @override
-  Future<PlansResponse?> getAllPlans({bool update = true}) async {
+  Future<PlansResponse?> getAllPlans({bool update = false}) async {
     PlansResponse? plansResponse;
     final database = this.database;
-    if (database != null && update) {
+    if (database != null && !update) {
       plansResponse = await database.getPlans();
       plansResponse ??= await super.getAllPlans();
       await database.updatePlans(plans: plansResponse);
@@ -395,31 +397,31 @@ class OpdClient extends OpdApi {
     }
   }
 
-  @override
-  Future<UserProfile?> updateUserProfile(
-      {String? name, String? email, String? phone, Map<String, dynamic>? plan}) async {
-    final response = await super.updateUserProfile(
-        name: name, email: email, phone: phone, plan: plan);
-    if (response != null) {
-      final database = this.database;
-      if (database != null) {
-        final userProfile = await database.getUserProfile();
-        if (name != null) {
-          userProfile!.data!.name = name;
-        }
-        if (email != null) {
-          userProfile!.data!.email = email;
-        }
-        if (phone != null) {
-          userProfile!.data!.phone = phone;
-        }
-        await database.updateUserProfile(userProfile: userProfile);
-      }
-    }else{
-      return null;
-    }
-    return response;
-  }
+  // @override
+  // Future<UserProfile?> updateUserProfile(
+  //     {String? name, String? email, String? phone, Map<String, dynamic>? plan}) async {
+  //   final response = await super.updateUserProfile(
+  //       name: name, email: email, phone: phone, plan: plan);
+  //   if (response != null) {
+  //     final database = this.database;
+  //     if (database != null) {
+  //       final userProfile = await database.getUserProfile();
+  //       if (name != null) {
+  //         userProfile!.data!.name = name;
+  //       }
+  //       if (email != null) {
+  //         userProfile!.data!.email = email;
+  //       }
+  //       if (phone != null) {
+  //         userProfile!.data!.phone = phone;
+  //       }
+  //       await database.updateUserProfile(userProfile: userProfile);
+  //     }
+  //   }else{
+  //     return null;
+  //   }
+  //   return response;
+  // }
 
 
   @override

@@ -553,22 +553,11 @@ class _FileClaimPageState extends State<FileClaimPage> {
               ),
             ),
             const SizedBox(height: 15.0,),
-        compulsoryField('City'),
+            compulsoryField('City'),
             AppEditText(
               hint: 'Enter the city',
               textEditingController: cityCtrl,
             ),
-            // const SizedBox(height: 15.0),
-            // const AppTextView(
-            //   text: 'Hospital Address',
-            //   size: 14.0,
-            //   fontWeight: FontWeight.w500,
-            //   color: Color(0xFF1D2939),
-            // ),
-            // AppEditText(
-            //   hint: 'Enter hospital Address',
-            //   textEditingController: cityCtrl,
-            //   textInputType: TextInputType.name,),
             const SizedBox(height: 15.0),
             const AppTextView(
               text: 'Email',
@@ -869,10 +858,10 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   combinedPharmacyTestFees: claimCombination=='2'?billAmntPhrCtrl.text:null,
                   claimableCombinedPharmacyTestFees: claimCombination=='2'?billAmntPhrClCtrl.text:null
                 );
-                typeController.prescriptionListChange([]);
-                typeController.docFeeRcptChange([]);
-                typeController.pharmacyRcptChange([]);
-                typeController.labTestRcptChange([]);
+                typeController.prescriptionList.clear();
+                typeController.docFeeRcpt.clear();
+                typeController.pharmacyRcpt.clear();
+                typeController.labTestRcpt.clear();
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(claimJsonModel,isUpdate: widget.isUpdate,claimId: claimId,)),

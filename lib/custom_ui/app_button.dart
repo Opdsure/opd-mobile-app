@@ -42,7 +42,7 @@ class AppButton extends StatelessWidget {
             child: AppTextView(
               text: text,
               color: textColor,
-              size: 16.0,
+              size: textSize,
               fontWeight: fontWeight,
             ),
           )

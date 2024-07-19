@@ -21,11 +21,9 @@ class ViewPlansPageController extends State<ViewPlansPage> {
     getAllPlans();
   }
 
-
   void getAllPlans() async {
     plansResponse = await OpdSure.of(context).client.getAllPlans(update: true);
   }
-
 
   void selectPlans(BuildContext context){
     if(plansResponse != null) {

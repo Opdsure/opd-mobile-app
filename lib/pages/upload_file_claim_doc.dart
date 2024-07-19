@@ -30,31 +30,22 @@ class UploadFileClaimDoc extends StatelessWidget{
   final String? claimId;
   UploadFileClaimDoc(this.claimJsonModel,{this.isUpdate,this.claimId});
 
-  List<File> files = [];
+  // List<File> files = [];
+  List<File> prescriptionFiles = [];
+  List<File> doctorFeeFiles = [];
+  List<File> pharmacyFiles = [];
+  List<File> labTestFiles = [];
   Map<String,dynamic> filesUrl = {};
-
-  Future<File> asyncMethod() async {
-    //comment out the next two lines to prevent the device from getting
-    // the image from the web in order to prove that the picture is
-    // coming from the device instead of the web.
-    var url = "https://opdsurexintileo.s3.ap-south-1.amazonaws.com/user/08a6db82-31c0-4bb0-86d3-93dcd8f064d7/IMG-20240610-WA0005.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIA4MUSEL74CQEBWZ6R%2F20240713%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Date=20240713T113528Z&X-Amz-Expires=900&X-Amz-Signature=814c08b199c20c5e1930a41c30819cd9060b5e7168820dd6e15bc78f82097a09&X-Amz-SignedHeaders=host&response-content-disposition=inline&x-id=GetObject"; // <-- 1
-    var response = await http.get(Uri.parse(url)); // <--2
-    var documentDirectory = await getApplicationDocumentsDirectory();
-    var firstPath = "${documentDirectory.path}/images";
-    var filePathAndName = '${documentDirectory.path}/images/pic.jpg';
-    //comment out the next three lines to prevent the image from being saved
-    //to the device to show that it's coming from the internet
-    await Directory(firstPath).create(recursive: true); // <-- 1
-    File file2 = File(filePathAndName);
-    return file2;// <-- 2
-    // file2.writeAsBytesSync(response.bodyBytes);         // <-- 3
-    // print(filePathAndName);
-  }
+  List<String> prescriptionUrlList = [];
+  List<String> docFeeUrlList = [];
+  List<String> pharmacyUrlList = [];
+  List<String> testLabUrlList = [];
 
   @override
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
     double h = CommonMethods.deviceHeight(context);
+    double w = CommonMethods.deviceWidth(context);
     // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(
@@ -251,7 +242,6 @@ class UploadFileClaimDoc extends StatelessWidget{
                 return Container();
               }
               else{
-                asyncMethod();
                 print(snapshot.data);
                 FileTypeSizeModel fileTypeSizeModel = fileTypeSizeModelFromJson(snapshot.data);
                 List<TypeSizeList> typeSizeList = fileTypeSizeModel.data;
@@ -266,34 +256,21 @@ class UploadFileClaimDoc extends StatelessWidget{
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF1D2939),
                     ),
-                    // FutureBuilder(
-                    //   future: asyncMethod(),
-                    //   builder: (context, snapshot){
-                    //     if(snapshot.data == null){
-                    //       return Container();
-                    //     }
-                    //     else{
-                    //       return Image.file(
-                    //         snapshot.data!,
-                    //         height: 100,
-                    //         width: 100,
-                    //       );
-                    //     }
-                    //   },
-                    // ),
                     AppBorderBox(
                       mCallback: ()async{
                         FilePickerResult? result = await FilePicker.platform.pickFiles(
                           type: FileType.custom,
-                          allowMultiple: true,
                           allowedExtensions: customSizeList,
                         );
                         if (result != null) {
-                          files = result.paths.map((path) => File(path!)).toList();
-                          typeController.prescriptionListChange(files);
-                          print(files);
+                          File file = File(result.files.single.path!);
+                          prescriptionFiles.add(file);
+                          typeController.prescriptionListChange(file);
+                          CommonMethods.showAlertDialog(context);
                           var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                          filesUrl['prescription'] = response?.data;
+                          prescriptionUrlList = prescriptionUrlList+response!.data!;
+                          filesUrl['prescription'] = prescriptionUrlList;
+                          Navigator.of(context).pop();
                           print(response);
                         } else {
                           print(result);
@@ -319,27 +296,72 @@ class UploadFileClaimDoc extends StatelessWidget{
                               )
                             ],
                           ):
-                          ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: allFiles.length,
-                            itemBuilder: (context,index){
-                              String ext = allFiles[index].path.split('.')[3];
-                              return ext=='pdf'?Image.asset(
-                                'assets/images/pdf_file.png',
-                                height: 45.0,
-                                width: 45.0,
-                              ):Image.file(
-                                allFiles[index],
-                                height: 45.0,
-                                width: 45.0,
-                                fit: BoxFit.fill,
-                              );
-                            },
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: w*0.75,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: allFiles.length,
+                                  itemBuilder: (context,index){
+                                    String ext = allFiles[index].path.split('.')[3];
+                                    return InkWell(
+                                      onTap: (){
+                                        typeController.removePrescription(allFiles[index]);
+                                        prescriptionUrlList.removeAt(index);
+                                        filesUrl['prescription'] = prescriptionUrlList;
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(right: 5.0),
+                                        child: ext=='pdf'?Image.asset(
+                                          'assets/images/pdf_file.png',
+                                          height: 45.0,
+                                          width: 45.0,
+                                        ):
+                                        Image.file(
+                                          allFiles[index],
+                                          height: 45.0,
+                                          width: 45.0,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                width: w*0.1,
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.add_circle,
+                                      color: buttonColor,
+                                    ),
+                                    AppTextView(
+                                      text: 'Add\nMore',
+                                      size: 12.0,
+                                      color: buttonColor,
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
                           );
                         }),
                       ),
                       height: 100.0,
                     ),
+                    Obx((){
+                      List allFiles = typeController.prescriptionList.value;
+                      return Visibility(
+                        visible: allFiles.isNotEmpty,
+                        child: const AppTextView(
+                          text: 'Tap to remove file',
+                          size: 11.0,
+                        ),
+                      );
+                    }),
                     const SizedBox(height: 15.0),
                     const AppTextView(
                       text: 'Doctor Fees Receipts',
@@ -355,11 +377,14 @@ class UploadFileClaimDoc extends StatelessWidget{
                           allowedExtensions: customSizeList,
                         );
                         if (result != null) {
-                          files = result.paths.map((path) => File(path!)).toList();
-                          typeController.docFeeRcptChange(files);
-                          print(files);
+                          File file = File(result.files.single.path!);
+                          doctorFeeFiles.add(file);
+                          typeController.docFeeRcptChange(file);
+                          CommonMethods.showAlertDialog(context);
                           var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                          filesUrl['doc_receipt'] = response?.data;
+                          docFeeUrlList = docFeeUrlList+response!.data!;
+                          filesUrl['doc_receipt'] = docFeeUrlList;
+                          Navigator.of(context).pop();
                           print(response);
                         } else {
                           print(result);
@@ -384,29 +409,70 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 color: buttonColor,
                               )
                             ],
-                          ):
-                          ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: allFiles.length,
-                            itemBuilder: (context,index){
-                              String ext = allFiles[index].path.split('.')[3];
-                              return ext=='pdf'?Image.asset(
-                                'assets/images/pdf_file.png',
-                                height: 45.0,
-                                width: 45.0,
-                              ):Image.file(
-                                allFiles[index],
-                                height: 45.0,
-                                width: 45.0,
-                                fit: BoxFit.fill,
-                              );
-                            },
+                          ):Row(
+                            children: [
+                              SizedBox(
+                                width: w*0.75,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: allFiles.length,
+                                  itemBuilder: (context,index){
+                                    String ext = allFiles[index].path.split('.')[3];
+                                    return InkWell(
+                                      onTap: (){
+                                        typeController.removeDocFeeRcpt(allFiles[index]);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(right: 5.0),
+                                        child: ext=='pdf'?Image.asset(
+                                          'assets/images/pdf_file.png',
+                                          height: 45.0,
+                                          width: 45.0,
+                                        ):
+                                        Image.file(
+                                          allFiles[index],
+                                          height: 45.0,
+                                          width: 45.0,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                width: w*0.1,
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.add_circle,
+                                      color: buttonColor,
+                                    ),
+                                    AppTextView(
+                                      text: 'Add\nMore',
+                                      size: 12.0,
+                                      color: buttonColor,
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
                           );
                         }),
                       ),
                       height: 100.0,
                     ),
-
+                    Obx((){
+                      List allFiles = typeController.docFeeRcpt.value;
+                      return Visibility(
+                        visible: allFiles.isNotEmpty,
+                        child: const AppTextView(
+                          text: 'Tap to remove file',
+                          size: 11.0,
+                        ),
+                      );
+                    }),
                     const SizedBox(height: 15.0),
                     const AppTextView(
                       text: 'Pharmacy Receipt',
@@ -422,11 +488,14 @@ class UploadFileClaimDoc extends StatelessWidget{
                           allowedExtensions: customSizeList,
                         );
                         if (result != null) {
-                          files = result.paths.map((path) => File(path!)).toList();
-                          typeController.pharmacyRcptChange(files);
-                          print(files);
+                          File file = File(result.files.single.path!);
+                          pharmacyFiles.add(file);
+                          typeController.pharmacyRcptChange(file);
+                          CommonMethods.showAlertDialog(context);
                           var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                          filesUrl['pharmacy_receipt'] = response?.data;
+                          pharmacyUrlList = pharmacyUrlList+response!.data!;
+                          filesUrl['pharmacy_receipt'] = pharmacyUrlList;
+                          Navigator.of(context).pop();
                           print(response);
                         } else {
                           print(result);
@@ -452,28 +521,70 @@ class UploadFileClaimDoc extends StatelessWidget{
                               )
                             ],
                           ):
-                          ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: allFiles.length,
-                            itemBuilder: (context,index){
-                              String ext = allFiles[index].path.split('.')[3];
-                              return ext=='pdf'?Image.asset(
-                                'assets/images/pdf_file.png',
-                                height: 45.0,
-                                width: 45.0,
-                              ):Image.file(
-                                allFiles[index],
-                                height: 45.0,
-                                width: 45.0,
-                                fit: BoxFit.fill,
-                              );
-                            },
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: w*0.75,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: allFiles.length,
+                                  itemBuilder: (context,index){
+                                    String ext = allFiles[index].path.split('.')[3];
+                                    return InkWell(
+                                      onTap: (){
+                                        typeController.removePharmacyRcpt(allFiles[index]);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(right: 5.0),
+                                        child: ext=='pdf'?Image.asset(
+                                          'assets/images/pdf_file.png',
+                                          height: 45.0,
+                                          width: 45.0,
+                                        ):
+                                        Image.file(
+                                          allFiles[index],
+                                          height: 45.0,
+                                          width: 45.0,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                width: w*0.1,
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.add_circle,
+                                      color: buttonColor,
+                                    ),
+                                    AppTextView(
+                                      text: 'Add\nMore',
+                                      size: 12.0,
+                                      color: buttonColor,
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
                           );
                         }),
                       ),
                       height: 100.0,
                     ),
-
+                    Obx((){
+                      List allFiles = typeController.pharmacyRcpt.value;
+                      return Visibility(
+                        visible: allFiles.isNotEmpty,
+                        child: const AppTextView(
+                          text: 'Tap to remove file',
+                          size: 11.0,
+                        ),
+                      );
+                    }),
                     const SizedBox(height: 15.0),
                     const AppTextView(
                       text: 'Lab Test Receipt',
@@ -489,11 +600,14 @@ class UploadFileClaimDoc extends StatelessWidget{
                           allowedExtensions: customSizeList,
                         );
                         if (result != null) {
-                          files = result.paths.map((path) => File(path!)).toList();
-                          typeController.labTestRcptChange(files);
-                          print(files);
+                          File file = File(result.files.single.path!);
+                          prescriptionFiles.add(file);
+                          typeController.labTestRcptChange(file);
+                          CommonMethods.showAlertDialog(context);
                           var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                          filesUrl['test_receipt'] = response?.data;
+                          testLabUrlList = testLabUrlList+response!.data!;
+                          filesUrl['test_receipt'] = testLabUrlList;
+                          Navigator.of(context).pop();
                           print(response);
                         } else {
                           print(result);
@@ -519,29 +633,55 @@ class UploadFileClaimDoc extends StatelessWidget{
                               )
                             ],
                           ):
-                          ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: allFiles.length,
-                            itemBuilder: (context,index){
-                              String ext = allFiles[index].path.split('.')[3];
-                              return ext=='pdf'?Padding(
-                                padding: const EdgeInsets.only(left: 5.0),
-                                child: Image.asset(
-                                  'assets/images/pdf_file.png',
-                                  height: 45.0,
-                                  width: 45.0,
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: w*0.75,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: allFiles.length,
+                                  itemBuilder: (context,index){
+                                    String ext = allFiles[index].path.split('.')[3];
+                                    return InkWell(
+                                      onTap: (){
+                                        typeController.removeLabTestRcpt(allFiles[index]);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(right: 5.0),
+                                        child: ext=='pdf'?Image.asset(
+                                          'assets/images/pdf_file.png',
+                                          height: 45.0,
+                                          width: 45.0,
+                                        ):
+                                        Image.file(
+                                          allFiles[index],
+                                          height: 45.0,
+                                          width: 45.0,
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ):
-                              Padding(
-                                padding: const EdgeInsets.only(left: 5.0),
-                                child: Image.file(
-                                  allFiles[index],
-                                  height: 45.0,
-                                  width: 45.0,
-                                  fit: BoxFit.fill,
+                              ),
+                              SizedBox(
+                                width: w*0.1,
+                                child: const Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.add_circle,
+                                      color: buttonColor,
+                                    ),
+                                    AppTextView(
+                                      text: 'Add\nMore',
+                                      size: 12.0,
+                                      color: buttonColor,
+                                    )
+                                  ],
                                 ),
-                              );
-                            },
+                              )
+                            ],
                           );
                         }),
                       ),
@@ -552,6 +692,16 @@ class UploadFileClaimDoc extends StatelessWidget{
               }
             },
           ),
+          Obx((){
+            List allFiles = typeController.labTestRcpt.value;
+            return Visibility(
+              visible: allFiles.isNotEmpty,
+              child: const AppTextView(
+                text: 'Tap to remove file',
+                size: 11.0,
+              ),
+            );
+          }),
           const SizedBox(height: 20.0),
           AppButton(
             text: 'Continue',
@@ -589,10 +739,10 @@ class UploadFileClaimDoc extends StatelessWidget{
                   Navigator.of(context,rootNavigator: false).pop();
                   typeController.refreshClaimListChange(false);
                   typeController.refreshClaimListChange(true);
-                  typeController.prescriptionListChange([]);
-                  typeController.docFeeRcptChange([]);
-                  typeController.pharmacyRcptChange([]);
-                  typeController.labTestRcptChange([]);
+                  typeController.prescriptionList.clear();
+                  typeController.docFeeRcpt.clear();
+                  typeController.pharmacyRcpt.clear();
+                  typeController.labTestRcpt.clear();
                   // typeController.memberListChange(<MemberList>[]);
                   typeController.selectClaimChange('');
                   typeController.opdVisitDateChange('');
@@ -611,10 +761,10 @@ class UploadFileClaimDoc extends StatelessWidget{
                   if(resMap['success']){
                     typeController.refreshClaimListChange(false);
                     typeController.refreshClaimListChange(true);
-                    typeController.prescriptionListChange([]);
-                    typeController.docFeeRcptChange([]);
-                    typeController.pharmacyRcptChange([]);
-                    typeController.labTestRcptChange([]);
+                    typeController.prescriptionList.clear();
+                    typeController.docFeeRcpt.clear();
+                    typeController.pharmacyRcpt.clear();
+                    typeController.labTestRcpt.clear();
                     // typeController.memberListChange(<MemberList>[]);
                     typeController.selectClaimChange('');
                     typeController.opdVisitDateChange('');

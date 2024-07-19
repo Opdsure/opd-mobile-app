@@ -4,6 +4,7 @@ import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/checkout/checkout_page_view.dart';
+import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -86,11 +87,13 @@ class CheckoutController extends State<CheckoutPage> {
       return;
     }
     UserProfile? profile = await opd.client.getProfile();
+    CommonMethods.showAlertDialog(context);
     final createPaymentResponse = await opd.client.createOrder(
         type: widget.paymentType.index,
         planId: widget.paymentType == PaymentType.buyPlan ? records?.id! : null,
         membershipId: widget.paymentType == PaymentType.buyPlan ? options?.membershipId! : null,
         healthId: widget.paymentType == PaymentType.buyPlan ? null : healthCheckupRecords?.id!);
+
     Razorpay razorpay = Razorpay();
     var paymentOptions = {
       'key': 'rzp_test_sXPx4ftQc94AZA',
@@ -98,7 +101,7 @@ class CheckoutController extends State<CheckoutPage> {
       'currency': createPaymentResponse.data!.currency!,
       'name': 'OPD Sure',
       'order_id': createPaymentResponse.data!.id,
-      'description': createPaymentResponse.data!.description,
+      'description': widget.paymentType == PaymentType.buyPlan ? '${records!.name!} + ${options!.membershipLabel!}' : healthCheckupRecords!.name!,
       'retry': {'enabled': false, 'max_count': 1},
       'send_sms_hash': true,
       'model': {
@@ -117,6 +120,7 @@ class CheckoutController extends State<CheckoutPage> {
     razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
     razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
     razorpay.open(paymentOptions);
+    Navigator.of(context).pop();
   }
 
   void _handlePaymentErrorResponse(PaymentFailureResponse response) async {
@@ -155,13 +159,11 @@ class CheckoutController extends State<CheckoutPage> {
         Navigator.pop(context);
       },
     );
-    // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title: Text(title),
       content: Text(message),
       actions: [continueButton],
     );
-    // show the dialog
     showDialog(
       useRootNavigator: false,
       context: context,

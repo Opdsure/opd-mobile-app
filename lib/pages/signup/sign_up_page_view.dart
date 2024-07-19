@@ -148,6 +148,7 @@ class SignUpView extends StatelessWidget {
                     visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                     value: controller.isTermAndConditions,
                     onChanged: controller.onTermAndConditions,
+                    // onChanged: controller.onTermAndConditions,
                   ),
                 ),
                 InkWell(

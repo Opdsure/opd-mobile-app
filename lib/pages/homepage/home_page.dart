@@ -223,28 +223,33 @@ class HomePage extends StatelessWidget {
           const SizedBox(
             height: 10,
           ),
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppTextView(
+              const AppTextView(
                 text: 'My Claims',
                 color: Colors.black,
                 size: 18.0,
                 fontWeight: FontWeight.w500,
               ),
-              Row(
-                children: [
-                  AppTextView(
-                    text: 'View all',
-                    color: Color(0xFF98A2B3),
-                    size: 13.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  Icon(
-                    Icons.keyboard_arrow_right_sharp,
-                    color: Color(0xFF98A2B3),
-                  )
-                ],
+              InkWell(
+                onTap: (){
+                  callback.call(1);
+                },
+                child: const Row(
+                  children: [
+                    AppTextView(
+                      text: 'View all',
+                      color: Color(0xFF98A2B3),
+                      size: 13.0,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_right_sharp,
+                      color: Color(0xFF98A2B3),
+                    )
+                  ],
+                ),
               )
             ],
           ),
@@ -343,7 +348,7 @@ class HomePage extends StatelessWidget {
                                             )
                                         ),
                                         TextSpan(
-                                          text: '$rupeeSymbol ${records.claimableAmount}',
+                                          text: '$rupeeSymbol ${records.claimableAmount!.toDouble()}',
                                           style: GoogleFonts.montserrat(
                                               fontSize: 12.0,
                                               fontWeight: FontWeight.w500,

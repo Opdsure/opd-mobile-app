@@ -178,6 +178,11 @@ class Api {
       {String? name,
       String? email,
       String? phone,
+      String? dob,
+      String? gender,
+      String? address,
+      String? city,
+      String? pinCode,
       Map<String, dynamic>? plan}) async {
     final requestUri = Uri(path: 'api/v1/user/update-profile');
     final request = Request('PUT', baseUri!.resolveUri(requestUri));
@@ -187,7 +192,12 @@ class Api {
       if (email != null) 'email': email,
       if (phone != null) 'phone': phone,
       if (name != null) 'name': name,
-      if (plan != null) 'plan': plan
+      if (plan != null) 'plan': plan,
+      if (dob != null) 'dob': dob,
+      if (gender != null) 'gender': gender,
+      if (address != null) 'address': address,
+      if (city != null) 'city': city,
+      if (pinCode != null) 'pin_code': pinCode,
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -218,6 +228,39 @@ class Api {
       "phone": phone,
       "country_code": countryCode,
       "address": address
+    }));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    return responseString;
+  }
+
+  Future updateFamilyMember({
+    String? name,
+    int? relation,
+    String? dob,
+    String? gender,
+    String? phone,
+    String? countryCode,
+    String? address,
+    String? memberId,
+    String? file,
+  }) async {
+    final requestUri = Uri(path: 'api/v1/user/request-update-member');
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8.encode(jsonEncode({
+      "name": name,
+      "relation": relation,
+      "dob": dob,
+      "gender": gender,
+      "phone": phone,
+      "country_code": countryCode,
+      "address": address,
+      "member_id": memberId,
+      "file": file,
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();

@@ -17,9 +17,11 @@ import 'package:opdsure/model/claim_status_model.dart';
 import 'package:opdsure/model/my_claims_model.dart';
 import 'package:opdsure/pages/claims_details_page.dart';
 import 'package:opdsure/pages/file_claim_page.dart';
+import 'package:opdsure/pages/upload_file_claim_doc.dart';
 import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
+import '../model/claim_json_model.dart';
 import '../utils/app_colors.dart';
 
 class ClaimsPage extends StatelessWidget {
@@ -97,48 +99,17 @@ class ClaimsPage extends StatelessWidget {
                               isUpdate: false,
                             ),
                           ));
-                      // context.push('/home/file_claim');
-                      // AppBottomSheet(
-                      //   height: h*0.3,
-                      //   mChild: Column(
-                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                      //     children: [
-                      //       Image.asset(
-                      //         'assets/images/error.png',
-                      //         height: 30.0,
-                      //         width: 30.0,
+                      // typeController.prescriptionList.clear();
+                      // typeController.docFeeRcpt.clear();
+                      // typeController.pharmacyRcpt.clear();
+                      // typeController.labTestRcpt.clear();
+                      // Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(
+                      //       builder: (context) => UploadFileClaimDoc(
+                      //           ClaimJsonModel(),isUpdate: false,
                       //       ),
-                      //       const SizedBox(height: 10.0,),
-                      //       const AppTextView(
-                      //         text: 'Bank account not added',
-                      //         size: 18.0,
-                      //         color: Color(0xFF101828),
-                      //         fontWeight: FontWeight.w500,
-                      //       ),
-                      //       const SizedBox(height: 5.0,),
-                      //       const AppTextView(
-                      //         text: 'You won’t be able to receive your reimbursement until bank account not added.',
-                      //         size: 12.0,
-                      //         color: Color(0xFF667085),
-                      //         fontWeight: FontWeight.w500,
-                      //       ),
-                      //       const SizedBox(height: 10.0,),
-                      //       const AppButton(text: 'Add',),
-                      //       const SizedBox(height: 10.0,),
-                      //       const AppBorderBox(
-                      //         myChild: Center(
-                      //           child: AppTextView(
-                      //             text: 'Cancel',
-                      //             size: 16.0,
-                      //             fontWeight: FontWeight.w600,
-                      //             color: Colors.black,
-                      //           ),
-                      //         ),
-                      //         boxColor: Color(0xFF344054),
-                      //       )
-                      //     ],
-                      //   )
-                      // ).modalBottomSheetMenu(context);
+                      //     ));
                     },
                   )
                 ],
@@ -343,10 +314,29 @@ class ClaimsPage extends StatelessWidget {
                                                 //     ),
                                                 //   ],
                                                 // ),
+                                                const SizedBox(height: 5,),
                                                 Row(
                                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                   children: [
-                                                    Row(
+                                                    (records.status == 6)?AppButton(
+                                                      text: 'Clarification Req',
+                                                      width: 100,
+                                                      height: 30,
+                                                      textSize: 10.0,
+                                                      fontWeight: FontWeight.normal,
+                                                      onClick: (){
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (context) =>
+                                                                FileClaimPage(
+                                                                  isUpdate: true,
+                                                                  records: records,
+                                                                ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ):Row(
                                                       children: [
                                                         const AppTextView(
                                                           text: 'Status: ',
@@ -376,28 +366,6 @@ class ClaimsPage extends StatelessWidget {
                                                   ],
                                                 ),
                                                 const SizedBox(height: 5,),
-                                                Visibility(
-                                                  visible: (records.status == 6),
-                                                  child: AppButton(
-                                                    text: 'Update',
-                                                    width: 70,
-                                                    height: 25,
-                                                    textSize: 10.0,
-                                                    fontWeight: FontWeight.w300,
-                                                    onClick: (){
-                                                      Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              FileClaimPage(
-                                                                isUpdate: true,
-                                                                records: records,
-                                                              ),
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                )
                                               ],
                                             ),
                                           ),

@@ -43,38 +43,63 @@ class CheckoutPageView extends StatelessWidget{
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      AppTextView(
-                        text: controller.name,
-                        color: Colors.black,
-                        size: 16.0,
-                        fontWeight: FontWeight.w500,
+                      SizedBox(
+                        width: CommonMethods.deviceWidth(context)*0.8,
+                        child: AppTextView(
+                          text: controller.name,
+                          color: Colors.black,
+                          size: 16.0,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
-                      InkWell(
-                        onTap: (){
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: const Color(0xFF8A48B3),
-                                ),
-                                borderRadius: const BorderRadius.all(Radius.circular(20))
-                            ),
-                            child: const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(5.0),
-                                child: AppTextView(
-                                  text: 'Change Plan',
-                                  size: 12.0,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF8A48B3),
-                                ),
+                      Visibility(
+                        visible: false,
+                        child: InkWell(
+                          onTap: (){
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: const Color(0xFF8A48B3),
+                                  ),
+                                  borderRadius: const BorderRadius.all(Radius.circular(20))
                               ),
-                            )
+                              child: const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(5.0),
+                                  child: AppTextView(
+                                    text: 'Change Plan',
+                                    size: 12.0,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF8A48B3),
+                                  ),
+                                ),
+                              )
+                          ),
                         ),
                       )
                     ],
                   ),
+
+                  if(controller.widget.paymentType == PaymentType.buyPlan)...[
+                    AppTextView(
+                      text: '$rupeeSymbol ${controller.options!.charges!}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
+                      color: const Color(0xFF667085),
+                    ),
+                    const SizedBox(height: 15.0,),
+                    const AppTextView(
+                      text: 'Users',
+                      color: Colors.black,
+                      size: 16.0,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    AppTextView(
+                      text: controller.options!.membershipLabel!,
+                      color: const Color(0xFF667085),
+                    ),
+                  ],
+
 
                 ],
               ),

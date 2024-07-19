@@ -22,8 +22,13 @@ import 'package:opdsure/utils/opd_extension/int_extention.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../custom_ui/app_mobile_field.dart';
+import '../../model/my_member_model.dart';
 
 class AddFamilyDetails extends StatefulWidget{
+  final MemberList? member;
+  final bool? isUpdate;
+  AddFamilyDetails({this.member,this.isUpdate});
+
   @override
   State<AddFamilyDetails> createState() => _AddFamilyDetailsState();
 }
@@ -37,9 +42,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
 
   TextEditingController phoneCtrl = TextEditingController();
 
-  TextEditingController cityCtrl = TextEditingController();
-
-  TextEditingController pinCodeCtrl = TextEditingController();
+  TextEditingController addressCtrl = TextEditingController();
 
   DateTime selectedDate = DateTime.now();
 
@@ -48,11 +51,29 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
         context: context,
         initialDate: selectedDate,
         firstDate: DateTime(1901, 1),
-        lastDate: DateTime(2100));
+        lastDate: DateTime(DateTime.now().year,DateTime.now().month,DateTime.now().day));
     if (picked != null && picked != selectedDate) {
       selectedDate = picked;
       String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDate);
       typeController.familyMemDOBChange(formattedDate);
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if(widget.isUpdate!){
+      TypeController typeController = Get.put(TypeController());
+      nameCtrl.text = widget.member!.name!;
+      phoneCtrl.text = '${widget.member!.phone!}';
+      addressCtrl.text = widget.member!.address!;
+      typeController.familyMemDOBChange(widget.member!.dob!);
+      typeController.selectRelationKeyChange(widget.member!.relation!);
+      typeController.selectRelationChange(widget.member!.relation!.getRelation());
+      typeController.selectGenderChange(genderList[widget.member!.gender!-1]);
+      // pinCodeCtrl.text = widget.member!.pi!;
+      // nameCtrl.text = widget.member!.name!;
     }
   }
 
@@ -270,94 +291,14 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
             ),
             const SizedBox(height: 15.0,),
             const AppTextView(
-              text: 'State',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
-            ),
-            InkWell(
-              onTap: ()async{
-                var data = await OpdSure.of(context).client.getAllState();
-                StateModel stateModel = statemodelFromJson(data);
-                List<StateListData> stateListData = stateModel.data;
-                AppBottomSheet(
-                    height: 600,
-                    mChild: ListView.builder(
-                      itemCount: stateListData.length,
-                      itemBuilder: (context, index){
-                        return InkWell(
-                          onTap: (){
-                            typeController.selectStateChange(stateListData[index].name);
-                            Navigator.pop(context);
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                child: AppTextView(
-                                  text: stateListData[index].name,
-                                ),
-                              ),
-                              const Divider(height: 1,color: Color(0x1A101828),),
-                            ],
-                          ),
-                        );
-                        // return Padding(
-                        //   padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        //   child: AppTextView(
-                        //     onClick: (){
-                        //       typeController.selectStateChange(stateListData[index].name);
-                        //       Navigator.pop(context);
-                        //     },
-                        //     text: stateListData[index].name,
-                        //   ),
-                        // );
-                      },
-                    )
-                ).modalBottomSheetMenu(context);
-              },
-              child: AppBorderBox(
-                myChild: Obx((){
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      AppTextView(
-                        text: typeController.selectState.value==''?'Select State':typeController.selectState.value,
-                      ),
-                      const Icon(
-                        Icons.keyboard_arrow_down_sharp,
-                        color: Color(0xff667085),
-                        size: 24.0,
-                      )
-                    ],
-                  );
-                }),
-              ),
-            ),
-            const SizedBox(height: 15.0,),
-            const AppTextView(
-              text: 'City',
+              text: 'Address',
               size: 14.0,
               fontWeight: FontWeight.w500,
               color: Color(0xFF1D2939),
             ),
             AppEditText(
-              hint: 'Enter the city',
-              textEditingController: cityCtrl,
-            ),
-            const SizedBox(height: 15.0,),
-            const AppTextView(
-              text: 'Pin code',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
-            ),
-            AppEditText(
-              hint: 'Enter the pin code',
-              textEditingController: pinCodeCtrl,
-              textInputType: TextInputType.number,
-              maxLength: 6,
+              hint: 'Enter the address',
+              textEditingController: addressCtrl,
             ),
             const SizedBox(height: 20.0,),
             AppButton(
@@ -389,36 +330,47 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                   Navigator.of(context).pop();
                   return;
                 }
-                if(cityCtrl.text.isEmpty){
+                if(addressCtrl.text.isEmpty){
                   CommonMethods.showToast('city is blank');
                   Navigator.of(context).pop();
                   return;
                 }
-                if(pinCodeCtrl.text.isEmpty){
-                  CommonMethods.showToast('pincode is blank');
-                  Navigator.of(context).pop();
-                  return;
+                var data;
+                if(widget.isUpdate!){
+                  data = await OpdSure.of(context).client.updateFamilyMember(
+                      name: nameCtrl.text,
+                      relation: typeController.selectRelationKey.value,
+                      dob: typeController.familyMemDOB.value,
+                      gender: CommonMethods.genderKey(typeController.selectGender.value),
+                      phone: phoneCtrl.text,
+                      countryCode: '+91',
+                      address: addressCtrl.text,
+                      memberId: widget.member!.id!,
+                      file: 'user/1c0f78e5-e2cc-4b7e-8d16-939abf9c4003/Capture.PNG',
+                  );
                 }
-                var data = await OpdSure.of(context).client.addFamilyMember(
-                    name: nameCtrl.text,
-                    relation: typeController.selectRelationKey.value,
-                    dob: typeController.familyMemDOB.value,
-                    gender: CommonMethods.genderKey(typeController.selectGender.value),
-                    phone: phoneCtrl.text,
-                    countryCode: '+91',
-                    address: '${cityCtrl.text} ${pinCodeCtrl.text}'
-                );
+                else{
+                  data = await OpdSure.of(context).client.addFamilyMember(
+                      name: nameCtrl.text,
+                      relation: typeController.selectRelationKey.value,
+                      dob: typeController.familyMemDOB.value,
+                      gender: CommonMethods.genderKey(typeController.selectGender.value),
+                      phone: phoneCtrl.text,
+                      countryCode: '+91',
+                      address: addressCtrl.text
+                  );
+                }
                 Navigator.of(context).pop();
                 print(data);
                 Map<String,dynamic> resMap = jsonDecode(data);
                 if(resMap['success']){
+                  FocusScope.of(context).unfocus();
                   typeController.refreshMemberListChange(false);
                   typeController.refreshMemberListChange(true);
-                  CommonMethods.showToast('Member Added successfully');
+                  CommonMethods.showToast(widget.isUpdate!?'Member update successfully':'Member Added successfully');
                   nameCtrl.text = '';
                   phoneCtrl.text = '';
-                  cityCtrl.text = '';
-                  pinCodeCtrl.text = '';
+                  addressCtrl.text = '';
                   typeController.familyMemDOBChange('');
                   typeController.selectStateChange('');
                   typeController.selectGenderChange('');
@@ -428,26 +380,6 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
               },
             ),
             const SizedBox(height: 15.0,),
-            Visibility(
-              visible: false,
-              child: AppButton(
-                text: 'Add Another Member',
-                color: const Color(0xFFebecf1),
-                textColor: buttonColor,
-                borderColor: buttonColor,
-                onClick: (){
-                  nameCtrl.text = '';
-                  phoneCtrl.text = '';
-                  cityCtrl.text = '';
-                  pinCodeCtrl.text = '';
-                  typeController.familyMemDOBChange('');
-                  typeController.selectStateChange('');
-                  typeController.selectGenderChange('');
-                  typeController.selectRelationChange('');
-                  typeController.selectRelationKeyChange(100);
-                },
-              ),
-            ),
             const SizedBox(height: 50.0,),
           ],
         ),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:get/get.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
@@ -42,6 +44,11 @@ class TypeController extends GetxController{
     familyMemDOB.value = type;
   }
 
+  RxString myDOB = ''.obs;
+  void myDOBChange(String type){
+    myDOB.value = type;
+  }
+
   RxString opdVisitDate = ''.obs;
   void opdVisitDateChange(String type){
     opdVisitDate.value = type;
@@ -72,24 +79,36 @@ class TypeController extends GetxController{
     selectClaim.value = type;
   }
 
-  RxList prescriptionList = [].obs;
-  void prescriptionListChange(List type){
-    prescriptionList.value = type;
+  RxList prescriptionList = <File>[].obs;
+  void prescriptionListChange(File type){
+    prescriptionList.add(type);
+  }
+  void removePrescription(File prescription) {
+    prescriptionList.remove(prescription);
   }
 
-  RxList docFeeRcpt = [].obs;
-  void docFeeRcptChange(List type){
-    docFeeRcpt.value = type;
+  RxList docFeeRcpt = <File>[].obs;
+  void docFeeRcptChange(File type){
+    docFeeRcpt.add(type);
+  }
+  void removeDocFeeRcpt(File file) {
+    docFeeRcpt.remove(file);
   }
 
-  RxList pharmacyRcpt = [].obs;
-  void pharmacyRcptChange(List type){
-    pharmacyRcpt.value = type;
+  RxList pharmacyRcpt = <File>[].obs;
+  void pharmacyRcptChange(File type){
+    pharmacyRcpt.add(type);
+  }
+  void removePharmacyRcpt(File file) {
+    pharmacyRcpt.remove(file);
   }
 
-  RxList labTestRcpt = [].obs;
-  void labTestRcptChange(List type){
-    labTestRcpt.value = type;
+  RxList labTestRcpt = <File>[].obs;
+  void labTestRcptChange(File type){
+    labTestRcpt.add(type);
+  }
+  void removeLabTestRcpt(File file) {
+    labTestRcpt.remove(file);
   }
 
   RxString countryCode = '+91'.obs;
@@ -130,6 +149,11 @@ class TypeController extends GetxController{
   RxBool refreshClaimList = true.obs;
   void refreshClaimListChange(bool type){
     refreshClaimList.value = type;
+  }
+
+  RxBool refreshProfile = true.obs;
+  void refreshProfileChange(bool type){
+    refreshProfile.value = type;
   }
 
   RxBool refreshMemberList = true.obs;
