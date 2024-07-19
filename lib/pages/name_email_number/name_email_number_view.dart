@@ -129,7 +129,6 @@ class NameEmailNumberView extends StatelessWidget {
                             }
                           }
                         }
-                        controller.inputType = InputType.firstName;
                         controller.updateProfile();
                     }
                   },
