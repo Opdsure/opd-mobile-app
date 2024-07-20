@@ -26,7 +26,9 @@ class LoginPageController extends State<LoginPage> {
   String emailError = '';
   String passwordError = '';
   String phoneError = '';
-  bool isShowError = false;
+  bool isShowEmailError = false;
+  bool isMobileError = false;
+  bool isPasswordError = false;
   bool isWithEmail = false;
 
   String countryCode = '+91';
@@ -50,7 +52,9 @@ class LoginPageController extends State<LoginPage> {
   void toggleEmailOrPhone() {
     setState((){
       isWithEmail = !isWithEmail;
-      isShowError = false;
+      isShowEmailError = false;
+      isMobileError = false;
+      isPasswordError = false;
     });
   }
   _signUp() {
@@ -77,55 +81,64 @@ class LoginPageController extends State<LoginPage> {
       if (phoneTextController.text.isEmpty) {
         setState((){
           phoneError = 'Enter a valid phone no';
-          isShowError = true;
+          isMobileError = true;
         });
         // return;
-      } else {
-        if (!phoneTextController.text.isValidPhoneNumber) {
-          setState((){
-            phoneError = 'Enter a valid phone no';
-            isShowError = true;
-          });
-          // return;
-        }
+      } else if (!phoneTextController.text.isValidPhoneNumber) {
+        setState((){
+          phoneError = 'Enter a valid phone no';
+          isMobileError = true;
+        });
+        // return;
+      }
+      else{
+        setState((){
+          isMobileError = false;
+        });
       }
     } else {
       if (emailTextController.text.isEmpty) {
         setState(() {
           emailError = 'Enter a valid email address';
-          isShowError = true;
+          isShowEmailError = true;
         });
         // return;
-      } else {
-        if (!emailTextController.text.isValidEmail) {
-          setState((){
-            emailError = 'Enter a valid email address';
-            isShowError = true;
-          });
-          // return;
-        }
+      } else if (!emailTextController.text.isValidEmail) {
+        setState((){
+          emailError = 'Enter a valid email address';
+          isShowEmailError = true;
+        });
+        // return;
+      }
+      else{
+        setState((){
+          isShowEmailError = false;
+        });
       }
     }
     if (passwordTextController.text.isEmpty) {
       setState((){
         passwordError = 'Enter a valid password';
-        isShowError = true;
+        isPasswordError = true;
       });
-    }else{
-      if(!passwordTextController.text.isValidPassword){
-        setState((){
-          passwordError = 'Enter a valid password';
-          isShowError = true;
-        });
-        // return;
-      }
+    }else if(!passwordTextController.text.isValidPassword){
+      setState((){
+        passwordError = 'Enter a valid password';
+        isPasswordError = true;
+      });
+      // return;
+    }
+    else{
+      setState((){
+        isPasswordError = false;
+      });
     }
 
     setState(() => loading = true);
 
     try {
       CommonMethods.showAlertDialog(context);
-      await opdSure.getLoginClient().login(
+      await opdSure.client.login(
         loginType: isWithEmail ? 0 : 1,
         countryCode: isWithEmail ? null : countryCode,
         emailAddress: isWithEmail ? emailTextController.text : null,

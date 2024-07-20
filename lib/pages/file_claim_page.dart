@@ -104,7 +104,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
     var data = await OpdSure.of(context).client.calculateClaimPrice('0', double.parse(value!));
     CalculateClaimModel calculateClaimModel = CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
-        _value11 = double.parse('${calculateClaimModel.data!.finalPrice}');
+        _value11 = double.parse('${calculateClaimModel.data!.finalPrice??'0.0'}');
         _value1 = double.tryParse(value.toString()) ??0.0;
         docFeeClCtrl.text = _value11.toStringAsFixed(0);
       _calculateSum();
@@ -116,7 +116,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
     var data = await OpdSure.of(context).client.calculateClaimPrice(calculator, double.parse(value!));
     CalculateClaimModel calculateClaimModel = CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
-      _value12 = double.parse('${calculateClaimModel.data!.finalPrice}');
+      _value12 = double.parse('${calculateClaimModel.data!.finalPrice??'0.0'}');
       _value2 = double.tryParse(value.toString()) ??0.0;
       billAmntPhrClCtrl.text = _value12.toStringAsFixed(0);
       _calculateSum();
@@ -127,7 +127,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
     var data = await OpdSure.of(context).client.calculateClaimPrice('2', double.parse(value!));
     CalculateClaimModel calculateClaimModel = CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
-      _value13 = double.parse('${calculateClaimModel.data!.finalPrice}');
+      _value13 = double.parse('${calculateClaimModel.data!.finalPrice??'0.0'}');
       _value3 = double.tryParse(value.toString()) ?? 0.0;
       billAmntDiaClCtrl.text = _value13.toStringAsFixed(0);
       _calculateSum();
@@ -596,20 +596,20 @@ class _FileClaimPageState extends State<FileClaimPage> {
               );
             }),
             const SizedBox(height: 15.0),
-            compulsoryField('Diagnosis'),
+            compulsoryField('Reason for Doctor Consultation'),
             AppEditText(
-              hint: 'Enter diagnosis',
+              hint: 'Enter Reason',
               textEditingController: diagnosisCtrl,
               textInputType: TextInputType.name,),
             const SizedBox(height: 15.0),
             const AppTextView(
-              text: 'Remark',
+              text: 'Additional Information',
               size: 14.0,
               fontWeight: FontWeight.w500,
               color: Color(0xFF1D2939),
             ),
             AppEditText(
-              hint: 'Enter remark',
+              hint: 'Enter Additional Information',
               textEditingController: remarkCtrl,
               textInputType: TextInputType.name,),
 
@@ -644,7 +644,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const AppTextView(
-                        text: 'Claimable Amnt.',
+                        text: 'Claimable Amt.',
                         size: 14.0,
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF1D2939),
@@ -699,7 +699,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const AppTextView(
-                  text: 'Bill Amnt. for Diagnostics',
+                  text: 'Bill Amt. for Diagnostics',
                   size: 14.0,
                   fontWeight: FontWeight.w500,
                   color: Color(0xFF1D2939),
@@ -834,7 +834,9 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   docCountryCode: typeController.countryCode.value,
                   docPhone: phoneCtrl.text,
                   doctorFee: docFeeCtrl.text,
-                  // pharmacyFee: billAmntPhrCtrl.text,
+                  userRemark: remarkCtrl.text.isEmpty?null:remarkCtrl.text,
+                  id: widget.isUpdate!?singleClaimModel!.data!.id:null,
+                  docEmail: emailCtrl.text.isEmpty?null:emailCtrl.text,
                   pharmacyFee: claimCombination=='1'?billAmntPhrCtrl.text:null,
                   labTestFee: claimCombination=='1'?billAmntDiaCtrl.text:null,
                   claimableDoctorFee: int.tryParse(docFeeClCtrl.text),
@@ -862,9 +864,18 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 typeController.docFeeRcpt.clear();
                 typeController.pharmacyRcpt.clear();
                 typeController.labTestRcpt.clear();
+                Map<String,dynamic>? docMap;
+                if(widget.isUpdate!) {
+                  docMap = {
+                    'prescription_d': cRecords!.prescription,
+                    'doc_fee_d': cRecords!.feeReceipt,
+                    'pharmacy_d': cRecords!.pharmacyReceipt,
+                    'test_d': cRecords!.testReceipt,
+                  };
+                }
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(claimJsonModel,isUpdate: widget.isUpdate,claimId: claimId,)),
+                  MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(claimJsonModel,isUpdate: widget.isUpdate,claimId: claimId,documentMap: docMap,)),
                 );
               },
             ),

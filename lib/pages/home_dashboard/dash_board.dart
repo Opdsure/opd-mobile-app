@@ -4,7 +4,7 @@ import 'package:opdsure/pages/health_check_up/health_checkup_list/health_checkup
 import 'package:opdsure/pages/home_dashboard/dashboard_view.dart';
 import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/profile_page.dart';
-import 'package:opdsure/test.dart';
+import 'package:opdsure/widget/opd_widget.dart';
 
 enum ActiveDestination { home, claim, checkup, profile }
 
@@ -36,26 +36,17 @@ class DashBoardPageController extends State<DashBoardPage> {
   }
 
   void onDestinationSelected(int index){
-    setState((){
-      activeDestination = getActiveDestinationByIndex(index);
+    OpdSure.of(context).setPage(index, (page){
+      if(mounted) {
+        setState(() {
+          activeDestination = getActiveDestinationByIndex(page);
+        });
+      }
     });
   }
 
 
-  int get selectedIndex {
-    switch (activeDestination) {
-      case ActiveDestination.home:
-        return 0;
-      case ActiveDestination.claim:
-        return 1;
-      case ActiveDestination.checkup:
-        return 2;
-      case ActiveDestination.profile:
-        return 3;
-      default:
-        return 0;
-    }
-  }
+  int get selectedIndex => OpdSure.of(context).selectedPage;
 
   Widget getBodyByActiveDestination() {
     switch (activeDestination) {

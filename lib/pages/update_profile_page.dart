@@ -57,7 +57,12 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     pinCtrl.text = '${widget.userProfile!.data!.pinCode!}';
     cityCtrl.text = widget.userProfile!.data!.city!;
     typeController.myDOB(widget.userProfile!.data!.dob!);
-    typeController.selectGenderChange(genderList[widget.userProfile!.data!.gender!-1]);
+    if(widget.userProfile!.data!.gender! == 0){
+      typeController.selectGenderChange('');
+    }
+    else{
+      typeController.selectGenderChange(genderList[widget.userProfile!.data!.gender!-1]);
+    }
   }
 
   @override

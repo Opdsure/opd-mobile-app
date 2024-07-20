@@ -12,7 +12,10 @@ class ClaimJsonModel {
       int? claimableLabTestFee,
       String? claimType,
       String? docName, 
-      String? docRegistration, 
+      String? id,
+      String? userRemark,
+      String? docEmail,
+      String? docRegistration,
       String? diagonosisDetail, 
       String? hospital, 
       List<String>? prescription, 
@@ -39,6 +42,9 @@ class ClaimJsonModel {
     _claimableLabTestFee = claimableLabTestFee;
     _claimType = claimType;
     _docName = docName;
+    _id = id;
+    _userRemark = userRemark;
+    _docEmail = docEmail;
     _docRegistration = docRegistration;
     _diagonosisDetail = diagonosisDetail;
     _hospital = hospital;
@@ -69,6 +75,9 @@ class ClaimJsonModel {
     _claimableLabTestFee = json['claimable_lab_test_fee'];
     _claimType = json['claim_type'];
     _docName = json['doc_name'];
+    _id = json['_id'];
+    _userRemark = json['user_remark'];
+    _docEmail = json['doc_email'];
     _docRegistration = json['doc_registration'];
     _diagonosisDetail = json['diagonosis_detail'];
     _hospital = json['hospital'];
@@ -97,6 +106,9 @@ class ClaimJsonModel {
   int? _claimableLabTestFee;
   String? _claimType;
   String? _docName;
+  String? _id;
+  String? _userRemark;
+  String? _docEmail;
   String? _docRegistration;
   String? _diagonosisDetail;
   String? _hospital;
@@ -125,6 +137,9 @@ class ClaimJsonModel {
   int? get claimableLabTestFee => _claimableLabTestFee;
   String? get claimType => _claimType;
   String? get docName => _docName;
+  String? get id => _id;
+  String? get userRemark => _userRemark;
+  String? get docEmail => _docEmail;
   String? get docRegistration => _docRegistration;
   String? get diagonosisDetail => _diagonosisDetail;
   String? get hospital => _hospital;
@@ -155,6 +170,9 @@ class ClaimJsonModel {
     if (_claimableLabTestFee != null) map['claimable_lab_test_fee'] = _claimableLabTestFee;
     map['claim_type'] = _claimType;
     map['doc_name'] = _docName;
+    if (_id != null) map['_id'] = _id;
+    if (_userRemark != null) map['user_remark'] = _userRemark;
+    if (_docEmail != null) map['doc_email'] = _docEmail;
     map['doc_registration'] = _docRegistration;
     map['diagonosis_detail'] = _diagonosisDetail;
     map['hospital'] = _hospital;

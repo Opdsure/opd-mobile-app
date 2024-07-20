@@ -205,7 +205,7 @@ class SignUpController extends State<SignUpPage> {
       CommonMethods.showAlertDialog(context);
 
         try {
-        final response = await opdSure.getLoginClient().register(
+        final response = await opdSure.client.register(
             emailAddress: isWithEmail ? emailTextController.text : null,
             password: passwordTextController.text,
             confirmPassword: confirmPasswordTextController.text,

@@ -76,6 +76,7 @@ class NameEmailNumberController extends State<NameEmailNumber> {
       email: isWithEmail ? emailTextController.text : null
     );
     if (response != null) {
+      await opd.client.getProfile(update: true);
       context.pushReplacement('/home');
     } else {}
   }

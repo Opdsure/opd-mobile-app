@@ -14,7 +14,7 @@ class ClaimStatusModel{
     this.iconData
   });
 
-  ClaimStatusModel getClaimBuStatus(int status){
+  ClaimStatusModel getClaimBuStatus(int status,{bool reSubmit = false}){
     switch(status){
       case 0:
         return ClaimStatusModel(
@@ -43,15 +43,24 @@ class ClaimStatusModel{
       case 4:
         return ClaimStatusModel(
             statusName: 'In Process',
-            statusColor: const Color(0xFFEF6C00),
-            iconData: Icons.hourglass_empty
+            statusColor: Colors.blue,
+            iconData: Icons.sync_sharp
         );
       case 6:
-        return ClaimStatusModel(
-            statusName: 'Clarification',
-            statusColor: const Color(0xFFfaad14),
-            iconData: Icons.info_outline
-        );
+        if(reSubmit){
+          return ClaimStatusModel(
+              statusName: 'Re-Submit',
+              statusColor: Colors.green,
+              iconData: Icons.check_circle_outline_rounded
+          );
+        }
+        else{
+          return ClaimStatusModel(
+              statusName: 'Clarification',
+              statusColor: const Color(0xFFfaad14),
+              iconData: Icons.info_outline
+          );
+        }
       case 7:
         return ClaimStatusModel(
             statusName: 'Invalid',

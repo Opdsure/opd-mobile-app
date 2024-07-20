@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../config/app_config.dart';
 import '../utils/logs/logs.dart';
 import '../utils/opd_extension/account_bundles.dart';
+typedef ValueCallback = void Function(int value);
 
 class OpdSure extends StatefulWidget {
   final Widget? child;
@@ -34,6 +35,25 @@ class OpdSure extends StatefulWidget {
 class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
   int _activeClient = -1;
   String? activeBundle;
+  ValueCallback? _callback;
+  int _selectedPage = 0;
+
+  int get selectedPage => _selectedPage;
+
+  bool isLogout = false;
+
+  set selectedPage(int value) {
+      _selectedPage = value;
+      if(_callback != null){
+        _callback?.call(value);
+      }
+  }
+
+  void setPage(int value, ValueCallback callback){
+    _callback = callback;
+    _selectedPage = value;
+    callback.call(value);
+  }
 
   SharedPreferences get store => widget.store;
 
@@ -171,13 +191,17 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
           ClientManager.removeClientNameFromStore(c.clientName, store);
         } else {
           if(state == LoginState.loggedIn){
+            isLogout = false;
+            selectedPage = 0;
             if(profileData!.phone!.isEmpty || profileData!.email!.isEmpty){
               OpdSureApp.router.go("/home/name_email_number");
             }else{
               OpdSureApp.router.go("/home");
             }
           }else{
-            OpdSureApp.router.go('/login');
+            isLogout = true;
+            selectedPage = 0;
+            OpdSureApp.router.pushReplacement('/login');
           }
 
         }

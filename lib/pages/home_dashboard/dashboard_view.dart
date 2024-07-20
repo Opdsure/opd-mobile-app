@@ -4,6 +4,7 @@ import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/custom_ui/navi_rail_item.dart';
 import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 import 'package:opdsure/utils/app_colors.dart';
+import 'package:opdsure/utils/common_methods.dart';
 
 class DashboardPageView extends StatelessWidget {
   final DashBoardPageController controller;
@@ -90,6 +91,7 @@ class DashboardPageView extends StatelessWidget {
                     child: PopScope(
                         canPop: false,
                         onPopInvoked: (_){
+                          CommonMethods.showToast('toastMessage');
                           if(controller.selectedIndex == 0){
 
                           }else{

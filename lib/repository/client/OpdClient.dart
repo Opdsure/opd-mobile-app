@@ -141,9 +141,8 @@ class OpdClient extends OpdApi {
         _initLock = false;
         return;
       }
-      final profile = await getProfile(update: true);
+      await getProfile(update: true);
       await getAllPlans();
-      profileData = profile.data!;
      isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
 
 
@@ -301,6 +300,7 @@ class OpdClient extends OpdApi {
       if(update){
         userProfile = await super.getProfile();
         await database.updateUserProfile(userProfile: userProfile);
+        profileData = userProfile.data!;
         return userProfile;
       }
       userProfile = await database.getUserProfile();
@@ -322,6 +322,7 @@ class OpdClient extends OpdApi {
         await database.insertUserProfile(userProfile: userProfile);
       }
     }
+    profileData = userProfile.data!;
     return userProfile;
   }
 

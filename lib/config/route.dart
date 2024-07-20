@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
+import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/custom_ui/empty_page.dart';
 import 'package:opdsure/custom_ui/two_column_layout.dart';
 import 'package:opdsure/model/health_checkup/health_checkup.dart';
@@ -102,6 +103,43 @@ abstract class AppRoutes {
 
   AppRoutes();
 
+  static Future<bool> _showExitDialog(BuildContext context) async {
+    if(OpdSure.of(context).isLogout){
+      return true;
+    }
+    if(OpdSure.of(context).selectedPage != 0){
+      OpdSure.of(context).selectedPage = 0;
+      return false;
+    }
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const AppTextView(
+            text: 'Exit Confirmation',
+            size: 18.0,
+            fontWeight: FontWeight.w600,
+          ),
+          content: const AppTextView(text: 'Do you really want to exit?'),
+          actions: [
+            MaterialButton(
+              child: const AppTextView(text: 'Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            MaterialButton(
+              child: const AppTextView(text: 'Yes'),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    ) ?? false;
+  }
+
   static final List<RouteBase> routes = [
     GoRoute(
         path: '/',
@@ -177,6 +215,9 @@ abstract class AppRoutes {
       routes: [
         GoRoute(
             path: '/home',
+            onExit: (context, state) async {
+              return await _showExitDialog(context);
+            },
             redirect: getRedirectNameForHome,
             pageBuilder: (context, state) => defaultPageBuilder(
                   context,
@@ -257,23 +298,10 @@ abstract class AppRoutes {
                       GoRoute(
                           path: 'add_members',
                           pageBuilder: (context, state) {
-                            Map<String, dynamic>? data;
-                            PlanRecords? records;
-                            MembershipOptions? options;
-                            if (state.extra != null) {
-                              data = state.extra as Map<String, dynamic>;
-                              records = data['records'] as PlanRecords;
-                              if (data['options'] != null) {
-                                options = data['options'] as MembershipOptions;
-                              }
-                            }
                             return defaultPageBuilder(
                               context,
                               state,
-                              AddFamilyDetails(
-                                  // records: records,
-                                  // options: options,
-                                  ),
+                              AddFamilyDetails(isUpdate: false,),
                             );
                           }),
                     ],

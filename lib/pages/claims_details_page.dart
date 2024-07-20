@@ -47,7 +47,7 @@ class ClaimsDetailsPage extends StatelessWidget{
   Widget build(BuildContext context) {
     double w = CommonMethods.deviceWidth(context);
     double h = CommonMethods.deviceHeight(context);
-    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(oneClaim.status!);
+    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(oneClaim.status!,reSubmit: oneClaim.subscriberReaction!);
     // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(headerName: 'Claim Details',),
@@ -65,6 +65,8 @@ class ClaimsDetailsPage extends StatelessWidget{
                 ),
                 const SizedBox(height: 10.0,),
                 commonRow('Type', CommonMethods.getClaimNameById('${oneClaim.claimType!}')),
+                const SizedBox(height: 7.0,),
+                commonRow('Claim Date',CommonMethods.formatIsoDateString(oneClaim.createdAt!)),
                 const SizedBox(height: 7.0,),
                 commonRow('Name',oneClaim.memberId!.name!),
                 const SizedBox(height: 7.0,),
@@ -137,7 +139,8 @@ class ClaimsDetailsPage extends StatelessWidget{
                       SizedBox(
                         height: h*0.1,
                         child: ListView.builder(
-                          itemCount: oneClaim.prescription!.length,
+                          itemCount: prescriptionImageList.length,
+                          scrollDirection: Axis.horizontal,
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index){
                             return Column(

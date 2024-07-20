@@ -82,7 +82,11 @@ class ProfilePage extends StatelessWidget{
                         }
                         else{
                           UserProfile userProfile = snapshot.data!;
-                          String actualDob = CommonMethods.formatIsoDateString(userProfile.data!.dob!);
+                          String actualDob = '';
+                          if(userProfile.data!.dob!.isNotEmpty){
+                            actualDob = CommonMethods.formatIsoDateString(userProfile.data!.dob!);
+                          }
+
                           return ListView(
                             children: [
                               const SizedBox(height: 5,),
@@ -121,7 +125,7 @@ class ProfilePage extends StatelessWidget{
                                       const SizedBox(height: 5.0,),
                                       AppKeyValue(
                                         mKey: 'Age',
-                                        value: '${CommonMethods.calculateAge(DateFormat("dd/MM/yyyy").parse(actualDob))} years',
+                                        value: actualDob.isEmpty?'':'${CommonMethods.calculateAge(DateFormat("dd/MM/yyyy").parse(actualDob))} years',
                                       ),
                                       const SizedBox(height: 5.0,),
                                       AppKeyValue(

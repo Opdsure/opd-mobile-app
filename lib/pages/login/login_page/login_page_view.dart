@@ -81,7 +81,7 @@ class LoginView extends StatelessWidget {
                   size: 14.0,
                   textInputType: TextInputType.emailAddress,
                   textEditingController: controller.emailTextController,
-                  showErrorMessage: controller.isShowError,
+                  showErrorMessage: controller.isShowEmailError,
                   errorMessage: controller.emailError,
                 ) :
              AppMobileField(
@@ -89,7 +89,7 @@ class LoginView extends StatelessWidget {
                   countryCode: '+91',
                   textEditingController: controller.phoneTextController,
                   errorMessage: controller.phoneError,
-                  showErrorMessage: controller.isShowError,
+                  showErrorMessage: controller.isMobileError,
                   inputFormatters: [
                     LengthLimitingTextInputFormatter(13),
                   ],
@@ -112,7 +112,7 @@ class LoginView extends StatelessWidget {
           textEditingController: controller.passwordTextController,
           viewSuffix: true,
           errorMessage: controller.passwordError,
-          showErrorMessage: controller.isShowError,
+          showErrorMessage: controller.isPasswordError,
           eyeCallback: controller.togglePassword,
         ),
             const SizedBox(

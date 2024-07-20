@@ -20,11 +20,13 @@ import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../../custom_ui/app_button.dart';
 import '../../custom_ui/app_card_view.dart';
 import '../../model/claim_status_model.dart';
 import '../../model/my_claims_model.dart';
 import '../../utils/app_var.dart';
 import '../claims_details_page.dart';
+import '../file_claim_page.dart';
 typedef ValueCallback = void Function(int value);
 class HomePage extends StatelessWidget {
   final ValueCallback callback;
@@ -282,7 +284,7 @@ class HomePage extends StatelessWidget {
                       itemCount: listData.length>3?3:listData.length,
                       itemBuilder: (context,index){
                         ClaimRecords records = listData[index];
-                        ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(records.status!);
+                        ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(records.status!,reSubmit: records.resubmission!);
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
                           child: InkWell(
@@ -358,10 +360,29 @@ class HomePage extends StatelessWidget {
                                       ],
                                     ),
                                   ),
+                                  const SizedBox(height: 5,),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Row(
+                                      (records.status == 6 && !(records.subscriberReaction!))?AppButton(
+                                        text: 'Clarification Req',
+                                        width: 100,
+                                        height: 30,
+                                        textSize: 10.0,
+                                        fontWeight: FontWeight.normal,
+                                        onClick: (){
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  FileClaimPage(
+                                                    isUpdate: true,
+                                                    records: records,
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                      ):Row(
                                         children: [
                                           const AppTextView(
                                             text: 'Status: ',

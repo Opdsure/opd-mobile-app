@@ -4,6 +4,7 @@ abstract class AppConfig{
   static String _applicationName = 'OPD Sure';
   static String get applicationName => _applicationName;
   static String _defaultBaseUrl = 'stage.opdsure.net';
+  // static String _defaultBaseUrl = 'dev.opdsure.net';
   static String get defaultBaseUrl => _defaultBaseUrl;
   static double fontSizeFactor = 1;
   static Color? colorSchemeSeed = primaryColor;

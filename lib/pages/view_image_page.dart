@@ -13,11 +13,10 @@ class ViewImagePage extends StatelessWidget{
     return AppBasePage(
       appHeader: AppHeader(headerName: headerName,),
       childContent: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.network(
             imageUrl,
-            height: CommonMethods.deviceHeight(context)*0.9,
-            fit: BoxFit.fill,
           )
         ],
       ),

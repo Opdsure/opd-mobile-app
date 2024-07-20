@@ -52,7 +52,7 @@ class SingleClaimData {
       int? claimablePharmacyFee, 
       int? claimableLabTestFee, 
       int? billAmount, 
-      int? claimableAmount, 
+      dynamic claimableAmount,
       String? specialization, 
       int? claimType, 
       String? hospital, 
@@ -177,7 +177,7 @@ class SingleClaimData {
   int? _claimablePharmacyFee;
   int? _claimableLabTestFee;
   int? _billAmount;
-  int? _claimableAmount;
+  dynamic _claimableAmount;
   String? _specialization;
   int? _claimType;
   String? _hospital;
@@ -215,7 +215,7 @@ class SingleClaimData {
   int? get claimablePharmacyFee => _claimablePharmacyFee;
   int? get claimableLabTestFee => _claimableLabTestFee;
   int? get billAmount => _billAmount;
-  int? get claimableAmount => _claimableAmount;
+  dynamic get claimableAmount => _claimableAmount;
   String? get specialization => _specialization;
   int? get claimType => _claimType;
   String? get hospital => _hospital;

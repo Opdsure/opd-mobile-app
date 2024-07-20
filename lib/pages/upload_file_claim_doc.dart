@@ -11,8 +11,6 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/pages/view_image_page.dart';
 import 'package:opdsure/utils/common_methods.dart';
-import 'package:path_provider/path_provider.dart';
-
 import '../custom_ui/app_border_box.dart';
 import '../custom_ui/app_button.dart';
 import '../custom_ui/app_card_view.dart';
@@ -22,13 +20,13 @@ import '../model/file_type_size_model.dart';
 import '../model/single_claim_model.dart';
 import '../utils/app_colors.dart';
 import '../widget/opd_widget.dart';
-import 'package:http/http.dart' as http;
 
 class UploadFileClaimDoc extends StatelessWidget{
   final ClaimJsonModel? claimJsonModel;
   final bool? isUpdate;
   final String? claimId;
-  UploadFileClaimDoc(this.claimJsonModel,{this.isUpdate,this.claimId});
+  final Map<String, dynamic>? documentMap;
+  UploadFileClaimDoc(this.claimJsonModel,{this.isUpdate,this.claimId, this.documentMap});
 
   // List<File> files = [];
   List<File> prescriptionFiles = [];
@@ -70,6 +68,10 @@ class UploadFileClaimDoc extends StatelessWidget{
                       List<String> pharmacyImageList = singleClaimModel.data!.pharmacyReceipt!;
                       List<String> feeImageList = singleClaimModel.data!.feeReceipt!;
                       List<String> testImageList = singleClaimModel.data!.testReceipt!;
+                      // prescriptionUrlList = prescriptionUrlList+documentMap!['prescription_d'];
+                      // docFeeUrlList = docFeeUrlList+documentMap!['doc_fee_d'];
+                      // pharmacyUrlList = pharmacyUrlList+documentMap!['pharmacy_d'];
+                      // testLabUrlList = testLabUrlList+documentMap!['test_d'];
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
