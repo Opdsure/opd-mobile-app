@@ -11,6 +11,7 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/model/claim_status_model.dart';
 import 'package:opdsure/model/my_claims_model.dart';
+import 'package:opdsure/pages/dispute_page.dart';
 import 'package:opdsure/pages/my_web_view.dart';
 import 'package:opdsure/pages/view_image_page.dart';
 import 'package:opdsure/utils/app_colors.dart';
@@ -286,20 +287,26 @@ class ClaimsDetailsPage extends StatelessWidget{
             },
           ),
           const SizedBox(height: 15.0,),
-          // const AppBorderBox(
-          //   myChild: Center(
-          //     child: AppTextView(
-          //       text: 'Raise Dispute',
-          //       color: buttonColor,
-          //       size: 16.0,
-          //       fontWeight: FontWeight.w600,
-          //     ),
-          //   ),
-          //   borderColor: buttonColor,
-          //   borderWidth: 1.0,
-          //   height: 45.0,
-          // ),
-          const SizedBox(height: 20.0,),
+          AppBorderBox(
+            mCallback: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context)=>DisputePage()),
+              );
+            },
+            myChild: const Center(
+              child: AppTextView(
+                text: 'Raise Dispute',
+                color: buttonColor,
+                size: 16.0,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            borderColor: buttonColor,
+            borderWidth: 1.0,
+            height: 45.0,
+          ),
+          const SizedBox(height: 70.0),
         ],
       ),
     );

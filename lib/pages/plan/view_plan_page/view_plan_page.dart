@@ -55,6 +55,7 @@ class ViewPlanPageView extends StatelessWidget{
             child: AppButton(
               text: 'View Plans',
               onClick: (){
+                OpdSure.of(context).isPlansSelect = false;
                 controller.selectPlans(context);
               },
             ),

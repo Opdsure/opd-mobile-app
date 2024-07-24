@@ -49,7 +49,7 @@ class ClaimStatusModel{
       case 6:
         if(reSubmit){
           return ClaimStatusModel(
-              statusName: 'Re-Submit',
+              statusName: 'Re-Submitted',
               statusColor: Colors.green,
               iconData: Icons.check_circle_outline_rounded
           );

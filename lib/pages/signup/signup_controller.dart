@@ -216,7 +216,8 @@ class SignUpController extends State<SignUpPage> {
           );
           if (response.success!) {
 
-            if(!isWithEmail){
+            // if(!isWithEmail){
+            if(false){
               sendOtp(response.data!.token!, response.data!.userId!);
             }else{
               await opdSure.client.init(

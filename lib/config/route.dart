@@ -301,7 +301,7 @@ abstract class AppRoutes {
                             return defaultPageBuilder(
                               context,
                               state,
-                              AddFamilyDetails(isUpdate: false,),
+                              AddFamilyDetails(isUpdate: false,isFirstMember: true,),
                             );
                           }),
                     ],

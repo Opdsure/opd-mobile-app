@@ -156,6 +156,7 @@ class SignUpView extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context)=>TermsConditionPage(termsType: 'SIGNUP',)),
+                      // MaterialPageRoute(builder: (context)=>MyWebView()),
                     );
                   },
                   child: SizedBox(

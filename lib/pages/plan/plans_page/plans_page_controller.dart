@@ -94,10 +94,24 @@ class PlansPageController extends State<PlansPage> {
   void initState() {
     super.initState();
     plans = widget.plans;
-    plansLength = widget.plans!.data!.records!.length;
-    options = plans!.data!.records![0].membershipOptions![0];
-    _getTabs();
-    getIndexedRecords(index: 0);
+    if(plans == null){
+      OpdSure.of(context).client.getAllPlans(update: true).then((value){
+        setState(() {
+          print(value);
+          PlansResponse plansResponse = value as PlansResponse;
+          plansLength = plansResponse.data!.records!.length;
+          options = plansResponse.data!.records![0].membershipOptions![0];
+          _getTabs();
+          getIndexedRecords(index: 0);
+        });
+      });
+    }
+    else{
+      plansLength = widget.plans!.data!.records!.length;
+      options = plans!.data!.records![0].membershipOptions![0];
+      _getTabs();
+      getIndexedRecords(index: 0);
+    }
   }
 
   @override

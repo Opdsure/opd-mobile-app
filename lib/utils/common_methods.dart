@@ -128,7 +128,8 @@ class CommonMethods{
     );
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: const AppTextView(text: "Success!"),
+      actionsAlignment: MainAxisAlignment.center,
+      title: const Center(child: AppTextView(text: "Success!")),
       content: AppTextView(text: message),
       actions: [
         okButton,
@@ -160,6 +161,19 @@ class CommonMethods{
         return 'CLARIFICATION';
       case '7':
         return 'INVALID';
+      default:
+        return '';
+    }
+  }
+
+  static String getCheckupStatus(String id){
+    switch(id){
+      case '0':
+        return 'PENDING';
+      case '1':
+        return 'DONE';
+      case '2':
+        return 'CANCELLED';
       default:
         return '';
     }

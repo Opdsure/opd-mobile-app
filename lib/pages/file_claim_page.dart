@@ -317,117 +317,121 @@ class _FileClaimPageState extends State<FileClaimPage> {
             ),
             const SizedBox(height: 15.0),
             compulsoryField('User'),
-            FutureBuilder(
-              future: OpdSure.of(context).client.getFamilyMember(),
-              builder: (context,snapshot){
-                if(snapshot.data == null){
-                  return const AppEditText(
-                    hint: 'getting users...',
-                    disableText: true,
-                    viewSuffix: true,
-                    suffixWidget: Icon(
-                      Icons.keyboard_arrow_down_sharp,
-                      color: Color(0xff667085),
-                      size: 24.0,
-                    ),
-                  );
-                }
-                else{
-                  return InkWell(
-                    onTap: (){
-                      MyMemberModel myMemberModel = snapshot.data!;
-                      List<MemberList>? memberList = myMemberModel.data;
-                      AppBottomSheet(
-                          height: 600,
-                          mChild: memberList!.isEmpty?InkWell(
-                            onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyDetails()));
-                            },
-                            child: const Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  AppTextView(
-                                    text: 'No Family member added',
-                                    color: buttonColor,
-                                    size: 16.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  SizedBox(height: 10.0,),
-                                  Icon(
-                                    Icons.add_circle,
-                                    color: buttonColor,
-                                  ),
-                                  AppTextView(
-                                    text: 'Add Member',
-                                    color: buttonColor,
-                                    size: 12.0,
-                                  )
-                                ],
-                              ),
-                            ),
-                          ):ListView.builder(
-                            itemCount: memberList.length,
-                            itemBuilder: (context, index){
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: InkWell(
-                                  onTap: (){
-                                    if(typeController.memberList.value.isNotEmpty){
-                                      typeController.memberList.value.clear();
-                                    }
-                                    typeController.memberListChange(memberList[index]);
-                                    Navigator.pop(context);
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      InkWell(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            AppTextView(
-                                              text: memberList[index].name!,
-                                              size: 16.0,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                            AppTextView(
-                                              text: '${memberList[index].phone!}',
-                                              size: 14.0,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      const Divider(height: 1,color: Color(0x1A101828),),
-                                    ],
-                                  ),
+            Obx((){
+              bool refresh = typeController.refreshMemberList.value;
+              return refresh?FutureBuilder(
+                future: OpdSure.of(context).client.getFamilyMember(update: true),
+                builder: (context,snapshot){
+                  if(snapshot.data == null){
+                    return const AppEditText(
+                      hint: 'getting users...',
+                      disableText: true,
+                      viewSuffix: true,
+                      suffixWidget: Icon(
+                        Icons.keyboard_arrow_down_sharp,
+                        color: Color(0xff667085),
+                        size: 24.0,
+                      ),
+                    );
+                  }
+                  else{
+                    return InkWell(
+                      onTap: (){
+                        MyMemberModel myMemberModel = snapshot.data!;
+                        List<MemberList>? memberList = myMemberModel.data;
+                        AppBottomSheet(
+                            height: 600,
+                            mChild: memberList!.isEmpty?InkWell(
+                              onTap: (){
+                                Navigator.pop(context);
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyDetails(isUpdate: false,isFirstMember: false,)));
+                              },
+                              child: const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    AppTextView(
+                                      text: 'No Family member added',
+                                      color: buttonColor,
+                                      size: 16.0,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    SizedBox(height: 10.0,),
+                                    Icon(
+                                      Icons.add_circle,
+                                      color: buttonColor,
+                                    ),
+                                    AppTextView(
+                                      text: 'Add Member',
+                                      color: buttonColor,
+                                      size: 12.0,
+                                    )
+                                  ],
                                 ),
-                              );
-                            },
-                          )
-                      ).modalBottomSheetMenu(context);
-                    },
-                    child: AppBorderBox(
-                      myChild: Obx((){
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            AppTextView(
-                              text: typeController.memberList.value.isEmpty?'Select User':typeController.memberList.first.name!,
-                            ),
-                            const Icon(
-                              Icons.keyboard_arrow_down_sharp,
-                              color: Color(0xff667085),
-                              size: 24.0,
+                              ),
+                            ):ListView.builder(
+                              itemCount: memberList.length,
+                              itemBuilder: (context, index){
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: InkWell(
+                                    onTap: (){
+                                      if(typeController.memberList.value.isNotEmpty){
+                                        typeController.memberList.value.clear();
+                                      }
+                                      typeController.memberListChange(memberList[index]);
+                                      Navigator.pop(context);
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        InkWell(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              AppTextView(
+                                                text: memberList[index].name!,
+                                                size: 16.0,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              AppTextView(
+                                                text: '${memberList[index].phone!}',
+                                                size: 14.0,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const Divider(height: 1,color: Color(0x1A101828),),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             )
-                          ],
-                        );
-                      }),
-                    ),
-                  );
-                }
-              },
-            ),
+                        ).modalBottomSheetMenu(context);
+                      },
+                      child: AppBorderBox(
+                        myChild: Obx((){
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              AppTextView(
+                                text: typeController.memberList.value.isEmpty?'Select User':typeController.memberList.first.name!,
+                              ),
+                              const Icon(
+                                Icons.keyboard_arrow_down_sharp,
+                                color: Color(0xff667085),
+                                size: 24.0,
+                              )
+                            ],
+                          );
+                        }),
+                      ),
+                    );
+                  }
+                },
+              ):Container();
+            }),
             const SizedBox(height: 15.0,),
             compulsoryField('OPD Visit Date'),
             Obx((){
@@ -856,7 +860,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   feeReceipt: widget.isUpdate!?singleClaimModel!.data!.feeReceipt:[],
                   pharmacyReceipt: widget.isUpdate!?singleClaimModel!.data!.pharmacyReceipt:[],
                   testReceipt: widget.isUpdate!?singleClaimModel!.data!.testReceipt:[],
-                  claimCombination: claimCombination,
+                  claimCombination: claimCombination.isEmpty?'1':claimCombination,
                   combinedPharmacyTestFees: claimCombination=='2'?billAmntPhrCtrl.text:null,
                   claimableCombinedPharmacyTestFees: claimCombination=='2'?billAmntPhrClCtrl.text:null
                 );

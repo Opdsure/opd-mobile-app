@@ -18,6 +18,9 @@ class ViewPlansPageController extends State<ViewPlansPage> {
   @override
   void initState() {
     super.initState();
+    // final database = database;
+    final database = OpdSure.of(context).client.database;
+    database?.deletePlans();
     getAllPlans();
   }
 

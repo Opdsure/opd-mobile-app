@@ -16,6 +16,7 @@ import 'package:opdsure/custom_ui/app_home_header.dart';
 import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
+import 'package:opdsure/pages/health_check_up_page.dart';
 import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
@@ -25,6 +26,7 @@ import '../../custom_ui/app_card_view.dart';
 import '../../model/claim_status_model.dart';
 import '../../model/my_claims_model.dart';
 import '../../utils/app_var.dart';
+import '../all_checkup_page.dart';
 import '../claims_details_page.dart';
 import '../file_claim_page.dart';
 typedef ValueCallback = void Function(int value);
@@ -213,7 +215,10 @@ class HomePage extends StatelessWidget {
               ),
             ),
             mCallback: (){
-              callback.call(2);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context)=>AllCheckupPage()),
+              );
             },
             colorList: const [
               Color(0xFFeff9ff),

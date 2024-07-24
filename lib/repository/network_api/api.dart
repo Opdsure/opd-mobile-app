@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -298,7 +299,17 @@ class Api {
 
   Future getFileTypeAndSize() async {
     final requestUri = Uri(path: 'api/v1/public/get-file-size');
-    baseUri ??= Uri.parse('https://dev.opdsure.net');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    return responseString;
+  }
+
+  Future getHealthTest() async {
+    final requestUri = Uri(path: 'api/v1/public/get-health-tests');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     final response = await httpClient.send(request);
@@ -459,4 +470,39 @@ class Api {
     // final json = jsonDecode(responseString);
     return responseString;
   }
+
+  Future getAllCheckup() async {
+    final requestUri = Uri.parse('api/v1/user/get-health-checkups');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    // final json = jsonDecode(responseString);
+    return responseString;
+  }
+
+  Future addHealthCheckup({
+    String? memberId,
+    List<int>? checkupFor,
+    String? message,
+  }) async {
+    final requestUri = Uri(path: 'api/v1/user/add-health-checkup');
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8.encode(jsonEncode({
+      "member_id": memberId,
+      "checkup_for": checkupFor,
+      "message": message
+    }));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    return responseString;
+  }
+
 }

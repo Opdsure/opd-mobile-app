@@ -42,9 +42,9 @@ class Data {
   Data.fromJson(dynamic json) {
     _finalPrice = json['finalPrice'];
   }
-  int? _finalPrice;
+  dynamic _finalPrice;
 
-  int? get finalPrice => _finalPrice;
+  dynamic get finalPrice => _finalPrice;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

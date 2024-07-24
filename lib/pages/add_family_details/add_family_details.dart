@@ -27,7 +27,8 @@ import '../../model/my_member_model.dart';
 class AddFamilyDetails extends StatefulWidget{
   final MemberList? member;
   final bool? isUpdate;
-  AddFamilyDetails({this.member,this.isUpdate});
+  final bool? isFirstMember;
+  AddFamilyDetails({this.member,this.isUpdate,this.isFirstMember});
 
   @override
   State<AddFamilyDetails> createState() => _AddFamilyDetailsState();
@@ -63,8 +64,16 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    TypeController typeController = Get.put(TypeController());
+    OpdSure.of(context).client.getProfile().then((value){
+      print(value);
+      if(widget.isFirstMember!){
+        nameCtrl.text = value.data!.name!;
+        phoneCtrl.text = value.data!.phone!;
+        typeController.selectRelationKeyChange(0);
+      }
+    });
     if(widget.isUpdate!){
-      TypeController typeController = Get.put(TypeController());
       nameCtrl.text = widget.member!.name!;
       phoneCtrl.text = '${widget.member!.phone!}';
       addressCtrl.text = widget.member!.address!;
@@ -72,9 +81,8 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
       typeController.selectRelationKeyChange(widget.member!.relation!);
       typeController.selectRelationChange(widget.member!.relation!.getRelation());
       typeController.selectGenderChange(genderList[widget.member!.gender!-1]);
-      // pinCodeCtrl.text = widget.member!.pi!;
-      // nameCtrl.text = widget.member!.name!;
     }
+
   }
 
   Future<bool> _onWillPop() async {
@@ -306,12 +314,22 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
               onClick: ()async{
                 CommonMethods.showAlertDialog(context);
                 if(nameCtrl.text.isEmpty){
-                  CommonMethods.showToast('name is blank');
+                  CommonMethods.showToast('Name is blank');
+                  Navigator.of(context).pop();
+                  return;
+                }
+                if(typeController.selectRelationKey.value == 100){
+                  CommonMethods.showToast('Relation is blank');
+                  Navigator.of(context).pop();
+                  return;
+                }
+                if(typeController.selectGender.value.isEmpty){
+                  CommonMethods.showToast('Gender is blank');
                   Navigator.of(context).pop();
                   return;
                 }
                 if(phoneCtrl.text.isEmpty){
-                  CommonMethods.showToast('phone is blank');
+                  CommonMethods.showToast('Phone is blank');
                   Navigator.of(context).pop();
                   return;
                 }
@@ -320,18 +338,9 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                   Navigator.of(context).pop();
                   return;
                 }
-                if(typeController.selectGender.value.isEmpty){
-                  CommonMethods.showToast('gender is blank');
-                  Navigator.of(context).pop();
-                  return;
-                }
-                if(typeController.selectRelationKey.value == 100){
-                  CommonMethods.showToast('relation is blank');
-                  Navigator.of(context).pop();
-                  return;
-                }
+
                 if(addressCtrl.text.isEmpty){
-                  CommonMethods.showToast('city is blank');
+                  CommonMethods.showToast('Address is blank');
                   Navigator.of(context).pop();
                   return;
                 }

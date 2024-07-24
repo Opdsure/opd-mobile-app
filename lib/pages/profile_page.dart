@@ -345,7 +345,7 @@ class ProfilePage extends StatelessWidget{
                                                         onTap: (){
                                                           Navigator.push(
                                                             context,
-                                                            MaterialPageRoute(builder: (context)=>AddFamilyDetails(isUpdate: true,member: member,)),
+                                                            MaterialPageRoute(builder: (context)=>AddFamilyDetails(isUpdate: true,member: member,isFirstMember: false,)),
                                                           );
                                                         },
                                                         child: Image.asset(
@@ -403,7 +403,7 @@ class ProfilePage extends StatelessWidget{
                         // context.push('/home/view_plans/add_members');
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context)=>AddFamilyDetails()),
+                          MaterialPageRoute(builder: (context)=>AddFamilyDetails(isUpdate: false,isFirstMember: false,)),
                         );
                       },
                     )

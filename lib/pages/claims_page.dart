@@ -17,6 +17,7 @@ import 'package:opdsure/model/claim_status_model.dart';
 import 'package:opdsure/model/my_claims_model.dart';
 import 'package:opdsure/pages/claims_details_page.dart';
 import 'package:opdsure/pages/file_claim_page.dart';
+import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 import 'package:opdsure/pages/upload_file_claim_doc.dart';
 import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/utils/common_methods.dart';
@@ -89,7 +90,7 @@ class ClaimsPage extends StatelessWidget {
                   const SizedBox(
                     height: 15.0,
                   ),
-                  AppButton(
+                  OpdSure.of(context).client.isPlanPurchased?AppButton(
                     text: 'File a claim',
                     onClick: () {
                       Navigator.push(
@@ -99,16 +100,18 @@ class ClaimsPage extends StatelessWidget {
                               isUpdate: false,
                             ),
                           ));
-                      // typeController.prescriptionList.clear();
-                      // typeController.docFeeRcpt.clear();
-                      // typeController.pharmacyRcpt.clear();
-                      // typeController.labTestRcpt.clear();
+                    },
+                  ):AppButton(
+                    text: 'Select Plan',
+                    onClick: () {
+                      OpdSure
+                          .of(context)
+                          .isSelectPlans = false;
+                      context.go('/home/view_plans');
                       // Navigator.push(
                       //     context,
                       //     MaterialPageRoute(
-                      //       builder: (context) => UploadFileClaimDoc(
-                      //           ClaimJsonModel(),isUpdate: false,
-                      //       ),
+                      //       builder: (context) => const ViewPlansPage(),
                       //     ));
                     },
                   )
@@ -241,7 +244,7 @@ class ClaimsPage extends StatelessWidget {
                                                   ),
                                                   AppTextView(
                                                     text:
-                                                    'Applicant name : ${records.memberId!.name}',
+                                                    'Applicant Name : ${records.memberId!.name}',
                                                     size: 12.0,
                                                     color:
                                                     const Color(0xFF667085),

@@ -714,16 +714,16 @@ class UploadFileClaimDoc extends StatelessWidget{
               data['pharmacy_receipt'] = filesUrl['pharmacy_receipt'];
               data['test_receipt'] = filesUrl['test_receipt'];
               if(filesUrl['prescription']==null && !(isUpdate!)){
-                CommonMethods.showToast('Please upload one Prescription');
+                CommonMethods.showToast('Please upload Prescription');
               }
               else if(filesUrl['doc_receipt']==null && !(isUpdate!)){
-                CommonMethods.showToast('Please upload one Fee Receipt');
+                CommonMethods.showToast('Please upload Fee Receipt');
               }
               else if(filesUrl['pharmacy_receipt']==null && !(isUpdate!)){
-                CommonMethods.showToast('Please upload one Pharmacy Receipt');
+                CommonMethods.showToast('Please upload Pharmacy Receipt');
               }
               else if(filesUrl['test_receipt']==null && !(isUpdate!)){
-                CommonMethods.showToast('Please upload one Test Receipt');
+                CommonMethods.showToast('Please upload Test Receipt');
               }
               else{
                 CommonMethods.showAlertDialog(context);
