@@ -4,9 +4,10 @@ import 'package:opdsure/pages/health_check_up/health_checkup_list/health_checkup
 import 'package:opdsure/pages/home_dashboard/dashboard_view.dart';
 import 'package:opdsure/pages/homepage/home_page.dart';
 import 'package:opdsure/pages/profile_page.dart';
+import 'package:opdsure/pages/referral_page.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
-enum ActiveDestination { home, claim, checkup, profile }
+enum ActiveDestination { home, claim, referral, checkup, profile }
 
 class DashBoardPage extends StatefulWidget {
   final bool displayNavigationRail;
@@ -27,8 +28,10 @@ class DashBoardPageController extends State<DashBoardPage> {
       case 1:
         return ActiveDestination.claim;
       case 2:
-        return ActiveDestination.checkup;
+        return ActiveDestination.referral;
       case 3:
+        return ActiveDestination.checkup;
+      case 4:
         return ActiveDestination.profile;
       default:
         return ActiveDestination.home;
@@ -56,6 +59,8 @@ class DashBoardPageController extends State<DashBoardPage> {
         },);
       case ActiveDestination.claim:
         return ClaimsPage();
+      case ActiveDestination.referral:
+        return ReferralPage();
       case ActiveDestination.checkup:
         return const HealthCheckup();
       case ActiveDestination.profile:

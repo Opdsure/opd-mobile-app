@@ -11,7 +11,6 @@ import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/add_checkup_model.dart';
 import 'package:opdsure/model/tests_model.dart';
 import 'package:opdsure/utils/common_methods.dart';
-
 import '../custom_ui/app_border_box.dart';
 import '../custom_ui/app_bottom_sheet.dart';
 import '../custom_ui/app_edit_text.dart';
@@ -59,7 +58,7 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
     TypeController typeController = Get.put(TypeController());
     // TODO: implement build
     return AppBasePage(
-      appHeader: AppHeader(headerName: 'Free Health Checkup',),
+      appHeader: AppHeader(headerName: 'Free Health Check-up',),
       childContent: ListView(
         children: [
           compulsoryField('Patient Name'),
@@ -118,21 +117,22 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
                           ):ListView.builder(
                             itemCount: memberList.length,
                             itemBuilder: (context, index){
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: InkWell(
-                                  onTap: (){
-                                    if(typeController.memberList.value.isNotEmpty){
-                                      typeController.memberList.value.clear();
-                                    }
-                                    typeController.memberListChange(memberList[index]);
-                                    Navigator.pop(context);
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      InkWell(
-                                        child: Column(
+                              return Visibility(
+                                visible: (memberList[index].planStatus == 1),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: InkWell(
+                                    onTap: (){
+                                      if(typeController.memberList.value.isNotEmpty){
+                                        typeController.memberList.value.clear();
+                                      }
+                                      typeController.memberListChange(memberList[index]);
+                                      Navigator.pop(context);
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             AppTextView(
@@ -146,9 +146,9 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      const Divider(height: 1,color: Color(0x1A101828),),
-                                    ],
+                                        const Divider(height: 1,color: Color(0x1A101828),),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               );
@@ -277,6 +277,7 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
                     allValueList.clear();
                     selected.clear();
                     _controller.clearAllSelection();
+                    Navigator.pop(context);
                   });
                 }
                 print(response);

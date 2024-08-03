@@ -21,6 +21,7 @@ import 'package:opdsure/model/claim_json_model.dart';
 import 'package:opdsure/model/common_map/claim_type_model.dart';
 import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/model/single_claim_model.dart';
+import 'package:opdsure/model/specialization_model.dart';
 import 'package:opdsure/model/subscribed_plan_model.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/upload_file_claim_doc.dart';
@@ -76,6 +77,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
   TextEditingController billAmntDiaCtrl = TextEditingController();
 
   TextEditingController billAmntDiaClCtrl = TextEditingController();
+  TextEditingController pinCodeCtrl = TextEditingController();
+  TextEditingController addressCtrl = TextEditingController();
 
 
   double _value1 = 0.0;
@@ -146,15 +149,6 @@ class _FileClaimPageState extends State<FileClaimPage> {
     if(widget.isUpdate!){
       cRecords = widget.records!;
       claimId = cRecords!.id!;
-      typeController.selectClaimChange('${cRecords!.claimType!}');
-      OpdSure.of(context).client.getAllState().then((value){
-        StateModel stateModel = statemodelFromJson(value);
-        List<StateListData> stateListData = stateModel.data;
-        if(typeController.stateList.value.isNotEmpty){
-          typeController.stateList.value.clear();
-        }
-        typeController.stateListChange(stateListData[cRecords!.state!]);
-      });
       MemberList memberList = MemberList(id: cRecords!.memberId!.id,name: cRecords!.memberId!.name,relation: cRecords!.memberId!.relation);
       typeController.memberListChange(memberList);
       typeController.opdVisitDateChange(cRecords!.opdDate!);
@@ -163,10 +157,12 @@ class _FileClaimPageState extends State<FileClaimPage> {
       regNumCtrl.text = cRecords!.docRegistration!;
       specialCtrl.text = cRecords!.specialization??'';
       hsptlNameCtrl.text = cRecords!.hospital!;
+      addressCtrl.text = cRecords!.docAddress!;
+      pinCodeCtrl.text = cRecords!.pinCode!;
       cityCtrl.text = cRecords!.city!;
-      // emailCtrl.text = cRecords!.email!;
+      emailCtrl.text = cRecords!.docEmail!;
       diagnosisCtrl.text = cRecords!.diagonosisDetail!;
-      // remarkCtrl.text = cRecords!.remark!
+      remarkCtrl.text = cRecords!.userRemark!;
       docFeeCtrl.text = '${cRecords!.doctorFee!}';
       docFeeClCtrl.text = '${cRecords!.claimableDoctorFee!}';
 
@@ -267,54 +263,6 @@ class _FileClaimPageState extends State<FileClaimPage> {
         padding: MediaQuery.of(context).viewInsets,
         child: ListView(
           children: [
-            compulsoryField('Claim Type'),
-            InkWell(
-              onTap: ()async{
-                AppBottomSheet(
-                    height: h*0.3,
-                    mChild: ListView.builder(
-                      itemCount: claimList.length,
-                      itemBuilder: (context, index){
-                        return InkWell(
-                          onTap: (){
-                            typeController.selectClaimChange(claimList[index].id);
-                            Navigator.pop(context);
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                child: AppTextView(
-                                  text: claimList[index].value,
-                                ),
-                              ),
-                              const Divider(height: 1,),
-                            ],
-                          ),
-                        );
-                      },
-                    )
-                ).modalBottomSheetMenu(context);
-              },
-              child: AppBorderBox(
-                myChild: Obx((){
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      AppTextView(
-                        text: typeController.selectClaim.value==''?'Select Claim':CommonMethods.getClaimNameById(typeController.selectClaim.value),
-                      ),
-                      const Icon(
-                        Icons.keyboard_arrow_down_sharp,
-                        color: Color(0xff667085),
-                        size: 24.0,
-                      )
-                    ],
-                  );
-                }),
-              ),
-            ),
             const SizedBox(height: 15.0),
             compulsoryField('User'),
             Obx((){
@@ -372,21 +320,22 @@ class _FileClaimPageState extends State<FileClaimPage> {
                             ):ListView.builder(
                               itemCount: memberList.length,
                               itemBuilder: (context, index){
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: InkWell(
-                                    onTap: (){
-                                      if(typeController.memberList.value.isNotEmpty){
-                                        typeController.memberList.value.clear();
-                                      }
-                                      typeController.memberListChange(memberList[index]);
-                                      Navigator.pop(context);
-                                    },
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        InkWell(
-                                          child: Column(
+                                return Visibility(
+                                  visible: (memberList[index].planStatus == 1),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: InkWell(
+                                      onTap: (){
+                                        if(typeController.memberList.value.isNotEmpty){
+                                          typeController.memberList.value.clear();
+                                        }
+                                        typeController.memberListChange(memberList[index]);
+                                        Navigator.pop(context);
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               AppTextView(
@@ -400,9 +349,9 @@ class _FileClaimPageState extends State<FileClaimPage> {
                                               ),
                                             ],
                                           ),
-                                        ),
-                                        const Divider(height: 1,color: Color(0x1A101828),),
-                                      ],
+                                          const Divider(height: 1,color: Color(0x1A101828),),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 );
@@ -491,34 +440,22 @@ class _FileClaimPageState extends State<FileClaimPage> {
               fontWeight: FontWeight.w500,
               color: Color(0xFF1D2939),
             ),
-            AppEditText(
-              hint: 'Enter Specialization',
-              textEditingController: specialCtrl,
-              textInputType: TextInputType.name,),
-            const SizedBox(height: 15.0),
-            compulsoryField('Hospital Name'),
-            AppEditText(
-              hint: 'Enter hospital Name',
-              textEditingController: hsptlNameCtrl,
-              textInputType: TextInputType.name,),
-            const SizedBox(height: 15.0,),
-            compulsoryField('State'),
             InkWell(
               onTap: ()async{
-                var data = await OpdSure.of(context).client.getAllState();
-                StateModel stateModel = statemodelFromJson(data);
-                List<StateListData> stateListData = stateModel.data;
+                var data = await OpdSure.of(context).client.getSpecialization();
+                SpecializationModel? sModel = data;
+                List<SpclRecords> records = sModel!.data!.records!;
                 AppBottomSheet(
-                    height: 600,
+                    height: 300,
                     mChild: ListView.builder(
-                      itemCount: stateListData.length,
+                      itemCount: records.length,
                       itemBuilder: (context, index){
                         return InkWell(
                           onTap: (){
-                            if(typeController.stateList.value.isNotEmpty){
-                              typeController.stateList.value.clear();
+                            if(typeController.spclModel.value.isNotEmpty){
+                              typeController.spclModel.value.clear();
                             }
-                            typeController.stateListChange(stateListData[index]);
+                            typeController.spclModelChange(records[index]);
                             Navigator.pop(context);
                           },
                           child: Column(
@@ -527,7 +464,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                               Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 12.0),
                                 child: AppTextView(
-                                  text: stateListData[index].name,
+                                  text: records[index].name!,
                                 ),
                               ),
                               const Divider(height: 1,color: Color(0x1A101828),),
@@ -544,7 +481,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       AppTextView(
-                        text: typeController.stateList.value.isEmpty?'Select State':typeController.stateList.value.first.name,
+                        text: typeController.spclModel.value.isEmpty?'Select Specialization':typeController.spclModel.value.first.name!,
                       ),
                       const Icon(
                         Icons.keyboard_arrow_down_sharp,
@@ -556,11 +493,31 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 }),
               ),
             ),
+            const SizedBox(height: 15.0),
+            compulsoryField('Hospital/Clinic Name'),
+            AppEditText(
+              hint: 'Enter hospital Name',
+              textEditingController: hsptlNameCtrl,
+              textInputType: TextInputType.name,),
             const SizedBox(height: 15.0,),
             compulsoryField('City'),
             AppEditText(
               hint: 'Enter the city',
               textEditingController: cityCtrl,
+            ),
+            const SizedBox(height: 15.0,),
+            compulsoryField('Pin Code'),
+            AppEditText(
+              hint: 'Enter Pin Code',
+              textEditingController: pinCodeCtrl,
+              textInputType: TextInputType.number,
+              maxLength: 6,
+            ),
+            const SizedBox(height: 15.0,),
+            compulsoryField('Address'),
+            AppEditText(
+              hint: 'Enter Address',
+              textEditingController: addressCtrl,
             ),
             const SizedBox(height: 15.0),
             const AppTextView(
@@ -574,7 +531,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
               textEditingController: emailCtrl,
               textInputType: TextInputType.emailAddress,),
             const SizedBox(height: 15.0),
-            compulsoryField('Hospital Contact Info.'),
+            compulsoryField('Doctor Clinic/Hospital Contact'),
             Obx((){
               String countryCode = typeController.countryCode.value;
               String flagCode = typeController.flagCode.value;
@@ -588,14 +545,13 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 flagUri: flagCode.isEmpty?'${mFlagUri}in.png':'$mFlagUri$flagCode.png',
                 countryCallback: () async {
                   // Show the country code picker when tapped.
-                  final picked =
-                  await countryPicker.showPicker(context: context);
-                  // Null check
-                  if (picked != null){
-                    print(picked);
-                    typeController.countryCodeChange(picked.dialCode);
-                    typeController.flagCodeChange(picked.code.toLowerCase());
-                  }
+                  // final picked = await countryPicker.showPicker(context: context);
+                  // // Null check
+                  // if (picked != null){
+                  //   print(picked);
+                  //   typeController.countryCodeChange(picked.dialCode);
+                  //   typeController.flagCodeChange(picked.code.toLowerCase());
+                  // }
                 },
               );
             }),
@@ -607,7 +563,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
               textInputType: TextInputType.name,),
             const SizedBox(height: 15.0),
             const AppTextView(
-              text: 'Additional Information',
+              text: 'Additional Information(if any)',
               size: 14.0,
               fontWeight: FontWeight.w500,
               color: Color(0xFF1D2939),
@@ -616,8 +572,6 @@ class _FileClaimPageState extends State<FileClaimPage> {
               hint: 'Enter Additional Information',
               textEditingController: remarkCtrl,
               textInputType: TextInputType.name,),
-
-
             const SizedBox(height: 15.0),
             Row(
               children: [
@@ -767,10 +721,6 @@ class _FileClaimPageState extends State<FileClaimPage> {
             AppButton(
               text: 'Next',
               onClick: (){
-                if(typeController.selectClaim.value.isEmpty){
-                  CommonMethods.showToast('select claim type');
-                  return;
-                }
                 if(typeController.memberList.value.isEmpty){
                   CommonMethods.showToast('select user');
                   return;
@@ -796,12 +746,21 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   CommonMethods.showToast('enter hospital name.');
                   return;
                 }
-                if(typeController.stateList.value.isEmpty){
-                  CommonMethods.showToast('select state');
-                  return;
-                }
                 if(cityCtrl.text.isEmpty){
                   CommonMethods.showToast('enter city.');
+                  return;
+                }
+                if(pinCodeCtrl.text.isEmpty){
+                  CommonMethods.showToast('enter pin code.');
+                  return;
+                }else{
+                  if(pinCodeCtrl.text.length < 6){
+                    CommonMethods.showToast('pin code should be 6 digit');
+                    return;
+                  }
+                }
+                if(addressCtrl.text.isEmpty){
+                  CommonMethods.showToast('enter address');
                   return;
                 }
                 if(phoneCtrl.text.isEmpty){
@@ -830,14 +789,13 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 if(billAmntDiaClCtrl.text.isEmpty){
                   billAmntDiaClCtrl.text ='0';
                 }
-
-
                 ClaimJsonModel claimJsonModel = ClaimJsonModel(
                   memberId: typeController.memberList.value.first.id,
                   opdDate: typeController.opdVisitDate.value,
                   docCountryCode: typeController.countryCode.value,
                   docPhone: phoneCtrl.text,
                   doctorFee: docFeeCtrl.text,
+                  // claimType: '0',
                   userRemark: remarkCtrl.text.isEmpty?null:remarkCtrl.text,
                   id: widget.isUpdate!?singleClaimModel!.data!.id:null,
                   docEmail: emailCtrl.text.isEmpty?null:emailCtrl.text,
@@ -846,20 +804,20 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   claimableDoctorFee: int.tryParse(docFeeClCtrl.text),
                   claimablePharmacyFee: claimCombination=='1'?int.tryParse(billAmntPhrClCtrl.text):null,
                   claimableLabTestFee: claimCombination=='1'?int.tryParse(billAmntDiaClCtrl.text):null,
-                  claimType: typeController.selectClaim.value,
                   docName: docNameCtrl.text,
                   docRegistration: regNumCtrl.text,
                   diagonosisDetail: diagnosisCtrl.text,
                   hospital: hsptlNameCtrl.text,
+                  pinCode: pinCodeCtrl.text,
+                  docAddress: addressCtrl.text,
                   city: cityCtrl.text,
-                  state: typeController.stateList.value.first.id,
                   specialization: specialCtrl.text.isEmpty ? null : specialCtrl.text,
                   billAmount: '$totalBillAmnt',
                   claimableAmount: '$totalClaimableAmnt',
                   prescription: widget.isUpdate!?singleClaimModel!.data!.prescription:[],
-                  feeReceipt: widget.isUpdate!?singleClaimModel!.data!.feeReceipt:[],
-                  pharmacyReceipt: widget.isUpdate!?singleClaimModel!.data!.pharmacyReceipt:[],
-                  testReceipt: widget.isUpdate!?singleClaimModel!.data!.testReceipt:[],
+                  // feeReceipt: widget.isUpdate!?singleClaimModel!.data!.feeReceipt:[],
+                  // pharmacyReceipt: widget.isUpdate!?singleClaimModel!.data!.pharmacyReceipt:[],
+                  // testReceipt: widget.isUpdate!?singleClaimModel!.data!.testReceipt:[],
                   claimCombination: claimCombination.isEmpty?'1':claimCombination,
                   combinedPharmacyTestFees: claimCombination=='2'?billAmntPhrCtrl.text:null,
                   claimableCombinedPharmacyTestFees: claimCombination=='2'?billAmntPhrClCtrl.text:null

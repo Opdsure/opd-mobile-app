@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'dart:math' as math;
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
@@ -20,6 +21,7 @@ import 'package:opdsure/pages/health_check_up_page.dart';
 import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../custom_ui/app_button.dart';
 import '../../custom_ui/app_card_view.dart';
@@ -30,9 +32,62 @@ import '../all_checkup_page.dart';
 import '../claims_details_page.dart';
 import '../file_claim_page.dart';
 typedef ValueCallback = void Function(int value);
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final ValueCallback callback;
-  const HomePage({required this.callback, super.key});
+  HomePage({required this.callback, super.key});
+
+  static const List<IconData> icons = [Icons.chat, Icons.phone, Icons.group_add];
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
+  AnimationController? _controller;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+  }
+
+  Future<void> joinWhatsAppGroup() async {
+    const String groupLink = 'https://chat.whatsapp.com/your-group-invite-link'; // Replace with your group invite link
+
+    if (await canLaunch(groupLink)) {
+      await launch(groupLink);
+    } else {
+      throw 'Could not launch $groupLink';
+    }
+  }
+
+  openWhatsapp() async{
+    var contact = "+919868645544";
+    var androidUrl = "whatsapp://send?phone=$contact&text=Hi, I need some help";
+    var iosUrl = "https://wa.me/$contact?text=${Uri.parse('Hi, I need some help')}";
+    try{
+      if(Platform.isIOS){
+        await launchUrl(Uri.parse(iosUrl));
+      }
+      else{
+        await launchUrl(Uri.parse(androidUrl));
+      }
+    } on Exception{
+      CommonMethods.showToast('WhatsApp is not installed.');
+    }
+  }
+
+  openDialerPad() async {
+    const url = "tel:+91 9868645544";
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     double h = CommonMethods.deviceHeight(context);
@@ -138,7 +193,7 @@ class HomePage extends StatelessWidget {
               ),
             ),
             mCallback: (){
-              callback.call(1);
+              widget.callback.call(1);
             },
             colorList: const [
               Color(0xFFfcf2f9),
@@ -241,7 +296,7 @@ class HomePage extends StatelessWidget {
               ),
               InkWell(
                 onTap: (){
-                  callback.call(1);
+                  widget.callback.call(1);
                 },
                 child: const Row(
                   children: [
@@ -307,7 +362,7 @@ class HomePage extends StatelessWidget {
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       AppTextView(
-                                        text: CommonMethods.getClaimNameById('${records.claimType}'),
+                                        text: 'Hospital | ${records.hospital} ',
                                         size: 16,
                                         fontWeight: FontWeight.w500,
                                         color: Colors.black,
@@ -416,6 +471,34 @@ class HomePage extends StatelessWidget {
                                       )
                                     ],
                                   ),
+                                  const SizedBox(height: 5,),
+                                  ((records.status! == 2 || records.status! == 7 || records.status! == 12))?!records.dispute!?AppButton(
+                                    text: 'Raise Dispute',
+                                    height: 30.0,
+                                    width: 100.0,
+                                    textSize: 12.0,
+                                    fontWeight: FontWeight.normal,
+                                    onClick: (){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context)=>ClaimsDetailsPage(records)),
+                                      );
+                                    },
+                                  ):const Row(
+                                    children: [
+                                      Icon(
+                                        Icons.sync_sharp,
+                                        color: Colors.red,
+                                        size: 15.0,
+                                      ),
+                                      SizedBox(width: 5,),
+                                      AppTextView(
+                                        text: 'Dispute Raised',
+                                        size: 12.0,
+                                        color: Colors.red,
+                                      ),
+                                    ],
+                                  ):Container()
                                 ],
                               ),
                             ),
@@ -429,6 +512,68 @@ class HomePage extends StatelessWidget {
             );
           }),
         ],
+      ),
+      isFloatingButton: false,
+      floatingView: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(HomePage.icons.length, (int index) {
+          Widget child = Container(
+            height: 70.0,
+            width: 56.0,
+            alignment: FractionalOffset.topCenter,
+            child: ScaleTransition(
+              scale: CurvedAnimation(
+                parent: _controller!,
+                curve: Interval(
+                    0.0,
+                    1.0 - index / HomePage.icons.length / 2.0,
+                    curve: Curves.easeOut
+                ),
+              ),
+              child: FloatingActionButton(
+                heroTag: null,
+                backgroundColor: buttonColor,
+                mini: true,
+                child: Icon(HomePage.icons[index], color: Colors.white),
+                onPressed: () {
+                  switch(index){
+                    case 0:
+                      openWhatsapp();
+                      break;
+                    case 1:
+                      openDialerPad();
+                      break;
+                    case 2:
+                      joinWhatsAppGroup();
+                      break;
+                  }
+                },
+              ),
+            ),
+          );
+          return child;
+        }).toList()..add(
+          FloatingActionButton(
+            heroTag: null,
+            child: AnimatedBuilder(
+              animation: _controller!,
+              builder: (context, child) {
+                return Transform(
+                  transform: Matrix4.rotationZ(_controller!.value * 0.5 * math.pi),
+                  alignment: FractionalOffset.center,
+                  child: Icon(_controller!.isDismissed ? Icons.support_agent_outlined : Icons.close),
+                );
+              },
+            ),
+            onPressed: () {
+              if (_controller!.isDismissed) {
+                _controller!.forward();
+              } else {
+                _controller!.reverse();
+              }
+            },
+          ),
+        ),
       ),
     );
   }

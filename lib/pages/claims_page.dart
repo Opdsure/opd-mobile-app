@@ -100,6 +100,7 @@ class ClaimsPage extends StatelessWidget {
                               isUpdate: false,
                             ),
                           ));
+                      // Navigator.push(context, MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(ClaimJsonModel(),isUpdate: false,)));
                     },
                   ):AppButton(
                     text: 'Select Plan',
@@ -224,9 +225,7 @@ class ClaimsPage extends StatelessWidget {
                                                             .spaceBetween,
                                                     children: [
                                                       AppTextView(
-                                                        text: CommonMethods
-                                                            .getClaimNameById(
-                                                                '${records.claimType}'),
+                                                        text: 'Hospital | ${records.hospital}',
                                                         size: 16,
                                                         fontWeight:
                                                             FontWeight.w500,

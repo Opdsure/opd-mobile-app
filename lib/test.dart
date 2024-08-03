@@ -1,362 +1,343 @@
-import 'dart:async';
+import 'dart:convert';
+import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:opdsure/config/themes.dart';
+import 'package:flutter/painting.dart';
+import 'package:opdsure/custom_ui/app_base_page.dart';
+import 'package:opdsure/custom_ui/app_border_box.dart';
+import 'package:opdsure/custom_ui/app_card_view.dart';
+import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
-import 'package:opdsure/custom_ui/empty_page.dart';
-import 'package:opdsure/custom_ui/two_column_layout.dart';
-import 'package:opdsure/model/health_checkup/health_checkup.dart';
-import 'package:opdsure/model/plans/plans_response.dart';
-import 'package:opdsure/pages/add_family_details/add_family_details.dart';
-import 'package:opdsure/pages/file_claim_page.dart';
-import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
-import 'package:opdsure/pages/health_check_up/health_checkup_details/health_checkup_details_controller.dart';
-import 'package:opdsure/pages/home_dashboard/dash_board.dart';
-import 'package:opdsure/pages/login/login_page/login_controller.dart';
-import 'package:opdsure/pages/name_email_number/name_email_number_controller.dart';
-import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
-import 'package:opdsure/pages/preview/preview_page.dart';
-import 'package:opdsure/pages/signup/signup_controller.dart';
-import 'package:opdsure/utils/common_methods.dart';
-import 'package:opdsure/utils/platform_infos.dart';
+import 'package:opdsure/model/claim_status_model.dart';
+import 'package:opdsure/model/my_claims_model.dart';
+import 'package:opdsure/pages/dispute_page.dart';
+import 'package:opdsure/pages/my_web_view.dart';
+import 'package:opdsure/pages/view_image_page.dart';
+import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
-import '../pages/checkout/checkout_controller.dart';
-import '../pages/otp_page/otp_page_controller.dart';
-import '../pages/plan/plans_page/plans_page_controller.dart';
+import '../model/single_claim_model.dart';
+import '../utils/app_var.dart';
+import '../utils/common_methods.dart';
 
-abstract class AppRoutes {
-  static FutureOr<String?> loggedInRedirect(
-      BuildContext context,
-      GoRouterState state,
-      ) =>
-      OpdSure.of(context).client.isLogged ? '/home' : null;
+class ClaimsDetailsPage extends StatelessWidget{
+  final ClaimRecords oneClaim;
+  ClaimsDetailsPage(this.oneClaim);
 
-  static FutureOr<String?> loggedOutRedirect(
-      BuildContext context,
-      GoRouterState state,
-      ) =>
-      OpdSure.of(context).client.isLogged ? null : '/signup';
-
-  // static FutureOr<String?> isPlanPurchasedRedirect(
-  //   BuildContext context,
-  //   GoRouterState state,
-  // ) =>
-  //     OpdSure.of(context).client.isLogged
-  //         ? OpdSure.of(context).client.isPlanPurchased
-  //             ? null
-  //             : OpdSure.of(context).isSelectPlans
-  //                 ? '/home/view_plans/select_plans'
-  //                 : '/home/view_plans'
-  //         : '/signup';
-
-  static FutureOr<String?> getRedirectNameForHome(
-      BuildContext context, GoRouterState state) async {
-    final opd = OpdSure.of(context);
-    if (opd.client.isLogged) {
-      if (opd.profileData!.phone!.isEmpty || opd.profileData!.email!.isEmpty) {
-        opd.isWithEmail = opd.profileData!.email!.isEmpty;
-        return '/home/name_email_number';
-      }
-      if (opd.client.isPlanPurchased) {
-        return null;
-        // return '/home/view_plans/add_members';
-      } else {
-        if (opd.isSelectPlans) {
-          if (opd.isPlansSelect) {
-            return '/home/view_plans/plans_payment';
-          }
-          return '/home/view_plans/select_plans';
-        } else {
-          return '/home/view_plans';
-        }
-      }
-    } else {
-      return '/signup';
-    }
-  }
-
-  static bool displayRailNavigation(BuildContext context, GoRouterState state) {
-    final opd = OpdSure.of(context);
-    if (opd.client.isLogged) {
-      if (opd.profileData!.phone!.isEmpty || opd.profileData!.email!.isEmpty) {
-        opd.isWithEmail = opd.profileData!.email!.isEmpty;
-        return false;
-      }
-      if (opd.client.isPlanPurchased) {
-        return OpdThemes.isColumnMode(context);
-      } else {
-        if (opd.isSelectPlans) {
-          if (opd.isPlansSelect) {
-            return false;
-          }
-          return false;
-        } else {
-          return false;
-        }
-      }
-    } else {
-      return false;
-    }
-  }
-
-  AppRoutes();
-
-  static Future<bool> _showExitDialog(BuildContext context) async {
-    if(OpdSure.of(context).isLogout){
-      return true;
-    }
-    if(OpdSure.of(context).selectedPage != 0){
-      OpdSure.of(context).selectedPage = 0;
-      return false;
-    }
-    return await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const AppTextView(
-            text: 'Exit Confirmation',
-            size: 18.0,
-            fontWeight: FontWeight.w600,
-          ),
-          content: const AppTextView(text: 'Do you really want to exit?'),
-          actions: [
-            MaterialButton(
-              child: const AppTextView(text: 'Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-            ),
-            MaterialButton(
-              child: const AppTextView(text: 'Yes'),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        );
-      },
-    ) ?? false;
-  }
-
-  static final List<RouteBase> routes = [
-    GoRoute(
-        path: '/',
-        redirect: (context, state) =>
-        !OpdSure.of(context).isOnboardScreenActive && !PlatformInfos.isWeb
-            ? "/on_board_screen"
-            : '/signup'),
-    GoRoute(
-      path: '/on_board_screen',
-      pageBuilder: (context, state) => defaultPageBuilder(
-        context,
-        state,
-        PreviewPage(),
-      ),
-    ),
-    GoRoute(
-        path: '/signup',
-        redirect: loggedInRedirect,
-        pageBuilder: (context, state) => defaultPageBuilder(
-          context,
-          state,
-          const SignUpPage(),
+  Widget commonRow(String key, String value){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        AppTextView(
+          text: key,
+          size: 14.0,
+          fontWeight: FontWeight.w400,
+          color: const Color(0xFF344054),
         ),
-        routes: [
-          GoRoute(
-              path: 'otp',
-              pageBuilder: (context, state) {
-                final otpMap = state.extra as Map<String, dynamic>;
-                return defaultPageBuilder(
-                  context,
-                  state,
-                  OtpPage(
-                    userId: otpMap['user_id'],
-                    accessToken: otpMap['access_token'],
-                  ),
-                );
-              }),
-
-        ]),
-    GoRoute(
-      path: '/login',
-      pageBuilder: (context, state) => defaultPageBuilder(
-        context,
-        state,
-        const LoginPage(),
-      ),
-      routes: [
-        GoRoute(
-          path: 'forget_password',
-          pageBuilder: (context, state) => defaultPageBuilder(
-            context,
-            state,
-            const ForgetPasswordPage(),
-          ),
+        AppTextView(
+          text: value,
+          size: 14.0,
+          fontWeight: FontWeight.w500,
+          color: const Color(0xFF344054),
         ),
       ],
-    ),
-    ShellRoute(
-      pageBuilder: (context, state, child) => defaultPageBuilder(
-          context,
-          state,
-          OpdThemes.isColumnMode(context) &&
-              displayRailNavigation(context, state)
-              ? TwoColumnLayout(
-            mainView: DashBoardPage(
-              displayNavigationRail:
-              displayRailNavigation(context, state),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double w = CommonMethods.deviceWidth(context);
+    double h = CommonMethods.deviceHeight(context);
+    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(oneClaim.status!,reSubmit: oneClaim.subscriberReaction!);
+    // TODO: implement build
+    return AppBasePage(
+      appHeader: AppHeader(headerName: 'Claim Details',),
+      childContent: ListView(
+        children: [
+          AppCardView(
+            mChaild: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppTextView(
+                  text: 'Hospital | ${oneClaim.hospital} ',
+                  size: 16.0,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+                const SizedBox(height: 7.0,),
+                commonRow('Claim Date',CommonMethods.formatIsoDateString(oneClaim.createdAt!)),
+                const SizedBox(height: 7.0,),
+                commonRow('Name',oneClaim.memberId!.name!),
+                const SizedBox(height: 7.0,),
+                commonRow('Doctor Name',oneClaim.docName!),
+                const SizedBox(height: 7.0,),
+                commonRow('Doc. Reg. Number',oneClaim.docRegistration!),
+                const SizedBox(height: 7.0,),
+                commonRow('Hospital Address',oneClaim.city!),
+                const SizedBox(height: 7.0,),
+                commonRow('Hospital Cont. Info.','${oneClaim.docPhone!}'),
+                const SizedBox(height: 7.0,),
+                commonRow('Doctor Email',oneClaim.docEmail!),
+                const SizedBox(height: 7.0,),
+                commonRow('Name',oneClaim.memberId!.name!),
+                const SizedBox(height: 7.0,),
+                commonRow('OPD date',CommonMethods.changeDateFormat(oneClaim.opdDate!,from: 'yyyy-MM-dd', to: 'dd/MM/yyyy')),
+                const SizedBox(height: 7.0,),
+                commonRow('Address',oneClaim.docAddress!),
+                const SizedBox(height: 7.0,),
+                commonRow('City',oneClaim.city!),
+                const SizedBox(height: 7.0,),
+                commonRow('Pin Code',oneClaim.pinCode!),
+                const SizedBox(height: 7.0,),
+                commonRow('Total Pay Amt','$rupeeSymbol ${oneClaim.billAmount!}'),
+                const SizedBox(height: 7.0,),
+                commonRow('Claimable Amt.','$rupeeSymbol ${oneClaim.claimableAmount}'),
+                const SizedBox(height: 7.0,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const AppTextView(
+                      text: 'Status',
+                      size: 14.0,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF344054),
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          claimStatusModel.iconData,
+                          color: claimStatusModel.statusColor,
+                          size: 15.0,
+                        ),
+                        const SizedBox(width: 5.0,),
+                        AppTextView(
+                          text: claimStatusModel.statusName!,
+                          size: 14.0,
+                          fontWeight: FontWeight.w500,
+                          color: claimStatusModel.statusColor!,
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              ],
             ),
-            sideView: child,
-            displayNavigationRail: displayRailNavigation(context, state),
-          )
-              : child),
-      routes: [
-        GoRoute(
-            path: '/home',
-            onExit: (context, state) async {
-              return await _showExitDialog(context);
+          ),
+          const SizedBox(height: 15.0,),
+          ((oneClaim.status! == 2 || oneClaim.status! == 7 || oneClaim.status! == 12) && !oneClaim.dispute!)?
+          AppBorderBox(
+            mCallback: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context)=>DisputePage(oneClaim.id)),
+              );
             },
-            redirect: getRedirectNameForHome,
-            pageBuilder: (context, state) => defaultPageBuilder(
-              context,
-              state,
-              OpdThemes.isColumnMode(context)
-                  ? const EmptyPage()
-                  : const DashBoardPage(),
-            ),
-            routes: [
-              ShellRoute(
-                pageBuilder: defaultPageBuilder,
-                routes: [
-                  GoRoute(
-                    path: "name_email_number",
-                    pageBuilder: (context, state) => defaultPageBuilder(
-                      context,
-                      state,
-                      const NameEmailNumber(),
-                    ),
-                  ),
-                  GoRoute(
-                    path: "file_claim",
-                    pageBuilder: (context, state) => defaultPageBuilder(
-                      context,
-                      state,
-                      FileClaimPage(isUpdate: false,),
-                    ),
-                  ),
-                ],
+            myChild: const Center(
+              child: AppTextView(
+                text: 'Raise Dispute',
+                color: buttonColor,
+                size: 16.0,
+                fontWeight: FontWeight.w600,
               ),
-              ShellRoute(
-                pageBuilder: defaultPageBuilder,
-                routes: [
-                  GoRoute(
-                    path: 'view_plans',
-                    pageBuilder: (context, state) => defaultPageBuilder(
-                      context,
-                      state,
-                      ViewPlansPage(),
-                    ),
-                    routes: [
-                      GoRoute(
-                          path: 'select_plans',
-                          pageBuilder: (context, state) {
-                            PlansResponse? plans;
-                            if (state.extra != null) {
-                              plans = state.extra as PlansResponse;
-                            }
-                            return defaultPageBuilder(
-                              context,
-                              state,
-                              PlansPage(plans: plans),
+            ),
+            borderColor: buttonColor,
+            borderWidth: 1.0,
+            height: 45.0,
+          ):const AppBorderBox(
+            myChild: Center(
+              child: AppTextView(
+                text: 'Dispute Raised',
+                color: Colors.red,
+                size: 16.0,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            borderColor: Colors.red,
+            borderWidth: 1.0,
+            height: 45.0,
+          ),
+          const SizedBox(height: 15.0,),
+          FutureBuilder(
+            future: OpdSure.of(context).client.getSingleClaims(oneClaim.id!),
+            builder: (context, snapshot){
+              if(snapshot.data == null){
+                return Container();
+              }
+              else{
+                SingleClaimModel singleClaimModel = SingleClaimModel.fromJson(jsonDecode(snapshot.data));
+                List<String> prescriptionImageList = singleClaimModel.data!.prescription!;
+                List<String> pharmacyImageList = singleClaimModel.data!.pharmacyReceipt!;
+                List<String> feeImageList = singleClaimModel.data!.feeReceipt!;
+                List<String> testImageList = singleClaimModel.data!.testReceipt!;
+                return AppCardView(
+                  mChaild: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AppTextView(
+                        text: 'Uploaded Documents',
+                        size: 16.0,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black,
+                      ),
+                      const SizedBox(height: 10.0,),
+                      const AppTextView(
+                        text: 'Prescription',
+                        color: Colors.black,
+                      ),
+                      SizedBox(
+                        height: h*0.1,
+                        child: ListView.builder(
+                          itemCount: prescriptionImageList.length,
+                          scrollDirection: Axis.horizontal,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index){
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: InkWell(
+                                    onTap: (){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context)=>ViewImagePage('Prescription', prescriptionImageList[index])),
+                                      );
+                                    },
+                                    child: Image.network(
+                                      prescriptionImageList[index],
+                                      height: h*0.1,
+                                      width: h*0.1,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             );
-                          }),
-                      GoRoute(
-                          path: 'plans_payment',
-                          pageBuilder: (context, state) {
-                            Map<String, dynamic>? data;
-                            PlanRecords? records;
-                            MembershipOptions? options;
-                            if (state.extra != null) {
-                              data = state.extra as Map<String, dynamic>;
-                              records = data['records'] as PlanRecords;
-                              if (data['options'] != null) {
-                                options = data['options'] as MembershipOptions;
-                              }
-                            }
-                            return defaultPageBuilder(
-                              context,
-                              state,
-                              CheckoutPage(
-                                paymentType: PaymentType.buyPlan,
-                                records: records,
-                                options: options,
-                              ),
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10.0,),
+                      const AppTextView(
+                        text: 'Fees Receipt',
+                        color: Colors.black,
+                      ),
+                      SizedBox(
+                        height: h*0.1,
+                        child: ListView.builder(
+                          itemCount: oneClaim.feeReceipt!.length,
+                          scrollDirection: Axis.horizontal,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index){
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: InkWell(
+                                    onTap: (){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context)=>ViewImagePage('Fees Receipt', feeImageList[index])),
+                                      );
+                                    },
+                                    child: Image.network(
+                                      feeImageList[index],
+                                      height: h*0.1,
+                                      width: h*0.1,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             );
-                          }),
-                      GoRoute(
-                          path: 'add_members',
-                          pageBuilder: (context, state) {
-                            return defaultPageBuilder(
-                              context,
-                              state,
-                              AddFamilyDetails(isUpdate: false,),
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10.0,),
+                      const AppTextView(
+                        text: 'Pharmacy Receipt',
+                        color: Colors.black,
+                      ),
+                      SizedBox(
+                        height: h*0.1,
+                        child: ListView.builder(
+                          itemCount: oneClaim.pharmacyReceipt!.length,
+                          scrollDirection: Axis.horizontal,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index){
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: InkWell(
+                                    onTap: (){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context)=>ViewImagePage('Pharmacy Receipt', pharmacyImageList[index])),
+                                      );
+                                    },
+                                    child: Image.network(
+                                      pharmacyImageList[index],
+                                      height: h*0.1,
+                                      width: h*0.1,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             );
-                          }),
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 10.0,),
+                      const AppTextView(
+                        text: 'Test Receipt',
+                        color: Colors.black,
+                      ),
+                      SizedBox(
+                        height: h*0.1,
+                        child: ListView.builder(
+                          itemCount: oneClaim.testReceipt!.length,
+                          scrollDirection: Axis.horizontal,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index){
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 8.0),
+                                  child: InkWell(
+                                    onTap: (){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context)=>ViewImagePage('Test Receipt', testImageList[index])),
+                                      );
+                                    },
+                                    child: Image.network(
+                                      testImageList[index],
+                                      height: h*0.1,
+                                      width: h*0.1,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
-                ],
-              ),
-              ShellRoute(
-                  pageBuilder: defaultPageBuilder,
-                  routes: [
-                    GoRoute(
-                        path: 'health_checkup_details',
-                        pageBuilder: (context, state) {
-                          HealthCheckupRecords? records;
-                          if (state.extra != null) {
-                            records = state.extra as HealthCheckupRecords;
-                          }
-                          return defaultPageBuilder(
-                            context,
-                            state,
-                            HealthCheckupDetails(records: records),
-                          );
-                        }),
-                    GoRoute(
-                        path: 'health_checkup_checkout',
-                        pageBuilder: (context, state) {
-                          HealthCheckupRecords? records;
-                          if (state.extra != null) {
-                            records = state.extra as HealthCheckupRecords;
-                          }
-                          return defaultPageBuilder(
-                            context,
-                            state,
-                            CheckoutPage(paymentType: PaymentType.buyHealthCheckup, healthCheckupRecords: records,),
-                          );
-                        }),
-                  ])
-            ]),
-      ],
-    ),
-  ];
+                );
+              }
+            },
+          ),
+          const SizedBox(height: 70.0),
+        ],
+      ),
+    );
+  }
 
-  static Page defaultPageBuilder(
-      BuildContext context,
-      GoRouterState state,
-      Widget child,
-      ) =>
-      OpdThemes.isColumnMode(context)
-          ? NoTransitionPage(
-        key: state.pageKey,
-        restorationId: state.pageKey.value,
-        child: child,
-      )
-          : MaterialPage(
-        key: state.pageKey,
-        restorationId: state.pageKey.value,
-        child: child,
-      );
 }

@@ -1,8 +1,11 @@
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../../utils/common_methods.dart';
 import 'name_email_number_view.dart';
 
 class NameEmailNumber extends StatefulWidget {
@@ -16,9 +19,9 @@ class NameEmailNumberController extends State<NameEmailNumber> {
   TextEditingController emailTextController = TextEditingController();
   TextEditingController firstNameTextController = TextEditingController();
   TextEditingController middleNameTextController = TextEditingController();
-  TextEditingController lastNameControllerTextController =
-      TextEditingController();
+  TextEditingController lastNameControllerTextController = TextEditingController();
   TextEditingController phoneTextController = TextEditingController();
+  TextEditingController addressTextController = TextEditingController();
 
   String emailError = '';
   String phoneError = '';
@@ -69,11 +72,13 @@ class NameEmailNumberController extends State<NameEmailNumber> {
   }
 
   void updateProfile() async {
+    TypeController typeController = Get.put(TypeController());
     final opd = OpdSure.of(context);
     final response = await opd.client.updateUserProfile(
       name: _getFullName(),
       phone: isWithEmail ? null : phoneTextController.text,
-      email: isWithEmail ? emailTextController.text : null
+      email: isWithEmail ? emailTextController.text : null,
+      countryCode: '+91'
     );
     if (response != null) {
       await opd.client.getProfile(update: true);

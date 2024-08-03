@@ -19,6 +19,16 @@ class HealthCheckupDetailsController extends State<HealthCheckupDetails> {
     records = widget.records;
   }
 
+  String getBasePrice(){
+    double basePriceShow = records!.basePrice! + (records!.basePrice!*18)/100;
+    return basePriceShow.toStringAsFixed(2);
+  }
+
+  String getDiscountPrice(){
+    double discountPriceShow = records!.discountedPrice! + (records!.discountedPrice!*18)/100;
+    return discountPriceShow.toStringAsFixed(2);
+  }
+
   @override
   Widget build(BuildContext context) => HealthCheckupDetailsView(this);
 }

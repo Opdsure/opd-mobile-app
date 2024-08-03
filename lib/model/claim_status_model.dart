@@ -67,8 +67,18 @@ class ClaimStatusModel{
             statusColor: Colors.red,
             iconData: Icons.error_outline
         );
+      case 12:
+        return ClaimStatusModel(
+            statusName: 'Settled',
+            statusColor: Colors.green,
+            iconData: Icons.check_circle_outline_rounded
+        );
       default:
-        return ClaimStatusModel();
+        return ClaimStatusModel(
+            statusName: '',
+            statusColor: Colors.red,
+            iconData: Icons.error_outline
+        );
     }
   }
 }

@@ -10,12 +10,16 @@ class AppBasePage extends StatelessWidget{
   final Widget childContent;
   final Widget? bottomContent;
   final bool enforceMobileMode;
+  final bool isFloatingButton;
+  final Widget? floatingView;
 
   const AppBasePage({super.key,
     this.appHeader,
     this.bottomContent,
     required this.childContent,
     this.enforceMobileMode = false,
+    this.isFloatingButton = false,
+    this.floatingView,
   });
 
   @override
@@ -24,8 +28,7 @@ class AppBasePage extends StatelessWidget{
     double headerHeight = MediaQuery.of(context).viewPadding.top;
     double statusBarHeight = AppBar().preferredSize.height;
     double pageHeight = statusBarHeight+headerHeight;
-    final isMobileMode =
-        enforceMobileMode || !OpdThemes.isColumnMode(context);
+    final isMobileMode = enforceMobileMode || !OpdThemes.isColumnMode(context);
     // TODO: implement build
     return Container(
       color: Colors.white,
@@ -52,7 +55,8 @@ class AppBasePage extends StatelessWidget{
               ],
             ),
           ),
-          bottomNavigationBar: bottomContent
+          bottomNavigationBar: bottomContent,
+          floatingActionButton: isFloatingButton?floatingView:null,
         ),
       ),
     );

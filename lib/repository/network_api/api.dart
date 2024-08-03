@@ -14,6 +14,7 @@ import 'package:opdsure/model/login/login_response.dart';
 import 'package:opdsure/model/payment_models/create_order.dart';
 import 'package:opdsure/model/register/register_response.dart';
 import 'package:opdsure/model/relation/relations.dart';
+import 'package:opdsure/model/specialization_model.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/utils/common_methods.dart';
 
@@ -32,11 +33,13 @@ class Api {
       : httpClient = httpClient ?? Client();
 
   Never unexpectedResponse(BaseResponse response, Uint8List body) {
-    if (response.reasonPhrase == 'Conflict') {
-      CommonMethods.showToast('Email or mobile already exist');
-    } else if (response.reasonPhrase == 'Not Found') {
-      CommonMethods.showToast('Email/Mobile or password is incorrect');
-    }
+    Map<String, dynamic> resMap = jsonDecode(utf8.decode(body));
+    CommonMethods.showToast(resMap['message']);
+    // if (response.reasonPhrase == 'Conflict') {
+    //   CommonMethods.showToast('Email or mobile already exist');
+    // } else if (response.reasonPhrase == 'Not Found') {
+    //   CommonMethods.showToast('Email/Mobile or password is incorrect');
+    // }
     throw Exception('http error response');
   }
 
@@ -153,6 +156,7 @@ class Api {
 
   Future<PlansResponse?> getAllPlans() async {
     final requestUri = Uri(path: 'api/v1/public/plan');
+    // final requestUri = Uri(path: 'api/v1/user/upgrade-plan?pageSize=1000');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     final response = await httpClient.send(request);
@@ -184,6 +188,7 @@ class Api {
       String? address,
       String? city,
       String? pinCode,
+      String? countryCode,
       Map<String, dynamic>? plan}) async {
     final requestUri = Uri(path: 'api/v1/user/update-profile');
     final request = Request('PUT', baseUri!.resolveUri(requestUri));
@@ -199,6 +204,7 @@ class Api {
       if (address != null) 'address': address,
       if (city != null) 'city': city,
       if (pinCode != null) 'pin_code': pinCode,
+      if (countryCode != null) 'country_code': countryCode,
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -297,6 +303,18 @@ class Api {
     return Relations.fromJson(json);
   }
 
+  Future<SpecializationModel?> getSpecialization() async {
+    final requestUri = Uri(path: 'api/v1/public/specialization');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return SpecializationModel.fromJson(json);
+  }
+
   Future getFileTypeAndSize() async {
     final requestUri = Uri(path: 'api/v1/public/get-file-size');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
@@ -391,8 +409,27 @@ class Api {
   }
 
   Future calculateClaimPrice(String type, double amount) async {
-    final requestUri = Uri.parse(
-        'api/v1/user/get-claimable-amount?parameter=$type&amount=$amount');
+    final requestUri = Uri.parse('api/v1/user/get-claimable-amount?parameter=$type&amount=$amount');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    return responseString;
+  }
+
+  Future applyCoupon(String couponCode, String planId, String memberId,{requestFor}) async {
+    //https://dev.opdsure.net/api/v1/user/get-plan-price-details?order_for=0&coupon_code=neww12354&plan_id=668d026685008b0162953fcf&membership_id=0
+    //https://dev.opdsure.net/api/v1/user/get-plan-price-details?order_for=1&coupon_code=neww12354&health_plan_id=66921c6790e2cb574c620fe4
+    Uri requestUri;
+    if(requestFor=='basic_plan'){
+      requestUri = Uri.parse('api/v1/user/get-plan-price-details?order_for=0&coupon_code=$couponCode&plan_id=$planId&membership_id=$memberId');
+    }
+    else{
+      requestUri = Uri.parse('api/v1/user/get-plan-price-details?order_for=1&coupon_code=$couponCode&health_plan_id=$planId');
+    }
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
@@ -407,6 +444,8 @@ class Api {
       {String? planId,
       int? membershipId,
       String? healthId,
+      String? healthPlanId,
+      String? couponCode,
       required int type}) async {
     final requestUri = Uri(path: 'api/v1/user/create-orders');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
@@ -417,7 +456,9 @@ class Api {
       "order_for" : type,
       if(planId != null) "plan_id": planId,
       if(planId != null) "membership_id": membershipId,
-      if(healthId != null) "health_id" : healthId
+      if(healthId != null) "health_id" : healthId,
+      if(healthPlanId != null) "health_plan_id" : healthPlanId,
+      if(couponCode != null) "coupon_code" : couponCode
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -497,6 +538,45 @@ class Api {
       "member_id": memberId,
       "checkup_for": checkupFor,
       "message": message
+    }));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    return responseString;
+  }
+
+  Future addDispute(String? id,{
+    String? userRemark,
+    List<String>? allDocs
+  }) async {
+    final requestUri = Uri(path: 'api/v1/user/claim-dispute/$id');
+    final request = Request('PATCH', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8.encode(jsonEncode({
+      "user_remark": userRemark,
+      "files": allDocs
+    }));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    return responseString;
+  }
+
+  Future sendReferral({
+    String? name,
+    String? mobile,
+    String? email
+  }) async {
+    final requestUri = Uri(path: 'api/v1/user/refer');
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8.encode(jsonEncode({
+      "refer_name": name,
+      "refer_phone": mobile,
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();

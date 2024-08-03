@@ -15,13 +15,28 @@ import 'package:opdsure/widget/opd_widget.dart';
 import '../utils/common_methods.dart';
 
 class AllCheckupPage extends StatelessWidget{
+
+  String getTestName(List value){
+    String allTest = '';
+    if(value.contains(1)){
+      allTest = '$allTest Blood Sugar';
+    }
+    if(value.contains(2)){
+      allTest = '$allTest Lipid';
+    }
+    if(value.contains(3)){
+      allTest = '$allTest Full Body';
+    }
+    return allTest;
+  }
+
   @override
   Widget build(BuildContext context) {
     double h = CommonMethods.deviceHeight(context);
     // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(
-        headerName: 'Health Check-up',
+        headerName: 'Free Health Check-up',
         showRightView: true,
         rightView: InkWell(
           onTap: (){
@@ -89,10 +104,13 @@ class AllCheckupPage extends StatelessWidget{
                                       FontWeight.w500,
                                       color: Colors.black,
                                     ),
-                                    const Icon(
-                                      Icons
-                                          .keyboard_arrow_right_sharp,
-                                      color: Colors.black,
+                                    const Visibility(
+                                      visible: false,
+                                      child: Icon(
+                                        Icons
+                                            .keyboard_arrow_right_sharp,
+                                        color: Colors.black,
+                                      ),
                                     )
                                   ],
                                 ),
@@ -109,44 +127,18 @@ class AllCheckupPage extends StatelessWidget{
                                 ),
                                 AppTextView(
                                   text:
-                                  'Test : ${records.checkupFor![0]}',
+                                  'Test : ${getTestName(records.checkupFor!)}',
                                   size: 12.0,
                                   color:
                                   const Color(0xFF667085),
                                   fontWeight: FontWeight.w500,
                                 ),
                                 const SizedBox(height: 5,),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const AppTextView(
-                                          text: 'Status: ',
-                                          size: 12.0,
-                                          color: Color(0xFF667085),
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                        Icon(
-                                          csm.iconData,
-                                          color: csm.statusColor,
-                                          size: 15.0,
-                                        ),
-                                        AppTextView(
-                                          text: csm.statusName!,
-                                          size: 12.0,
-                                          color: csm.statusColor!,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ],
-                                    ),
-                                    AppTextView(
-                                      text: 'Booking Date: ${CommonMethods.formatIsoDateString(records.createdAt!)}',
-                                      size: 10.0,
-                                      color: const Color(0xFF667085),
-                                      fontWeight: FontWeight.w500,
-                                    )
-                                  ],
+                                AppTextView(
+                                  text: 'Booking Date: ${CommonMethods.formatIsoDateString(records.createdAt!,isTime: true)}',
+                                  size: 10.0,
+                                  color: const Color(0xFF667085),
+                                  fontWeight: FontWeight.w500,
                                 ),
                                 const SizedBox(height: 5,),
                               ],

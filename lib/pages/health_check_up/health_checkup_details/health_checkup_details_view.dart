@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import 'package:simple_html_css/simple_html_css.dart';
 
 import '../../../custom_ui/app_header.dart';
 import '../../../custom_ui/app_text_view.dart';
@@ -69,7 +71,7 @@ class HealthCheckupDetailsView extends StatelessWidget {
           const SizedBox(
             height: 16.0,
           ),
-          AppTextView(
+          const AppTextView(
             text: 'Test Included',
             size: 20.0,
             color: Colors.black,
@@ -83,6 +85,35 @@ class HealthCheckupDetailsView extends StatelessWidget {
                   decelerationRate: ScrollDecelerationRate.fast,
                 ),
                 itemBuilder: (context, index) {
+                  double basePriceShow = controller.records!.basePrice! + (controller.records!.basePrice!*18)/100;
+                  double discountPriceShow = controller.records!.discountedPrice! + (controller.records!.discountedPrice!*18)/100;
+                  final TextSpan textSpan = HTML.toTextSpan(
+                    context,
+                    controller.records!.testDetails![index].subParameter!,
+                    linksCallback: (dynamic link) {
+                      debugPrint('You clicked on $link');
+                    },
+                    // as name suggests, optionally set the default text style
+                    defaultTextStyle: GoogleFonts.montserrat(color: Colors.grey[700]),
+                    overrideStyle: <String, TextStyle>{
+                      'p': GoogleFonts.montserrat(fontSize: 17.3),
+                      'a': GoogleFonts.montserrat(wordSpacing: 2),
+                    },
+                  );
+                  final TextSpan textSpan2 = HTML.toTextSpan(
+                    context,
+                    controller
+                        .records!.testDetails![index].testsName!,
+                    linksCallback: (dynamic link) {
+                      debugPrint('You clicked on $link');
+                    },
+                    // as name suggests, optionally set the default text style
+                    defaultTextStyle: GoogleFonts.montserrat(color: Colors.grey[700]),
+                    overrideStyle: <String, TextStyle>{
+                      'p': GoogleFonts.montserrat(fontSize: 17.3),
+                      'a': GoogleFonts.montserrat(wordSpacing: 2),
+                    },
+                  );
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -102,11 +133,10 @@ class HealthCheckupDetailsView extends StatelessWidget {
                           const SizedBox(width: 8,),
                           SizedBox(
                             width: CommonMethods.deviceWidth(context) * 0.8,
-                            child: AppTextView(
-                              text: controller
-                                  .records!.testDetails![index].subParameter!,
-                              size: 16,
-                              fontWeight: FontWeight.bold,
+                            child: Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.all(16.0),
+                              child: RichText(text: textSpan),
                             ),
                           ),
                         ],
@@ -114,50 +144,28 @@ class HealthCheckupDetailsView extends StatelessWidget {
 
                       if (controller.records!.testDetails![index].testsName!
                           .isNotEmpty) ...[
-                        const SizedBox(
-                          height: 12,
-                        ),
                         Row(
                           children: [
                             const SizedBox(
                               width: 30,
-                              height: 30,
                             ),
                             const SizedBox(width: 8,),
                             SizedBox(
                               width: CommonMethods.deviceWidth(context) * 0.8,
-                              child: AppTextView(
-                                  color: Colors.black,
-                                  text: controller
-                                      .records!.testDetails![index].testsName!),
+                              child: Container(
+                                color: Colors.white,
+                                padding: const EdgeInsets.all(16.0),
+                                child: RichText(text: textSpan2),
+                              ),
                             ),
                           ],
                         )
                       ],
                     ],
                   );
-                  // return ListTile(
-                  //   tileColor: Colors.grey,
-                  //   leading: Icon(
-                  //     Icons.verified,
-                  //     color: textColor,
-                  //   ),
-                  //   title: AppTextView(
-                  //     color: Colors.black,
-                  //     text:
-                  //     controller.records!.testDetails![index].subParameter!,
-                  //     size: 16,
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  //   subtitle: controller.records!.testDetails![index].testsName!
-                  //       .isEmpty ? null : AppTextView(
-                  //       color: Colors.black,
-                  //       text:
-                  //       controller.records!.testDetails![index].testsName!),
-                  // );
                 }),
           ),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
         ],
@@ -173,7 +181,7 @@ class HealthCheckupDetailsView extends StatelessWidget {
               children: [
                 AppTextView(
                   text:
-                      "$rupeeSymbol ${controller.records!.discountedPrice.toString()}",
+                      "$rupeeSymbol ${controller.getDiscountPrice()}",
                   size: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -182,7 +190,7 @@ class HealthCheckupDetailsView extends StatelessWidget {
                 ),
                 AppTextView(
                   text:
-                      "$rupeeSymbol ${controller.records!.basePrice.toString()}",
+                      "$rupeeSymbol ${controller.getBasePrice()}",
                   fontStyle: FontStyle.italic,
                   isLineThrough: true,
                 ),

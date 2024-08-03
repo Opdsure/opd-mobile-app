@@ -33,6 +33,8 @@ class HealthCheckupView extends StatelessWidget {
               itemCount: controller.healthCheckupResponse!.data!.records!.length,
               itemBuilder: (context, index) {
                 HealthCheckupRecords healthCheckupRecords = controller.healthCheckupResponse!.data!.records![index];
+                String basePriceShow = (healthCheckupRecords.basePrice! + (healthCheckupRecords.basePrice!*18)/100).toStringAsFixed(2);
+                String discountPriceShow = (healthCheckupRecords.discountedPrice! + (healthCheckupRecords.discountedPrice!*18)/100).toStringAsFixed(2);
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5.0),
                   child: InkWell(
@@ -62,7 +64,7 @@ class HealthCheckupView extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                               AppTextView(
-                                text: ' $rupeeSymbol ${healthCheckupRecords.basePrice}',
+                                text: ' $rupeeSymbol $basePriceShow',
                                 size: 12,
                                 fontWeight: FontWeight.w600,
                                 isLineThrough: true,
@@ -71,7 +73,7 @@ class HealthCheckupView extends StatelessWidget {
                             ],
                           ),
                           AppTextView(
-                            text: 'Discount Price : ${healthCheckupRecords.discountedPrice}',
+                            text: 'Discount Price : $discountPriceShow',
                             color: buttonColor,
                             size: 12,
                             fontWeight: FontWeight.w600,

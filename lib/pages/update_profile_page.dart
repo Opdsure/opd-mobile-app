@@ -54,7 +54,8 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     super.initState();
     TypeController typeController = Get.put(TypeController());
     addressCtrl.text = widget.userProfile!.data!.address!;
-    pinCtrl.text = '${widget.userProfile!.data!.pinCode!}';
+    pinCtrl.text = '${widget.userProfile!.data!.pinCode==0??''}';
+    pinCtrl.text = widget.userProfile!.data!.pinCode==0?'':'${widget.userProfile!.data!.pinCode!}';
     cityCtrl.text = widget.userProfile!.data!.city!;
     typeController.myDOB(widget.userProfile!.data!.dob!);
     if(widget.userProfile!.data!.gender! == 0){
@@ -101,7 +102,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
             color: Color(0xFF1D2939),
           ),
           AppEditText(
-            hint: 'Enter the address',
+            hint: 'Enter pin code',
             textEditingController: pinCtrl,
             maxLength: 6,
             textInputType: TextInputType.number,
@@ -235,6 +236,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
                 typeController.refreshMemberListChange(false);
                 typeController.refreshMemberListChange(true);
                 CommonMethods.showToast('Profile update successfully');
+                Navigator.pop(context);
               }
             },
           ),

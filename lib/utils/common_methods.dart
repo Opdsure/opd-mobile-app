@@ -201,9 +201,15 @@ class CommonMethods{
     return data ?? false;
   }
 
-  static String formatIsoDateString(String isoString) {
+  static String formatIsoDateString(String isoString,{isTime = false}) {
     DateTime dateTime = DateTime.parse(isoString);
-    String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+    String formattedDate = '';
+    if(isTime){
+      formattedDate = DateFormat('dd/MM/yyyy HH:mm a').format(dateTime);
+    }
+    else{
+      formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+    }
     return formattedDate;
   }
 

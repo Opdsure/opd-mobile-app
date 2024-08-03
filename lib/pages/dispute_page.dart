@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
@@ -12,62 +13,83 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
-
 import '../custom_ui/app_button.dart';
 import '../model/file_type_size_model.dart';
 import '../utils/app_colors.dart';
 import '../widget/opd_widget.dart';
 
-class DisputePage extends StatelessWidget{
+class DisputePage extends StatefulWidget{
+  final String? claimId;
+  DisputePage(this.claimId);
+
+  @override
+  State<DisputePage> createState() => _DisputePageState();
+}
+
+class _DisputePageState extends State<DisputePage> {
   List<File> documentFiles = [];
+
   List<String> docUrlList = [];
+
+  TextEditingController remarkCtrl = TextEditingController();
+
+  Widget compulsoryField(String text){
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+              text: text,
+              style: GoogleFonts.montserrat(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w500,
+                  color: const Color(0xFF1D2939)
+              )),
+          TextSpan(
+            text: ' *',
+            style: GoogleFonts.montserrat(
+                color: Colors.red),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     double h = CommonMethods.deviceHeight(context);
     double w = CommonMethods.deviceWidth(context);
     TypeController typeController = Get.put(TypeController());
     // TODO: implement build
-    return AppBasePage(
-      appHeader: AppHeader(headerName: 'Raise Complaint',),
-      childContent: ListView(
-        children: [
-          const SizedBox(height: 20.0),
-          const AppTextView(
-            text: 'Remark',
-            size: 14.0,
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-          ),
-          const SizedBox(height: 5.0,),
-          SizedBox(
-            height: 200,
-            child: AppBorderBox(
-              myChild: TextField(
-                style: GoogleFonts.montserrat(
-                    fontSize: 15.0,
-                    color: backIconCl
-                ),
-                maxLines: null, // Set this
-                expands: true, // and this
-                keyboardType: TextInputType.multiline,
-                decoration: const InputDecoration(
-                  isDense: true,
-                  hintText: 'Write the description',
-                  border: InputBorder.none,
-                  fillColor: Colors.white,
-                ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        compulsoryField('Remark'),
+        const SizedBox(height: 5.0,),
+        SizedBox(
+          height: 150,
+          child: AppBorderBox(
+            myChild: TextField(
+              controller: remarkCtrl,
+              style: GoogleFonts.montserrat(
+                  fontSize: 15.0,
+                  color: backIconCl
+              ),
+              maxLines: null, // Set this
+              expands: true, // and this
+              keyboardType: TextInputType.multiline,
+              decoration: const InputDecoration(
+                isDense: true,
+                hintText: 'Write the description',
+                border: InputBorder.none,
+                fillColor: Colors.white,
               ),
             ),
           ),
-          const SizedBox(height: 20.0,),
-          const AppTextView(
-            text: 'Upload Document',
-            size: 14.0,
-            color: Colors.black,
-            fontWeight: FontWeight.w500,
-          ),
-          const SizedBox(height: 5.0,),
-          FutureBuilder(
+        ),
+        const SizedBox(height: 20.0,),
+        compulsoryField('Upload Document'),
+        const SizedBox(height: 5.0,),
+        FutureBuilder(
             future: OpdSure.of(context).client.getFileTypeAndSize(),
             builder: (context, snapshot) {
               if(snapshot.data == null){
@@ -176,23 +198,39 @@ class DisputePage extends StatelessWidget{
                 );
               }
             }
-          ),
-          Obx((){
-            List allFiles = typeController.prescriptionList.value;
-            return Visibility(
-              visible: allFiles.isNotEmpty,
-              child: const AppTextView(
-                text: 'Tap to remove file',
-                size: 11.0,
-              ),
-            );
-          }),
-          const SizedBox(height: 20.0),
-          const AppButton(text: 'Submit'),
-          const SizedBox(height: 70.0),
-        ],
-      ),
+        ),
+        Obx((){
+          List allFiles = typeController.prescriptionList.value;
+          return Visibility(
+            visible: allFiles.isNotEmpty,
+            child: const AppTextView(
+              text: 'Tap to remove file',
+              size: 11.0,
+            ),
+          );
+        }),
+        const SizedBox(height: 20.0),
+        AppButton(
+          text: 'Submit',
+          onClick: () async {
+            if(remarkCtrl.text.isEmpty){
+              CommonMethods.showToast('Please enter remark');
+            }
+            else{
+              CommonMethods.showAlertDialog(context);
+              var response = await OpdSure.of(context).client.addDispute(
+                  widget.claimId,
+                  userRemark: remarkCtrl.text,
+                  allDocs: docUrlList
+              );
+              CommonMethods.showToast('Send successfully!');
+              Navigator.of(context).pop();
+              Navigator.pop(context);
+            }
+          },
+        ),
+        const SizedBox(height: 20.0),
+      ],
     );
   }
-
 }

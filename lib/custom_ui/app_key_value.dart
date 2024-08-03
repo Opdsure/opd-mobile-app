@@ -18,9 +18,9 @@ class AppKeyValue extends StatelessWidget{
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         AppTextView(
-          text: mKey,
+          text: '$mKey:',
           size: 14.0,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.w600,
           color: const Color(0xFF344054),
         ),
         AppTextView(

@@ -44,6 +44,14 @@ class PlansPageController extends State<PlansPage> {
     }).toList();
   }
 
+  // List<DropdownMenuItem<MembershipOptions>> getPlanItem() {
+  //   return record!.membershipOptions!.map((e) {
+  //     if(e.charges<10000) return DropdownMenuItem<MembershipOptions>(
+  //         value: e, child: Text(e.membershipLabel!));
+  //     return null;
+  //   }).toList();
+  // }
+
   void setPlanItem(MembershipOptions? option) {
     setState(() {
       if (option!.membershipLabel == 'Individual') {

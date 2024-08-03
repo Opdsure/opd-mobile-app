@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/model/health_checkup/health_checkup.dart';
@@ -8,6 +10,8 @@ import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+
+import '../../model/coupon_model.dart';
 
 enum PaymentType { buyPlan, buyHealthCheckup }
 
@@ -39,6 +43,8 @@ class CheckoutController extends State<CheckoutPage> {
   double netAmountWithGst = 0.0;
   String payAmount = '';
   String name = '';
+  TextEditingController couponCtrl = TextEditingController();
+  String myRequest = '';
 
   @override
   void initState() {
@@ -47,20 +53,22 @@ class CheckoutController extends State<CheckoutPage> {
     options = widget.options;
     healthCheckupRecords = widget.healthCheckupRecords;
     if (widget.paymentType == PaymentType.buyPlan) {
+      myRequest = 'basic_plan';
       getPlanSummary();
     } else {
+      myRequest = 'health';
       getHealthCheckUp();
     }
   }
 
   void getHealthCheckUp() {
     name = healthCheckupRecords!.name!;
-    planCharge = double.parse(healthCheckupRecords!.basePrice!.toString());
-    couponDiscount = double.parse(healthCheckupRecords!.basePrice!.toString()) -
-        double.parse(healthCheckupRecords!.discountedPrice!.toString());
+    planCharge = healthCheckupRecords!.discountedPrice!.toDouble();
+    // couponDiscount = double.parse(healthCheckupRecords!.basePrice!.toString()) -
+    //     double.parse(healthCheckupRecords!.discountedPrice!.toString());
     gst = planCharge * 18 / 100;
-    netAmount = double.parse(healthCheckupRecords!.discountedPrice!.toString());
-    netAmountWithGst = netAmount + gst;
+    // netAmount = double.parse(healthCheckupRecords!.discountedPrice!.toString());
+    netAmountWithGst = planCharge + gst;
     payAmount = (netAmountWithGst * 100).toString();
   }
 
@@ -73,9 +81,27 @@ class CheckoutController extends State<CheckoutPage> {
     payAmount = (netAmountWithGst * 100).toString();
   }
 
+  dataAfterApplyCoupon() async {
+    var response = await OpdSure.of(context).client.applyCoupon(
+      couponCtrl.text,
+        myRequest=='basic_plan'?records!.id!:healthCheckupRecords!.id!,
+        options==null?'':'${options!.membershipId}',
+      requestFor: myRequest
+    );
+    CouponModel couponModel = CouponModel.fromJson(jsonDecode(response));
+    setState(() {
+      gst = double.parse('${couponModel.data!.gst!}');
+      couponDiscount = double.parse('${couponModel.data!.couponDiscount!}');
+      planCharge = double.parse('${couponModel.data!.planPrice!}');
+      netAmount = planCharge - couponDiscount;
+      netAmountWithGst = netAmount + gst;
+      print(response);
+    });
+  }
+
   void openPaymentGateway() async {
-    final opd = OpdSure.of(context);
-    if (PlatformInfos.isWeb) {
+    if(netAmountWithGst<=0){
+      // CommonMethods.showToast('Amt. should be greater then 0');
       final opd = OpdSure.of(context);
       await opd.client.updateUserProfile(plan: {
         "purchased": true,
@@ -83,53 +109,70 @@ class CheckoutController extends State<CheckoutPage> {
         "id": records!.id!
       });
       await opd.client.updatePlanPurchasedStatus(true);
-      context.go('/home/view_plans/add_members');
-      return;
+      CommonMethods.showToast('Plan purchased successfully!');
+      context.pushReplacement('/home/view_plans/add_members');
     }
-    UserProfile? profile = await opd.client.getProfile();
-    CommonMethods.showAlertDialog(context);
-    final createPaymentResponse = await opd.client.createOrder(
-        type: widget.paymentType.index,
-        planId: widget.paymentType == PaymentType.buyPlan ? records?.id! : null,
-        membershipId: widget.paymentType == PaymentType.buyPlan ? options?.membershipId! : null,
-        healthId: widget.paymentType == PaymentType.buyPlan ? null : healthCheckupRecords?.id!);
-
-    Razorpay razorpay = Razorpay();
-    var paymentOptions = {
-      'key': 'rzp_test_sXPx4ftQc94AZA',
-      'amount': createPaymentResponse!.data!.amount!,
-      'currency': createPaymentResponse.data!.currency!,
-      'name': 'OPD Sure',
-      'order_id': createPaymentResponse.data!.id,
-      'description': widget.paymentType == PaymentType.buyPlan ? '${records!.name!} + ${options!.membershipLabel!}' : healthCheckupRecords!.name!,
-      'retry': {'enabled': false, 'max_count': 1},
-      'send_sms_hash': true,
-      'model': {
-        'backdropclose': false,
-        'escape': false,
-        'handleback': true,
-        'confirm_close': true
-      },
-      'prefill': {
-        'contact': "+91${profile.data!.phone!}",
-        "email": profile.data!.email!,
-        "name": profile.data!.name!
+    else{
+      final opd = OpdSure.of(context);
+      if (PlatformInfos.isWeb) {
+        final opd = OpdSure.of(context);
+        await opd.client.updateUserProfile(plan: {
+          "purchased": true,
+          "membership_id": options!.membershipId!,
+          "id": records!.id!
+        });
+        await opd.client.updatePlanPurchasedStatus(true);
+        context.go('/home/view_plans/add_members');
+        return;
       }
-    };
-    razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
-    razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
-    razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
-    razorpay.open(paymentOptions);
-    Navigator.of(context).pop();
+      UserProfile? profile = await opd.client.getProfile();
+      CommonMethods.showAlertDialog(context);
+      final createPaymentResponse = await opd.client.createOrder(
+          type: widget.paymentType.index,
+          couponCode: couponCtrl.text,
+          planId: widget.paymentType == PaymentType.buyPlan ? records?.id! : null,
+          membershipId: widget.paymentType == PaymentType.buyPlan ? options?.membershipId! : null,
+          // healthId: widget.paymentType == PaymentType.buyPlan ? null : healthCheckupRecords?.id!,
+          healthPlanId: widget.paymentType == PaymentType.buyHealthCheckup ? healthCheckupRecords?.id! : null
+      );
+
+      Razorpay razorpay = Razorpay();
+      var paymentOptions = {
+        'key': 'rzp_test_sXPx4ftQc94AZA',
+        'amount': createPaymentResponse!.data!.amount!,
+        'currency': createPaymentResponse.data!.currency!,
+        'name': 'OPD Sure',
+        'order_id': createPaymentResponse.data!.id,
+        'description': widget.paymentType == PaymentType.buyPlan ? '${records!.name!} + ${options!.membershipLabel!}' : healthCheckupRecords!.name!,
+        'retry': {'enabled': false, 'max_count': 1},
+        'send_sms_hash': true,
+        'model': {
+          'backdropclose': false,
+          'escape': false,
+          'handleback': true,
+          'confirm_close': true
+        },
+        'prefill': {
+          'contact': "+91${profile.data!.phone!}",
+          "email": profile.data!.email!,
+          "name": profile.data!.name!
+        }
+      };
+      razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
+      razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
+      razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
+      razorpay.open(paymentOptions);
+      Navigator.of(context).pop();
+    }
   }
 
   void _handlePaymentErrorResponse(PaymentFailureResponse response) async {
-    _showAlertDialog(context, "failed", response.toString());
+    _showAlertDialog(context, "Failed", 'You cancel the payment');
   }
 
   void _handlePaymentSuccessResponse(PaymentSuccessResponse response) async {
     final opd = OpdSure.of(context);
-    await opd.client.updateUserProfile(plan: {
+     await opd.client.updateUserProfile(plan: {
       "purchased": false,
       "membership_id": options!.membershipId!,
       "id": records!.id!

@@ -13,6 +13,7 @@ import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/custom_ui/select_plan.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/plan/plans_page/plans_page_controller.dart';
+import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
@@ -59,15 +60,6 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
         ),
         childContent: ListView(
           children: [
-            // const SizedBox(
-            //   height: 16.0,
-            // ),
-            // AppHeader(
-            //   headerName: '${controller.record!.name} Plan',
-            // ),
-            // const SizedBox(
-            //   height: 30.0,
-            // ),
             ButtonsTabBar(
               controller: tabController,
               backgroundColor: Colors.transparent,
@@ -100,7 +92,7 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
                   text: (!widget.controller.isIndividual &&
                       widget.controller.familyOptions == null)
                       ? 'Select Member'
-                      : '₹ ${widget.controller.options!.charges!}',
+                      : '₹ ${widget.controller.options!.charges!+((widget.controller.options!.charges!)*18)/100}',
                   color: textColor,
                   size: (!widget.controller.isIndividual &&
                       widget.controller.familyOptions == null) ? 16.0 : 40.0,
@@ -166,25 +158,26 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
               color: Colors.black,
               fontWeight: FontWeight.w600,
             ),
+            const SizedBox(
+              height: 10.0,
+            ),
             if ((widget.controller.record!.planType! == PlanType.family ||
                 widget.controller.record!.planType! == PlanType.both) &&
                 !widget.controller.isIndividual) ...[
-              const SizedBox(
-                height: 10.0,
-              ),
               AppDropDown<MembershipOptions>(
                   hint: const AppTextView(
                     text: "Select plan type",
                   ),
                   items: widget.controller.getPlanItem(),
                   onChanged: widget.controller.setPlanItem,
-                  value: widget.controller.familyOptions),
+                  value: widget.controller.familyOptions
+              ),
             ],
             const SizedBox(
               height: 10.0,
             ),
             SizedBox(
-              height: 400,
+              height: !widget.controller.isIndividual?CommonMethods.deviceHeight(context)*0.5:CommonMethods.deviceHeight(context)*0.55,
               child: ListView.builder(
                   itemCount: widget.controller.record!.planBenefits!.length,
                   physics: const BouncingScrollPhysics(
@@ -210,7 +203,52 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
                     );
                   }),
             ),
-            AppButton(
+            OpdSure.of(context).client.isPlanBuy?
+            FutureBuilder(
+              future: OpdSure.of(context).client.getPlanById(
+                planId: OpdSure.of(context).client.profileData!.plan!.id,
+                memberShipId: OpdSure.of(context).client.profileData!.plan!.membershipId,
+              ),
+              builder: (context,snapshot){
+                if(snapshot.data == null){
+                  return Container();
+                }
+                else{
+                  print(snapshot.data);
+                  PlanRecords selectedPlan = snapshot.data!;
+                  if(widget.controller.options!.charges!>selectedPlan.membershipOptions![0].charges!){
+                    return AppButton(
+                      text: 'Select',
+                      color: (!widget.controller.isIndividual &&
+                          widget.controller.familyOptions == null)
+                          ? const Color(0xFFD9D7D7)
+                          : buttonColor,
+                      textColor: (!widget.controller.isIndividual &&
+                          widget.controller.familyOptions == null)
+                          ? Colors.black
+                          : Colors.white,
+                      borderColor: (!widget.controller.isIndividual &&
+                          widget.controller.familyOptions == null)
+                          ? const Color(0xFFD9D7D7)
+                          : buttonColor,
+                      onClick: () {
+                        if (!(!widget.controller.isIndividual && widget.controller.familyOptions == null)) {
+                          widget.controller.goToCheckout();
+                        }
+                      },
+                    );
+                  }
+                  else{
+                    return const AppButton(
+                      text: 'Select',
+                      textColor: Colors.black,
+                      color: Color(0xFFD9D7D7),
+                      borderColor: Color(0xFFD9D7D7),
+                    );
+                  }
+                }
+              },
+            ):AppButton(
               text: 'Select',
               color: (!widget.controller.isIndividual &&
                   widget.controller.familyOptions == null)
@@ -225,12 +263,11 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
                   ? const Color(0xFFD9D7D7)
                   : buttonColor,
               onClick: () {
-                if (!(!widget.controller.isIndividual &&
-                    widget.controller.familyOptions == null)) {
+                if (!(!widget.controller.isIndividual && widget.controller.familyOptions == null)) {
                   widget.controller.goToCheckout();
                 }
               },
-            )
+            ),
           ],
         ),
       ),

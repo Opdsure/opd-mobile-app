@@ -6,6 +6,7 @@ import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:intl/intl.dart';
 
 import '../model/my_member_model.dart';
+import '../model/specialization_model.dart';
 import '../model/state_model.dart';
 
 class TypeController extends GetxController{
@@ -139,6 +140,11 @@ class TypeController extends GetxController{
   var stateList = <StateListData>[].obs;
   void stateListChange(StateListData state) {
     stateList.add(state);
+  }
+
+  var spclModel = <SpclRecords>[].obs;
+  void spclModelChange(SpclRecords state) {
+    spclModel.add(state);
   }
 
   RxDouble totalBill = 0.0.obs;

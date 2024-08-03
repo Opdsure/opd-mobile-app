@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
+import 'package:opdsure/custom_ui/app_edit_text.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/custom_ui/login_scafold.dart';
+import 'package:opdsure/model/coupon_model.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
@@ -17,7 +21,9 @@ import 'checkout_controller.dart';
 class CheckoutPageView extends StatelessWidget{
   final CheckoutController controller;
 
-  const CheckoutPageView(this.controller, {super.key});
+  CheckoutPageView(this.controller, {super.key});
+
+  TextEditingController couponCtrl = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -230,31 +236,41 @@ class CheckoutPageView extends StatelessWidget{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Image.asset(
-                            'assets/images/coupon.png',
-                            height: 20.0,
-                          ),
-                          const SizedBox(width: 10.0,),
-                          const AppTextView(
-                            text: 'Apply Coupon',
-                            color: Colors.black,
-                            size: 18.0,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ],
+                      Image.asset(
+                        'assets/images/coupon.png',
+                        height: 20.0,
                       ),
-                      const Icon(Icons.keyboard_arrow_right)
+                      const SizedBox(width: 10.0,),
+                      const AppTextView(
+                        text: 'Apply Coupon',
+                        color: Colors.black,
+                        size: 18.0,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10.0,),
-                  const AppTextView(
-                    text: 'Use it and save up to $rupeeSymbol 500',
-                    size: 12.0,
-                    color: Colors.black,
+                  Row(
+                    children: [
+                      Flexible(
+                        flex: 4,
+                        child: AppEditText(
+                          hint: 'Enter Code',
+                          textEditingController: controller.couponCtrl,
+                        ),
+                      ),
+                      const SizedBox(width: 10.0,),
+                      Flexible(
+                        flex: 2,
+                        child: AppButton(
+                          text: 'Apply',
+                          onClick: () async {
+                            controller.dataAfterApplyCoupon();
+                          },
+                        ),
+                      )
+                    ],
                   )
                 ],
               ),

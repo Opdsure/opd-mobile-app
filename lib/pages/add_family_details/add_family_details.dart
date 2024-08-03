@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -65,22 +66,14 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
     // TODO: implement initState
     super.initState();
     TypeController typeController = Get.put(TypeController());
-    OpdSure.of(context).client.getProfile().then((value){
-      print(value);
-      if(widget.isFirstMember!){
-        nameCtrl.text = value.data!.name!;
-        phoneCtrl.text = value.data!.phone!;
-        typeController.selectRelationKeyChange(0);
-      }
-    });
     if(widget.isUpdate!){
       nameCtrl.text = widget.member!.name!;
       phoneCtrl.text = '${widget.member!.phone!}';
-      addressCtrl.text = widget.member!.address!;
-      typeController.familyMemDOBChange(widget.member!.dob!);
+      addressCtrl.text = widget.member!.address??'';
+      typeController.familyMemDOBChange(widget.member!.dob??'Select DOB');
       typeController.selectRelationKeyChange(widget.member!.relation!);
       typeController.selectRelationChange(widget.member!.relation!.getRelation());
-      typeController.selectGenderChange(genderList[widget.member!.gender!-1]);
+      typeController.selectGenderChange(genderList[(widget.member!.gender??1)-1]);
     }
 
   }
@@ -95,7 +88,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
     // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(
-        headerName: 'Add Details',
+        headerName: widget.isUpdate!?'Update Details':'Add Details',
         showRightView: true,
         rightView: AppTextView(
           text: 'Done',
@@ -126,6 +119,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
             AppEditText(
               hint: 'Enter the name',
               textEditingController: nameCtrl,
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")),],
             ),
             const SizedBox(height: 15.0,),
             const AppTextView(
@@ -140,12 +134,12 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                 AppBottomSheet(
                     height: 600,
                     mChild: ListView.builder(
-                      itemCount: data!.relationsData.length,
+                      itemCount: data!.relationsData.length-1,
                       itemBuilder: (context, index){
                         return InkWell(
                           onTap: (){
-                            typeController.selectRelationChange(data.relationsData[index].name);
-                            typeController.selectRelationKeyChange(data.relationsData[index].value);
+                            typeController.selectRelationChange(data.relationsData[index+1].name);
+                            typeController.selectRelationKeyChange(data.relationsData[index+1].value);
                             Navigator.pop(context);
                           },
                           child: Column(
@@ -154,7 +148,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                               Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 12.0),
                                 child: AppTextView(
-                                  text: data.relationsData[index].name,
+                                  text: data.relationsData[index+1].name,
                                 ),
                               ),
                               const Divider(height: 1,color: Color(0x1A101828),),
@@ -192,14 +186,14 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
             ),
             Obx((){
               String dob = typeController.familyMemDOB.value;
-              String showDate = '';
-              if(dob!=''){
-                showDate = CommonMethods.changeDateFormat(dob,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy');
-              }
+              // String showDate = '';
+              // if(dob!=''){
+              //   showDate = CommonMethods.changeDateFormat(dob,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy');
+              // }
               return Stack(
                 children: [
                   AppEditText(
-                    hint: dob==''?'Enter date of birth':showDate,
+                    hint: dob==''?'Enter date of birth':dob,
                     disableText: true,
                     viewSuffix: true,
                     suffixWidget: const Icon(
@@ -292,9 +286,9 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
               maxLength: 13,
               countryCallback: ()async{
                 // Show the country code picker when tapped.
-                final picked= await countryPicker.showPicker(context: context);
-                // Null check
-                if (picked!= null) print(picked);
+                // final picked= await countryPicker.showPicker(context: context);
+                // // Null check
+                // if (picked!= null) print(picked);
               },
             ),
             const SizedBox(height: 15.0,),
@@ -376,7 +370,6 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                   FocusScope.of(context).unfocus();
                   typeController.refreshMemberListChange(false);
                   typeController.refreshMemberListChange(true);
-                  CommonMethods.showToast(widget.isUpdate!?'Member update successfully':'Member Added successfully');
                   nameCtrl.text = '';
                   phoneCtrl.text = '';
                   addressCtrl.text = '';
@@ -385,6 +378,14 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                   typeController.selectGenderChange('');
                   typeController.selectRelationChange('');
                   typeController.selectRelationKeyChange(100);
+                  if(widget.isUpdate!){
+                    CommonMethods.showOneButtonDialog(context, 'We have received your request. We will revert back to you', (){
+                      Navigator.of(context,rootNavigator: true).pop();
+                    });
+                  }
+                  else{
+                    CommonMethods.showToast('Member Added successfully');
+                  }
                 }
               },
             ),

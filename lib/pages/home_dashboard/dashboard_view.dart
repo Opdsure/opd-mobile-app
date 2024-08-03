@@ -33,6 +33,15 @@ class DashboardPageView extends StatelessWidget {
       ),
       NavigationDestination(
         icon: Image.asset(
+          'assets/images/referral_img.png',
+          height: 25.0,
+          width: 25.0,
+          color: const Color(0xFF667085),
+        ),
+        label: 'Referral',
+      ),
+      NavigationDestination(
+        icon: Image.asset(
           'assets/images/bottom_appointment.png',
           height: 30.0,
           width: 30.0,

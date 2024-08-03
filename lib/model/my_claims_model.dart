@@ -125,22 +125,25 @@ class ClaimRecords {
       String? id, 
       String? opdDate, 
       String? docName, 
-      String? docCountryCode, 
+      String? pinCode,
+      String? docAddress,
+      String? docEmail,
+      bool? dispute,
+      String? docCountryCode,
       int? docPhone, 
       String? claimId, 
-      String? docRegistration, 
-      int? state, 
+      String? docRegistration,
       String? city, 
       String? diagonosisDetail, 
       int? doctorFee, 
       int? combinedPharmacyTestFees, 
-      int? claimableDoctorFee, 
+      dynamic claimableDoctorFee,
       int? claimableCombinedPharmacyTestFees, 
       int? billAmount, 
       dynamic claimableAmount,
-      String? specialization, 
-      int? claimType, 
-      int? claimCombination, 
+      String? specialization,
+      String? userRemark,
+      int? claimCombination,
       int? claimablePharmacyFee,
       int? pharmacyFee,
       int? labTestFee,
@@ -162,11 +165,14 @@ class ClaimRecords {
     _id = id;
     _opdDate = opdDate;
     _docName = docName;
+    _pinCode = pinCode;
+    _docAddress = docAddress;
+    _docEmail = docEmail;
+    _dispute = dispute;
     _docCountryCode = docCountryCode;
     _docPhone = docPhone;
     _claimId = claimId;
     _docRegistration = docRegistration;
-    _state = state;
     _city = city;
     _diagonosisDetail = diagonosisDetail;
     _doctorFee = doctorFee;
@@ -176,7 +182,7 @@ class ClaimRecords {
     _billAmount = billAmount;
     _claimableAmount = claimableAmount;
     _specialization = specialization;
-    _claimType = claimType;
+    _userRemark = userRemark;
     _pharmacyFee = pharmacyFee;
     _labTestFee = labTestFee;
     _claimableLabTestFee = claimableLabTestFee;
@@ -202,11 +208,14 @@ class ClaimRecords {
     _id = json['_id'];
     _opdDate = json['opd_date'];
     _docName = json['doc_name'];
+    _pinCode = json['pincode'];
+    _docAddress = json['doc_address'];
+    _docEmail = json['doc_email'];
+    _dispute = json['dispute'];
     _docCountryCode = json['doc_country_code'];
     _docPhone = json['doc_phone'];
     _claimId = json['claim_id'];
     _docRegistration = json['doc_registration'];
-    _state = json['state'];
     _city = json['city'];
     _diagonosisDetail = json['diagonosis_detail'];
     _doctorFee = json['doctor_fee'];
@@ -216,7 +225,7 @@ class ClaimRecords {
     _billAmount = json['bill_amount'];
     _claimableAmount = json['claimable_amount'];
     _specialization = json['specialization'];
-    _claimType = json['claim_type'];
+    _userRemark = json['user_remark'];
     _claimCombination = json['claim_combination'];
     _hospital = json['hospital'];
     _feeReceipt = json['fee_receipt'] != null ? json['fee_receipt'].cast<String>() : [];
@@ -245,21 +254,24 @@ class ClaimRecords {
   String? _id;
   String? _opdDate;
   String? _docName;
+  String? _pinCode;
+  String? _docAddress;
+  String? _docEmail;
+  bool? _dispute;
   String? _docCountryCode;
   int? _docPhone;
   String? _claimId;
   String? _docRegistration;
-  int? _state;
   String? _city;
   String? _diagonosisDetail;
   int? _doctorFee;
   int? _combinedPharmacyTestFees;
-  int? _claimableDoctorFee;
+  dynamic _claimableDoctorFee;
   int? _claimableCombinedPharmacyTestFees;
   int? _billAmount;
   dynamic _claimableAmount;
   String? _specialization;
-  int? _claimType;
+  String? _userRemark;
   int? _claimCombination;
   int? _pharmacyFee;
   int? _labTestFee;
@@ -283,21 +295,24 @@ class ClaimRecords {
   String? get id => _id;
   String? get opdDate => _opdDate;
   String? get docName => _docName;
+  String? get pinCode => _pinCode;
+  String? get docAddress => _docAddress;
+  String? get docEmail => _docEmail??'';
+  bool? get dispute => _dispute;
   String? get docCountryCode => _docCountryCode;
   int? get docPhone => _docPhone;
   String? get claimId => _claimId;
   String? get docRegistration => _docRegistration;
-  int? get state => _state;
   String? get city => _city;
   String? get diagonosisDetail => _diagonosisDetail;
   int? get doctorFee => _doctorFee;
   int? get combinedPharmacyTestFees => _combinedPharmacyTestFees;
-  int? get claimableDoctorFee => _claimableDoctorFee;
+  dynamic get claimableDoctorFee => _claimableDoctorFee;
   int? get claimableCombinedPharmacyTestFees => _claimableCombinedPharmacyTestFees;
   int? get billAmount => _billAmount;
   dynamic get claimableAmount => _claimableAmount;
   String? get specialization => _specialization;
-  int? get claimType => _claimType;
+  String? get userRemark => _userRemark??'';
   int? get claimCombination => _claimCombination;
   String? get hospital => _hospital;
   List<String>? get feeReceipt => _feeReceipt;
@@ -323,11 +338,13 @@ class ClaimRecords {
     map['_id'] = _id;
     map['opd_date'] = _opdDate;
     map['doc_name'] = _docName;
+    map['do_address'] = _docAddress;
+    map['doc_email'] = _docEmail;
+    map['dispute'] = _dispute;
     map['doc_country_code'] = _docCountryCode;
     map['doc_phone'] = _docPhone;
     map['claim_id'] = _claimId;
     map['doc_registration'] = _docRegistration;
-    map['state'] = _state;
     map['city'] = _city;
     map['diagonosis_detail'] = _diagonosisDetail;
     map['doctor_fee'] = _doctorFee;
@@ -337,7 +354,7 @@ class ClaimRecords {
     map['bill_amount'] = _billAmount;
     map['claimable_amount'] = _claimableAmount;
     map['specialization'] = _specialization;
-    map['claim_type'] = _claimType;
+    map['user_remark'] = _userRemark??'';
     map['claim_combination'] = _claimCombination;
     map['hospital'] = _hospital;
     map['fee_receipt'] = _feeReceipt;

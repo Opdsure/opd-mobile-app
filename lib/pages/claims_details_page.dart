@@ -18,6 +18,7 @@ import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../model/single_claim_model.dart';
+import '../utils/app_var.dart';
 import '../utils/common_methods.dart';
 
 class ClaimsDetailsPage extends StatelessWidget{
@@ -54,18 +55,17 @@ class ClaimsDetailsPage extends StatelessWidget{
       appHeader: AppHeader(headerName: 'Claim Details',),
       childContent: ListView(
         children: [
+          ((oneClaim.status! == 2 || oneClaim.status! == 7 || oneClaim.status! == 12) && !oneClaim.dispute!)?DisputePage(oneClaim.id):Container(),
           AppCardView(
             mChaild: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppTextView(
-                  text: '${CommonMethods.getClaimNameById('${oneClaim.claimType}')} Claim | ${oneClaim.hospital} ',
+                  text: 'Hospital | ${oneClaim.hospital} ',
                   size: 16.0,
                   fontWeight: FontWeight.w600,
                   color: Colors.black,
                 ),
-                const SizedBox(height: 10.0,),
-                commonRow('Type', CommonMethods.getClaimNameById('${oneClaim.claimType!}')),
                 const SizedBox(height: 7.0,),
                 commonRow('Claim Date',CommonMethods.formatIsoDateString(oneClaim.createdAt!)),
                 const SizedBox(height: 7.0,),
@@ -78,6 +78,22 @@ class ClaimsDetailsPage extends StatelessWidget{
                 commonRow('Hospital Address',oneClaim.city!),
                 const SizedBox(height: 7.0,),
                 commonRow('Hospital Cont. Info.','${oneClaim.docPhone!}'),
+                const SizedBox(height: 7.0,),
+                commonRow('Doctor Email',oneClaim.docEmail!),
+                const SizedBox(height: 7.0,),
+                commonRow('Name',oneClaim.memberId!.name!),
+                const SizedBox(height: 7.0,),
+                commonRow('OPD date',CommonMethods.changeDateFormat(oneClaim.opdDate!,from: 'yyyy-MM-dd', to: 'dd/MM/yyyy')),
+                const SizedBox(height: 7.0,),
+                commonRow('Address',oneClaim.docAddress!),
+                const SizedBox(height: 7.0,),
+                commonRow('City',oneClaim.city!),
+                const SizedBox(height: 7.0,),
+                commonRow('Pin Code',oneClaim.pinCode!),
+                const SizedBox(height: 7.0,),
+                commonRow('Total Pay Amt','$rupeeSymbol ${oneClaim.billAmount!}'),
+                const SizedBox(height: 7.0,),
+                commonRow('Claimable Amt.','$rupeeSymbol ${oneClaim.claimableAmount}'),
                 const SizedBox(height: 7.0,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -285,26 +301,6 @@ class ClaimsDetailsPage extends StatelessWidget{
                 );
               }
             },
-          ),
-          const SizedBox(height: 15.0,),
-          AppBorderBox(
-            mCallback: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context)=>DisputePage()),
-              );
-            },
-            myChild: const Center(
-              child: AppTextView(
-                text: 'Raise Dispute',
-                color: buttonColor,
-                size: 16.0,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            borderColor: buttonColor,
-            borderWidth: 1.0,
-            height: 45.0,
           ),
           const SizedBox(height: 70.0),
         ],

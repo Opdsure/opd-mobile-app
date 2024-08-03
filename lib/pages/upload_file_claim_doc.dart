@@ -6,7 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
+import 'package:opdsure/custom_ui/app_bottom_sheet.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/pages/view_image_page.dart';
@@ -39,6 +41,40 @@ class UploadFileClaimDoc extends StatelessWidget{
   List<String> pharmacyUrlList = [];
   List<String> testLabUrlList = [];
 
+  File? imageFile;
+  final ImagePicker _picker = ImagePicker();
+
+  FilePickerResult xFileToFilePickerResult(XFile xfile) {
+    final platformFile = PlatformFile(
+      name: 'File1',
+      path: xfile.path,
+      size: File(xfile.path).lengthSync(),
+      bytes: File(xfile.path).readAsBytesSync(),
+    );
+
+    return FilePickerResult([platformFile]);
+  }
+  // Future<void> _captureImage(BuildContext context,FilePickerResult pf,File file,String option) async {
+  //   TypeController typeController = Get.put(TypeController());
+  //   if(option == 'gallery'){
+  //     FilePickerResult? result = await FilePicker.platform.pickFiles(
+  //       type: FileType.custom,
+  //       allowedExtensions: customSizeList,
+  //     );
+  //   }
+  //   else{
+  //
+  //   }
+  //   prescriptionFiles.add(file);
+  //   typeController.prescriptionListChange(file);
+  //   CommonMethods.showAlertDialog(context);
+  //   var response = await OpdSure.of(context).client.uploadFiles(results: pf);
+  //   prescriptionUrlList = prescriptionUrlList+response!.data!;
+  //   filesUrl['prescription'] = prescriptionUrlList;
+  //   Navigator.of(context).pop();
+  //   print(response);
+  // }
+
   @override
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
@@ -68,10 +104,6 @@ class UploadFileClaimDoc extends StatelessWidget{
                       List<String> pharmacyImageList = singleClaimModel.data!.pharmacyReceipt!;
                       List<String> feeImageList = singleClaimModel.data!.feeReceipt!;
                       List<String> testImageList = singleClaimModel.data!.testReceipt!;
-                      // prescriptionUrlList = prescriptionUrlList+documentMap!['prescription_d'];
-                      // docFeeUrlList = docFeeUrlList+documentMap!['doc_fee_d'];
-                      // pharmacyUrlList = pharmacyUrlList+documentMap!['pharmacy_d'];
-                      // testLabUrlList = testLabUrlList+documentMap!['test_d'];
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -259,24 +291,60 @@ class UploadFileClaimDoc extends StatelessWidget{
                       color: Color(0xFF1D2939),
                     ),
                     AppBorderBox(
-                      mCallback: ()async{
-                        FilePickerResult? result = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: customSizeList,
-                        );
-                        if (result != null) {
-                          File file = File(result.files.single.path!);
-                          prescriptionFiles.add(file);
-                          typeController.prescriptionListChange(file);
-                          CommonMethods.showAlertDialog(context);
-                          var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                          prescriptionUrlList = prescriptionUrlList+response!.data!;
-                          filesUrl['prescription'] = prescriptionUrlList;
-                          Navigator.of(context).pop();
-                          print(response);
-                        } else {
-                          print(result);
-                        }
+                      mCallback: (){
+                        AppBottomSheet(
+                          height: 200,
+                          mChild: Container(
+                            child: Wrap(
+                              children: <Widget>[
+                                ListTile(
+                                    title: const AppTextView(text: 'Gallery',),
+                                    onTap: () async {
+                                      // imageSelector(context, "gallery"),
+                                      Navigator.pop(context);
+                                      FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                        type: FileType.custom,
+                                        allowedExtensions: customSizeList,
+                                      );
+                                      if (result != null) {
+                                        File file = File(result.files.single.path!);
+                                        prescriptionFiles.add(file);
+                                        typeController.prescriptionListChange(file);
+                                        CommonMethods.showAlertDialog(context);
+                                        var response = await OpdSure.of(context).client.uploadFiles(results: result);
+                                        prescriptionUrlList = prescriptionUrlList+response!.data!;
+                                        filesUrl['prescription'] = prescriptionUrlList;
+                                        Navigator.of(context).pop();
+                                        print(response);
+                                      } else {
+                                        print(result);
+                                      }
+                                    }),
+                                ListTile(
+                                  title: const AppTextView(text: 'Camera',),
+                                  onTap: ()async{
+                                    var pickedFile = await _picker.pickImage(source: ImageSource.camera,imageQuality: 80);
+                                    if(pickedFile!=null){
+                                      FilePickerResult pf = xFileToFilePickerResult(pickedFile);
+                                      File file = File(pickedFile.path);
+                                      prescriptionFiles.add(file);
+                                      typeController.prescriptionListChange(file);
+                                      CommonMethods.showAlertDialog(context);
+                                      var response = await OpdSure.of(context).client.uploadFiles(results: pf);
+                                      prescriptionUrlList = prescriptionUrlList+response!.data!;
+                                      filesUrl['prescription'] = prescriptionUrlList;
+                                      Navigator.of(context).pop();
+                                      print(response);
+                                    }
+                                    else{
+                                      print(pickedFile);
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          )
+                        ).modalBottomSheetMenu(context);
                       },
                       myChild: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -373,24 +441,60 @@ class UploadFileClaimDoc extends StatelessWidget{
                     ),
                     AppBorderBox(
                       mCallback: ()async{
-                        FilePickerResult? result = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowMultiple: true,
-                          allowedExtensions: customSizeList,
-                        );
-                        if (result != null) {
-                          File file = File(result.files.single.path!);
-                          doctorFeeFiles.add(file);
-                          typeController.docFeeRcptChange(file);
-                          CommonMethods.showAlertDialog(context);
-                          var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                          docFeeUrlList = docFeeUrlList+response!.data!;
-                          filesUrl['doc_receipt'] = docFeeUrlList;
-                          Navigator.of(context).pop();
-                          print(response);
-                        } else {
-                          print(result);
-                        }
+                        AppBottomSheet(
+                            height: 200,
+                            mChild: Container(
+                              child: Wrap(
+                                children: <Widget>[
+                                  ListTile(
+                                      title: const AppTextView(text: 'Gallery',),
+                                      onTap: () async {
+                                        Navigator.pop(context);
+                                        FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                          type: FileType.custom,
+                                          allowMultiple: true,
+                                          allowedExtensions: customSizeList,
+                                        );
+                                        if (result != null) {
+                                          File file = File(result.files.single.path!);
+                                          doctorFeeFiles.add(file);
+                                          typeController.docFeeRcptChange(file);
+                                          CommonMethods.showAlertDialog(context);
+                                          var response = await OpdSure.of(context).client.uploadFiles(results: result);
+                                          docFeeUrlList = docFeeUrlList+response!.data!;
+                                          filesUrl['fee_receipt'] = docFeeUrlList;
+                                          Navigator.of(context).pop();
+                                          print(response);
+                                        } else {
+                                          print(result);
+                                        }
+                                      }),
+                                  ListTile(
+                                    title: const AppTextView(text: 'Camera',),
+                                    onTap: ()async{
+                                      Navigator.pop(context);
+                                      var pickedFile = await _picker.pickImage(source: ImageSource.camera,imageQuality: 80);
+                                      if(pickedFile!=null){
+                                        FilePickerResult pf = xFileToFilePickerResult(pickedFile);
+                                        File file = File(pickedFile.path);
+                                        doctorFeeFiles.add(file);
+                                        typeController.docFeeRcptChange(file);
+                                        CommonMethods.showAlertDialog(context);
+                                        var response = await OpdSure.of(context).client.uploadFiles(results: pf);
+                                        docFeeUrlList = docFeeUrlList+response!.data!;
+                                        filesUrl['fee_receipt'] = docFeeUrlList;
+                                        Navigator.of(context).pop();
+                                        print(response);
+                                      }
+                                      else{
+                                        print(pickedFile);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            )
+                        ).modalBottomSheetMenu(context);
                       },
                       myChild: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -484,24 +588,60 @@ class UploadFileClaimDoc extends StatelessWidget{
                     ),
                     AppBorderBox(
                       mCallback: ()async{
-                        FilePickerResult? result = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowMultiple: true,
-                          allowedExtensions: customSizeList,
-                        );
-                        if (result != null) {
-                          File file = File(result.files.single.path!);
-                          pharmacyFiles.add(file);
-                          typeController.pharmacyRcptChange(file);
-                          CommonMethods.showAlertDialog(context);
-                          var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                          pharmacyUrlList = pharmacyUrlList+response!.data!;
-                          filesUrl['pharmacy_receipt'] = pharmacyUrlList;
-                          Navigator.of(context).pop();
-                          print(response);
-                        } else {
-                          print(result);
-                        }
+                        AppBottomSheet(
+                            height: 200,
+                            mChild: Container(
+                              child: Wrap(
+                                children: <Widget>[
+                                  ListTile(
+                                      title: const AppTextView(text: 'Gallery',),
+                                      onTap: () async {
+                                        Navigator.pop(context);
+                                        FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                          type: FileType.custom,
+                                          allowMultiple: true,
+                                          allowedExtensions: customSizeList,
+                                        );
+                                        if (result != null) {
+                                          File file = File(result.files.single.path!);
+                                          pharmacyFiles.add(file);
+                                          typeController.pharmacyRcptChange(file);
+                                          CommonMethods.showAlertDialog(context);
+                                          var response = await OpdSure.of(context).client.uploadFiles(results: result);
+                                          pharmacyUrlList = pharmacyUrlList+response!.data!;
+                                          filesUrl['pharmacy_receipt'] = pharmacyUrlList;
+                                          Navigator.of(context).pop();
+                                          print(response);
+                                        } else {
+                                          print(result);
+                                        }
+                                      }),
+                                  ListTile(
+                                    title: const AppTextView(text: 'Camera',),
+                                    onTap: ()async{
+                                      Navigator.pop(context);
+                                      var pickedFile = await _picker.pickImage(source: ImageSource.camera,imageQuality: 80);
+                                      if(pickedFile!=null){
+                                        FilePickerResult pf = xFileToFilePickerResult(pickedFile);
+                                        File file = File(pickedFile.path);
+                                        pharmacyFiles.add(file);
+                                        typeController.pharmacyRcptChange(file);
+                                        CommonMethods.showAlertDialog(context);
+                                        var response = await OpdSure.of(context).client.uploadFiles(results: pf);
+                                        pharmacyUrlList = pharmacyUrlList+response!.data!;
+                                        filesUrl['pharmacy_receipt'] = pharmacyUrlList;
+                                        Navigator.of(context).pop();
+                                        print(response);
+                                      }
+                                      else{
+                                        print(pickedFile);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            )
+                        ).modalBottomSheetMenu(context);
                       },
                       myChild: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -596,24 +736,61 @@ class UploadFileClaimDoc extends StatelessWidget{
                     ),
                     AppBorderBox(
                       mCallback: ()async{
-                        FilePickerResult? result = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowMultiple: true,
-                          allowedExtensions: customSizeList,
-                        );
-                        if (result != null) {
-                          File file = File(result.files.single.path!);
-                          prescriptionFiles.add(file);
-                          typeController.labTestRcptChange(file);
-                          CommonMethods.showAlertDialog(context);
-                          var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                          testLabUrlList = testLabUrlList+response!.data!;
-                          filesUrl['test_receipt'] = testLabUrlList;
-                          Navigator.of(context).pop();
-                          print(response);
-                        } else {
-                          print(result);
-                        }
+                        AppBottomSheet(
+                            height: 200,
+                            mChild: Container(
+                              child: Wrap(
+                                children: <Widget>[
+                                  ListTile(
+                                      title: const AppTextView(text: 'Gallery',),
+                                      onTap: () async {
+                                        Navigator.pop(context);
+                                        FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                          type: FileType.custom,
+                                          allowMultiple: true,
+                                          allowedExtensions: customSizeList,
+                                        );
+                                        if (result != null) {
+                                          File file = File(result.files.single.path!);
+                                          labTestFiles.add(file);
+                                          typeController.labTestRcptChange(file);
+                                          CommonMethods.showAlertDialog(context);
+                                          var response = await OpdSure.of(context).client.uploadFiles(results: result);
+                                          testLabUrlList = testLabUrlList+response!.data!;
+                                          filesUrl['test_receipt'] = testLabUrlList;
+                                          Navigator.of(context).pop();
+                                          print(response);
+                                        } else {
+                                          print(result);
+                                        }
+                                      }),
+                                  ListTile(
+                                    title: const AppTextView(text: 'Camera',),
+                                    onTap: ()async{
+                                      Navigator.pop(context);
+                                      var pickedFile = await _picker.pickImage(source: ImageSource.camera,imageQuality: 80);
+                                      if(pickedFile!=null){
+                                        FilePickerResult pf = xFileToFilePickerResult(pickedFile);
+                                        File file = File(pickedFile.path);
+                                        labTestFiles.add(file);
+                                        typeController.labTestRcptChange(file);
+                                        CommonMethods.showAlertDialog(context);
+                                        var response = await OpdSure.of(context).client.uploadFiles(results: pf);
+                                        testLabUrlList = testLabUrlList+response!.data!;
+                                        filesUrl['test_receipt'] = testLabUrlList;
+                                        Navigator.of(context).pop();
+                                        print(response);
+                                      }
+                                      else{
+                                        print(pickedFile);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            )
+                        ).modalBottomSheetMenu(context);
+
                       },
                       myChild: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -710,22 +887,28 @@ class UploadFileClaimDoc extends StatelessWidget{
             onClick: ()async{
               Map<String,dynamic> data = claimJsonModel!.toJson();
               data['prescription'] = filesUrl['prescription'];
-              data['fee_receipt'] = filesUrl['doc_receipt'];
-              data['pharmacy_receipt'] = filesUrl['pharmacy_receipt'];
-              data['test_receipt'] = filesUrl['test_receipt'];
+              if(filesUrl['fee_receipt']!=null){
+                data['fee_receipt'] = filesUrl['fee_receipt'];
+              }
+              if(filesUrl['pharmacy_receipt']!=null){
+                data['pharmacy_receipt'] = filesUrl['pharmacy_receipt'];
+              }
+              if(filesUrl['test_receipt']!=null) {
+                data['test_receipt'] = filesUrl['test_receipt'];
+              }
               if(filesUrl['prescription']==null && !(isUpdate!)){
                 CommonMethods.showToast('Please upload Prescription');
               }
-              else if(filesUrl['doc_receipt']==null && !(isUpdate!)){
-                CommonMethods.showToast('Please upload Fee Receipt');
-              }
-              else if(filesUrl['pharmacy_receipt']==null && !(isUpdate!)){
-                CommonMethods.showToast('Please upload Pharmacy Receipt');
-              }
-              else if(filesUrl['test_receipt']==null && !(isUpdate!)){
-                CommonMethods.showToast('Please upload Test Receipt');
-              }
               else{
+                // if(filesUrl['doc_receipt']==null && !(isUpdate!)){
+                //   data['doc_receipt'] = [];
+                // }
+                // if(filesUrl['pharmacy_receipt']==null && !(isUpdate!)){
+                //   data['pharmacy_receipt'] = [];
+                // }
+                // if(filesUrl['test_receipt']==null && !(isUpdate!)){
+                //   data['test_receipt'] = [];
+                // }
                 CommonMethods.showAlertDialog(context);
                 print(jsonEncode(data));
                 var response;

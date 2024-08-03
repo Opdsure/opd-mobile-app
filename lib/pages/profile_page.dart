@@ -1,4 +1,3 @@
-import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,7 +12,6 @@ import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/update_profile_page.dart';
-import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/opd_extension/int_extention.dart';
 import 'package:opdsure/widget/opd_widget.dart';
@@ -184,11 +182,6 @@ class ProfilePage extends StatelessWidget{
                                         mKey: 'City',
                                         value: userProfile.data!.city!,
                                       ),
-                                      // const SizedBox(height: 5.0,),
-                                      // AppKeyValue(
-                                      //   mKey: 'State',
-                                      //   value: '',
-                                      // ),
                                       const SizedBox(height: 5.0,),
                                       AppKeyValue(
                                         mKey: 'Pin code',
@@ -213,14 +206,19 @@ class ProfilePage extends StatelessWidget{
                                             text: 'Subscribed Plan',
                                             size: 16.0,
                                             fontWeight: FontWeight.w600,
-                                            color: Colors.black,
+                                            color: buttonColor,
                                           ),
                                           Visibility(
                                             visible: false,
-                                            child: Image.asset(
-                                              'assets/images/edit_pen.png',
-                                              height: 20.0,
-                                              width: 20.0,
+                                            child: SizedBox(
+                                              height: 30,
+                                                width: 100,
+                                                child: AppButton(
+                                                  text: 'Upgrade',
+                                                  onClick: (){
+                                                    context.go('/home/view_plans');
+                                                  },
+                                                ),
                                             ),
                                           )
                                         ],
@@ -242,9 +240,15 @@ class ProfilePage extends StatelessWidget{
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 AppTextView(
-                                                  text: planRecord.name!,
-                                                  color: Colors.black,
+                                                  text: '${planRecord.name!} - ${planRecord.membershipOptions![0].membershipLabel}',
+                                                  color: buttonColor,
                                                   fontWeight: FontWeight.w500,
+                                                ),
+                                                const SizedBox(height: 5,),
+                                                AppTextView(
+                                                  text: '${planRecord.membershipOptions![0].charges!+(planRecord.membershipOptions![0].charges!*18)/100}/Year',
+                                                  color: buttonColor,
+                                                  fontWeight: FontWeight.w600,
                                                 ),
                                                 const SizedBox(height: 5,),
                                                 SizedBox(
@@ -322,7 +326,13 @@ class ProfilePage extends StatelessWidget{
                                       itemCount: snapshot.data!.data!.length,
                                       itemBuilder: (context, index){
                                         MemberList member = snapshot.data!.data![index];
-                                        int fmAge = CommonMethods.calculateAge(DateFormat("yyyy-MM-dd").parse(member.dob!));
+                                        int fmAge;
+                                        if(member.dob==null){
+                                          fmAge = 0;
+                                        }
+                                        else {
+                                          fmAge = CommonMethods.calculateAge(DateFormat("yyyy-MM-dd").parse(member.dob!));
+                                        }
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(vertical: 7.5),
                                           child: AppRoundView(
@@ -336,7 +346,7 @@ class ProfilePage extends StatelessWidget{
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: [
                                                       AppTextView(
-                                                        text: member.relation!.getRelation(),
+                                                        text: '${member.name!} | ${member.relation!.getRelation()}',
                                                         size: 16.0,
                                                         fontWeight: FontWeight.w600,
                                                         color: Colors.black,
@@ -357,9 +367,31 @@ class ProfilePage extends StatelessWidget{
                                                     ],
                                                   ),
                                                   const SizedBox(height: 10.0,),
-                                                  AppKeyValue(
-                                                      mKey: 'Name',
-                                                      value: member.name!
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      const AppTextView(
+                                                        text: 'Status',
+                                                        size: 16.0,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.black,
+                                                      ),
+                                                      Row(
+                                                        children: [
+                                                          member.reviewStatus == 0?const Icon(Icons.access_time_outlined,
+                                                          size: 17.0,
+                                                          color: Color(0xFFEF6C00),):const Icon(Icons.check_circle_outline_rounded,
+                                                          size: 17.0,
+                                                          color: Colors.green,),
+                                                          AppTextView(
+                                                            text: member.reviewStatus == 0?'Pending':'Approved',
+                                                            size: 14.0,
+                                                            fontWeight: FontWeight.w500,
+                                                            color: member.reviewStatus == 0?const Color(0xFFEF6C00):Colors.green,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ),
                                                   const SizedBox(height: 5.0,),
                                                   AppKeyValue(
@@ -369,17 +401,42 @@ class ProfilePage extends StatelessWidget{
                                                   const SizedBox(height: 5.0,),
                                                   AppKeyValue(
                                                     mKey: 'Date of Birth',
-                                                    value: CommonMethods.changeDateFormat(member.dob!,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy'),
+                                                    value: member.dob==null?'':CommonMethods.changeDateFormat(member.dob!,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy'),
                                                   ),
                                                   const SizedBox(height: 5.0,),
                                                   AppKeyValue(
                                                     mKey: 'Mobile',
                                                     value: '${member.phone!}',
                                                   ),
-                                                  const SizedBox(height: 5.0,),
                                                   AppKeyValue(
-                                                    mKey: 'Address',
-                                                    value: member.address!,
+                                                    mKey: 'Plan',
+                                                    value: (member.planStatus! == 1)?'Paid':'Unpaid',
+                                                  ),
+                                                  const SizedBox(height: 5.0,),
+                                                  SizedBox(
+                                                    width: w*0.9,
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        const AppTextView(
+                                                          text: 'Address:',
+                                                          size: 14.0,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: Color(0xFF344054),
+                                                        ),
+                                                        member.address==null?Container():SizedBox(
+                                                          width: w*0.55,
+                                                          child: AppTextView(
+                                                            text: member.address!,
+                                                            size: 14.0,
+                                                            fontWeight: FontWeight.w500,
+                                                            color: const Color(0xFF344054),
+                                                            mTextAlign: member.address!.length>30?TextAlign.start:TextAlign.end,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ],
                                               ),

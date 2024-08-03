@@ -233,4 +233,15 @@ class OpdDatabaseApi extends DatabaseApi {
       return null;
     }
   }
+
+  @override
+  Future getPlansForUpgrade({required int? planPrice}) async {
+    final plans = await getPlans();
+    if(plans != null){
+
+    }else{
+      return null;
+    }
+
+  }
 }

@@ -29,6 +29,7 @@ Future insertPlans({PlansResponse? plans});
 Future deletePlans({PlansResponse? plans});
 Future updatePlanPurchasedStatus(bool value);
 Future getPlanById({required String? planId, int? memberShipId});
+Future getPlansForUpgrade({required int? planPrice});
 
 Future<UserProfile?> getUserProfile();
 Future updateUserProfile({UserProfile? userProfile});
