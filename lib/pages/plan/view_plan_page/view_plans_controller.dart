@@ -6,7 +6,8 @@ import 'package:opdsure/pages/plan/view_plan_page/view_plan_page.dart';
 import '../../../widget/opd_widget.dart';
 
 class ViewPlansPage extends StatefulWidget {
-  const ViewPlansPage({super.key});
+  final bool? isUpgrade;
+  const ViewPlansPage({super.key,this.isUpgrade});
 
   @override
   State<ViewPlansPage> createState() => ViewPlansPageController();

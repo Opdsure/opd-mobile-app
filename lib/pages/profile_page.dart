@@ -11,6 +11,7 @@ import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
+import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 import 'package:opdsure/pages/update_profile_page.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/opd_extension/int_extention.dart';
@@ -209,14 +210,15 @@ class ProfilePage extends StatelessWidget{
                                             color: buttonColor,
                                           ),
                                           Visibility(
-                                            visible: false,
+                                            visible: true,
                                             child: SizedBox(
                                               height: 30,
                                                 width: 100,
                                                 child: AppButton(
                                                   text: 'Upgrade',
                                                   onClick: (){
-                                                    context.go('/home/view_plans');
+                                                    // context.go('/home/view_plans?upgrade=true');
+                                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>const ViewPlansPage(isUpgrade: true)));
                                                   },
                                                 ),
                                             ),

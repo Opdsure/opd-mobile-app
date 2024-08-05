@@ -109,8 +109,18 @@ class CheckoutController extends State<CheckoutPage> {
         "id": records!.id!
       });
       await opd.client.updatePlanPurchasedStatus(true);
-      CommonMethods.showToast('Plan purchased successfully!');
-      context.pushReplacement('/home/view_plans/add_members');
+      opd.client.createOrder(
+          type: widget.paymentType.index,
+          couponCode: couponCtrl.text,
+          planId: widget.paymentType == PaymentType.buyPlan ? records?.id! : null,
+          membershipId: widget.paymentType == PaymentType.buyPlan ? options?.membershipId! : null,
+          // healthId: widget.paymentType == PaymentType.buyPlan ? null : healthCheckupRecords?.id!,
+          healthPlanId: widget.paymentType == PaymentType.buyHealthCheckup ? healthCheckupRecords?.id! : null
+      ).then((value){
+        CommonMethods.showToast('Plan purchased successfully!');
+        context.pushReplacement('/home/view_plans/add_members');
+      });
+
     }
     else{
       final opd = OpdSure.of(context);

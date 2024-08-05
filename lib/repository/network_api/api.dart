@@ -1,12 +1,8 @@
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:typed_data';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
-import 'package:mime/mime.dart';
-import 'package:opdsure/model/claim/file_claim_response.dart';
 import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
 import 'package:opdsure/model/health_checkup/health_checkup.dart';
@@ -154,11 +150,17 @@ class Api {
     return SubscribedPlanModel.fromJson(json);
   }
 
-  Future<PlansResponse?> getAllPlans() async {
-    final requestUri = Uri(path: 'api/v1/public/plan');
-    // final requestUri = Uri(path: 'api/v1/user/upgrade-plan?pageSize=1000');
+  Future<PlansResponse?> getAllPlans({isUpgrade = false}) async {
+    final requestUri;
+    // if(isUpgrade){
+    //   requestUri = Uri(path: 'api/v1/user/upgrade-plan');
+    // }
+    // else{
+      requestUri = Uri(path: 'api/v1/public/plan');
+    // }
     final request = Request('GET', baseUri!.resolveUri(requestUri));
-    request.headers['content-type'] = 'application/json';
+    // request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
