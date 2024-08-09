@@ -23,7 +23,7 @@ class OpdDatabaseApi extends DatabaseApi {
     Hive.registerAdapter(ClientBoxAdapter());
     Hive.registerAdapter(PlansResponseAdapter());
     Hive.registerAdapter(PlansDataAdapter());
-    Hive.registerAdapter(RecordsAdapter());
+    Hive.registerAdapter(PlanRecordsAdapter());
     Hive.registerAdapter(PaginationAdapter());
     Hive.registerAdapter(MembershipOptionsAdapter());
     Hive.registerAdapter(PlanBenefitsAdapter());
@@ -216,32 +216,63 @@ class OpdDatabaseApi extends DatabaseApi {
   }
 
   @override
-  Future getPlanById({required String? planId, int? memberShipId}) async {
-    final plans = await getPlans();
-
+  Future<PlanRecords?> getPlanById({required String? planId, int? memberShipId}) async {
+    PlansResponse? plans = await getPlans();
+    PlanRecords plan = PlanRecords();
+    List<MembershipOptions> option = [];
     if (plans != null) {
-      final records = plans.data!.records!
-          .where((records) => records.id == planId!)
-          .toList();
-      final memberShipOption = records[0]
-          .membershipOptions!
-          .where((options) => options.membershipId == memberShipId)
-          .toList();
-      records[0].membershipOptions = memberShipOption;
-      return records[0];
-    } else {
-      return null;
+      plan = plans.data!.records!.where((records) => records.id == planId!).toList()[0];
+      option = plan.membershipOptions!.where((options) => options.membershipId == memberShipId).toList();
+      return PlanRecords(
+        createdAt: plan.createdAt,
+        files: plan.files,
+        frequency: plan.frequency,
+        id: plan.id,
+        labMaxDiscount: plan.labMaxDiscount,
+        labPrecentDiscount: plan.labPrecentDiscount,
+        membershipOptions: option,
+        name: plan.name,
+        opdMaxDiscount: plan.opdMaxDiscount,
+        opdPrecentDiscount: plan.opdPrecentDiscount,
+        pharmacyMaxDiscount: plan.pharmacyMaxDiscount,
+        pharmacyPrecentDiscount: plan.pharmacyPrecentDiscount,
+        planBenefits: plan.planBenefits,
+        subscriberType: plan.subscriberType,
+        updatedAt: plan.updatedAt,
+        v: plan.v
+      );
     }
+    return null;
   }
 
   @override
-  Future getPlansForUpgrade({required int? planPrice}) async {
-    final plans = await getPlans();
-    if(plans != null){
+  Future<PlansResponse?> getPlansForUpgrade() async {
+    final userProfile = await getUserProfile();
+    final currentPlan = userProfile!.data!.plan!;
+    PlanRecords? plan = await getPlanById(planId: currentPlan.id!, memberShipId: currentPlan.membershipId);
+    PlansResponse? opdPlans = await getPlans();
+    List<PlanRecords>  planRecords = [];
+    if (opdPlans != null && plan != null) {
+      if (plan.membershipOptions != null && plan.membershipOptions!.isNotEmpty) {
+        for (var records in opdPlans.data!.records!) {
+          if (records.membershipOptions != null) {
+            records.membershipOptions!.removeWhere((option) {
+                return option.charges! <= plan.membershipOptions![0].charges! || option.membershipLabel! == 'Individual';
+            });
+          }
+          if(records.membershipOptions!.isNotEmpty){
+            planRecords.add(records);
+          }
 
-    }else{
-      return null;
+        }
+      }
     }
-
+    return PlansResponse(
+      data: PlansData(
+        pagination: null,
+        records: planRecords
+      ),
+    );
   }
+
 }

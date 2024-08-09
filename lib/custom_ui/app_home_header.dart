@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AppHomeHeader extends StatelessWidget{
   final Widget? titleUi;
-  AppHomeHeader({
+  const AppHomeHeader({super.key,
     this.titleUi
   });
   @override
@@ -14,11 +15,9 @@ class AppHomeHeader extends StatelessWidget{
         titleUi!,
         Row(
           children: [
-            Image.asset(
-              'assets/images/wallet_icon.png',
-              height: 30.0,
-              width: 30.0,
-            ),
+            IconButton(onPressed: (){
+              context.push('/home/wallet');
+            }, icon: const ImageIcon(AssetImage('assets/images/wallet_icon.png'), size: 30,)),
             const SizedBox(
               width: 15.0,
             ),

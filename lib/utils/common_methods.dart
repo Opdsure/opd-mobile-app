@@ -1,11 +1,11 @@
 import 'package:dlibphonenumber/enums/phone_number_format.dart';
 import 'package:dlibphonenumber/generated/classes/phone_number/phonenumber.pb.dart';
 import 'package:dlibphonenumber/phone_number_util.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
+import 'package:opdsure/widget/opd_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CommonMethods{
@@ -49,6 +49,46 @@ class CommonMethods{
       textColor: Colors.white,
       fontSize: 16.0,
     );
+  }
+
+  static Future<bool> showExitDialog(BuildContext context, {String? message}) async {
+    OpdSureState opd = OpdSure.of(context);
+    if(opd.isExitDialogShowing) return false;
+    opd.isExitDialogShowing = true;
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return PopScope(
+          onPopInvoked: (_){
+            opd.isExitDialogShowing = false;
+          },
+          child: AlertDialog(
+            title: const AppTextView(
+              text: 'Exit Confirmation',
+              size: 18.0,
+              fontWeight: FontWeight.w600,
+            ),
+            content: AppTextView(text: message?? 'Do you really want to exit?'),
+            actions: [
+              MaterialButton(
+                child: const AppTextView(text: 'Cancel'),
+                onPressed: () {
+                  opd.isExitDialogShowing = false;
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              MaterialButton(
+                child: const AppTextView(text: 'Yes'),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    ) ??
+        false;
   }
 
   static String convertToE164(String phoneNumber, String countryCode) {
@@ -220,6 +260,42 @@ class CommonMethods{
       age--;
     }
     return age;
+  }
+
+  static showLogoutAlertDialog(BuildContext context, String message, String heading,
+      String buttonAcceptTitle, String buttonCancelTitle) {
+    Widget cancelButton = MaterialButton(
+      child: Text(buttonCancelTitle),
+      onPressed: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        // Navigator.pop(context);
+      },
+    );
+    Widget continueButton = MaterialButton(
+      child: Text(buttonAcceptTitle),
+      onPressed: () async {
+        await OpdSure.of(context).client.logout();
+        Navigator.of(context, rootNavigator: true).pop();
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text(heading),
+      content: Text(message),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
 }

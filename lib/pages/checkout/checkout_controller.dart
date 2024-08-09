@@ -13,7 +13,7 @@ import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../../model/coupon_model.dart';
 
-enum PaymentType { buyPlan, buyHealthCheckup }
+enum PaymentType { buyPlan, buyHealthCheckup, planUpgrade, planRenew }
 
 class CheckoutPage extends StatefulWidget {
   final HealthCheckupRecords? healthCheckupRecords;
@@ -38,13 +38,15 @@ class CheckoutController extends State<CheckoutPage> {
   HealthCheckupRecords? healthCheckupRecords;
   double planCharge = 0.0;
   double couponDiscount = 0.0;
+  double previousDiscount = 0.0;
   double gst = 0.0;
   double netAmount = 0.0;
   double netAmountWithGst = 0.0;
   String payAmount = '';
   String name = '';
+  int consumeDays = 0;
+  int remainDays = 0;
   TextEditingController couponCtrl = TextEditingController();
-  String myRequest = '';
 
   @override
   void initState() {
@@ -52,11 +54,10 @@ class CheckoutController extends State<CheckoutPage> {
     records = widget.records;
     options = widget.options;
     healthCheckupRecords = widget.healthCheckupRecords;
-    if (widget.paymentType == PaymentType.buyPlan) {
-      myRequest = 'basic_plan';
+    dataAfterApplyCoupon();
+    if (widget.paymentType != PaymentType.buyHealthCheckup) {
       getPlanSummary();
     } else {
-      myRequest = 'health';
       getHealthCheckUp();
     }
   }
@@ -64,10 +65,7 @@ class CheckoutController extends State<CheckoutPage> {
   void getHealthCheckUp() {
     name = healthCheckupRecords!.name!;
     planCharge = healthCheckupRecords!.discountedPrice!.toDouble();
-    // couponDiscount = double.parse(healthCheckupRecords!.basePrice!.toString()) -
-    //     double.parse(healthCheckupRecords!.discountedPrice!.toString());
     gst = planCharge * 18 / 100;
-    // netAmount = double.parse(healthCheckupRecords!.discountedPrice!.toString());
     netAmountWithGst = planCharge + gst;
     payAmount = (netAmountWithGst * 100).toString();
   }
@@ -82,96 +80,89 @@ class CheckoutController extends State<CheckoutPage> {
   }
 
   dataAfterApplyCoupon() async {
-    var response = await OpdSure.of(context).client.applyCoupon(
-      couponCtrl.text,
-        myRequest=='basic_plan'?records!.id!:healthCheckupRecords!.id!,
-        options==null?'':'${options!.membershipId}',
-      requestFor: myRequest
-    );
+    var response = await OpdSure.of(context).client.applyCoupon(couponCtrl.text,
+        widget.paymentType != PaymentType.buyHealthCheckup
+            ? records!.id!
+            : healthCheckupRecords!.id!,
+        options == null ? '' : options!.membershipId.toString(),
+        widget.paymentType);
     CouponModel couponModel = CouponModel.fromJson(jsonDecode(response));
     setState(() {
       gst = double.parse('${couponModel.data!.gst!}');
       couponDiscount = double.parse('${couponModel.data!.couponDiscount!}');
+      previousDiscount = double.parse(couponModel.data!.preDiscount!.toString());
       planCharge = double.parse('${couponModel.data!.planPrice!}');
-      netAmount = planCharge - couponDiscount;
+      netAmount = planCharge - couponDiscount - previousDiscount;
       netAmountWithGst = netAmount + gst;
-      print(response);
+      consumeDays = couponModel.data!.consumedDays!;
+      remainDays = couponModel.data!.remainingDays!;
     });
   }
 
   void openPaymentGateway() async {
-    if(netAmountWithGst<=0){
-      // CommonMethods.showToast('Amt. should be greater then 0');
-      final opd = OpdSure.of(context);
-      await opd.client.updateUserProfile(plan: {
-        "purchased": true,
-        "membership_id": options!.membershipId!,
-        "id": records!.id!
-      });
-      await opd.client.updatePlanPurchasedStatus(true);
-      opd.client.createOrder(
-          type: widget.paymentType.index,
-          couponCode: couponCtrl.text,
-          planId: widget.paymentType == PaymentType.buyPlan ? records?.id! : null,
-          membershipId: widget.paymentType == PaymentType.buyPlan ? options?.membershipId! : null,
-          // healthId: widget.paymentType == PaymentType.buyPlan ? null : healthCheckupRecords?.id!,
-          healthPlanId: widget.paymentType == PaymentType.buyHealthCheckup ? healthCheckupRecords?.id! : null
-      ).then((value){
-        CommonMethods.showToast('Plan purchased successfully!');
-        context.pushReplacement('/home/view_plans/add_members');
-      });
+    final opd = OpdSure.of(context);
+    UserProfile? profile = await opd.client.getProfile();
+    CommonMethods.showAlertDialog(context);
 
-    }
-    else{
-      final opd = OpdSure.of(context);
-      if (PlatformInfos.isWeb) {
-        final opd = OpdSure.of(context);
-        await opd.client.updateUserProfile(plan: {
-          "purchased": true,
-          "membership_id": options!.membershipId!,
-          "id": records!.id!
-        });
-        await opd.client.updatePlanPurchasedStatus(true);
-        context.go('/home/view_plans/add_members');
-        return;
-      }
-      UserProfile? profile = await opd.client.getProfile();
-      CommonMethods.showAlertDialog(context);
-      final createPaymentResponse = await opd.client.createOrder(
-          type: widget.paymentType.index,
-          couponCode: couponCtrl.text,
-          planId: widget.paymentType == PaymentType.buyPlan ? records?.id! : null,
-          membershipId: widget.paymentType == PaymentType.buyPlan ? options?.membershipId! : null,
-          // healthId: widget.paymentType == PaymentType.buyPlan ? null : healthCheckupRecords?.id!,
-          healthPlanId: widget.paymentType == PaymentType.buyHealthCheckup ? healthCheckupRecords?.id! : null
-      );
+    final createPaymentResponse = await opd.client.createOrder(
+        type: widget.paymentType,
+        couponCode: couponCtrl.text,
+        planId: widget.paymentType != PaymentType.buyHealthCheckup
+            ? records?.id!
+            : null,
+        membershipId: widget.paymentType != PaymentType.buyHealthCheckup
+            ? options?.membershipId!
+            : null,
+        healthPlanId: widget.paymentType == PaymentType.buyHealthCheckup
+            ? healthCheckupRecords?.id!
+            : null);
 
-      Razorpay razorpay = Razorpay();
-      var paymentOptions = {
-        'key': 'rzp_test_sXPx4ftQc94AZA',
-        'amount': createPaymentResponse!.data!.amount!,
-        'currency': createPaymentResponse.data!.currency!,
-        'name': 'OPD Sure',
-        'order_id': createPaymentResponse.data!.id,
-        'description': widget.paymentType == PaymentType.buyPlan ? '${records!.name!} + ${options!.membershipLabel!}' : healthCheckupRecords!.name!,
-        'retry': {'enabled': false, 'max_count': 1},
-        'send_sms_hash': true,
-        'model': {
-          'backdropclose': false,
-          'escape': false,
-          'handleback': true,
-          'confirm_close': true
-        },
-        'prefill': {
-          'contact': "+91${profile.data!.phone!}",
-          "email": profile.data!.email!,
-          "name": profile.data!.name!
+    if (createPaymentResponse!.success!) {
+      if (netAmountWithGst <= 0) {
+        CommonMethods.showToast(
+            widget.paymentType != PaymentType.buyHealthCheckup
+                ? 'Plan purchased successfully!'
+                : 'Health checkup purchased successfully!');
+        if (widget.paymentType == PaymentType.buyPlan) {
+          context.pushReplacement('/home/add-members');
+        } else {
+          context.pushReplacement('/home');
         }
-      };
-      razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
-      razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
-      razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
-      razorpay.open(paymentOptions);
+      } else {
+        Razorpay razorpay = Razorpay();
+        var paymentOptions = {
+          'key': 'rzp_test_sXPx4ftQc94AZA',
+          'amount': createPaymentResponse.data!.amount!,
+          'currency': createPaymentResponse.data!.currency!,
+          'name': 'OPD Sure',
+          'order_id': createPaymentResponse.data!.id,
+          'description': widget.paymentType != PaymentType.buyHealthCheckup
+              ? '${records!.name!} + ${options!.membershipLabel!}'
+              : healthCheckupRecords!.name!,
+          'retry': {'enabled': false, 'max_count': 1},
+          'send_sms_hash': true,
+          'model': {
+            'backdropclose': false,
+            'escape': false,
+            'handleback': true,
+            'confirm_close': true
+          },
+          'prefill': {
+            'contact': "+91${profile.data!.phone!}",
+            "email": profile.data!.email!,
+            "name": profile.data!.name!
+          }
+        };
+        razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
+        razorpay.on(
+            Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
+        razorpay.on(
+            Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
+        razorpay.open(paymentOptions);
+      }
+
+      Navigator.of(context).pop();
+    } else {
       Navigator.of(context).pop();
     }
   }
@@ -182,17 +173,22 @@ class CheckoutController extends State<CheckoutPage> {
 
   void _handlePaymentSuccessResponse(PaymentSuccessResponse response) async {
     final opd = OpdSure.of(context);
-     await opd.client.updateUserProfile(plan: {
-      "purchased": false,
-      "membership_id": options!.membershipId!,
-      "id": records!.id!
-    });
-
-    final verificationResponse = await opd.client
-        .verifyOrder(response.orderId, response.paymentId, response.signature);
+    final verificationResponse = await opd.client.verifyOrder(
+        widget.paymentType,
+        response.orderId,
+        response.paymentId,
+        response.signature);
     if (verificationResponse!.success!) {
-      await opd.client.updatePlanPurchasedStatus(true);
-      context.pushReplacement('/home/view_plans/add_members');
+      CommonMethods.showToast(widget.paymentType != PaymentType.buyHealthCheckup
+          ? 'Plan purchased successfully!'
+          : 'Health checkup purchased successfully!');
+      await opd.client.getProfile(update: true);
+      // opd.isPlanUpgrade = false;
+      if (widget.paymentType == PaymentType.buyPlan) {
+        context.pushReplacement('/home/add-members');
+      } else {
+        context.pushReplacement('/home');
+      }
     } else {
       _showAlertDialog(
           context, "Payment Failed", verificationResponse.message!);

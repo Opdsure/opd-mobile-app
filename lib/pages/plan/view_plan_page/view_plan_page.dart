@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 
@@ -15,10 +16,9 @@ class ViewPlanPageView extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return LoginScaffold(
-      enforceMobileMode: !OpdSure.of(context).client.isLogged,
-      body: Column(
+    OpdSureState opd = OpdSure.of(context);
+    return AppBasePage(
+      childContent: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           const SizedBox(height: 16.0,),
@@ -55,27 +55,10 @@ class ViewPlanPageView extends StatelessWidget{
             child: AppButton(
               text: 'View Plans',
               onClick: (){
-                OpdSure.of(context).isPlansSelect = false;
                 controller.selectPlans(context);
               },
             ),
           ),
-          // const SizedBox(height: 12.0,),
-          // const Padding(
-          //   padding: EdgeInsets.symmetric(horizontal: 15.0),
-          //   child: AppBorderBox(
-          //     myChild: Center(
-          //       child: AppTextView(
-          //         text: 'Cancel',
-          //         size: 16.0,
-          //         fontWeight: FontWeight.w600,
-          //         color: Color(0xFF344054),
-          //       ),
-          //     ),
-          //     borderColor: Color(0xFFD0D5DD),
-          //     boxColor: Color(0x1A101828),
-          //   ),
-          // ),
         ],
       ),
     );

@@ -56,9 +56,7 @@ class PreviewPageController extends State<PreviewPage> {
     for (int i = 0; i < previewImgUri.length; i++) {
       allView.add(Column(
         children: [
-          SizedBox(
-            width: w,
-              height: h * 0.4,
+          Expanded(
               child: Image.asset('assets/images/${previewImgUri[i]}.png')),
           SizedBox(height: h * 0.05,),
           Center(

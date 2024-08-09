@@ -17,6 +17,7 @@ import 'package:opdsure/utils/logs/logs.dart';
 import 'package:opdsure/utils/run_banchmark.dart';
 import 'package:opdsure/utils/streams/cached_stream_controller.dart';
 import '../../model/forget_password/forget_password_response.dart';
+import '../../model/health_checkup/health_checkup.dart';
 import '../../model/login/login_response.dart';
 import '../../model/plans/plans_response.dart';
 import '../../model/register/register_response.dart';
@@ -142,7 +143,7 @@ class OpdClient extends OpdApi {
         return;
       }
       await getProfile(update: true);
-      await getAllPlans(update: true);
+      await getAllPlans(update: true, isUpgrade: false);
      isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
 
 
@@ -275,54 +276,43 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<PlansResponse?> getAllPlans({bool update = false,isUpgrade = false}) async {
+  Future<PlansResponse?> getAllPlans({bool update = false, bool isUpgrade = false}) async {
     PlansResponse? plansResponse;
     final database = this.database;
     if (database != null && !update) {
       plansResponse = await database.getPlans();
-      plansResponse ??= await super.getAllPlans();
+      plansResponse ??= await super.getAllPlans(isUpgrade: isUpgrade);
       await database.updatePlans(plans: plansResponse);
     } else {
       plansResponse = await super.getAllPlans(isUpgrade: isUpgrade);
       final database = this.database;
       if (database != null) {
         await database.insertPlans(plans: plansResponse);
+        if(isUpgrade){
+          plansResponse = await database.getPlansForUpgrade();
+        }
       }
     }
     return plansResponse;
   }
 
   @override
-  Future<UserProfile> getProfile({bool update = true}) async {
+  Future<UserProfile> getProfile({bool update = false}) async {
     UserProfile? userProfile;
     final database = this.database;
     if (database != null) {
       if(update){
         userProfile = await super.getProfile();
         await database.updateUserProfile(userProfile: userProfile);
+        await updatePlanPurchasedStatus(userProfile.data!.plan!.purchased!);
         profileData = userProfile.data!;
         return userProfile;
       }
       userProfile = await database.getUserProfile();
       userProfile ??= await super.getProfile();
       await database.updateUserProfile(userProfile: userProfile);
-    } else {
-      userProfile = await super.getProfile();
-
-      final databaseBuilder = this.databaseBuilder;
-      if (databaseBuilder != null) {
-        _database ??= await runBenchmarked(
-          'Build database',
-              () async => databaseBuilder(this),
-        );
-      }
-
-      final database = this.database;
-      if (database != null) {
-        await database.insertUserProfile(userProfile: userProfile);
-      }
     }
-    profileData = userProfile.data!;
+    profileData = userProfile!.data!;
     return userProfile;
   }
 
@@ -478,12 +468,17 @@ class OpdClient extends OpdApi {
   }
 
   Future<PlanRecords?> getPlanById({required String? planId, int? memberShipId})async {
-    PlanRecords? records;
+    await getAllPlans(update: true);
     final database = this.database;
     if(database != null){
-      records = await database.getPlanById(planId: planId, memberShipId: memberShipId);
+      return await database.getPlanById(planId: planId, memberShipId: memberShipId);
     }
-    return records;
+    return null;
+  }
+
+  Future<HealthCheckupRecords> getHealthPlanById(String planId) async {
+    HealthCheckupResponse? health =  await getHealthCheckupPlan();
+    return health!.data!.records!.where((e) => e.id == planId).toList()[0];
   }
 
 }

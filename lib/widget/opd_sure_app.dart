@@ -35,7 +35,7 @@ class OpdSureApp extends StatelessWidget {
         title: AppConfig.applicationName,
         themeMode: mode,
         theme: OpdThemes.buildTheme(context, Brightness.light, color),
-        darkTheme: OpdThemes.buildTheme(context, Brightness.dark, color),
+        darkTheme: OpdThemes.buildTheme(context, Brightness.light, color),
         scrollBehavior: CustomScrollBehavior(),
         routerConfig: router,
         builder: (context, child) => Navigator(

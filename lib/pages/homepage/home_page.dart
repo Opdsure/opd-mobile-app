@@ -26,23 +26,30 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../custom_ui/app_button.dart';
 import '../../custom_ui/app_card_view.dart';
 import '../../model/claim_status_model.dart';
-import '../../model/my_claims_model.dart';
+import '../../model/my_claim/my_claims_model.dart';
 import '../../utils/app_var.dart';
 import '../all_checkup_page.dart';
 import '../claims_details_page.dart';
 import '../file_claim_page.dart';
+
 typedef ValueCallback = void Function(int value);
+
 class HomePage extends StatefulWidget {
   final ValueCallback callback;
+
   HomePage({required this.callback, super.key});
 
-  static const List<IconData> icons = [Icons.chat, Icons.phone, Icons.group_add];
+  static const List<IconData> icons = [
+    Icons.chat,
+    Icons.phone,
+    Icons.group_add
+  ];
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   AnimationController? _controller;
 
   @override
@@ -54,7 +61,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
   }
 
   Future<void> joinWhatsAppGroup() async {
-    const String groupLink = 'https://chat.whatsapp.com/your-group-invite-link'; // Replace with your group invite link
+    const String groupLink =
+        'https://chat.whatsapp.com/your-group-invite-link'; // Replace with your group invite link
 
     if (await canLaunch(groupLink)) {
       await launch(groupLink);
@@ -63,18 +71,18 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
     }
   }
 
-  openWhatsapp() async{
+  openWhatsapp() async {
     var contact = "+919868645544";
     var androidUrl = "whatsapp://send?phone=$contact&text=Hi, I need some help";
-    var iosUrl = "https://wa.me/$contact?text=${Uri.parse('Hi, I need some help')}";
-    try{
-      if(Platform.isIOS){
+    var iosUrl =
+        "https://wa.me/$contact?text=${Uri.parse('Hi, I need some help')}";
+    try {
+      if (Platform.isIOS) {
         await launchUrl(Uri.parse(iosUrl));
-      }
-      else{
+      } else {
         await launchUrl(Uri.parse(androidUrl));
       }
-    } on Exception{
+    } on Exception {
       CommonMethods.showToast('WhatsApp is not installed.');
     }
   }
@@ -148,12 +156,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
                           SizedBox(
                             width: w * 0.75,
                             child: const Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     AppTextView(
                                       text: '100 + Claims Filed',
@@ -180,7 +186,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
                             width: w * 0.7,
                             child: const AppTextView(
                               text:
-                              'File your OPD Claim quickly and effortlessly, and let us take care of the rest',
+                                  'File your OPD Claim quickly and effortlessly, and let us take care of the rest',
                               size: 14.0,
                               color: Color(0xFF667085),
                             ),
@@ -192,7 +198,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
                 ],
               ),
             ),
-            mCallback: (){
+            mCallback: () {
               widget.callback.call(1);
             },
             colorList: const [
@@ -237,8 +243,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
                           SizedBox(
                             width: w * 0.75,
                             child: const Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 AppTextView(
                                   text: 'Book Free Health Check-up',
@@ -257,7 +262,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
                             width: w * 0.7,
                             child: const AppTextView(
                               text:
-                              'Book your free health check -up today and prioritize your well-being with confidence.',
+                                  'Book your free health check -up today and prioritize your well-being with confidence.',
                               size: 14.0,
                               color: Color(0xFF667085),
                             ),
@@ -269,10 +274,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
                 ],
               ),
             ),
-            mCallback: (){
+            mCallback: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context)=>AllCheckupPage()),
+                MaterialPageRoute(builder: (context) => AllCheckupPage()),
               );
             },
             colorList: const [
@@ -295,7 +300,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
                 fontWeight: FontWeight.w500,
               ),
               InkWell(
-                onTap: (){
+                onTap: () {
                   widget.callback.call(1);
                 },
                 child: const Row(
@@ -318,197 +323,250 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
           const SizedBox(
             height: 5,
           ),
-          Obx((){
+          Obx(() {
             bool refresh = typeController.refreshClaimList.value;
             return SizedBox(
-              height: h*0.37,
-              child: refresh?FutureBuilder(
-                future: OpdSure.of(context).client.getAllClaims(),
-                builder: (context,snapshot){
-                  if(snapshot.data == null){
-                    return const Center(
-                      child: AppTextView(
-                        text: 'Claims are loading...',
-                      ),
-                    );
-                  }
-                  else{
-                    print(snapshot.data);
-                    MyClaimsModel myClaimsModel = MyClaimsModel.fromJson(jsonDecode(snapshot.data));
-                    List<ClaimRecords> listData = myClaimsModel.data!.records!;
-                    return listData.isEmpty?const Center(
-                      child: AppTextView(
-                        text: 'No Claim Found',
-                      ),
-                    ):ListView.builder(
-                      itemCount: listData.length>3?3:listData.length,
-                      itemBuilder: (context,index){
-                        ClaimRecords records = listData[index];
-                        ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(records.status!,reSubmit: records.resubmission!);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: InkWell(
-                            onTap: (){
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context)=>ClaimsDetailsPage(records)),
-                              );
-                            },
-                            child: AppCardView(
-                              mChaild: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      AppTextView(
-                                        text: 'Hospital | ${records.hospital} ',
-                                        size: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.black,
-                                      ),
-                                      const Icon(
-                                        Icons.keyboard_arrow_right_sharp,
-                                        color: Colors.black,
-                                      )
-                                    ],
+              height: h * 0.37,
+              child: refresh
+                  ? FutureBuilder<MyClaimsModel?>(
+                      future: OpdSure.of(context).client.getAllClaims(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data == null) {
+                          return const Center(
+                            child: AppTextView(
+                              text: 'Claims are loading...',
+                            ),
+                          );
+                        } else {
+                          MyClaimsModel? myClaimsModel = snapshot.data;
+                          List<ClaimRecords> listData = myClaimsModel!.data!.records!;
+                          return listData.isEmpty
+                              ? const Center(
+                                  child: AppTextView(
+                                    text: 'No Claim Found',
                                   ),
-                                  const SizedBox(height: 2.0,),
-                                  AppTextView(
-                                    text:
-                                    'Applicant name : ${records.memberId!.name}',
-                                    size: 12.0,
-                                    color:
-                                    const Color(0xFF667085),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  AppTextView(
-                                    text:
-                                    'Hospital : ${records.hospital!}',
-                                    size: 12.0,
-                                    color:
-                                    const Color(0xFF667085),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  AppTextView(
-                                    text:
-                                    'Claim ID : ${records.claimId}',
-                                    size: 12.0,
-                                    color:
-                                    const Color(0xFF667085),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                  Text.rich(
-                                    TextSpan(
-                                      children: [
-                                        TextSpan(
-                                            text: 'Claimable Amount: ',
-                                            style: GoogleFonts.montserrat(
-                                              fontSize: 12.0,
-                                              fontWeight: FontWeight.w500,
-                                              color: const Color(0xFF667085),
-                                            )
-                                        ),
-                                        TextSpan(
-                                          text: '$rupeeSymbol ${records.claimableAmount!.toDouble()}',
-                                          style: GoogleFonts.montserrat(
-                                              fontSize: 12.0,
-                                              fontWeight: FontWeight.w500,
-                                              color: const Color(0xFF027A48)
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5,),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      (records.status == 6 && !(records.subscriberReaction!))?AppButton(
-                                        text: 'Clarification Req',
-                                        width: 100,
-                                        height: 30,
-                                        textSize: 10.0,
-                                        fontWeight: FontWeight.normal,
-                                        onClick: (){
+                                )
+                              : ListView.builder(
+                                  itemCount:
+                                      listData.length > 3 ? 3 : listData.length,
+                                  itemBuilder: (context, index) {
+                                    ClaimRecords records = listData[index];
+                                    ClaimStatusModel claimStatusModel =
+                                        ClaimStatusModel().getClaimBuStatus(
+                                            records.status!,
+                                            reSubmit: records.resubmission!);
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 5.0),
+                                      child: InkWell(
+                                        onTap: () {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) =>
-                                                  FileClaimPage(
-                                                    isUpdate: true,
-                                                    records: records,
-                                                  ),
-                                            ),
+                                                builder: (context) =>
+                                                    ClaimsDetailsPage(
+                                                      oneClaim: records,
+                                                      isDispute: false,
+                                                    )),
                                           );
                                         },
-                                      ):Row(
-                                        children: [
-                                          const AppTextView(
-                                            text: 'Status: ',
-                                            size: 12.0,
-                                            color: Color(0xFF667085),
-                                            fontWeight: FontWeight.w500,
+                                        child: AppCardView(
+                                          mChaild: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  AppTextView(
+                                                    text:
+                                                        'Hospital | ${records.hospital} ',
+                                                    size: 16,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black,
+                                                  ),
+                                                  const Icon(
+                                                    Icons
+                                                        .keyboard_arrow_right_sharp,
+                                                    color: Colors.black,
+                                                  )
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height: 2.0,
+                                              ),
+                                              AppTextView(
+                                                text:
+                                                    'Applicant name : ${records.memberId!.name}',
+                                                size: 12.0,
+                                                color: const Color(0xFF667085),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              AppTextView(
+                                                text:
+                                                    'Hospital : ${records.hospital!}',
+                                                size: 12.0,
+                                                color: const Color(0xFF667085),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              AppTextView(
+                                                text:
+                                                    'Claim ID : ${records.claimId}',
+                                                size: 12.0,
+                                                color: const Color(0xFF667085),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              Text.rich(
+                                                TextSpan(
+                                                  children: [
+                                                    TextSpan(
+                                                        text:
+                                                            'Claimable Amount: ',
+                                                        style: GoogleFonts
+                                                            .montserrat(
+                                                          fontSize: 12.0,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: const Color(
+                                                              0xFF667085),
+                                                        )),
+                                                    TextSpan(
+                                                      text:
+                                                          '$rupeeSymbol ${records.claimableAmount!.toDouble()}',
+                                                      style: GoogleFonts
+                                                          .montserrat(
+                                                              fontSize: 12.0,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w500,
+                                                              color: const Color(
+                                                                  0xFF027A48)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              AppTextView(
+                                                text:
+                                                'Claim Date: ${CommonMethods.formatIsoDateString(records.createdAt!)}',
+                                                size: 12.0,
+                                                color:
+                                                const Color(0xFF667085),
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+                                              (records.status == 6 &&
+                                                      !(records
+                                                          .subscriberReaction!))
+                                                  ? AppButton(
+                                                      text:
+                                                          'Clarification Required',
+                                                height: 40.0,
+                                                width: CommonMethods
+                                                    .deviceWidth(
+                                                    context),
+                                                      textSize: 14.0,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      onClick: () {
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    FileClaimPage(
+                                                              isUpdate:
+                                                                  true,
+                                                              records:
+                                                                  records,
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    )
+                                                  : Row(
+                                                      children: [
+                                                        const AppTextView(
+                                                          text: 'Status: ',
+                                                          size: 12.0,
+                                                          color: Color(
+                                                              0xFF667085),
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .w500,
+                                                        ),
+                                                        Icon(
+                                                          claimStatusModel
+                                                              .iconData,
+                                                          color: claimStatusModel
+                                                              .statusColor,
+                                                          size: 15.0,
+                                                        ),
+                                                        AppTextView(
+                                                          text:
+                                                              ' ${claimStatusModel.statusName}',
+                                                          size: 1.0,
+                                                          color: claimStatusModel
+                                                              .statusColor!,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .w500,
+                                                        ),
+                                                      ],
+                                                    ),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+                                              if((records.status! == 2 || records.status! == 7 || records.status! == 12))...[
+                                                !records.dispute!
+                                                    ? AppButton(
+                                                  text: 'Raise Dispute',
+                                                  height: 40.0,
+                                                  width: CommonMethods.deviceWidth(context),
+                                                  textSize: 14.0,
+                                                  fontWeight:
+                                                  FontWeight.w500,
+                                                  onClick: () {
+                                                    Navigator.push(context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ClaimsDetailsPage(oneClaim: records, isDispute: true,)),
+                                                    );
+                                                  },
+                                                )
+                                                    : const Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.sync_sharp,
+                                                      color: Colors.red,
+                                                      size: 15.0,
+                                                    ),
+                                                    SizedBox(
+                                                      width: 5,
+                                                    ),
+                                                    AppTextView(
+                                                      text:
+                                                      'Dispute Raised',
+                                                      size: 12.0,
+                                                      color: Colors.red,
+                                                    ),
+                                                  ],
+                                                )
+                                              ]
+                                            ],
                                           ),
-                                          Icon(
-                                            claimStatusModel.iconData,
-                                            color: claimStatusModel.statusColor,
-                                            size: 15.0,
-                                          ),
-                                          AppTextView(
-                                            text: ' ${claimStatusModel.statusName}',
-                                            size: 12.0,
-                                            color: claimStatusModel.statusColor!,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                      AppTextView(
-                                        text: 'Claim Date: ${CommonMethods.formatIsoDateString(records.createdAt!)}',
-                                        size: 10.0,
-                                        color: const Color(0xFF667085),
-                                        fontWeight: FontWeight.w500,
-                                      )
-                                    ],
-                                  ),
-                                  const SizedBox(height: 5,),
-                                  ((records.status! == 2 || records.status! == 7 || records.status! == 12))?!records.dispute!?AppButton(
-                                    text: 'Raise Dispute',
-                                    height: 30.0,
-                                    width: 100.0,
-                                    textSize: 12.0,
-                                    fontWeight: FontWeight.normal,
-                                    onClick: (){
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context)=>ClaimsDetailsPage(records)),
-                                      );
-                                    },
-                                  ):const Row(
-                                    children: [
-                                      Icon(
-                                        Icons.sync_sharp,
-                                        color: Colors.red,
-                                        size: 15.0,
-                                      ),
-                                      SizedBox(width: 5,),
-                                      AppTextView(
-                                        text: 'Dispute Raised',
-                                        size: 12.0,
-                                        color: Colors.red,
-                                      ),
-                                    ],
-                                  ):Container()
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
+                                    );
+                                  },
+                                );
+                        }
                       },
-                    );
-                  }
-                },
-              ):Container(),
+                    )
+                  : Container(),
             );
           }),
         ],
@@ -524,11 +582,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
             child: ScaleTransition(
               scale: CurvedAnimation(
                 parent: _controller!,
-                curve: Interval(
-                    0.0,
-                    1.0 - index / HomePage.icons.length / 2.0,
-                    curve: Curves.easeOut
-                ),
+                curve: Interval(0.0, 1.0 - index / HomePage.icons.length / 2.0,
+                    curve: Curves.easeOut),
               ),
               child: FloatingActionButton(
                 heroTag: null,
@@ -536,7 +591,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
                 mini: true,
                 child: Icon(HomePage.icons[index], color: Colors.white),
                 onPressed: () {
-                  switch(index){
+                  switch (index) {
                     case 0:
                       openWhatsapp();
                       break;
@@ -552,28 +607,32 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin  {
             ),
           );
           return child;
-        }).toList()..add(
-          FloatingActionButton(
-            heroTag: null,
-            child: AnimatedBuilder(
-              animation: _controller!,
-              builder: (context, child) {
-                return Transform(
-                  transform: Matrix4.rotationZ(_controller!.value * 0.5 * math.pi),
-                  alignment: FractionalOffset.center,
-                  child: Icon(_controller!.isDismissed ? Icons.support_agent_outlined : Icons.close),
-                );
+        }).toList()
+          ..add(
+            FloatingActionButton(
+              heroTag: null,
+              child: AnimatedBuilder(
+                animation: _controller!,
+                builder: (context, child) {
+                  return Transform(
+                    transform:
+                        Matrix4.rotationZ(_controller!.value * 0.5 * math.pi),
+                    alignment: FractionalOffset.center,
+                    child: Icon(_controller!.isDismissed
+                        ? Icons.support_agent_outlined
+                        : Icons.close),
+                  );
+                },
+              ),
+              onPressed: () {
+                if (_controller!.isDismissed) {
+                  _controller!.forward();
+                } else {
+                  _controller!.reverse();
+                }
               },
             ),
-            onPressed: () {
-              if (_controller!.isDismissed) {
-                _controller!.forward();
-              } else {
-                _controller!.reverse();
-              }
-            },
           ),
-        ),
       ),
     );
   }

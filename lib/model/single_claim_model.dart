@@ -66,8 +66,8 @@ class SingleClaimData {
       dynamic manager, 
       bool? subscriberReaction, 
       bool? resubmission, 
-      List<dynamic>? remark, 
-      List<dynamic>? subscriberRemark, 
+      List<String>? remark,
+      List<String>? subscriberRemark,
       String? createdAt, 
       String? updatedAt, 
       int? v, 
@@ -144,16 +144,14 @@ class SingleClaimData {
     _subscriberReaction = json['subscriber_reaction'];
     _resubmission = json['resubmission'];
     if (json['remark'] != null) {
-      _remark = [];
-      // json['remark'].forEach((v) {
-      //   _remark?.add(Dynamic.fromJson(v));
-      // });
+      json['remark'].forEach((v) {
+        _remark?.add(v);
+      });
     }
     if (json['subscriber_remark'] != null) {
-      _subscriberRemark = [];
-      // json['subscriber_remark'].forEach((v) {
-      //   _subscriberRemark?.add(Dynamic.fromJson(v));
-      // });
+      json['subscriber_remark'].forEach((v) {
+        _subscriberRemark?.add(v);
+      });
     }
     _createdAt = json['createdAt'];
     _updatedAt = json['updatedAt'];
@@ -191,8 +189,8 @@ class SingleClaimData {
   dynamic _manager;
   bool? _subscriberReaction;
   bool? _resubmission;
-  List<dynamic>? _remark;
-  List<dynamic>? _subscriberRemark;
+  List<String>? _remark;
+  List<String>? _subscriberRemark;
   String? _createdAt;
   String? _updatedAt;
   int? _v;
@@ -229,8 +227,8 @@ class SingleClaimData {
   dynamic get manager => _manager;
   bool? get subscriberReaction => _subscriberReaction;
   bool? get resubmission => _resubmission;
-  List<dynamic>? get remark => _remark;
-  List<dynamic>? get subscriberRemark => _subscriberRemark;
+  List<String>? get remark => _remark;
+  List<String>? get subscriberRemark => _subscriberRemark;
   String? get createdAt => _createdAt;
   String? get updatedAt => _updatedAt;
   int? get v => _v;
@@ -272,10 +270,10 @@ class SingleClaimData {
     map['subscriber_reaction'] = _subscriberReaction;
     map['resubmission'] = _resubmission;
     if (_remark != null) {
-      map['remark'] = _remark?.map((v) => v.toJson()).toList();
+      map['remark'] = _remark?.map((v) => v).toList();
     }
     if (_subscriberRemark != null) {
-      map['subscriber_remark'] = _subscriberRemark?.map((v) => v.toJson()).toList();
+      map['subscriber_remark'] = _subscriberRemark?.map((v) => v).toList();
     }
     map['createdAt'] = _createdAt;
     map['updatedAt'] = _updatedAt;

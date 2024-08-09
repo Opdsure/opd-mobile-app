@@ -122,16 +122,6 @@ class TypeController extends GetxController{
     flagCode.value = type;
   }
 
-  RxString planName = 'Care'.obs;
-  void planNameChange(String type){
-    planName.value = type;
-  }
-
-  RxInt planIndex = 0.obs;
-  void planIndexChange(int type){
-    planIndex.value = type;
-  }
-
   var memberList = <MemberList>[].obs;
   void memberListChange(MemberList claim) {
     memberList.add(claim);

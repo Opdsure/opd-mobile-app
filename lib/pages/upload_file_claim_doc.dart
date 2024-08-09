@@ -357,7 +357,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 height: 40.0,
                                 width: 40.0,
                               ),
-                              const SizedBox(height: 15.0),
+                              const SizedBox(height: 12.0),
                               const AppTextView(
                                 text: 'Click to upload',
                                 size: 14.0,
@@ -427,7 +427,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                       return Visibility(
                         visible: allFiles.isNotEmpty,
                         child: const AppTextView(
-                          text: 'Tap to remove file',
+                          text: 'Tap file to remove.',
                           size: 11.0,
                         ),
                       );
@@ -507,7 +507,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 height: 40.0,
                                 width: 40.0,
                               ),
-                              const SizedBox(height: 15.0),
+                              const SizedBox(height: 12.0),
                               const AppTextView(
                                 text: 'Click to upload',
                                 size: 14.0,
@@ -574,7 +574,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                       return Visibility(
                         visible: allFiles.isNotEmpty,
                         child: const AppTextView(
-                          text: 'Tap to remove file',
+                          text: 'Tap file to remove.',
                           size: 11.0,
                         ),
                       );
@@ -654,7 +654,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 height: 40.0,
                                 width: 40.0,
                               ),
-                              const SizedBox(height: 15.0),
+                              const SizedBox(height: 12.0),
                               const AppTextView(
                                 text: 'Click to upload',
                                 size: 14.0,
@@ -722,7 +722,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                       return Visibility(
                         visible: allFiles.isNotEmpty,
                         child: const AppTextView(
-                          text: 'Tap to remove file',
+                          text: 'Tap file to remove.',
                           size: 11.0,
                         ),
                       );
@@ -790,7 +790,6 @@ class UploadFileClaimDoc extends StatelessWidget{
                               ),
                             )
                         ).modalBottomSheetMenu(context);
-
                       },
                       myChild: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -803,7 +802,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 height: 40.0,
                                 width: 40.0,
                               ),
-                              const SizedBox(height: 15.0),
+                              const SizedBox(height: 12.0),
                               const AppTextView(
                                 text: 'Click to upload',
                                 size: 14.0,
@@ -876,7 +875,7 @@ class UploadFileClaimDoc extends StatelessWidget{
             return Visibility(
               visible: allFiles.isNotEmpty,
               child: const AppTextView(
-                text: 'Tap to remove file',
+                text: 'Tap file to remove.',
                 size: 11.0,
               ),
             );

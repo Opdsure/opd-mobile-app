@@ -70,13 +70,14 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       .._dob = fields[11] as String?
       .._organizationId = fields[12] as String?
       .._profileImage = fields[13] as String?
-      .._name = fields[14] as String?;
+      .._name = fields[14] as String?
+      .._walletBalance = fields[15] as int?;
   }
 
   @override
   void write(BinaryWriter writer, ProfileData obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj._verified)
       ..writeByte(1)
@@ -106,7 +107,9 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       ..writeByte(13)
       ..write(obj._profileImage)
       ..writeByte(14)
-      ..write(obj._name);
+      ..write(obj._name)
+      ..writeByte(15)
+      ..write(obj._walletBalance);
   }
 
   @override

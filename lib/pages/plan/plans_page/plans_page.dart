@@ -1,37 +1,26 @@
-import 'dart:ui';
-
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_drop_down.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
-import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/custom_ui/select_plan.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/plan/plans_page/plans_page_controller.dart';
-import 'package:opdsure/repository/client/OpdClient.dart';
+import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../../utils/app_colors.dart';
 
-class PlansPageView extends StatefulWidget {
+class PlansPageView extends StatelessWidget {
   final PlansPageController controller;
 
   const PlansPageView(this.controller, {super.key});
 
-  @override
-  State<PlansPageView> createState() => _PlansPageViewState();
-}
-
-class _PlansPageViewState extends State<PlansPageView> with SingleTickerProviderStateMixin{
   final Color textColor = const Color(0xFF8A48B3);
-
-  late final TabController tabController = TabController(length: 4, vsync: this);
 
   Widget commonRow(BuildContext context, String imgUri, String desc) {
     double w = CommonMethods.deviceWidth(context);
@@ -51,17 +40,17 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    OpdSureState opd = OpdSure.of(context);
     return DefaultTabController(
-      length: widget.controller.plansLength!,
+      length: controller.plansLength!,
       child: AppBasePage(
-        enforceMobileMode: !OpdSure.of(context).client.isLogged,
         appHeader: AppHeader(
           headerName: 'Plans',
         ),
         childContent: ListView(
           children: [
             ButtonsTabBar(
-              controller: tabController,
+              controller: controller.tabController,
               backgroundColor: Colors.transparent,
               unselectedBackgroundColor: Colors.white,
               labelStyle: GoogleFonts.montserrat(
@@ -77,9 +66,9 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
               borderWidth: 1,
               unselectedBorderColor: const Color(0xFFEAECF0),
               radius: 15,
-              tabs: widget.controller.plansTab!,
+              tabs: controller.plansTab!,
               onTap: (index) {
-                widget.controller.getIndexedRecords(index: index);
+                controller.getIndexedRecords(index: index);
               },
             ),
             const SizedBox(
@@ -88,39 +77,53 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                AppTextView(
-                  text: (!widget.controller.isIndividual &&
-                      widget.controller.familyOptions == null)
-                      ? 'Select Member'
-                      : '₹ ${widget.controller.options!.charges!+((widget.controller.options!.charges!)*18)/100}',
-                  color: textColor,
-                  size: (!widget.controller.isIndividual &&
-                      widget.controller.familyOptions == null) ? 16.0 : 40.0,
-                  fontWeight: FontWeight.w700,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    AppTextView(
+                      text: (!controller.isIndividual &&
+                              controller.familyOptions == null)
+                          ? 'Select Member'
+                          : '₹ ${controller.options!.charges! + ((controller.options!.charges!) * 18) / 100}',
+                      color: textColor,
+                      size: (!controller.isIndividual &&
+                              controller.familyOptions == null)
+                          ? 16.0
+                          : 30.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    AppTextView(
+                      text: '(incl GST 18%)',
+                      color: textColor,
+                      size: 12.0,
+                      fontWeight: FontWeight.w500,
+                    )
+                  ],
                 ),
-                if (widget.controller.record!.planType == PlanType.both) ...[
+                if (controller.record!.planType == PlanType.both) ...[
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Row(
                         children: [
                           AppTextView(
-                            text: widget.controller.planType,
+                            text: controller.planType,
                             color: textColor,
                             fontWeight: FontWeight.w500,
                           ),
                           Switch(
-                            value: widget.controller.isIndividual,
-                            onChanged: widget.controller.toggleIndividual,
+                            value: controller.isIndividual,
+                            onChanged: controller.toggleIndividual,
                             activeTrackColor: textColor,
                             inactiveTrackColor: textColor,
-                            trackOutlineColor: widget.controller.isIndividual
+                            trackOutlineColor: controller.isIndividual
                                 ? null
                                 : WidgetStatePropertyAll<Color>(textColor),
                             inactiveThumbColor: Colors.white,
                             thumbIcon: WidgetStatePropertyAll<Icon>(
                               Icon(
-                                widget.controller.isIndividual
+                                controller.isIndividual
                                     ? Icons.person
                                     : Icons.family_restroom,
                                 color: textColor,
@@ -131,7 +134,7 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
                       ),
                       AppTextView(
                         text:
-                        'Toggle for ${widget.controller.isIndividual ? "family" : "individual"}',
+                            'Toggle for ${controller.isIndividual ? "family" : "individual"}',
                         size: 12,
                         color: textColor,
                       ),
@@ -144,42 +147,74 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
               height: 15.0,
             ),
             AppTextView(
-              text: CommonMethods.getPlanFrequency(
-                  widget.controller.record!.frequency!),
+              text:
+                  CommonMethods.getPlanFrequency(controller.record!.frequency!),
               size: 16.0,
               fontWeight: FontWeight.w600,
             ),
             const SizedBox(
               height: 15.0,
             ),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                  color: textColor.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12)),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'On this plan, You will be rewarded with ',
+                      style: GoogleFonts.montserrat(
+                          color: textColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500),
+                    ),
+                    TextSpan(
+                      text:
+                          '$rupeeSymbol${controller.options!.walletBalance!} Wallet Balance.',
+                      style: GoogleFonts.montserrat(
+                          color: textColor,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ), /*AppTextView(text: 'On this plan, You will be rewarded with $rupeeSymbol${controller.options!.walletBalance!} Wallet Balance.'),*/
+            ),
+            const SizedBox(
+              height: 15.0,
+            ),
             AppTextView(
-              text: 'Benefits of ${widget.controller.record!.name!}',
+              text: 'Benefits of ${controller.record!.name!}',
               size: 20.0,
               color: Colors.black,
               fontWeight: FontWeight.w600,
             ),
-            const SizedBox(
-              height: 10.0,
-            ),
-            if ((widget.controller.record!.planType! == PlanType.family ||
-                widget.controller.record!.planType! == PlanType.both) &&
-                !widget.controller.isIndividual) ...[
+
+            if ((controller.record!.planType! == PlanType.family ||
+                    controller.record!.planType! == PlanType.both) &&
+                !controller.isIndividual) ...[
+              const SizedBox(
+                height: 10.0,
+              ),
               AppDropDown<MembershipOptions>(
                   hint: const AppTextView(
                     text: "Select plan type",
                   ),
-                  items: widget.controller.getPlanItem(),
-                  onChanged: widget.controller.setPlanItem,
-                  value: widget.controller.familyOptions
-              ),
+                  items: controller.getPlanItem(),
+                  onChanged: controller.setPlanItem,
+                  value: controller.familyOptions),
             ],
             const SizedBox(
               height: 10.0,
             ),
             SizedBox(
-              height: !widget.controller.isIndividual?CommonMethods.deviceHeight(context)*0.5:CommonMethods.deviceHeight(context)*0.55,
+              height: !controller.isIndividual
+                  ? CommonMethods.deviceHeight(context) * 0.41
+                  : CommonMethods.deviceHeight(context) * 0.45,
               child: ListView.builder(
-                  itemCount: widget.controller.record!.planBenefits!.length,
+                  itemCount: controller.record!.planBenefits!.length,
                   physics: const BouncingScrollPhysics(
                     decelerationRate: ScrollDecelerationRate.fast,
                   ),
@@ -191,80 +226,36 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
                       ),
                       title: AppTextView(
                         color: Colors.black,
-                        text: widget.controller
-                            .record!.planBenefits![index].planLabel!,
+                        text:
+                            controller.record!.planBenefits![index].planLabel!,
                         size: 16,
                         fontWeight: FontWeight.bold,
                       ),
                       subtitle: AppTextView(
                           color: Colors.black,
-                          text: widget.controller
+                          text: controller
                               .record!.planBenefits![index].planFeature!),
                     );
                   }),
             ),
-            OpdSure.of(context).client.isPlanBuy?
-            FutureBuilder(
-              future: OpdSure.of(context).client.getPlanById(
-                planId: OpdSure.of(context).client.profileData!.plan!.id,
-                memberShipId: OpdSure.of(context).client.profileData!.plan!.membershipId,
-              ),
-              builder: (context,snapshot){
-                if(snapshot.data == null){
-                  return Container();
-                }
-                else{
-                  print(snapshot.data);
-                  PlanRecords selectedPlan = snapshot.data!;
-                  if(widget.controller.options!.charges!>selectedPlan.membershipOptions![0].charges!){
-                    return AppButton(
-                      text: 'Select',
-                      color: (!widget.controller.isIndividual &&
-                          widget.controller.familyOptions == null)
-                          ? const Color(0xFFD9D7D7)
-                          : buttonColor,
-                      textColor: (!widget.controller.isIndividual &&
-                          widget.controller.familyOptions == null)
-                          ? Colors.black
-                          : Colors.white,
-                      borderColor: (!widget.controller.isIndividual &&
-                          widget.controller.familyOptions == null)
-                          ? const Color(0xFFD9D7D7)
-                          : buttonColor,
-                      onClick: () {
-                        if (!(!widget.controller.isIndividual && widget.controller.familyOptions == null)) {
-                          widget.controller.goToCheckout();
-                        }
-                      },
-                    );
-                  }
-                  else{
-                    return const AppButton(
-                      text: 'Select',
-                      textColor: Colors.black,
-                      color: Color(0xFFD9D7D7),
-                      borderColor: Color(0xFFD9D7D7),
-                    );
-                  }
-                }
-              },
-            ):AppButton(
+            AppButton(
               text: 'Select',
-              color: (!widget.controller.isIndividual &&
-                  widget.controller.familyOptions == null)
-                  ? const Color(0xFFD9D7D7)
-                  : buttonColor,
-              textColor: (!widget.controller.isIndividual &&
-                  widget.controller.familyOptions == null)
-                  ? Colors.black
-                  : Colors.white,
-              borderColor: (!widget.controller.isIndividual &&
-                  widget.controller.familyOptions == null)
-                  ? const Color(0xFFD9D7D7)
-                  : buttonColor,
+              color:
+                  (!controller.isIndividual && controller.familyOptions == null)
+                      ? const Color(0xFFD9D7D7)
+                      : buttonColor,
+              textColor:
+                  (!controller.isIndividual && controller.familyOptions == null)
+                      ? Colors.black
+                      : Colors.white,
+              borderColor:
+                  (!controller.isIndividual && controller.familyOptions == null)
+                      ? const Color(0xFFD9D7D7)
+                      : buttonColor,
               onClick: () {
-                if (!(!widget.controller.isIndividual && widget.controller.familyOptions == null)) {
-                  widget.controller.goToCheckout();
+                if (!(!controller.isIndividual &&
+                    controller.familyOptions == null)) {
+                  controller.goToCheckout();
                 }
               },
             ),
@@ -272,110 +263,5 @@ class _PlansPageViewState extends State<PlansPageView> with SingleTickerProvider
         ),
       ),
     );
-  }
-
-  void modalBottomSheetMenu(BuildContext context) {
-    bool isFamily = false;
-    bool isIndividual = false;
-    showModalBottomSheet(
-        context: context,
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width - 20,
-        ),
-        builder: (builder) {
-          return StatefulBuilder(builder: (stateFullBuilder, setState) {
-            return Container(
-              height: 450.0,
-              decoration: const BoxDecoration(
-                color: Color(0xFFF2F2F7),
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(20.0),
-                  topLeft: Radius.circular(20.0),
-                ),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.only(left: 10.0, right: 10.0, top: 15.0),
-                child: ListView(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const AppTextView(
-                          text: 'Select One',
-                          size: 22.0,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                        Image.asset(
-                          'assets/images/cancel_icon.png',
-                          height: 30.0,
-                          width: 30.0,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
-                    SelectPlan(
-                      onClick: () {
-                        setState(() {
-                          isFamily = true;
-                          isIndividual = false;
-                        });
-                      },
-                      isSelected: isFamily,
-                    ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
-                    SelectPlan(
-                      onClick: () {
-                        setState(() {
-                          isFamily = false;
-                          isIndividual = true;
-                        });
-                      },
-                      imgUri: 'indivisual_icon',
-                      isPopular: false,
-                      forWhat: 'For Individual',
-                      memberCount: 'Enjoy all the services yourself.',
-                      isSelected: isIndividual,
-                    ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
-                    Center(
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(
-                                text:
-                                    'You can cancel whenever you want. By confirming, you agree to the ',
-                                style: GoogleFonts.montserrat(
-                                    color: const Color(0xFF667085))),
-                            TextSpan(
-                              text: 'Terms & Conditions.',
-                              style: GoogleFonts.montserrat(
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF475467)),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15.0,
-                    ),
-                    AppButton(
-                      text: 'Continue',
-                      onClick: () async {},
-                    )
-                  ],
-                ),
-              ),
-            );
-          });
-        });
   }
 }

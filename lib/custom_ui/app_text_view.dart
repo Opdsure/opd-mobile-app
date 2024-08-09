@@ -12,10 +12,12 @@ class AppTextView extends StatelessWidget {
   final VoidCallback? onClick;
   final bool isLineThrough;
   final Color lineColor;
+  final bool softWrap;
 
   const AppTextView(
       {required this.text,
       this.size = 15.0,
+      this.softWrap = true,
       this.fontWeight = FontWeight.normal,
       this.mTextAlign = TextAlign.start,
       this.fontStyle = FontStyle.normal,
@@ -31,6 +33,7 @@ class AppTextView extends StatelessWidget {
           ? Text(
               text,
               textAlign: mTextAlign,
+              softWrap: softWrap,
               style: GoogleFonts.montserrat(
                   fontSize: size,
                   fontWeight: fontWeight,
@@ -45,6 +48,7 @@ class AppTextView extends StatelessWidget {
               child: Text(
                 text,
                 textAlign: mTextAlign,
+                softWrap: softWrap,
                 style: GoogleFonts.montserrat(
                     fontSize: size,
                     fontWeight: fontWeight,

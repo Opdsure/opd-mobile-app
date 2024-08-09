@@ -38,6 +38,7 @@ class PlansResponse {
 
   String? get message => _message ?? "";
 
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     if (_data != null) {
@@ -78,7 +79,8 @@ class PlansData {
 
   List<PlanRecords>? get records {
     List<PlanRecords>? newRecords = _records ?? [];
-    return newRecords.reversed.toList();
+    newRecords.sort((a, b) => a.membershipOptions![0].charges!.compareTo(b.membershipOptions![0].charges!));
+    return newRecords;
   }
 
   Pagination? get pagination => _pagination ?? Pagination();
@@ -298,8 +300,7 @@ class PlanRecords {
   PlanType? get planType {
     if (_membershipOptions != null) {
       final firstOption = _membershipOptions![0];
-      final isIndividual =
-          firstOption.charges != 0 || firstOption.walletBalance != 0;
+      final isIndividual = (firstOption.charges != 0 || firstOption.walletBalance != 0) && firstOption._membershipLabel == 'Individual';
       final isFamilyList = _membershipOptions!.skip(1).toList();
       final isFamily = _isFamily(isFamilyList);
       if (isIndividual && !isFamily) {
@@ -316,10 +317,10 @@ class PlanRecords {
     return PlanType.both;
   }
 
-
-  set membershipOptions(List<MembershipOptions>? value) {
-    _membershipOptions = value;
-  }
+  //
+  // set membershipOptions(List<MembershipOptions>? value) {
+  //   _membershipOptions = value;
+  // }
 
   bool _isFamily(List<MembershipOptions> options) {
     for (var option in options) {
@@ -329,7 +330,6 @@ class PlanRecords {
         return true;
       }
     }
-
     return false;
   }
 

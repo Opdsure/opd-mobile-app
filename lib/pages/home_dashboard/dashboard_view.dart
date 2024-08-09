@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/custom_ui/navi_rail_item.dart';
 import 'package:opdsure/pages/home_dashboard/dash_board.dart';
@@ -98,11 +99,10 @@ class DashboardPageView extends StatelessWidget {
                         .of(context)
                         .scaffoldBackgroundColor,
                     child: PopScope(
-                        canPop: false,
+                        canPop: true,
                         onPopInvoked: (_){
-                          CommonMethods.showToast('toastMessage');
                           if(controller.selectedIndex == 0){
-
+                            CommonMethods.showExitDialog(context);
                           }else{
                             controller.onDestinationSelected(0);
                           }

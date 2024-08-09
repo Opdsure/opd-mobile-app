@@ -13,15 +13,15 @@ import '../health_checkup_details/health_checkup_details_controller.dart';
 import 'health_checkup_controller.dart';
 
 class HealthCheckupView extends StatelessWidget {
-  HealthCheckupController controller;
+  final HealthCheckupController controller;
 
-  HealthCheckupView(this.controller, {super.key});
+  const HealthCheckupView(this.controller, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return AppBasePage(
-      appHeader: AppHomeHeader(
-        titleUi: const AppTextView(
+      appHeader: const AppHomeHeader(
+        titleUi: AppTextView(
             text: 'Health Checkup',
             size: 22.0,
             fontWeight: FontWeight.w600,
@@ -39,7 +39,7 @@ class HealthCheckupView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 5.0),
                   child: InkWell(
                     onTap: (){
-                      context.push('/home/health_checkup_details', extra: healthCheckupRecords);
+                      context.push('/home/health_checkup_details', extra: {"plan" : healthCheckupRecords, "isView" : true});
                     },
                     child: AppCardView(
                       mChaild: Column(

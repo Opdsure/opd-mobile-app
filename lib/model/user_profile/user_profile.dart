@@ -61,7 +61,8 @@ class ProfileData {
       String? dob, 
       String? organizationId, 
       String? profileImage, 
-      String? name,}){
+      String? name,
+  int? walletBalance}){
     _verified = verified;
     _plan = plan;
     _id = id;
@@ -77,6 +78,7 @@ class ProfileData {
     _organizationId = organizationId;
     _profileImage = profileImage;
     _name = name;
+    _walletBalance = walletBalance;
 }
 
   ProfileData.fromJson(dynamic json) {
@@ -104,6 +106,7 @@ class ProfileData {
     _organizationId = json['organization_id'];
     _profileImage = json['profile_image'];
     _name = json['name'];
+    _walletBalance = json['wallet_balance'];
   }
 
   @HiveField(0)
@@ -136,6 +139,8 @@ class ProfileData {
   String? _profileImage;
   @HiveField(14)
   String? _name;
+  @HiveField(15)
+  int? _walletBalance;
 
   Verified? get verified => _verified ?? Verified();
   Plan? get plan => _plan ?? Plan();
@@ -152,6 +157,7 @@ class ProfileData {
   String? get organizationId => _organizationId ?? "";
   String? get profileImage => _profileImage ?? "";
   String? get name => _name ?? "";
+  int? get walletBalance => _walletBalance ?? 0;
 
 
   Map<String, dynamic> toJson() {
@@ -175,6 +181,7 @@ class ProfileData {
     map['organization_id'] = _organizationId;
     map['profile_image'] = _profileImage;
     map['name'] = _name;
+    map['wallet_balance'] = _walletBalance;
     return map;
   }
 
@@ -236,6 +243,10 @@ class ProfileData {
 
   set name(String? value) {
     _name = value;
+  }
+
+  set walletBalance(int? value){
+    _walletBalance = value;
   }
 }
 @HiveType(typeId: DatabaseTypeKey.userPlan)

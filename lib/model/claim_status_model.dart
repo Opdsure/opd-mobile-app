@@ -56,7 +56,7 @@ class ClaimStatusModel{
         }
         else{
           return ClaimStatusModel(
-              statusName: 'Clarification',
+              statusName: 'Clarification Required',
               statusColor: const Color(0xFFfaad14),
               iconData: Icons.info_outline
           );

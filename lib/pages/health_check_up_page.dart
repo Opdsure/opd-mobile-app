@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:multi_dropdown/multiselect_dropdown.dart';
 import 'package:multiselect/multiselect.dart';
@@ -89,7 +90,7 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
                           mChild: memberList!.isEmpty?InkWell(
                             onTap: (){
                               Navigator.pop(context);
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyDetails(isUpdate: false,isFirstMember: false,)));
+                              context.push('/home/add-members', extra: {"isUpdate" : false});
                             },
                             child: const Center(
                               child: Column(

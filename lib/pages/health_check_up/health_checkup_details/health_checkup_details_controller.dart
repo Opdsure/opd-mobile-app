@@ -4,7 +4,8 @@ import 'package:opdsure/pages/health_check_up/health_checkup_details/health_chec
 
 class HealthCheckupDetails extends StatefulWidget {
   final HealthCheckupRecords? records;
-  const  HealthCheckupDetails({this.records, super.key});
+  final bool isView;
+  const  HealthCheckupDetails({this.isView = false, this.records, super.key});
 
   @override
   State<HealthCheckupDetails> createState() => HealthCheckupDetailsController();

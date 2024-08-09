@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
@@ -31,7 +32,7 @@ import '../custom_ui/app_bottom_sheet.dart';
 import '../custom_ui/app_edit_text.dart';
 import '../custom_ui/app_mobile_field.dart';
 import '../custom_ui/app_text_view.dart';
-import '../model/my_claims_model.dart';
+import '../model/my_claim/my_claims_model.dart';
 import '../model/plans/plans_response.dart';
 import '../model/state_model.dart';
 import '../repository/network_api/api.dart';
@@ -155,16 +156,15 @@ class _FileClaimPageState extends State<FileClaimPage> {
       phoneCtrl.text = '${cRecords!.docPhone!}';
       docNameCtrl.text = cRecords!.docName!;
       regNumCtrl.text = cRecords!.docRegistration!;
-      specialCtrl.text = cRecords!.specialization??'';
       hsptlNameCtrl.text = cRecords!.hospital!;
       addressCtrl.text = cRecords!.docAddress!;
-      pinCodeCtrl.text = cRecords!.pinCode!;
       cityCtrl.text = cRecords!.city!;
       emailCtrl.text = cRecords!.docEmail!;
       diagnosisCtrl.text = cRecords!.diagonosisDetail!;
       remarkCtrl.text = cRecords!.userRemark!;
       docFeeCtrl.text = '${cRecords!.doctorFee!}';
       docFeeClCtrl.text = '${cRecords!.claimableDoctorFee!}';
+      pinCodeCtrl.text = cRecords!.pincode.toString();
 
 
       OpdSure.of(context).client.getSingleClaims(cRecords!.id!).then((value){
@@ -177,10 +177,10 @@ class _FileClaimPageState extends State<FileClaimPage> {
         claimCombination = '${subscribedPlanModel.data!.claimCombination}';
         if(widget.isUpdate!){
           if(claimCombination == '2'){
-            totalBillAmnt = cRecords!.doctorFee!.toDouble()+(cRecords!.combinedPharmacyTestFees??0.0).toDouble();
-            totalClaimableAmnt = cRecords!.claimableDoctorFee!.toDouble()+(cRecords!.claimableCombinedPharmacyTestFees??0.0).toDouble();
-            billAmntPhrCtrl.text = '${cRecords!.combinedPharmacyTestFees}';
-            billAmntPhrClCtrl.text = '${cRecords!.claimableCombinedPharmacyTestFees}';
+            totalBillAmnt = double.parse(cRecords!.billAmount.toString());
+            totalClaimableAmnt = double.parse(cRecords!.claimableAmount.toString());
+            billAmntPhrCtrl.text = totalBillAmnt.toStringAsFixed(2);
+            billAmntPhrClCtrl.text = totalClaimableAmnt.toStringAsFixed(2);
           }
           else{
             billAmntPhrCtrl.text = cRecords!.pharmacyFee==null?'':'${cRecords!.pharmacyFee!}';
@@ -264,7 +264,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
         child: ListView(
           children: [
             const SizedBox(height: 15.0),
-            compulsoryField('User'),
+            compulsoryField('Patient Name'),
             Obx((){
               bool refresh = typeController.refreshMemberList.value;
               return refresh?FutureBuilder(
@@ -292,7 +292,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                             mChild: memberList!.isEmpty?InkWell(
                               onTap: (){
                                 Navigator.pop(context);
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>AddFamilyDetails(isUpdate: false,isFirstMember: false,)));
+                                context.push('/home/add-members', extra: {"isUpdate" : false});
                               },
                               child: const Center(
                                 child: Column(

@@ -42,6 +42,8 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
 
   bool isLogout = false;
 
+  bool isExitDialogShowing = false ;
+
   set selectedPage(int value) {
       _selectedPage = value;
       if(_callback != null){
@@ -106,10 +108,12 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
   bool get hasComplexBundles => accountBundles.values.any((v) => v.length > 1);
 
 
-  bool isSelectPlans = false;
-
-
-  bool isPlansSelect = false;
+  // bool isSelectPlans = false;
+  //
+  //
+  // bool isPlansSelect = false;
+  //
+  // bool isPlanUpgrade = false;
 
   OpdClient get client {
     if (widget.clients.isEmpty) {
@@ -183,7 +187,7 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
           c.onLoginStateChanged.stream.listen((state) {
         final loggedInWithMultipleClients = widget.clients.length > 1;
         if (state == LoginState.loggedOut) {
-          isSelectPlans = false;
+          // isSelectPlans = false;
         }
         if (loggedInWithMultipleClients && state != LoginState.loggedIn) {
           _clearSub(c.clientName);
@@ -201,7 +205,7 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
           }else{
             isLogout = true;
             selectedPage = 0;
-            OpdSureApp.router.pushReplacement('/login');
+            OpdSureApp.router.pushReplacement('/signup');
           }
 
         }

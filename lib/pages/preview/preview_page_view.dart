@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/custom_ui/login_scafold.dart';
@@ -25,9 +26,8 @@ class PreviewPageView extends StatelessWidget {
   Widget build(BuildContext context) {
     double h = CommonMethods.deviceHeight(context);
     double w = CommonMethods.deviceWidth(context);
-    return LoginScaffold(
-      enforceMobileMode: !OpdSure.of(context).client.isLogged,
-      body: Column(
+    return AppBasePage(
+      childContent: Column(
         children: [
           const SizedBox(
             height: 16.0,
@@ -55,8 +55,7 @@ class PreviewPageView extends StatelessWidget {
           SizedBox(
             height: h * 0.04,
           ),
-          SizedBox(
-            height: h * 0.61,
+          Expanded(
             child: PageView(
               controller: controller.pageController,
               onPageChanged: controller.onPageChanged,
@@ -67,7 +66,7 @@ class PreviewPageView extends StatelessWidget {
             height: 15.0,
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15.0),
+            padding: const EdgeInsets.only( bottom: 15.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

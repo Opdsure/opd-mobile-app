@@ -28,8 +28,7 @@ import '../../model/my_member_model.dart';
 class AddFamilyDetails extends StatefulWidget{
   final MemberList? member;
   final bool? isUpdate;
-  final bool? isFirstMember;
-  AddFamilyDetails({this.member,this.isUpdate,this.isFirstMember});
+  AddFamilyDetails({this.member,this.isUpdate = false});
 
   @override
   State<AddFamilyDetails> createState() => _AddFamilyDetailsState();
@@ -70,10 +69,18 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
       nameCtrl.text = widget.member!.name!;
       phoneCtrl.text = '${widget.member!.phone!}';
       addressCtrl.text = widget.member!.address??'';
-      typeController.familyMemDOBChange(widget.member!.dob??'Select DOB');
+      typeController.familyMemDOBChange(widget.member!.dob??'');
       typeController.selectRelationKeyChange(widget.member!.relation!);
       typeController.selectRelationChange(widget.member!.relation!.getRelation());
       typeController.selectGenderChange(genderList[(widget.member!.gender??1)-1]);
+    }else{
+      nameCtrl.text = '';
+      phoneCtrl.text = '';
+      addressCtrl.text = '';
+      typeController.familyMemDOBChange('');
+      typeController.selectRelationKeyChange(1);
+      typeController.selectRelationChange('');
+      typeController.selectGenderChange('');
     }
 
   }
@@ -120,6 +127,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
               hint: 'Enter the name',
               textEditingController: nameCtrl,
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")),],
+              disableText: (widget.member != null && widget.member!.relation! == 0) && widget.isUpdate!,
             ),
             const SizedBox(height: 15.0,),
             const AppTextView(
@@ -129,7 +137,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
               color: Color(0xFF1D2939),
             ),
             InkWell(
-              onTap: ()async{
+              onTap: (widget.member != null && widget.member!.relation! == 0) && widget.isUpdate! ? null :()async{
                 Relations? data = await OpdSure.of(context).client.getRelation();
                 AppBottomSheet(
                     height: 600,
@@ -193,7 +201,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
               return Stack(
                 children: [
                   AppEditText(
-                    hint: dob==''?'Enter date of birth':dob,
+                    hint: dob==''?'Enter date of birth':CommonMethods.formatIsoDateString(dob),
                     disableText: true,
                     viewSuffix: true,
                     suffixWidget: const Icon(
@@ -207,7 +215,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
 
                   ),
                   InkWell(
-                    onTap: (){
+                    onTap: (widget.member != null && widget.member!.relation! == 0) && dob != '' && widget.isUpdate! ? null : (){
                       _selectDOB(context, typeController);
                     },
                     child: const SizedBox(
@@ -284,6 +292,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
               countryCode: '+91',
               textEditingController: phoneCtrl,
               maxLength: 13,
+              disableText: (widget.member != null && widget.member!.relation! == 0) && widget.isUpdate!,
               countryCallback: ()async{
                 // Show the country code picker when tapped.
                 // final picked= await countryPicker.showPicker(context: context);

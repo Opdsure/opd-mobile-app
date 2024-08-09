@@ -3,18 +3,25 @@ import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
+import 'package:opdsure/model/QueuedPlans/quequed_plans.dart';
+import 'package:opdsure/model/buy_health_plan/buy_health_plan.dart';
 import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
 import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/login/login_response.dart';
 import 'package:opdsure/model/payment_models/create_order.dart';
+import 'package:opdsure/model/referral_member/referral_member.dart';
 import 'package:opdsure/model/register/register_response.dart';
 import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/specialization_model.dart';
+import 'package:opdsure/model/transaction/transaction.dart';
+import 'package:opdsure/model/update_member/update_member.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
+import 'package:opdsure/pages/checkout/checkout_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
 
 import '../../config/app_config.dart';
+import '../../model/my_claim/my_claims_model.dart';
 import '../../model/my_member_model.dart';
 import '../../model/plans/plans_response.dart';
 import '../../model/subscribed_plan_model.dart';
@@ -42,6 +49,46 @@ class Api {
   Never bodySizeExceeded(int expected, int actual) {
     throw Exception('body size $actual exceeded $expected');
   }
+
+  Uri _getCouponUri(PaymentType type, {String? planId, String? memberId, String? couponCode}){
+    switch(type){
+      case PaymentType.buyPlan:
+        return Uri.parse('api/v1/user/get-plan-price-details?order_for=${type.index}&coupon_code=$couponCode&plan_id=$planId&membership_id=$memberId');
+      case PaymentType.buyHealthCheckup:
+        return Uri.parse('api/v1/user/get-plan-price-details?order_for=${type.index}&coupon_code=$couponCode&health_plan_id=$planId');
+      case PaymentType.planUpgrade:
+        return Uri.parse('api/v1/user/get-upgrade-plan-price-details?order_for=${type.index}&coupon_code=$couponCode&plan_id=$planId&membership_id=$memberId');
+      case PaymentType.planRenew:
+        return Uri.parse('api/v1/user/get-renew-plan-price-details?order_for=${type.index}&coupon_code=$couponCode&plan_id=$planId&membership_id=$memberId');
+    }
+  }
+
+  Uri _getCreateOrderUri(PaymentType type){
+    switch(type){
+      case PaymentType.buyPlan:
+        return Uri(path: 'api/v1/user/create-orders');
+      case PaymentType.buyHealthCheckup:
+        return Uri(path: 'api/v1/user/create-orders');
+      case PaymentType.planUpgrade:
+        return Uri(path: 'api/v1/user/create-plan-upgrade-orders');
+      case PaymentType.planRenew:
+        return Uri(path: 'api/v1/user/create-plan-renew-orders');
+    }
+  }
+
+  Uri _getVerifyPaymentUri(PaymentType type){
+    switch(type){
+      case PaymentType.buyPlan:
+        return Uri(path: 'api/v1/user/verify-payment');
+      case PaymentType.buyHealthCheckup:
+        return Uri(path: 'api/v1/user/verify-payment');
+      case PaymentType.planUpgrade:
+        return Uri(path: 'api/v1/user/verify-plan-upgrade-payment');
+      case PaymentType.planRenew:
+        return Uri(path: 'api/v1/user/verify-plan-renew-payment');
+    }
+  }
+
 
   Future<RegisterResponse> register({
     String? emailAddress,
@@ -150,16 +197,16 @@ class Api {
     return SubscribedPlanModel.fromJson(json);
   }
 
-  Future<PlansResponse?> getAllPlans({isUpgrade = false}) async {
-    final requestUri;
-    // if(isUpgrade){
-    //   requestUri = Uri(path: 'api/v1/user/upgrade-plan');
-    // }
-    // else{
+  Future<PlansResponse?> getAllPlans({bool isUpgrade = false}) async {
+    final Uri requestUri;
+    if(isUpgrade){
+      requestUri = Uri(path: 'api/v1/user/upgrade-plan');
+    }
+    else{
       requestUri = Uri(path: 'api/v1/public/plan');
-    // }
+    }
     final request = Request('GET', baseUri!.resolveUri(requestUri));
-    // request.headers['content-type'] = 'application/json';
+    request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -386,7 +433,7 @@ class Api {
     return FileUploadResponse.fromJson(json);
   }
 
-  Future getAllClaims() async {
+  Future<MyClaimsModel?> getAllClaims() async {
     final requestUri = Uri(path: 'api/v1/user/get-claims');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -395,7 +442,8 @@ class Api {
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    return responseString;
+    final json = jsonDecode(responseString);
+    return MyClaimsModel.fromJson(json);
   }
 
   Future getSingleClaims(String id) async {
@@ -422,16 +470,8 @@ class Api {
     return responseString;
   }
 
-  Future applyCoupon(String couponCode, String planId, String memberId,{requestFor}) async {
-    //https://dev.opdsure.net/api/v1/user/get-plan-price-details?order_for=0&coupon_code=neww12354&plan_id=668d026685008b0162953fcf&membership_id=0
-    //https://dev.opdsure.net/api/v1/user/get-plan-price-details?order_for=1&coupon_code=neww12354&health_plan_id=66921c6790e2cb574c620fe4
-    Uri requestUri;
-    if(requestFor=='basic_plan'){
-      requestUri = Uri.parse('api/v1/user/get-plan-price-details?order_for=0&coupon_code=$couponCode&plan_id=$planId&membership_id=$memberId');
-    }
-    else{
-      requestUri = Uri.parse('api/v1/user/get-plan-price-details?order_for=1&coupon_code=$couponCode&health_plan_id=$planId');
-    }
+  Future applyCoupon(String couponCode, String planId, String memberId, PaymentType type) async {
+    Uri requestUri  = _getCouponUri(type, couponCode: couponCode, planId: planId, memberId: memberId);
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
@@ -445,20 +485,18 @@ class Api {
   Future<CreateOrder?> createOrder(
       {String? planId,
       int? membershipId,
-      String? healthId,
       String? healthPlanId,
       String? couponCode,
-      required int type}) async {
-    final requestUri = Uri(path: 'api/v1/user/create-orders');
+      required PaymentType type}) async {
+    final requestUri = _getCreateOrderUri(type);
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.bodyBytes = utf8
         .encode(jsonEncode({
-      "order_for" : type,
+      "order_for" : type.index,
       if(planId != null) "plan_id": planId,
       if(planId != null) "membership_id": membershipId,
-      if(healthId != null) "health_id" : healthId,
       if(healthPlanId != null) "health_plan_id" : healthPlanId,
       if(couponCode != null) "coupon_code" : couponCode
     }));
@@ -470,9 +508,8 @@ class Api {
     return CreateOrder.fromJson(json);
   }
 
-  Future<CreateOrder?> verifyOrder(
-      String? orderId, String? paymentId, String? signature) async {
-    final requestUri = Uri(path: 'api/v1/user/verify-payment');
+  Future<CreateOrder?> verifyOrder(PaymentType type, String? orderId, String? paymentId, String? signature) async {
+    final requestUri = _getVerifyPaymentUri(type);
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
@@ -579,12 +616,81 @@ class Api {
     request.bodyBytes = utf8.encode(jsonEncode({
       "refer_name": name,
       "refer_phone": mobile,
+      "refer_email" : email
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
     return responseString;
+  }
+
+  Future<QueuedPlans> getQueuedPlans() async {
+    final requestUri = Uri(path: 'api/v1/user/get-queued-plans');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return QueuedPlans.fromJson(json);
+  }
+
+  Future<Transaction> getTransactions() async {
+    final requestUri = Uri(path: 'api/v1/user/get-transactions');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return Transaction.fromJson(json);
+  }
+
+
+  Future<ReferralMember> getReferredUsers() async {
+    final requestUri = Uri(path: 'api/v1/user/get-refered-users');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return ReferralMember.fromJson(json);
+  }
+
+
+  Future<BuyHealthPlan> getPurchasedHealtchekupPlans() async {
+    final requestUri = Uri(path: 'api/v1/user/get-purchased-healtchekup-plans');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return BuyHealthPlan.fromJson(json);
+  }
+
+
+  Future<UpdateMember> getRequestedMembers() async {
+    final requestUri = Uri(path: 'api/v1/user/get-requested-members');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return UpdateMember.fromJson(json);
   }
 
 }

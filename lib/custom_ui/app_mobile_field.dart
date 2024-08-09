@@ -24,6 +24,7 @@ class AppMobileField extends StatelessWidget {
   final String errorMessage;
   final bool showErrorMessage;
   final int? maxLength;
+  final bool disableText;
 
   const AppMobileField({
     required this.hint,
@@ -32,6 +33,7 @@ class AppMobileField extends StatelessWidget {
     this.size = 15.0,
     this.errorText,
     this.errorStyle,
+    this.disableText = false,
     this.color = backIconCl,
     this.flagUri = '${mFlagUri}in.png',
     this.fontWeight = FontWeight.normal,
@@ -104,6 +106,7 @@ class AppMobileField extends StatelessWidget {
                   textAlignVertical: TextAlignVertical.center,
                   inputFormatters: inputFormatters,
                   keyboardType: TextInputType.phone,
+                  readOnly: disableText,
                   maxLength: maxLength,
                   decoration: InputDecoration(
                     isDense: true,

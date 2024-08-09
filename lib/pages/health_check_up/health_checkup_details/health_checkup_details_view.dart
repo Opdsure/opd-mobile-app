@@ -77,8 +77,7 @@ class HealthCheckupDetailsView extends StatelessWidget {
             color: Colors.black,
             fontWeight: FontWeight.w600,
           ),
-          SizedBox(
-            height: CommonMethods.deviceHeight(context) * 0.65,
+          Expanded(
             child: ListView.builder(
                 itemCount: controller.records!.testDetails!.length,
                 physics: const BouncingScrollPhysics(
@@ -96,14 +95,13 @@ class HealthCheckupDetailsView extends StatelessWidget {
                     // as name suggests, optionally set the default text style
                     defaultTextStyle: GoogleFonts.montserrat(color: Colors.grey[700]),
                     overrideStyle: <String, TextStyle>{
-                      'p': GoogleFonts.montserrat(fontSize: 17.3),
-                      'a': GoogleFonts.montserrat(wordSpacing: 2),
+                      'p': GoogleFonts.montserrat(fontSize: 17.3, fontWeight: FontWeight.w800),
+                      'a': GoogleFonts.montserrat(wordSpacing: 2, fontWeight: FontWeight.w800),
                     },
                   );
                   final TextSpan textSpan2 = HTML.toTextSpan(
                     context,
-                    controller
-                        .records!.testDetails![index].testsName!,
+                    controller.records!.testDetails![index].testsName!,
                     linksCallback: (dynamic link) {
                       debugPrint('You clicked on $link');
                     },
@@ -170,6 +168,7 @@ class HealthCheckupDetailsView extends StatelessWidget {
           ),
         ],
       ),
+      isBottomContent: !controller.widget.isView,
       bottomContent: Container(
         padding: const EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 8),
         width: CommonMethods.deviceWidth(context),

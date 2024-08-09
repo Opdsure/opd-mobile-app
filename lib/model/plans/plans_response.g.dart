@@ -132,7 +132,7 @@ class PaginationAdapter extends TypeAdapter<Pagination> {
           typeId == other.typeId;
 }
 
-class RecordsAdapter extends TypeAdapter<PlanRecords> {
+class PlanRecordsAdapter extends TypeAdapter<PlanRecords> {
   @override
   final int typeId = 5;
 
@@ -205,7 +205,7 @@ class RecordsAdapter extends TypeAdapter<PlanRecords> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is RecordsAdapter &&
+      other is PlanRecordsAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

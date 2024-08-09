@@ -11,13 +11,15 @@ class AppRoundView extends StatelessWidget {
   final double width;
   final Color color;
   final VoidCallback? onClick;
+  final bool isMargin;
 
   const AppRoundView({
     required this.mChild,
     this.corner = 15.0,
     this.width = double.infinity,
     this.color = Colors.white,
-    this.onClick
+    this.onClick,
+    this.isMargin = false
   });
 
   @override
@@ -25,6 +27,7 @@ class AppRoundView extends StatelessWidget {
     return InkWell(
       onTap: onClick,
       child: Container(
+        margin: isMargin ? const EdgeInsets.only(bottom: 5) : null,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.all(Radius.circular(corner)),
