@@ -8,6 +8,7 @@ import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/checkout/checkout_page_view.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/platform_infos.dart';
+import 'package:opdsure/widget/opd_sure_app.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -123,6 +124,7 @@ class CheckoutController extends State<CheckoutPage> {
             widget.paymentType != PaymentType.buyHealthCheckup
                 ? 'Plan purchased successfully!'
                 : 'Health checkup purchased successfully!');
+        await opd.client.getProfile(update: true);
         if (widget.paymentType == PaymentType.buyPlan) {
           context.pushReplacement('/home/add-members');
         } else {
@@ -161,13 +163,14 @@ class CheckoutController extends State<CheckoutPage> {
         razorpay.open(paymentOptions);
       }
 
-      Navigator.of(context).pop();
-    } else {
-      Navigator.of(context).pop();
+    }
+    else {
+      context.pop();
     }
   }
 
   void _handlePaymentErrorResponse(PaymentFailureResponse response) async {
+    context.pop();
     _showAlertDialog(context, "Failed", 'You cancel the payment');
   }
 
@@ -183,19 +186,21 @@ class CheckoutController extends State<CheckoutPage> {
           ? 'Plan purchased successfully!'
           : 'Health checkup purchased successfully!');
       await opd.client.getProfile(update: true);
-      // opd.isPlanUpgrade = false;
       if (widget.paymentType == PaymentType.buyPlan) {
         context.pushReplacement('/home/add-members');
       } else {
-        context.pushReplacement('/home');
+        context.pop();
+        OpdSureApp.router.pushReplacement('/home');
       }
     } else {
+      context.pop();
       _showAlertDialog(
           context, "Payment Failed", verificationResponse.message!);
     }
   }
 
   void _handleExternalWalletSelected(ExternalWalletResponse response) async {
+    context.pop();
     _showAlertDialog(
         context, "External Wallet Selected", "${response.walletName}");
   }

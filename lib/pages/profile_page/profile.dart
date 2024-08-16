@@ -6,10 +6,8 @@ import 'package:opdsure/pages/profile_page/profile_page.dart';
 import '../../custom_ui/app_key_value.dart';
 import '../../custom_ui/app_round_view.dart';
 import '../../custom_ui/app_text_view.dart';
-import '../../model/user_profile/user_profile.dart';
 import '../../utils/common_methods.dart';
 import '../../widget/opd_widget.dart';
-import '../update_profile_page.dart';
 class Profile extends StatelessWidget {
   final ProfilePageController controller;
   const Profile(this.controller,{super.key});
@@ -180,7 +178,10 @@ class Profile extends StatelessWidget {
               );
               context.push('/home/opd-plan', extra: {
                 'records': plan,
-                'option': plan!.membershipOptions![0]
+                'option': plan!.membershipOptions![0],
+                'buyDate': controller.userProfile!.data!,
+                'isSub' : true,
+                'active': true
               });
             },
             corner: 10.0,

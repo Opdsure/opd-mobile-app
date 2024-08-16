@@ -13,10 +13,10 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
-import '../custom_ui/app_button.dart';
-import '../model/file_type_size_model.dart';
-import '../utils/app_colors.dart';
-import '../widget/opd_widget.dart';
+import '../../custom_ui/app_button.dart';
+import '../../model/file_type_size_model.dart';
+import '../../utils/app_colors.dart';
+import '../../widget/opd_widget.dart';
 
 class DisputePage extends StatefulWidget{
   final String? claimId;
@@ -111,11 +111,20 @@ class _DisputePageState extends State<DisputePage> {
                       documentFiles.add(file);
                       typeController.prescriptionListChange(file);
                       CommonMethods.showAlertDialog(context);
+                      try{
                       var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                      docUrlList = docUrlList+response!.data!;
-                      // filesUrl['prescription'] = docUrlList;
-                      Navigator.of(context).pop();
-                      print(response);
+                      if(response != null){
+                        docUrlList = docUrlList+response.data!;
+                        Navigator.of(context).pop();
+                      }else{
+                        CommonMethods.showToast('File not upload try again');
+                        Navigator.of(context).pop();
+                      }
+                      }catch(e){
+                        CommonMethods.showToast(
+                            'File not upload try again');
+                        Navigator.of(context).pop();
+                      }
                     } else {
                       print(result);
                     }

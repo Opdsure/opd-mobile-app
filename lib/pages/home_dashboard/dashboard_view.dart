@@ -23,6 +23,8 @@ class DashboardPageView extends StatelessWidget {
           width: 30.0,
         ),
         label: 'Home',
+        tooltip: 'Home',
+
       ),
       NavigationDestination(
         icon: Image.asset(
@@ -31,6 +33,7 @@ class DashboardPageView extends StatelessWidget {
           width: 30.0,
         ),
         label: 'Claims',
+        tooltip: 'Claims',
       ),
       NavigationDestination(
         icon: Image.asset(
@@ -40,6 +43,7 @@ class DashboardPageView extends StatelessWidget {
           color: const Color(0xFF667085),
         ),
         label: 'Referral',
+        tooltip: 'Referral',
       ),
       NavigationDestination(
         icon: Image.asset(
@@ -48,6 +52,7 @@ class DashboardPageView extends StatelessWidget {
           width: 30.0,
         ),
         label: 'Health Plans',
+        tooltip: 'Health Plans',
       ),
       NavigationDestination(
         icon: Image.asset(
@@ -56,6 +61,7 @@ class DashboardPageView extends StatelessWidget {
           width: 30.0,
         ),
         label: 'Profile',
+        tooltip: 'Profile',
       ),
     ];
   }
@@ -98,16 +104,7 @@ class DashboardPageView extends StatelessWidget {
                     fillColor: Theme
                         .of(context)
                         .scaffoldBackgroundColor,
-                    child: PopScope(
-                        canPop: true,
-                        onPopInvoked: (_){
-                          if(controller.selectedIndex == 0){
-                            CommonMethods.showExitDialog(context);
-                          }else{
-                            controller.onDestinationSelected(0);
-                          }
-                        },
-                        child: child),
+                    child: child,
                   );
                 },
                 child: controller.getBodyByActiveDestination(),
@@ -117,22 +114,12 @@ class DashboardPageView extends StatelessWidget {
                   : NavigationBar(
                   elevation: 4,
                   labelBehavior:
-                  NavigationDestinationLabelBehavior.alwaysShow,
+                  NavigationDestinationLabelBehavior.onlyShowSelected,
                   shadowColor:
-                  Theme
-                      .of(context)
-                      .colorScheme
-                      .onSurface,
+                  Theme.of(context).colorScheme.onSurface,
                   backgroundColor:
-                  Theme
-                      .of(context)
-                      .colorScheme
-                      .surface,
-                  surfaceTintColor:
-                  Theme
-                      .of(context)
-                      .colorScheme
-                      .surface,
+                  Theme.of(context).colorScheme.surface,
+                  surfaceTintColor: Theme.of(context).colorScheme.surface,
                   onDestinationSelected: controller.onDestinationSelected,
                   indicatorColor: buttonColor.withOpacity(0.3),
                   selectedIndex: controller.selectedIndex,

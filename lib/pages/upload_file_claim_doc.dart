@@ -42,18 +42,9 @@ class UploadFileClaimDoc extends StatelessWidget{
   List<String> testLabUrlList = [];
 
   File? imageFile;
+
   final ImagePicker _picker = ImagePicker();
 
-  FilePickerResult xFileToFilePickerResult(XFile xfile) {
-    final platformFile = PlatformFile(
-      name: 'File1',
-      path: xfile.path,
-      size: File(xfile.path).lengthSync(),
-      bytes: File(xfile.path).readAsBytesSync(),
-    );
-
-    return FilePickerResult([platformFile]);
-  }
   // Future<void> _captureImage(BuildContext context,FilePickerResult pf,File file,String option) async {
   //   TypeController typeController = Get.put(TypeController());
   //   if(option == 'gallery'){
@@ -300,7 +291,6 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 ListTile(
                                     title: const AppTextView(text: 'Gallery',),
                                     onTap: () async {
-                                      // imageSelector(context, "gallery"),
                                       Navigator.pop(context);
                                       FilePickerResult? result = await FilePicker.platform.pickFiles(
                                         type: FileType.custom,
@@ -311,30 +301,62 @@ class UploadFileClaimDoc extends StatelessWidget{
                                         prescriptionFiles.add(file);
                                         typeController.prescriptionListChange(file);
                                         CommonMethods.showAlertDialog(context);
-                                        var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                                        prescriptionUrlList = prescriptionUrlList+response!.data!;
-                                        filesUrl['prescription'] = prescriptionUrlList;
-                                        Navigator.of(context).pop();
-                                        print(response);
+                                        try {
+                                          var response = await OpdSure
+                                              .of(context)
+                                              .client
+                                              .uploadFiles(results: result);
+                                          if (response != null) {
+                                            prescriptionUrlList =
+                                                prescriptionUrlList +
+                                                    response.data!;
+                                            filesUrl['prescription'] =
+                                                prescriptionUrlList;
+                                            Navigator.of(context).pop();
+                                          } else {
+                                            CommonMethods.showToast(
+                                                'File not upload try again');
+                                            Navigator.of(context).pop();
+                                          }
+                                        }catch(e){
+                                          CommonMethods.showToast(
+                                              'File not upload try again');
+                                          Navigator.of(context).pop();
+                                        }
                                       } else {
-                                        print(result);
+
                                       }
                                     }),
                                 ListTile(
                                   title: const AppTextView(text: 'Camera',),
                                   onTap: ()async{
+                                    Navigator.pop(context);
                                     var pickedFile = await _picker.pickImage(source: ImageSource.camera,imageQuality: 80);
                                     if(pickedFile!=null){
-                                      FilePickerResult pf = xFileToFilePickerResult(pickedFile);
+                                      FilePickerResult pf = CommonMethods.xFileToFilePickerResult(pickedFile);
                                       File file = File(pickedFile.path);
                                       prescriptionFiles.add(file);
                                       typeController.prescriptionListChange(file);
                                       CommonMethods.showAlertDialog(context);
-                                      var response = await OpdSure.of(context).client.uploadFiles(results: pf);
-                                      prescriptionUrlList = prescriptionUrlList+response!.data!;
-                                      filesUrl['prescription'] = prescriptionUrlList;
-                                      Navigator.of(context).pop();
+                                      try{
+                                        var response = await OpdSure.of(context).client.uploadFiles(results: pf);
+                                      if(response != null) {
+                                        prescriptionUrlList =
+                                            prescriptionUrlList +
+                                                response.data!;
+                                        filesUrl['prescription'] =
+                                            prescriptionUrlList;
+                                        Navigator.of(context).pop();
+                                      }else{
+                                        CommonMethods.showToast('File not upload try again');
+                                        Navigator.of(context).pop();
+                                      }
                                       print(response);
+                                      }catch(e){
+                                        CommonMethods.showToast(
+                                            'File not upload try again');
+                                        Navigator.of(context).pop();
+                                      }
                                     }
                                     else{
                                       print(pickedFile);
@@ -460,13 +482,23 @@ class UploadFileClaimDoc extends StatelessWidget{
                                           doctorFeeFiles.add(file);
                                           typeController.docFeeRcptChange(file);
                                           CommonMethods.showAlertDialog(context);
+                                          try{
                                           var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                                          docFeeUrlList = docFeeUrlList+response!.data!;
-                                          filesUrl['fee_receipt'] = docFeeUrlList;
-                                          Navigator.of(context).pop();
-                                          print(response);
+                                          if(response != null){
+                                            docFeeUrlList = docFeeUrlList+response!.data!;
+                                            filesUrl['fee_receipt'] = docFeeUrlList;
+                                            Navigator.of(context).pop();
+                                          }else{
+                                            CommonMethods.showToast('File not upload try again');
+                                            Navigator.of(context).pop();
+                                          }
+                                          }catch(e){
+                                            CommonMethods.showToast(
+                                                'File not upload try again');
+                                            Navigator.of(context).pop();
+                                          }
                                         } else {
-                                          print(result);
+
                                         }
                                       }),
                                   ListTile(
@@ -475,16 +507,28 @@ class UploadFileClaimDoc extends StatelessWidget{
                                       Navigator.pop(context);
                                       var pickedFile = await _picker.pickImage(source: ImageSource.camera,imageQuality: 80);
                                       if(pickedFile!=null){
-                                        FilePickerResult pf = xFileToFilePickerResult(pickedFile);
+                                        FilePickerResult pf = CommonMethods.xFileToFilePickerResult(pickedFile);
                                         File file = File(pickedFile.path);
                                         doctorFeeFiles.add(file);
                                         typeController.docFeeRcptChange(file);
                                         CommonMethods.showAlertDialog(context);
+                                        try{
                                         var response = await OpdSure.of(context).client.uploadFiles(results: pf);
-                                        docFeeUrlList = docFeeUrlList+response!.data!;
-                                        filesUrl['fee_receipt'] = docFeeUrlList;
-                                        Navigator.of(context).pop();
-                                        print(response);
+                                        if(response != null) {
+                                          docFeeUrlList =
+                                              docFeeUrlList + response!.data!;
+                                          filesUrl['fee_receipt'] =
+                                              docFeeUrlList;
+                                          Navigator.of(context).pop();
+                                        }else{
+                                          CommonMethods.showToast('File not upload try again');
+                                          Navigator.of(context).pop();
+                                        }
+                                        }catch(e){
+                                          CommonMethods.showToast(
+                                              'File not upload try again');
+                                          Navigator.of(context).pop();
+                                        }
                                       }
                                       else{
                                         print(pickedFile);
@@ -607,11 +651,23 @@ class UploadFileClaimDoc extends StatelessWidget{
                                           pharmacyFiles.add(file);
                                           typeController.pharmacyRcptChange(file);
                                           CommonMethods.showAlertDialog(context);
+                                          try{
                                           var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                                          pharmacyUrlList = pharmacyUrlList+response!.data!;
-                                          filesUrl['pharmacy_receipt'] = pharmacyUrlList;
-                                          Navigator.of(context).pop();
-                                          print(response);
+                                          if(response != null) {
+                                            pharmacyUrlList = pharmacyUrlList +
+                                                response!.data!;
+                                            filesUrl['pharmacy_receipt'] =
+                                                pharmacyUrlList;
+                                            Navigator.of(context).pop();
+                                          }else{
+                                            CommonMethods.showToast('File not upload try again');
+                                            Navigator.of(context).pop();
+                                          }
+                                          }catch(e){
+                                            CommonMethods.showToast(
+                                                'File not upload try again');
+                                            Navigator.of(context).pop();
+                                          }
                                         } else {
                                           print(result);
                                         }
@@ -622,16 +678,29 @@ class UploadFileClaimDoc extends StatelessWidget{
                                       Navigator.pop(context);
                                       var pickedFile = await _picker.pickImage(source: ImageSource.camera,imageQuality: 80);
                                       if(pickedFile!=null){
-                                        FilePickerResult pf = xFileToFilePickerResult(pickedFile);
+                                        FilePickerResult pf = CommonMethods.xFileToFilePickerResult(pickedFile);
                                         File file = File(pickedFile.path);
                                         pharmacyFiles.add(file);
                                         typeController.pharmacyRcptChange(file);
                                         CommonMethods.showAlertDialog(context);
+                                        try{
                                         var response = await OpdSure.of(context).client.uploadFiles(results: pf);
-                                        pharmacyUrlList = pharmacyUrlList+response!.data!;
-                                        filesUrl['pharmacy_receipt'] = pharmacyUrlList;
-                                        Navigator.of(context).pop();
+                                        if(response != null) {
+                                          pharmacyUrlList =
+                                              pharmacyUrlList + response!.data!;
+                                          filesUrl['pharmacy_receipt'] =
+                                              pharmacyUrlList;
+                                          Navigator.of(context).pop();
+                                        }else{
+                                          CommonMethods.showToast('File not upload try again');
+                                          Navigator.of(context).pop();
+                                        }
                                         print(response);
+                                        }catch(e){
+                                          CommonMethods.showToast(
+                                              'File not upload try again');
+                                          Navigator.of(context).pop();
+                                        }
                                       }
                                       else{
                                         print(pickedFile);
@@ -755,11 +824,24 @@ class UploadFileClaimDoc extends StatelessWidget{
                                           labTestFiles.add(file);
                                           typeController.labTestRcptChange(file);
                                           CommonMethods.showAlertDialog(context);
+                                          try{
                                           var response = await OpdSure.of(context).client.uploadFiles(results: result);
-                                          testLabUrlList = testLabUrlList+response!.data!;
-                                          filesUrl['test_receipt'] = testLabUrlList;
-                                          Navigator.of(context).pop();
+                                          if(response != null) {
+                                            testLabUrlList = testLabUrlList +
+                                                response!.data!;
+                                            filesUrl['test_receipt'] =
+                                                testLabUrlList;
+                                            Navigator.of(context).pop();
+                                          }else{
+                                            CommonMethods.showToast('File not upload try again');
+                                            Navigator.of(context).pop();
+                                          }
                                           print(response);
+                                          }catch(e){
+                                            CommonMethods.showToast(
+                                                'File not upload try again');
+                                            Navigator.of(context).pop();
+                                          }
                                         } else {
                                           print(result);
                                         }
@@ -770,16 +852,29 @@ class UploadFileClaimDoc extends StatelessWidget{
                                       Navigator.pop(context);
                                       var pickedFile = await _picker.pickImage(source: ImageSource.camera,imageQuality: 80);
                                       if(pickedFile!=null){
-                                        FilePickerResult pf = xFileToFilePickerResult(pickedFile);
+                                        FilePickerResult pf = CommonMethods.xFileToFilePickerResult(pickedFile);
                                         File file = File(pickedFile.path);
                                         labTestFiles.add(file);
                                         typeController.labTestRcptChange(file);
                                         CommonMethods.showAlertDialog(context);
+                                        try{
                                         var response = await OpdSure.of(context).client.uploadFiles(results: pf);
-                                        testLabUrlList = testLabUrlList+response!.data!;
-                                        filesUrl['test_receipt'] = testLabUrlList;
-                                        Navigator.of(context).pop();
+                                        if(response != null) {
+                                          testLabUrlList =
+                                              testLabUrlList + response!.data!;
+                                          filesUrl['test_receipt'] =
+                                              testLabUrlList;
+                                          Navigator.of(context).pop();
+                                        }else{
+                                          CommonMethods.showToast('File not upload try again');
+                                          Navigator.of(context).pop();
+                                        }
                                         print(response);
+                                        }catch(e){
+                                          CommonMethods.showToast(
+                                              'File not upload try again');
+                                          Navigator.of(context).pop();
+                                        }
                                       }
                                       else{
                                         print(pickedFile);

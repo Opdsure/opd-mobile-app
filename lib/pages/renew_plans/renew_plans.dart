@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
+import 'package:opdsure/custom_ui/app_key_value.dart';
 import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/model/QueuedPlans/quequed_plans.dart';
 import 'package:opdsure/model/QueuedPlans/renew_plan_status.dart';
@@ -39,6 +40,7 @@ class RenewPlans extends StatelessWidget {
                   RenewPlanStatus  status = RenewPlanStatus().getRenewPlan(snapshot.data!.data!.records![index].activated!);
                     return AppRoundView(
                       isMargin: true,
+                        isPadding: true,
                         onClick: () async {
                           final plan = await OpdSure.of(context)
                               .client
@@ -55,34 +57,41 @@ class RenewPlans extends StatelessWidget {
                         },
                         corner: 10.0,
                         color: const Color(0x1A486AB3),
-                        mChild: ListTile(
-                          title: AppTextView(text: snapshot.data!.data!.records![index].planId!.name!),
-                          subtitle: AppTextView(text: CommonMethods.getPlanFrequency(snapshot.data!.data!.records![index].planId!.frequency!)),
-                          trailing: SizedBox(
-                            width: 100,
-                            height: 20,
-                            child: Row(
-                              children: [
-                                Icon(
-                                  status
-                                      .iconData,
-                                  color: status
-                                      .statusColor,
-                                  size: 15.0,
-                                ),
-                                AppTextView(
-                                  text:
-                                  ' ${status.statusName}',
-                                  size: 12.0,
-                                  color: status
-                                      .statusColor!,
-                                  fontWeight:
-                                  FontWeight
-                                      .w500,
-                                ),
-                              ],
-                            ),
-                          ),
+                        mChild: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             Row(
+                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                               children: [
+                                 AppTextView(text: snapshot.data!.data!.records![index].planId!.name!, size: 18, fontWeight: FontWeight.bold,),
+                                 SizedBox(
+                                   width: 100,
+                                   height: 20,
+                                   child: Row(
+                                     children: [
+                                       Icon(
+                                         status.iconData,
+                                         color: status.statusColor,
+                                         size: 15.0,
+                                       ),
+                                       AppTextView(
+                                         text: ' ${status.statusName}',
+                                         size: 12.0,
+                                         color: status.statusColor!,
+                                         fontWeight: FontWeight.w500,
+                                       ),
+                                     ],
+                                   ),
+                                 ),
+                               ],
+                             ),
+                             const SizedBox(height: 5,),
+                             AppTextView(text: 'Price Paid - ₹${snapshot.data!.data!.records![index].paidPrice!}(incl. GST)'),
+                             AppTextView(text: 'Purchased on - ${CommonMethods.formatIsoDateString(snapshot.data!.data!.records![index].createdAt!)}'),
+                             AppTextView(text: 'Membership Label: ${snapshot.data!.data!.records![index].planId!.membershipOptions!.where((e) => e.membershipId! == snapshot.data!.data!.records![index].membershipId!).toList()[0].membershipLabel!}'),
+                             AppTextView(text: 'Member Count: ${snapshot.data!.data!.records![index].planId!.membershipOptions!.where((e) => e.membershipId! == snapshot.data!.data!.records![index].membershipId!).toList()[0].memberCount!}'),
+
+                           ],
                         ));
                   });
             }

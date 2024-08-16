@@ -12,6 +12,7 @@ class AppRoundView extends StatelessWidget {
   final Color color;
   final VoidCallback? onClick;
   final bool isMargin;
+  final bool isPadding;
 
   const AppRoundView({
     required this.mChild,
@@ -19,7 +20,8 @@ class AppRoundView extends StatelessWidget {
     this.width = double.infinity,
     this.color = Colors.white,
     this.onClick,
-    this.isMargin = false
+    this.isMargin = false,
+    this.isPadding = false
   });
 
   @override
@@ -28,6 +30,7 @@ class AppRoundView extends StatelessWidget {
       onTap: onClick,
       child: Container(
         margin: isMargin ? const EdgeInsets.only(bottom: 5) : null,
+        padding: isPadding ? const EdgeInsets.all(8) : null,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.all(Radius.circular(corner)),

@@ -1,9 +1,14 @@
+import 'dart:io';
+
 import 'package:dlibphonenumber/enums/phone_number_format.dart';
 import 'package:dlibphonenumber/generated/classes/phone_number/phonenumber.pb.dart';
 import 'package:dlibphonenumber/phone_number_util.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -162,9 +167,9 @@ class CommonMethods{
   static showOneButtonDialog(BuildContext context,String message,VoidCallback mCallback) {
 
     // set up the button
-    Widget okButton = TextButton(
-      onPressed: mCallback,
-      child: const AppTextView(text: 'OK',),
+    Widget okButton = AppButton(
+      onClick: mCallback,
+      text: 'OK'
     );
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
@@ -241,11 +246,14 @@ class CommonMethods{
     return data ?? false;
   }
 
-  static String formatIsoDateString(String isoString,{isTime = false}) {
+  static String formatIsoDateString(String isoString,{isTime = false, isAddTime = false}) {
     DateTime dateTime = DateTime.parse(isoString);
+    if(isAddTime) {
+      dateTime = dateTime.add(const Duration(hours: 5, minutes: 30));
+    }
     String formattedDate = '';
     if(isTime){
-      formattedDate = DateFormat('dd/MM/yyyy HH:mm a').format(dateTime);
+      formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(dateTime);
     }
     else{
       formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
@@ -296,6 +304,17 @@ class CommonMethods{
         return alert;
       },
     );
+  }
+
+  static FilePickerResult xFileToFilePickerResult(XFile xfile) {
+    final platformFile = PlatformFile(
+      name: 'File1',
+      path: xfile.path,
+      size: File(xfile.path).lengthSync(),
+      bytes: File(xfile.path).readAsBytesSync(),
+    );
+
+    return FilePickerResult([platformFile]);
   }
 
 }

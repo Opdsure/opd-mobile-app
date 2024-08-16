@@ -1,9 +1,12 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_home_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/pages/profile_page/family_member.dart';
+import 'package:opdsure/pages/profile_page/pending_member.dart';
 import 'package:opdsure/pages/profile_page/profile.dart';
 import 'package:opdsure/pages/profile_page/profile_page.dart';
 
@@ -16,7 +19,7 @@ class ProfilePageView extends StatelessWidget {
   Widget build(BuildContext context) {
     // TODO: implement build
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: AppBasePage(
         appHeader: const AppHomeHeader(
           titleUi: AppTextView(
@@ -41,10 +44,14 @@ class ProfilePageView extends StatelessWidget {
                 labelColor: Colors.black,
                 tabs: const [
                   Tab(
-                    text: 'Personal Info',
+                    child: AppTextView(text: 'Personal Info', size: 12, fontWeight: FontWeight.bold,),
                   ),
                   Tab(
-                    text: 'Family Members',
+                    child: AppTextView(text: 'Family Members', size: 12, fontWeight: FontWeight.bold,),
+                  ),
+                  Tab(
+                    child: AppTextView(text: 'Pending for approval', size: 12, fontWeight: FontWeight.bold,),
+                    
                   ),
                 ],
                 indicatorSize: TabBarIndicatorSize.tab,
@@ -55,7 +62,8 @@ class ProfilePageView extends StatelessWidget {
                 // controller: _tabController,
                 children: [
                   Profile(controller),
-                  FamilyMember(controller)
+                  FamilyMember(controller),
+                  PendingFamilyMember(controller)
                 ],
               ),
             ),

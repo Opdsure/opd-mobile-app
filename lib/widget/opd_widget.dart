@@ -198,9 +198,9 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
             isLogout = false;
             selectedPage = 0;
             if(profileData!.phone!.isEmpty || profileData!.email!.isEmpty){
-              OpdSureApp.router.go("/home/name_email_number");
+              OpdSureApp.router.pushReplacement("/home/name_email_number");
             }else{
-              OpdSureApp.router.go("/home");
+              OpdSureApp.router.pushReplacement("/home");
             }
           }else{
             isLogout = true;

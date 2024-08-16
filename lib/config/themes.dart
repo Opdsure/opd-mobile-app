@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/input_decoration/decoratedInputBorder.dart';
 
 import '../utils/platform_infos.dart';
@@ -161,6 +162,12 @@ abstract class OpdThemes {
           ),
         ),
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        labelTextStyle: WidgetStateProperty.all(GoogleFonts.roboto(
+          fontSize: 8,
+          fontWeight: FontWeight.bold
+        ))
+      )
     );
   }
 }

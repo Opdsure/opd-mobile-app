@@ -16,7 +16,7 @@ class RenewPlanStatus{
   RenewPlanStatus getRenewPlan(bool value){
    if(!value){
      return RenewPlanStatus(
-         statusName: 'Inactive',
+         statusName: 'In Queued',
          statusColor: const Color(0xFFEF6C00),
          iconData: Icons.access_time_outlined
      );

@@ -11,15 +11,15 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/model/claim_status_model.dart';
 import 'package:opdsure/model/my_claim/my_claims_model.dart';
-import 'package:opdsure/pages/dispute_page.dart';
+import 'package:opdsure/pages/claim_pages/dispute_page.dart';
 import 'package:opdsure/pages/my_web_view.dart';
 import 'package:opdsure/pages/view_image_page.dart';
 import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
-import '../model/single_claim_model.dart';
-import '../utils/app_var.dart';
-import '../utils/common_methods.dart';
+import '../../model/single_claim_model.dart';
+import '../../utils/app_var.dart';
+import '../../utils/common_methods.dart';
 
 class ClaimsDetailsPage extends StatelessWidget {
   final ClaimRecords oneClaim;
@@ -51,10 +51,8 @@ class ClaimsDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     double w = CommonMethods.deviceWidth(context);
     double h = CommonMethods.deviceHeight(context);
-    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(
-        oneClaim.status!,
-        reSubmit: oneClaim.subscriberReaction!);
-    // TODO: implement build
+    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(oneClaim.status!, reSubmit: oneClaim.subscriberReaction!);
+    ClaimStatusModel disputeClaimStatusModel = ClaimStatusModel().getDisputeClaimBuStatus(oneClaim.disputeDetails!);
     return AppBasePage(
       appHeader: AppHeader(
         headerName: 'Claim Details',
@@ -64,8 +62,7 @@ class ClaimsDetailsPage extends StatelessWidget {
           if ((oneClaim.status! == 2 ||
                   oneClaim.status! == 7 ||
                   oneClaim.status! == 12) &&
-              !oneClaim.dispute! &&
-              isDispute) ...[DisputePage(oneClaim.id)],
+              !oneClaim.dispute! && isDispute) ...[DisputePage(oneClaim.id)],
           AppCardView(
             mChaild: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +166,40 @@ class ClaimsDetailsPage extends StatelessWidget {
                       ],
                     ),
                   ],
-                )
+                ),
+                if ((oneClaim.status! == 2 ||
+                    oneClaim.status! == 7 ||
+                    oneClaim.status! == 12) &&
+                    oneClaim.dispute!)...[Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const AppTextView(
+                      text: 'Dispute status',
+                      size: 14.0,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF344054),
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          disputeClaimStatusModel.iconData,
+                          color: disputeClaimStatusModel.statusColor,
+                          size: 15.0,
+                        ),
+                        const SizedBox(
+                          width: 5.0,
+                        ),
+                        AppTextView(
+                          text: disputeClaimStatusModel.statusName!,
+                          size: 14.0,
+                          fontWeight: FontWeight.w500,
+                          color: disputeClaimStatusModel.statusColor!,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                ],
               ],
             ),
           ),

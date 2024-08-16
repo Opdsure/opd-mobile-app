@@ -47,7 +47,8 @@ class PlansPageView extends StatelessWidget {
         appHeader: AppHeader(
           headerName: 'Plans',
         ),
-        childContent: ListView(
+        childContent: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ButtonsTabBar(
               controller: controller.tabController,
@@ -209,10 +210,7 @@ class PlansPageView extends StatelessWidget {
             const SizedBox(
               height: 10.0,
             ),
-            SizedBox(
-              height: !controller.isIndividual
-                  ? CommonMethods.deviceHeight(context) * 0.41
-                  : CommonMethods.deviceHeight(context) * 0.45,
+            Expanded(
               child: ListView.builder(
                   itemCount: controller.record!.planBenefits!.length,
                   physics: const BouncingScrollPhysics(
@@ -240,24 +238,13 @@ class PlansPageView extends StatelessWidget {
             ),
             AppButton(
               text: 'Select',
-              color:
-                  (!controller.isIndividual && controller.familyOptions == null)
-                      ? const Color(0xFFD9D7D7)
-                      : buttonColor,
-              textColor:
-                  (!controller.isIndividual && controller.familyOptions == null)
-                      ? Colors.black
-                      : Colors.white,
-              borderColor:
-                  (!controller.isIndividual && controller.familyOptions == null)
-                      ? const Color(0xFFD9D7D7)
-                      : buttonColor,
-              onClick: () {
-                if (!(!controller.isIndividual &&
-                    controller.familyOptions == null)) {
-                  controller.goToCheckout();
-                }
-              },
+              color: controller.buttonColors,
+              textColor: controller.textColors,
+              borderColor: controller.borderColors,
+              onClick: controller.onPlanSelect,
+            ),
+            const SizedBox(
+              height: 10.0,
             ),
           ],
         ),

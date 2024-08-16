@@ -23,9 +23,6 @@ class SignUpController extends State<SignUpPage> {
   TextEditingController emailTextController = TextEditingController();
   TextEditingController passwordTextController = TextEditingController();
   TextEditingController confirmPasswordTextController = TextEditingController();
-  TextEditingController firstNameTextController = TextEditingController();
-  TextEditingController middleNameTextController = TextEditingController();
-  TextEditingController lastNameControllerTextController = TextEditingController();
   TextEditingController phoneTextController = TextEditingController();
 
   final countryPicker = const FlCountryCodePicker();
@@ -35,7 +32,7 @@ class SignUpController extends State<SignUpPage> {
   String passwordError='';
   String confirmPasswordError='';
   String phoneError = '';
-  String? nameError;
+  String? nameError = '';
   bool loading = false;
   bool isShowEmailError = false;
   bool isShowErrorMobile = false;
@@ -51,6 +48,20 @@ class SignUpController extends State<SignUpPage> {
   InputType inputType = InputType.firstName;
 
   String flagUri = 'packages/fl_country_code_picker/assets/flags/in.png';
+
+  onChanged(String? value) {
+   setState(() {
+     emailError='';
+     passwordError='';
+     confirmPasswordError='';
+     phoneError = '';
+     nameError;
+     isShowEmailError = false;
+     isShowErrorMobile = false;
+     isShowErrorPassword = false;
+     isShowErrorCPassword = false;
+   });
+  }
 
   onTermAndConditions(bool? value) =>
       setState(() => isTermAndConditions = value ?? false);

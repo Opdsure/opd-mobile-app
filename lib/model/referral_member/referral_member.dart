@@ -53,7 +53,12 @@ class ReferralMemberData {
   List<ReferralMemberRecords>? _records;
   Pagination? _pagination;
 
-  List<ReferralMemberRecords>? get records => _records;
+  List<ReferralMemberRecords>? get records {
+    if(_records != null){
+      return _records!.reversed.toList();
+    }
+    return [];
+  }
   Pagination? get pagination => _pagination;
 
   Map<String, dynamic> toJson() {

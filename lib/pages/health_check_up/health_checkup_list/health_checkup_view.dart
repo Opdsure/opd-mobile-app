@@ -39,7 +39,7 @@ class HealthCheckupView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 5.0),
                   child: InkWell(
                     onTap: (){
-                      context.push('/home/health_checkup_details', extra: {"plan" : healthCheckupRecords, "isView" : true});
+                      context.push('/home/health_checkup_details', extra: {"plan" : healthCheckupRecords, "isView" : false});
                     },
                     child: AppCardView(
                       mChaild: Column(

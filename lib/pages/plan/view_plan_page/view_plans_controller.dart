@@ -27,24 +27,19 @@ class ViewPlansPageController extends State<ViewPlansPage> {
     getAllPlans();
   }
 
-  void getAllPlans() async {
+  Future<void> getAllPlans() async {
     plansResponse = await OpdSure.of(context).client.getAllPlans(
         update: true, isUpgrade: widget.type == PaymentType.planUpgrade);
   }
 
-  void selectPlans(BuildContext context) {
-    final opd = OpdSure.of(context);
-    if (plansResponse!.data!.records != null && plansResponse!.data!.records!.isNotEmpty) {
-      // opd.isSelectPlans = true;
-      // opd.isPlansSelect = false;
-      context.pushReplacement('/view_plans/select_plans',
+  void selectPlans(BuildContext context) async {
+    if (plansResponse != null) {
+      context.pushReplacement(widget.type == PaymentType.buyPlan ? '/view_plans/select_plans' : '/home/view_plans/select_plans',
           extra: {"plans": plansResponse, "type": widget.type});
     }else{
-      // opd.isSelectPlans = false;
-      // opd.isPlansSelect = false;
-      // opd.isPlanUpgrade = false;
-      CommonMethods.showToast('You already on highest plan');
-      context.pushReplacement('/home');
+      await getAllPlans();
+      context.pushReplacement(widget.type == PaymentType.buyPlan ? '/view_plans/select_plans' : '/home/view_plans/select_plans',
+          extra: {"plans": plansResponse, "type": widget.type});
     }
   }
 

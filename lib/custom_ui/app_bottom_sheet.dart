@@ -10,8 +10,8 @@ class AppBottomSheet{
     required this.mChild
   });
 
-  void modalBottomSheetMenu(BuildContext context){
-    showModalBottomSheet(
+  Future modalBottomSheetMenu(BuildContext context) async {
+   return showModalBottomSheet(
         context: context,
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width - 20, // here increase or decrease in width

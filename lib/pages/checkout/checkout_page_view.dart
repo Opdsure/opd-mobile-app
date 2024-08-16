@@ -159,7 +159,7 @@ class CheckoutPageView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const AppTextView(
-                        text: 'Previous Plan Amount',
+                        text: 'Previous Paid Amount',
                         color: Colors.black,
                         size: 16.0,
                       ),
@@ -171,12 +171,6 @@ class CheckoutPageView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  AppTextView(
-                    text:
-                    '${controller.consumeDays} days consumed and ${controller.remainDays} are remaining.',
-                    size: 10.0,
-                  ),
-                  const SizedBox(height: 5,),
                 ],
                 //Net Amount
                 if (controller.previousDiscount != 0.0) ...[

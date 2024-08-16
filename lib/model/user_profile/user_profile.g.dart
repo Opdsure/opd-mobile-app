@@ -136,19 +136,28 @@ class PlanAdapter extends TypeAdapter<Plan> {
     return Plan()
       .._purchased = fields[0] as bool?
       .._id = fields[1] as String?
-      .._membershipId = fields[2] as int?;
+      .._membershipId = fields[2] as int?
+      .._startDate = fields[3] as String?
+      .._endDate = fields[4] as String?
+      .._pricePaid = fields[5] as int?;
   }
 
   @override
   void write(BinaryWriter writer, Plan obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj._purchased)
       ..writeByte(1)
       ..write(obj._id)
       ..writeByte(2)
-      ..write(obj._membershipId);
+      ..write(obj._membershipId)
+      ..writeByte(3)
+      ..write(obj._startDate)
+      ..writeByte(4)
+      ..write(obj._endDate)
+      ..writeByte(5)
+      ..write(obj._pricePaid);
   }
 
   @override

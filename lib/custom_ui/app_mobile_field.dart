@@ -25,6 +25,7 @@ class AppMobileField extends StatelessWidget {
   final bool showErrorMessage;
   final int? maxLength;
   final bool disableText;
+  final ValueChanged<String>? mOnChanged;
 
   const AppMobileField({
     required this.hint,
@@ -39,6 +40,7 @@ class AppMobileField extends StatelessWidget {
     this.fontWeight = FontWeight.normal,
     this.isPasswordField = false,
     this.isViewPassword = false,
+    this.mOnChanged,
     this.countryCallback,
     this.inputFormatters,
     this.errorMessage = '',
@@ -108,6 +110,7 @@ class AppMobileField extends StatelessWidget {
                   keyboardType: TextInputType.phone,
                   readOnly: disableText,
                   maxLength: maxLength,
+                  onChanged: mOnChanged,
                   decoration: InputDecoration(
                     isDense: true,
                     hintText: hint,

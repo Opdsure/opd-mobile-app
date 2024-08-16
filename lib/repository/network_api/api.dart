@@ -9,6 +9,7 @@ import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
 import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/login/login_response.dart';
+import 'package:opdsure/model/notifications/notification_model.dart';
 import 'package:opdsure/model/payment_models/create_order.dart';
 import 'package:opdsure/model/referral_member/referral_member.dart';
 import 'package:opdsure/model/register/register_response.dart';
@@ -36,13 +37,12 @@ class Api {
       : httpClient = httpClient ?? Client();
 
   Never unexpectedResponse(BaseResponse response, Uint8List body) {
-    Map<String, dynamic> resMap = jsonDecode(utf8.decode(body));
-    CommonMethods.showToast(resMap['message']);
-    // if (response.reasonPhrase == 'Conflict') {
-    //   CommonMethods.showToast('Email or mobile already exist');
-    // } else if (response.reasonPhrase == 'Not Found') {
-    //   CommonMethods.showToast('Email/Mobile or password is incorrect');
-    // }
+    try {
+      Map<String, dynamic> resMap = jsonDecode(utf8.decode(body));
+      CommonMethods.showToast(resMap['message']);
+    }catch(e){
+      throw Exception('http error response');
+    }
     throw Exception('http error response');
   }
 
@@ -691,6 +691,31 @@ class Api {
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return UpdateMember.fromJson(json);
+  }
+  Future<NotificationModel> getNotifications() async {
+    final requestUri = Uri(path: 'api/v1/user/notifications');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return NotificationModel.fromJson(json);
+  }
+
+  Future<NotificationModel> deleteNotifications(String notificationId) async {
+    final requestUri = Uri(path: 'api/v1/user/notification/$notificationId');
+    final request = Request('DELETE', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return NotificationModel.fromJson(json);
   }
 
 }

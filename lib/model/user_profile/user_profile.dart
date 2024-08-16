@@ -254,16 +254,26 @@ class Plan {
   Plan({
       bool? purchased, 
       String? id, 
-      int? membershipId,}){
+      int? membershipId,
+  String? startDate,
+  String? endDate,
+  int? pricePaid}){
     _purchased = purchased;
     _id = id;
     _membershipId = membershipId;
+    _pricePaid = pricePaid;
+    _startDate = startDate;
+    _endDate = endDate;
+
 }
 
   Plan.fromJson(dynamic json) {
     _purchased = json['purchased'];
     _id = json['id'];
     _membershipId = json['membership_id'];
+    _endDate = json['end_date'];
+    _startDate = json['start_date'];
+    _pricePaid = json['paid_price'];
   }
   @HiveField(0)
   bool? _purchased;
@@ -271,16 +281,28 @@ class Plan {
   String? _id;
   @HiveField(2)
   int? _membershipId;
+  @HiveField(3)
+  String? _startDate;
+  @HiveField(4)
+  String? _endDate;
+  @HiveField(5)
+  int? _pricePaid;
 
   bool? get purchased => _purchased ?? false;
   String? get id => _id ?? "";
   int? get membershipId => _membershipId ?? 0;
+  int? get pricePaid => _pricePaid ?? 0;
+  String? get startDate => _startDate ?? '';
+  String? get endDate => _endDate ?? '';
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['purchased'] = _purchased;
     map['id'] = _id;
     map['membership_id'] = _membershipId;
+    map['start_date'] = _startDate;
+    map['end_date'] = _endDate;
+    map['paid_price'] = _pricePaid;
     return map;
   }
 

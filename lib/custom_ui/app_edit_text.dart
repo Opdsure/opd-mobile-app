@@ -21,7 +21,7 @@ class AppEditText extends StatelessWidget {
   final Widget? suffixWidget;
   final TextEditingController? textEditingController;
   final VoidCallback? viewCallback;
-  final ValueChanged? mOnChanged;
+  final ValueChanged<String>? mOnChanged;
   final String errorMessage;
   final bool showErrorMessage;
   final int? maxLength;

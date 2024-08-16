@@ -88,8 +88,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
   double _value11 = 0.0;
   double _value12 = 0.0;
   double _value13 = 0.0;
-  double totalBillAmnt = 0.0;
-  double totalClaimableAmnt = 0.0;
+  String totalBillAmnt = '';
+  String totalClaimableAmnt = '';
   String claimId = '';
   String claimCombination = '';
 
@@ -99,8 +99,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
 
   void _calculateSum() {
     setState(() {
-        totalClaimableAmnt = _value11 + _value12 + _value13;
-        totalBillAmnt = _value1 + _value2 + _value3;
+        totalClaimableAmnt = double.parse((_value11 + _value12 + _value13).toString()).toStringAsFixed(0);
+        totalBillAmnt = double.parse((_value1 + _value2 + _value3).toString()).toStringAsFixed(0);
     });
   }
 
@@ -177,18 +177,18 @@ class _FileClaimPageState extends State<FileClaimPage> {
         claimCombination = '${subscribedPlanModel.data!.claimCombination}';
         if(widget.isUpdate!){
           if(claimCombination == '2'){
-            totalBillAmnt = double.parse(cRecords!.billAmount.toString());
-            totalClaimableAmnt = double.parse(cRecords!.claimableAmount.toString());
-            billAmntPhrCtrl.text = totalBillAmnt.toStringAsFixed(2);
-            billAmntPhrClCtrl.text = totalClaimableAmnt.toStringAsFixed(2);
+            totalBillAmnt = double.parse(cRecords!.billAmount.toString()).toStringAsFixed(0);
+            totalClaimableAmnt = double.parse(cRecords!.claimableAmount.toString()).toStringAsFixed(0);
+            billAmntPhrCtrl.text = totalBillAmnt;
+            billAmntPhrClCtrl.text = totalClaimableAmnt;
           }
           else{
             billAmntPhrCtrl.text = cRecords!.pharmacyFee==null?'':'${cRecords!.pharmacyFee!}';
             billAmntPhrClCtrl.text = cRecords!.claimablePharmacyFee==null?'':'${cRecords!.claimablePharmacyFee!}';
             billAmntDiaCtrl.text = cRecords!.labTestFee==null?'':'${cRecords!.labTestFee!}';
             billAmntDiaClCtrl.text = cRecords!.claimableLabTestFee==null?'':'${cRecords!.claimableLabTestFee!}';
-            totalBillAmnt = cRecords!.doctorFee!.toDouble()+(cRecords!.pharmacyFee??0.0).toDouble()+(cRecords!.labTestFee??0.0).toDouble();
-            totalClaimableAmnt = cRecords!.claimableDoctorFee!.toDouble()+(cRecords!.claimablePharmacyFee??0.0).toDouble()+(cRecords!.claimableLabTestFee??0.0).toDouble();
+            totalBillAmnt = double.parse(cRecords!.billAmount!.toString()).toStringAsFixed(0);
+            totalClaimableAmnt = double.parse(cRecords!.claimableAmount!.toString()).toStringAsFixed(0);
           }
         }
       });
@@ -259,608 +259,605 @@ class _FileClaimPageState extends State<FileClaimPage> {
     // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(headerName: 'File a Claim',),
-      childContent: Padding(
-        padding: MediaQuery.of(context).viewInsets,
-        child: ListView(
-          children: [
-            const SizedBox(height: 15.0),
-            compulsoryField('Patient Name'),
-            Obx((){
-              bool refresh = typeController.refreshMemberList.value;
-              return refresh?FutureBuilder(
-                future: OpdSure.of(context).client.getFamilyMember(update: true),
-                builder: (context,snapshot){
-                  if(snapshot.data == null){
-                    return const AppEditText(
-                      hint: 'getting users...',
-                      disableText: true,
-                      viewSuffix: true,
-                      suffixWidget: Icon(
-                        Icons.keyboard_arrow_down_sharp,
-                        color: Color(0xff667085),
-                        size: 24.0,
-                      ),
-                    );
-                  }
-                  else{
-                    return InkWell(
-                      onTap: (){
-                        MyMemberModel myMemberModel = snapshot.data!;
-                        List<MemberList>? memberList = myMemberModel.data;
-                        AppBottomSheet(
-                            height: 600,
-                            mChild: memberList!.isEmpty?InkWell(
-                              onTap: (){
-                                Navigator.pop(context);
-                                context.push('/home/add-members', extra: {"isUpdate" : false});
-                              },
-                              child: const Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    AppTextView(
-                                      text: 'No Family member added',
-                                      color: buttonColor,
-                                      size: 16.0,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    SizedBox(height: 10.0,),
-                                    Icon(
-                                      Icons.add_circle,
-                                      color: buttonColor,
-                                    ),
-                                    AppTextView(
-                                      text: 'Add Member',
-                                      color: buttonColor,
-                                      size: 12.0,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ):ListView.builder(
-                              itemCount: memberList.length,
-                              itemBuilder: (context, index){
-                                return Visibility(
-                                  visible: (memberList[index].planStatus == 1),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: InkWell(
-                                      onTap: (){
-                                        if(typeController.memberList.value.isNotEmpty){
-                                          typeController.memberList.value.clear();
-                                        }
-                                        typeController.memberListChange(memberList[index]);
-                                        Navigator.pop(context);
-                                      },
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              AppTextView(
-                                                text: memberList[index].name!,
-                                                size: 16.0,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              AppTextView(
-                                                text: '${memberList[index].phone!}',
-                                                size: 14.0,
-                                              ),
-                                            ],
-                                          ),
-                                          const Divider(height: 1,color: Color(0x1A101828),),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            )
-                        ).modalBottomSheetMenu(context);
-                      },
-                      child: AppBorderBox(
-                        myChild: Obx((){
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              AppTextView(
-                                text: typeController.memberList.value.isEmpty?'Select User':typeController.memberList.first.name!,
-                              ),
-                              const Icon(
-                                Icons.keyboard_arrow_down_sharp,
-                                color: Color(0xff667085),
-                                size: 24.0,
-                              )
-                            ],
-                          );
-                        }),
-                      ),
-                    );
-                  }
-                },
-              ):Container();
-            }),
-            const SizedBox(height: 15.0,),
-            compulsoryField('OPD Visit Date'),
-            Obx((){
-              String date = typeController.opdVisitDate.value;
-              String showDate = '';
-              if(date!=''){
-                showDate = CommonMethods.changeDateFormat(date,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy');
-              }
-              return Stack(
-                children: [
-                  AppEditText(
-                    hint: date.isEmpty?'Enter OPD Visit Date':showDate,
+      childContent: ListView(
+        children: [
+          const SizedBox(height: 15.0),
+          compulsoryField('Patient Name'),
+          Obx((){
+            bool refresh = typeController.refreshMemberList.value;
+            return refresh?FutureBuilder(
+              future: OpdSure.of(context).client.getFamilyMember(update: true),
+              builder: (context,snapshot){
+                if(snapshot.data == null){
+                  return const AppEditText(
+                    hint: 'getting users...',
                     disableText: true,
                     viewSuffix: true,
-                    suffixWidget: const Icon(
-                      Icons.calendar_today_outlined,
+                    suffixWidget: Icon(
+                      Icons.keyboard_arrow_down_sharp,
                       color: Color(0xff667085),
                       size: 24.0,
                     ),
-                    eyeCallback: (){
-                      _selectDate(context, typeController);
-                    },
-                  ),
-                  InkWell(
-                    onTap: (){
-                      _selectDate(context, typeController);
-                    },
-                    child: SizedBox(
-                      height: 40,
-                      width: w*0.8,
-                    ),
-                  )
-                ],
-              );
-            }),
-            const SizedBox(height: 15.0),
-            compulsoryField('Doctor Name'),
-            AppEditText(
-              hint: 'Enter the name',
-              textEditingController: docNameCtrl,
-              textInputType: TextInputType.name,
-            ),
-            const SizedBox(height: 15.0),
-            compulsoryField('Doc Reg. Number'),
-            AppEditText(
-              hint: 'Enter doc Reg. Number',
-              textEditingController: regNumCtrl,
-              textInputType: TextInputType.name,
-              inputFormatters: <TextInputFormatter>[
-                FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
-              ],
-            ),
-            const SizedBox(height: 15.0),
-            const AppTextView(
-              text: 'Specialization',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
-            ),
-            InkWell(
-              onTap: ()async{
-                var data = await OpdSure.of(context).client.getSpecialization();
-                SpecializationModel? sModel = data;
-                List<SpclRecords> records = sModel!.data!.records!;
-                AppBottomSheet(
-                    height: 300,
-                    mChild: ListView.builder(
-                      itemCount: records.length,
-                      itemBuilder: (context, index){
-                        return InkWell(
-                          onTap: (){
-                            if(typeController.spclModel.value.isNotEmpty){
-                              typeController.spclModel.value.clear();
-                            }
-                            typeController.spclModelChange(records[index]);
-                            Navigator.pop(context);
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                child: AppTextView(
-                                  text: records[index].name!,
-                                ),
-                              ),
-                              const Divider(height: 1,color: Color(0x1A101828),),
-                            ],
-                          ),
-                        );
-                      },
-                    )
-                ).modalBottomSheetMenu(context);
-              },
-              child: AppBorderBox(
-                myChild: Obx((){
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      AppTextView(
-                        text: typeController.spclModel.value.isEmpty?'Select Specialization':typeController.spclModel.value.first.name!,
-                      ),
-                      const Icon(
-                        Icons.keyboard_arrow_down_sharp,
-                        color: Color(0xff667085),
-                        size: 24.0,
-                      )
-                    ],
                   );
-                }),
-              ),
-            ),
-            const SizedBox(height: 15.0),
-            compulsoryField('Hospital/Clinic Name'),
-            AppEditText(
-              hint: 'Enter hospital Name',
-              textEditingController: hsptlNameCtrl,
-              textInputType: TextInputType.name,),
-            const SizedBox(height: 15.0,),
-            compulsoryField('City'),
-            AppEditText(
-              hint: 'Enter the city',
-              textEditingController: cityCtrl,
-            ),
-            const SizedBox(height: 15.0,),
-            compulsoryField('Pin Code'),
-            AppEditText(
-              hint: 'Enter Pin Code',
-              textEditingController: pinCodeCtrl,
-              textInputType: TextInputType.number,
-              maxLength: 6,
-            ),
-            const SizedBox(height: 15.0,),
-            compulsoryField('Address'),
-            AppEditText(
-              hint: 'Enter Address',
-              textEditingController: addressCtrl,
-            ),
-            const SizedBox(height: 15.0),
-            const AppTextView(
-              text: 'Email',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
-            ),
-            AppEditText(
-              hint: 'Enter email',
-              textEditingController: emailCtrl,
-              textInputType: TextInputType.emailAddress,),
-            const SizedBox(height: 15.0),
-            compulsoryField('Doctor Clinic/Hospital Contact'),
-            Obx((){
-              String countryCode = typeController.countryCode.value;
-              String flagCode = typeController.flagCode.value;
-              return AppMobileField(
-                hint: 'Enter number',
-                countryCode: countryCode.isEmpty?'+91':countryCode,
-                textEditingController: phoneCtrl,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(13),
-                ],
-                flagUri: flagCode.isEmpty?'${mFlagUri}in.png':'$mFlagUri$flagCode.png',
-                countryCallback: () async {
-                  // Show the country code picker when tapped.
-                  // final picked = await countryPicker.showPicker(context: context);
-                  // // Null check
-                  // if (picked != null){
-                  //   print(picked);
-                  //   typeController.countryCodeChange(picked.dialCode);
-                  //   typeController.flagCodeChange(picked.code.toLowerCase());
-                  // }
-                },
-              );
-            }),
-            const SizedBox(height: 15.0),
-            compulsoryField('Reason for Doctor Consultation'),
-            AppEditText(
-              hint: 'Enter Reason',
-              textEditingController: diagnosisCtrl,
-              textInputType: TextInputType.name,),
-            const SizedBox(height: 15.0),
-            const AppTextView(
-              text: 'Additional Information(if any)',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
-            ),
-            AppEditText(
-              hint: 'Enter Additional Information',
-              textEditingController: remarkCtrl,
-              textInputType: TextInputType.name,),
-            const SizedBox(height: 15.0),
-            Row(
+                }
+                else{
+                  return InkWell(
+                    onTap: (){
+                      MyMemberModel myMemberModel = snapshot.data!;
+                      List<MemberList>? memberList = myMemberModel.data;
+                      AppBottomSheet(
+                          height: 600,
+                          mChild: memberList!.isEmpty?InkWell(
+                            onTap: (){
+                              Navigator.pop(context);
+                              context.push('/home/add-members', extra: {"isUpdate" : false});
+                            },
+                            child: const Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  AppTextView(
+                                    text: 'No Family member added',
+                                    color: buttonColor,
+                                    size: 16.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  SizedBox(height: 10.0,),
+                                  Icon(
+                                    Icons.add_circle,
+                                    color: buttonColor,
+                                  ),
+                                  AppTextView(
+                                    text: 'Add Member',
+                                    color: buttonColor,
+                                    size: 12.0,
+                                  )
+                                ],
+                              ),
+                            ),
+                          ):ListView.builder(
+                            itemCount: memberList.length,
+                            itemBuilder: (context, index){
+                              return Visibility(
+                                visible: (memberList[index].planStatus == 1),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: InkWell(
+                                    onTap: (){
+                                      if(typeController.memberList.value.isNotEmpty){
+                                        typeController.memberList.value.clear();
+                                      }
+                                      typeController.memberListChange(memberList[index]);
+                                      Navigator.pop(context);
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            AppTextView(
+                                              text: memberList[index].name!,
+                                              size: 16.0,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            AppTextView(
+                                              text: '${memberList[index].phone!}',
+                                              size: 14.0,
+                                            ),
+                                          ],
+                                        ),
+                                        const Divider(height: 1,color: Color(0x1A101828),),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                      ).modalBottomSheetMenu(context);
+                    },
+                    child: AppBorderBox(
+                      myChild: Obx((){
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            AppTextView(
+                              text: typeController.memberList.value.isEmpty?'Select User':typeController.memberList.first.name!,
+                            ),
+                            const Icon(
+                              Icons.keyboard_arrow_down_sharp,
+                              color: Color(0xff667085),
+                              size: 24.0,
+                            )
+                          ],
+                        );
+                      }),
+                    ),
+                  );
+                }
+              },
+            ):Container();
+          }),
+          const SizedBox(height: 15.0,),
+          compulsoryField('OPD Visit Date'),
+          Obx((){
+            String date = typeController.opdVisitDate.value;
+            String showDate = '';
+            if(date!=''){
+              showDate = CommonMethods.changeDateFormat(date,from: 'yyyy-MM-dd',to: 'dd/MM/yyyy');
+            }
+            return Stack(
               children: [
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const AppTextView(
-                        text: 'Doctor Fees',
-                        size: 14.0,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF1D2939),
-                      ),
-                      AppEditText(
-                        hint: 'Enter value',
-                        textEditingController: docFeeCtrl,
-                        textInputType: TextInputType.number,
-                        mOnChanged: (value){
-                          docFee(value: value);
-                        },
-                      ),
-                    ],
+                AppEditText(
+                  hint: date.isEmpty?'Enter OPD Visit Date':showDate,
+                  disableText: true,
+                  viewSuffix: true,
+                  suffixWidget: const Icon(
+                    Icons.calendar_today_outlined,
+                    color: Color(0xff667085),
+                    size: 24.0,
                   ),
+                  eyeCallback: (){
+                    _selectDate(context, typeController);
+                  },
                 ),
-                const SizedBox(width: 10.0,),
-                Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const AppTextView(
-                        text: 'Claimable Amt.',
-                        size: 14.0,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xFF1D2939),
-                      ),
-                      AppEditText(
-                        disableText: true,
-                        hint: '',
-                        textEditingController: docFeeClCtrl,
-                        textInputType: TextInputType.number,
-                        mOnChanged: (value){
-                          docFee(value : value);
-                        },
-                      ),
-                    ],
+                InkWell(
+                  onTap: (){
+                    _selectDate(context, typeController);
+                  },
+                  child: SizedBox(
+                    height: 40,
+                    width: w*0.8,
                   ),
                 )
               ],
-            ),
-
-            const SizedBox(height: 15.0),
-            AppTextView(
-              text: claimCombination == '2'?'Pharmacy + Diagnostics':'Bill Amt. for Pharmacy',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: const Color(0xFF1D2939),
-            ),
-            Row(
-              children: [
-                Flexible(child: AppEditText(
-                  hint: 'Enter value',
-                  textEditingController: billAmntPhrCtrl,
-                  textInputType: TextInputType.number,
-                  mOnChanged: (value){
-                    pharmaBill(value: value);
-
-                  },
-                )),
-                const SizedBox(width: 10,),
-                Flexible(child: AppEditText(
-                  hint: '',
-                  disableText: true,
-                  textEditingController: billAmntPhrClCtrl,
-                  textInputType: TextInputType.number,
-                  mOnChanged: (value){
-                    pharmaBill(value: value);
-                  },
-                ))
-              ],
-            ),
-            const SizedBox(height: 15.0),
-            claimCombination == '2'?Container():Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const AppTextView(
-                  text: 'Bill Amt. for Diagnostics',
-                  size: 14.0,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF1D2939),
-                ),
-                Row(
+            );
+          }),
+          const SizedBox(height: 15.0),
+          compulsoryField('Doctor Name'),
+          AppEditText(
+            hint: 'Enter the name',
+            textEditingController: docNameCtrl,
+            textInputType: TextInputType.name,
+          ),
+          const SizedBox(height: 15.0),
+          compulsoryField('Doc Reg. Number'),
+          AppEditText(
+            hint: 'Enter doc Reg. Number',
+            textEditingController: regNumCtrl,
+            textInputType: TextInputType.name,
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+            ],
+          ),
+          const SizedBox(height: 15.0),
+          const AppTextView(
+            text: 'Specialization',
+            size: 14.0,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1D2939),
+          ),
+          InkWell(
+            onTap: ()async{
+              var data = await OpdSure.of(context).client.getSpecialization();
+              SpecializationModel? sModel = data;
+              List<SpclRecords> records = sModel!.data!.records!;
+              AppBottomSheet(
+                  height: 300,
+                  mChild: ListView.builder(
+                    itemCount: records.length,
+                    itemBuilder: (context, index){
+                      return InkWell(
+                        onTap: (){
+                          if(typeController.spclModel.value.isNotEmpty){
+                            typeController.spclModel.value.clear();
+                          }
+                          typeController.spclModelChange(records[index]);
+                          Navigator.pop(context);
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 12.0),
+                              child: AppTextView(
+                                text: records[index].name!,
+                              ),
+                            ),
+                            const Divider(height: 1,color: Color(0x1A101828),),
+                          ],
+                        ),
+                      );
+                    },
+                  )
+              ).modalBottomSheetMenu(context);
+            },
+            child: AppBorderBox(
+              myChild: Obx((){
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Flexible(child: AppEditText(hint: 'Enter value',
-                      textEditingController: billAmntDiaCtrl,
+                    AppTextView(
+                      text: typeController.spclModel.value.isEmpty?'Select Specialization':typeController.spclModel.value.first.name!,
+                    ),
+                    const Icon(
+                      Icons.keyboard_arrow_down_sharp,
+                      color: Color(0xff667085),
+                      size: 24.0,
+                    )
+                  ],
+                );
+              }),
+            ),
+          ),
+          const SizedBox(height: 15.0),
+          compulsoryField('Hospital/Clinic Name'),
+          AppEditText(
+            hint: 'Enter hospital Name',
+            textEditingController: hsptlNameCtrl,
+            textInputType: TextInputType.name,),
+          const SizedBox(height: 15.0,),
+          compulsoryField('City'),
+          AppEditText(
+            hint: 'Enter the city',
+            textEditingController: cityCtrl,
+          ),
+          const SizedBox(height: 15.0,),
+          compulsoryField('Pin Code'),
+          AppEditText(
+            hint: 'Enter Pin Code',
+            textEditingController: pinCodeCtrl,
+            textInputType: TextInputType.number,
+            maxLength: 6,
+          ),
+          const SizedBox(height: 15.0,),
+          compulsoryField('Address'),
+          AppEditText(
+            hint: 'Enter Address',
+            textEditingController: addressCtrl,
+          ),
+          const SizedBox(height: 15.0),
+          const AppTextView(
+            text: 'Email',
+            size: 14.0,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1D2939),
+          ),
+          AppEditText(
+            hint: 'Enter email',
+            textEditingController: emailCtrl,
+            textInputType: TextInputType.emailAddress,),
+          const SizedBox(height: 15.0),
+          compulsoryField('Doctor Clinic/Hospital Contact'),
+          Obx((){
+            String countryCode = typeController.countryCode.value;
+            String flagCode = typeController.flagCode.value;
+            return AppMobileField(
+              hint: 'Enter number',
+              countryCode: countryCode.isEmpty?'+91':countryCode,
+              textEditingController: phoneCtrl,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(10),
+              ],
+              flagUri: flagCode.isEmpty?'${mFlagUri}in.png':'$mFlagUri$flagCode.png',
+              countryCallback: () async {
+                // Show the country code picker when tapped.
+                // final picked = await countryPicker.showPicker(context: context);
+                // // Null check
+                // if (picked != null){
+                //   print(picked);
+                //   typeController.countryCodeChange(picked.dialCode);
+                //   typeController.flagCodeChange(picked.code.toLowerCase());
+                // }
+              },
+            );
+          }),
+          const SizedBox(height: 15.0),
+          compulsoryField('Reason for Doctor Consultation'),
+          AppEditText(
+            hint: 'Enter Reason',
+            textEditingController: diagnosisCtrl,
+            textInputType: TextInputType.name,),
+          const SizedBox(height: 15.0),
+          const AppTextView(
+            text: 'Additional Information(if any)',
+            size: 14.0,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1D2939),
+          ),
+          AppEditText(
+            hint: 'Enter Additional Information',
+            textEditingController: remarkCtrl,
+            textInputType: TextInputType.name,),
+          const SizedBox(height: 15.0),
+          Row(
+            children: [
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const AppTextView(
+                      text: 'Doctor Fees',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
+                    ),
+                    AppEditText(
+                      hint: 'Enter value',
+                      textEditingController: docFeeCtrl,
                       textInputType: TextInputType.number,
                       mOnChanged: (value){
-                        labBill(value: value);
+                        docFee(value: value);
                       },
-                    )),
-                    const SizedBox(width: 10,),
-                    Flexible(child: AppEditText(hint: '',
-                      disableText: true,
-                      textEditingController: billAmntDiaClCtrl,
-                      textInputType: TextInputType.number,
-                      mOnChanged: (value){
-                        labBill(value: value);
-                      },
-                    ))
+                    ),
                   ],
                 ),
-                const SizedBox(height: 15.0),
-              ],
-            ),
-            const AppTextView(
-              text: 'Grand Total',
-              size: 14.0,
-              fontWeight: FontWeight.w500,
-              color: Color(0xFF1D2939),
-            ),
-            Row(
-              children: [
-                Flexible(
-                  child: AppBorderBox(
-                    myChild: Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: AppTextView(
-                        text: '$totalBillAmnt',
-                      ),
+              ),
+              const SizedBox(width: 10.0,),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const AppTextView(
+                      text: 'Claimable Amt.',
+                      size: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF1D2939),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 10.0,),
-                Flexible(
-                  child: AppBorderBox(
-                    myChild: Padding(
-                      padding: const EdgeInsets.only(top: 10.0),
-                      child: AppTextView(
-                        text: '$totalClaimableAmnt',
-                      ),
+                    AppEditText(
+                      disableText: true,
+                      hint: '',
+                      textEditingController: docFeeClCtrl,
+                      textInputType: TextInputType.number,
+                      mOnChanged: (value){
+                        docFee(value : value);
+                      },
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              )
+            ],
+          ),
 
-            const SizedBox(height: 15.0),
-            AppButton(
-              text: 'Next',
-              onClick: (){
-                if(typeController.memberList.value.isEmpty){
-                  CommonMethods.showToast('select user');
-                  return;
-                }
-                if(typeController.opdVisitDate.value.isEmpty){
-                  CommonMethods.showToast('select opd visit date');
-                  return;
-                }
-                if(docNameCtrl.text.isEmpty){
-                  CommonMethods.showToast('enter doctor name.');
-                  return;
-                }
-                if(regNumCtrl.text.isEmpty){
-                  CommonMethods.showToast('enter doctor regs no.');
-                  return;
-                }else{
-                  if(regNumCtrl.text.length < 4){
-                    CommonMethods.showToast('doctor regs no should be 4 digit');
-                    return;
-                  }
-                }
-                if(hsptlNameCtrl.text.isEmpty){
-                  CommonMethods.showToast('enter hospital name.');
-                  return;
-                }
-                if(cityCtrl.text.isEmpty){
-                  CommonMethods.showToast('enter city.');
-                  return;
-                }
-                if(pinCodeCtrl.text.isEmpty){
-                  CommonMethods.showToast('enter pin code.');
-                  return;
-                }else{
-                  if(pinCodeCtrl.text.length < 6){
-                    CommonMethods.showToast('pin code should be 6 digit');
-                    return;
-                  }
-                }
-                if(addressCtrl.text.isEmpty){
-                  CommonMethods.showToast('enter address');
-                  return;
-                }
-                if(phoneCtrl.text.isEmpty){
-                  CommonMethods.showToast('enter phone no.');
-                  return;
-                }
-                if(diagnosisCtrl.text.isEmpty){
-                  CommonMethods.showToast('enter diagnosis details no.');
-                  return;
-                }
-                if(docFeeCtrl.text.isEmpty){
-                  docFeeCtrl.text ='0';
-                }
-                if(billAmntPhrCtrl.text.isEmpty){
-                  billAmntPhrCtrl.text ='0';
-                }
-                if(billAmntDiaCtrl.text.isEmpty){
-                  billAmntDiaCtrl.text ='0';
-                }
-                if(docFeeClCtrl.text.isEmpty){
-                  docFeeClCtrl.text ='0';
-                }
-                if(billAmntPhrClCtrl.text.isEmpty){
-                  billAmntPhrClCtrl.text ='0';
-                }
-                if(billAmntDiaClCtrl.text.isEmpty){
-                  billAmntDiaClCtrl.text ='0';
-                }
-                ClaimJsonModel claimJsonModel = ClaimJsonModel(
-                  memberId: typeController.memberList.value.first.id,
-                  opdDate: typeController.opdVisitDate.value,
-                  docCountryCode: typeController.countryCode.value,
-                  docPhone: phoneCtrl.text,
-                  doctorFee: docFeeCtrl.text,
-                  // claimType: '0',
-                  userRemark: remarkCtrl.text.isEmpty?null:remarkCtrl.text,
-                  id: widget.isUpdate!?singleClaimModel!.data!.id:null,
-                  docEmail: emailCtrl.text.isEmpty?null:emailCtrl.text,
-                  pharmacyFee: claimCombination=='1'?billAmntPhrCtrl.text:null,
-                  labTestFee: claimCombination=='1'?billAmntDiaCtrl.text:null,
-                  claimableDoctorFee: int.tryParse(docFeeClCtrl.text),
-                  claimablePharmacyFee: claimCombination=='1'?int.tryParse(billAmntPhrClCtrl.text):null,
-                  claimableLabTestFee: claimCombination=='1'?int.tryParse(billAmntDiaClCtrl.text):null,
-                  docName: docNameCtrl.text,
-                  docRegistration: regNumCtrl.text,
-                  diagonosisDetail: diagnosisCtrl.text,
-                  hospital: hsptlNameCtrl.text,
-                  pinCode: pinCodeCtrl.text,
-                  docAddress: addressCtrl.text,
-                  city: cityCtrl.text,
-                  specialization: specialCtrl.text.isEmpty ? null : specialCtrl.text,
-                  billAmount: '$totalBillAmnt',
-                  claimableAmount: '$totalClaimableAmnt',
-                  prescription: widget.isUpdate!?singleClaimModel!.data!.prescription:[],
-                  // feeReceipt: widget.isUpdate!?singleClaimModel!.data!.feeReceipt:[],
-                  // pharmacyReceipt: widget.isUpdate!?singleClaimModel!.data!.pharmacyReceipt:[],
-                  // testReceipt: widget.isUpdate!?singleClaimModel!.data!.testReceipt:[],
-                  claimCombination: claimCombination.isEmpty?'1':claimCombination,
-                  combinedPharmacyTestFees: claimCombination=='2'?billAmntPhrCtrl.text:null,
-                  claimableCombinedPharmacyTestFees: claimCombination=='2'?billAmntPhrClCtrl.text:null
-                );
-                typeController.prescriptionList.clear();
-                typeController.docFeeRcpt.clear();
-                typeController.pharmacyRcpt.clear();
-                typeController.labTestRcpt.clear();
-                Map<String,dynamic>? docMap;
-                if(widget.isUpdate!) {
-                  docMap = {
-                    'prescription_d': cRecords!.prescription,
-                    'doc_fee_d': cRecords!.feeReceipt,
-                    'pharmacy_d': cRecords!.pharmacyReceipt,
-                    'test_d': cRecords!.testReceipt,
-                  };
-                }
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(claimJsonModel,isUpdate: widget.isUpdate,claimId: claimId,documentMap: docMap,)),
-                );
-              },
-            ),
-            const SizedBox(height: 20.0),
-            Text.rich(
-              TextSpan(
+          const SizedBox(height: 15.0),
+          AppTextView(
+            text: claimCombination == '2'?'Pharmacy + Diagnostics':'Bill Amt. for Pharmacy',
+            size: 14.0,
+            fontWeight: FontWeight.w500,
+            color: const Color(0xFF1D2939),
+          ),
+          Row(
+            children: [
+              Flexible(child: AppEditText(
+                hint: 'Enter value',
+                textEditingController: billAmntPhrCtrl,
+                textInputType: TextInputType.number,
+                mOnChanged: (value){
+                  pharmaBill(value: value);
+
+                },
+              )),
+              const SizedBox(width: 10,),
+              Flexible(child: AppEditText(
+                hint: '',
+                disableText: true,
+                textEditingController: billAmntPhrClCtrl,
+                textInputType: TextInputType.number,
+                mOnChanged: (value){
+                  pharmaBill(value: value);
+                },
+              ))
+            ],
+          ),
+          const SizedBox(height: 15.0),
+          claimCombination == '2'?Container():Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const AppTextView(
+                text: 'Bill Amt. for Diagnostics',
+                size: 14.0,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF1D2939),
+              ),
+              Row(
                 children: [
-                  TextSpan(
-                      text: 'Disclaimer: ',
-                      style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w600,
-                        color: buttonColor
-                      )),
-                  TextSpan(
-                    text: 'All the documents that are uploaded in the OPDSure Application, will be used only for the claim settlement. The uploaded documents will not be used for any other use in any scenario.',
-                    style: GoogleFonts.montserrat(color: buttonColor),
-                  ),
+                  Flexible(child: AppEditText(hint: 'Enter value',
+                    textEditingController: billAmntDiaCtrl,
+                    textInputType: TextInputType.number,
+                    mOnChanged: (value){
+                      labBill(value: value);
+                    },
+                  )),
+                  const SizedBox(width: 10,),
+                  Flexible(child: AppEditText(hint: '',
+                    disableText: true,
+                    textEditingController: billAmntDiaClCtrl,
+                    textInputType: TextInputType.number,
+                    mOnChanged: (value){
+                      labBill(value: value);
+                    },
+                  ))
                 ],
               ),
+              const SizedBox(height: 15.0),
+            ],
+          ),
+          const AppTextView(
+            text: 'Grand Total',
+            size: 14.0,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF1D2939),
+          ),
+          Row(
+            children: [
+              Flexible(
+                child: AppBorderBox(
+                  myChild: Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: AppTextView(
+                      text: totalBillAmnt,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10.0,),
+              Flexible(
+                child: AppBorderBox(
+                  myChild: Padding(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: AppTextView(
+                      text: totalClaimableAmnt,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 15.0),
+          AppButton(
+            text: 'Next',
+            onClick: (){
+              if(typeController.memberList.value.isEmpty){
+                CommonMethods.showToast('select user');
+                return;
+              }
+              if(typeController.opdVisitDate.value.isEmpty){
+                CommonMethods.showToast('select opd visit date');
+                return;
+              }
+              if(docNameCtrl.text.isEmpty){
+                CommonMethods.showToast('enter doctor name.');
+                return;
+              }
+              if(regNumCtrl.text.isEmpty){
+                CommonMethods.showToast('enter doctor regs no.');
+                return;
+              }else{
+                if(regNumCtrl.text.length < 4){
+                  CommonMethods.showToast('doctor regs no should be 4 digit');
+                  return;
+                }
+              }
+              if(hsptlNameCtrl.text.isEmpty){
+                CommonMethods.showToast('enter hospital name.');
+                return;
+              }
+              if(cityCtrl.text.isEmpty){
+                CommonMethods.showToast('enter city.');
+                return;
+              }
+              if(pinCodeCtrl.text.isEmpty){
+                CommonMethods.showToast('enter pin code.');
+                return;
+              }else{
+                if(pinCodeCtrl.text.length < 6){
+                  CommonMethods.showToast('pin code should be 6 digit');
+                  return;
+                }
+              }
+              if(addressCtrl.text.isEmpty){
+                CommonMethods.showToast('enter address');
+                return;
+              }
+              if(phoneCtrl.text.isEmpty){
+                CommonMethods.showToast('enter phone no.');
+                return;
+              }
+              if(diagnosisCtrl.text.isEmpty){
+                CommonMethods.showToast('enter diagnosis details no.');
+                return;
+              }
+              if(docFeeCtrl.text.isEmpty){
+                docFeeCtrl.text ='0';
+              }
+              if(billAmntPhrCtrl.text.isEmpty){
+                billAmntPhrCtrl.text ='0';
+              }
+              if(billAmntDiaCtrl.text.isEmpty){
+                billAmntDiaCtrl.text ='0';
+              }
+              if(docFeeClCtrl.text.isEmpty){
+                docFeeClCtrl.text ='0';
+              }
+              if(billAmntPhrClCtrl.text.isEmpty){
+                billAmntPhrClCtrl.text ='0';
+              }
+              if(billAmntDiaClCtrl.text.isEmpty){
+                billAmntDiaClCtrl.text ='0';
+              }
+              ClaimJsonModel claimJsonModel = ClaimJsonModel(
+                memberId: typeController.memberList.value.first.id,
+                opdDate: typeController.opdVisitDate.value,
+                docCountryCode: typeController.countryCode.value,
+                docPhone: phoneCtrl.text,
+                doctorFee: docFeeCtrl.text,
+                // claimType: '0',
+                userRemark: remarkCtrl.text.isEmpty?null:remarkCtrl.text,
+                id: widget.isUpdate!?singleClaimModel!.data!.id:null,
+                docEmail: emailCtrl.text.isEmpty?null:emailCtrl.text,
+                pharmacyFee: claimCombination=='1'?billAmntPhrCtrl.text:null,
+                labTestFee: claimCombination=='1'?billAmntDiaCtrl.text:null,
+                claimableDoctorFee: int.tryParse(docFeeClCtrl.text),
+                claimablePharmacyFee: claimCombination=='1'?int.tryParse(billAmntPhrClCtrl.text):null,
+                claimableLabTestFee: claimCombination=='1'?int.tryParse(billAmntDiaClCtrl.text):null,
+                docName: docNameCtrl.text,
+                docRegistration: regNumCtrl.text,
+                diagonosisDetail: diagnosisCtrl.text,
+                hospital: hsptlNameCtrl.text,
+                pinCode: pinCodeCtrl.text,
+                docAddress: addressCtrl.text,
+                city: cityCtrl.text,
+                specialization: specialCtrl.text.isEmpty ? null : specialCtrl.text,
+                billAmount: totalBillAmnt,
+                claimableAmount: totalClaimableAmnt,
+                prescription: widget.isUpdate!?singleClaimModel!.data!.prescription:[],
+                // feeReceipt: widget.isUpdate!?singleClaimModel!.data!.feeReceipt:[],
+                // pharmacyReceipt: widget.isUpdate!?singleClaimModel!.data!.pharmacyReceipt:[],
+                // testReceipt: widget.isUpdate!?singleClaimModel!.data!.testReceipt:[],
+                claimCombination: claimCombination.isEmpty?'1':claimCombination,
+                combinedPharmacyTestFees: claimCombination=='2'?billAmntPhrCtrl.text:null,
+                claimableCombinedPharmacyTestFees: claimCombination=='2'?billAmntPhrClCtrl.text:null
+              );
+              typeController.prescriptionList.clear();
+              typeController.docFeeRcpt.clear();
+              typeController.pharmacyRcpt.clear();
+              typeController.labTestRcpt.clear();
+              Map<String,dynamic>? docMap;
+              if(widget.isUpdate!) {
+                docMap = {
+                  'prescription_d': cRecords!.prescription,
+                  'doc_fee_d': cRecords!.feeReceipt,
+                  'pharmacy_d': cRecords!.pharmacyReceipt,
+                  'test_d': cRecords!.testReceipt,
+                };
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(claimJsonModel,isUpdate: widget.isUpdate,claimId: claimId,documentMap: docMap,)),
+              );
+            },
+          ),
+          const SizedBox(height: 20.0),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                    text: 'Disclaimer: ',
+                    style: GoogleFonts.montserrat(
+                      fontWeight: FontWeight.w600,
+                      color: buttonColor
+                    )),
+                TextSpan(
+                  text: 'All the documents that are uploaded in the OPDSure Application, will be used only for the claim settlement. The uploaded documents will not be used for any other use in any scenario.',
+                  style: GoogleFonts.montserrat(color: buttonColor),
+                ),
+              ],
             ),
-            const SizedBox(height: 50.0),
-          ],
-        ),
+          ),
+          const SizedBox(height: 50.0),
+        ],
       ),
     );
   }

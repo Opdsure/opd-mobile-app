@@ -92,9 +92,9 @@ class LoginView extends StatelessWidget {
                 textEditingController: controller.phoneTextController,
                 errorMessage: controller.phoneError,
                 showErrorMessage: controller.isMobileError,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(13),
-                ],
+             inputFormatters: [
+               LengthLimitingTextInputFormatter(10),
+             ],
                 countryCallback: () async {
                   // Show the country code picker when tapped.
                   final picked =

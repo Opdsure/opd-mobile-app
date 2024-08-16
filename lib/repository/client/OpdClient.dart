@@ -288,9 +288,9 @@ class OpdClient extends OpdApi {
       final database = this.database;
       if (database != null) {
         await database.insertPlans(plans: plansResponse);
-        if(isUpgrade){
-          plansResponse = await database.getPlansForUpgrade();
-        }
+        // if(isUpgrade){
+        //   plansResponse = await database.getPlansForUpgrade();
+        // }
       }
     }
     return plansResponse;
@@ -464,7 +464,12 @@ class OpdClient extends OpdApi {
     for(var file in files.toList()) {
       newFile.add(await file);
     }
-    return super.uploadFile(results: newFile);
+    try {
+      return super.uploadFile(results: newFile);
+    }catch(e){
+      return null;
+    }
+
   }
 
   Future<PlanRecords?> getPlanById({required String? planId, int? memberShipId})async {
@@ -479,6 +484,42 @@ class OpdClient extends OpdApi {
   Future<HealthCheckupRecords> getHealthPlanById(String planId) async {
     HealthCheckupResponse? health =  await getHealthCheckupPlan();
     return health!.data!.records!.where((e) => e.id == planId).toList()[0];
+  }
+
+  Future<PlansResponse?> getPlansForUpgrade() async {
+    final database = this.database;
+    if(database != null) {
+      final userProfile = await database.getUserProfile();
+      final currentPlan = userProfile!.data!.plan!;
+      PlanRecords? plan = await getPlanById(
+          planId: currentPlan.id!, memberShipId: currentPlan.membershipId);
+      PlansResponse? opdPlans = await database.getPlans();
+      List<PlanRecords> planRecords = [];
+      if (opdPlans != null && plan != null) {
+        if (plan.membershipOptions != null &&
+            plan.membershipOptions!.isNotEmpty) {
+          for (var records in opdPlans.data!.records!) {
+            if (records.membershipOptions != null) {
+              records.membershipOptions!.removeWhere((option) {
+                return option.charges! <= plan.membershipOptions![0].charges! ||
+                    option.membershipLabel! == 'Individual';
+              });
+            }
+            if (records.membershipOptions!.isNotEmpty) {
+              planRecords.add(records);
+            }
+          }
+        }
+      }
+      return PlansResponse(
+        data: PlansData(
+            pagination: null,
+            records: planRecords
+        ),
+      );
+    }else{
+      return null;
+    }
   }
 
 }

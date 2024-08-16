@@ -5,6 +5,7 @@ import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/pages/checkout/checkout_controller.dart';
 import 'package:opdsure/pages/plan/plans_page/plans_page.dart';
+import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/common_methods.dart';
 
 import '../../../widget/opd_widget.dart';
@@ -27,6 +28,9 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
   bool isIndividual = true;
   MembershipOptions? familyOptions;
   MembershipOptions? options;
+  Color buttonColors = buttonColor;
+  Color textColors = Colors.white;
+  Color borderColors = buttonColor;
   late TabController tabController = TabController(length: widget.plans!.data!.records!.length, vsync: this);
   void toggleIndividual(bool value) => setState(() {
         isIndividual = value;
@@ -40,10 +44,36 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
     }).toList();
   }
 
+  Future<bool> isAbleToBuy(MembershipOptions? option) async {
+    if(widget.type! != PaymentType.planUpgrade){
+      return true;
+    }else{
+    final opdClient = OpdSure.of(context).client;
+    final userProfile = await opdClient.getProfile();
+    final currentPlan = userProfile.data!.plan!;
+    PlanRecords? plan = await opdClient.getPlanById(
+        planId: currentPlan.id!, memberShipId: currentPlan.membershipId);
+    if (option!.charges! <= plan!.membershipOptions![0].charges!) {
+      return false;
+    } else {
+      return true;
+    }
+    }
+  }
 
-  void setPlanItem(MembershipOptions? option) {
+
+  void setPlanItem(MembershipOptions? option) async {
+    if(!await isAbleToBuy(option!)){
+      buttonColors = Color(0xFFD9D7D7);
+      textColors = Colors.black;
+      borderColors = Color(0xFFD9D7D7);
+    }else{
+      buttonColors = buttonColor;
+      textColors = Colors.white;
+      borderColors = buttonColor;
+    }
     setState(() {
-      if (option!.membershipLabel == 'Individual') {
+      if (option.membershipLabel == 'Individual') {
         isIndividual = true;
         planType = 'Individual';
         familyOptions = null;
@@ -61,17 +91,19 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
     plansTab = widget.plans!.data!.records!.map((records) => Tab(text: records.name!,)).toList();
   }
 
-  goToCheckout() {
+  goToCheckout() async {
     if (record != null) {
-      // OpdSure.of(context).isPlansSelect = true;
-      context.push('/view_plans/plans_payment', extra: {"records": record, "options": options, "type" : widget.type});
+      /*final result = await */context.push(widget.type == PaymentType.buyPlan ? '/view_plans/plans_payment' : '/home/view_plans/plans_payment', extra: {"records": record, "options": options, "type" : widget.type});
+      // if(result != null && result == true){
+      //   context.pushReplacement('/');
+      // }
     } else {
       CommonMethods.showToast('Please select a plan');
     }
   }
 
-  void getIndexedRecords({required int index}) {
-    setState(() {
+  void getIndexedRecords({required int index}) async {
+
       record = widget.plans!.data!.records![index];
       options = widget.plans!.data!.records![index].membershipOptions![0];
       if(record!.planType == PlanType.family){
@@ -83,7 +115,17 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
         isIndividual = true;
         familyOptions = null;
       }
-    });
+
+      if(!await isAbleToBuy(options!)){
+        buttonColors = const Color(0xFFD9D7D7);
+        textColors = Colors.black;
+        borderColors = const Color(0xFFD9D7D7);
+      }else{
+        buttonColors = buttonColor;
+        textColors = Colors.white;
+        borderColors = buttonColor;
+      }
+      setState(() {});
   }
 
   @override
@@ -102,4 +144,15 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
 
   @override
   Widget build(BuildContext context) => PlansPageView(this);
+
+  void onPlanSelect() async {
+    if(!await isAbleToBuy(options!)){
+      CommonMethods.showToast('Plan cannot be downgrade');
+    }else{
+      goToCheckout();
+    }
+
+  }
+
+
 }

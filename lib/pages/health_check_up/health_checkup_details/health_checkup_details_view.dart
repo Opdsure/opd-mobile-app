@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/utils/app_colors.dart';
@@ -84,8 +83,6 @@ class HealthCheckupDetailsView extends StatelessWidget {
                   decelerationRate: ScrollDecelerationRate.fast,
                 ),
                 itemBuilder: (context, index) {
-                  double basePriceShow = controller.records!.basePrice! + (controller.records!.basePrice!*18)/100;
-                  double discountPriceShow = controller.records!.discountedPrice! + (controller.records!.discountedPrice!*18)/100;
                   final TextSpan textSpan = HTML.toTextSpan(
                     context,
                     controller.records!.testDetails![index].subParameter!,

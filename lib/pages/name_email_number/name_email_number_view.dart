@@ -139,7 +139,7 @@ class NameEmailNumberView extends StatelessWidget {
                 flagUri: controller.flagUri,
                 errorText: controller.phoneError,
                 inputFormatters: [
-                  LengthLimitingTextInputFormatter(13),
+                  LengthLimitingTextInputFormatter(10),
                 ],
                 countryCallback: () {
                   controller.getCountryCode();

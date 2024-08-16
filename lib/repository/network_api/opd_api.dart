@@ -29,11 +29,15 @@ class OpdApi extends Api {
 
   @override
   Never unexpectedResponse(BaseResponse response, Uint8List body) {
-    if (response.statusCode >= 400 && response.statusCode < 500) {
-      final resp = json.decode(utf8.decode(body));
-      if (resp is Map<String, Object?>) {
-        super.unexpectedResponse(response, body);
+    try {
+      if (response.statusCode >= 400 && response.statusCode < 500) {
+        final resp = json.decode(utf8.decode(body));
+        if (resp is Map<String, Object?>) {
+          super.unexpectedResponse(response, body);
+        }
       }
+    }catch(e){
+      throw Exception('http error response');
     }
     super.unexpectedResponse(response, body);
   }

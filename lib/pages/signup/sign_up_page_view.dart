@@ -76,6 +76,7 @@ class SignUpView extends StatelessWidget {
             textEditingController: controller.emailTextController,
             errorMessage: controller.emailError,
             showErrorMessage: controller.isShowEmailError,
+            mOnChanged: controller.onChanged,
           )
               : AppMobileField(
             hint: 'Enter your mobile number',
@@ -84,8 +85,9 @@ class SignUpView extends StatelessWidget {
             flagUri: controller.flagUri,
             errorMessage: controller.phoneError,
             showErrorMessage: controller.isShowErrorMobile,
+            mOnChanged: controller.onChanged,
             inputFormatters: [
-              LengthLimitingTextInputFormatter(13),
+              LengthLimitingTextInputFormatter(10),
             ],
             countryCallback: () {
               controller.getCountryCode();
@@ -104,6 +106,7 @@ class SignUpView extends StatelessWidget {
             eyeCallback: controller.togglePassword,
             errorMessage: controller.passwordError,
             showErrorMessage: controller.isShowErrorPassword,
+            mOnChanged: controller.onChanged,
           ),
           const SizedBox(
             height: 5.0,
@@ -129,6 +132,7 @@ class SignUpView extends StatelessWidget {
             eyeCallback: controller.toggleConfirmPassword,
             errorMessage: controller.confirmPasswordError,
             showErrorMessage: controller.isShowErrorCPassword,
+            mOnChanged: controller.onChanged,
           ),
           const SizedBox(
             height: 24.0,

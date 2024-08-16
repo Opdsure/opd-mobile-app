@@ -26,6 +26,7 @@ class ProfilePageController extends State<ProfilePage> {
   }
 
   getProfileData()async {
+    await OpdSure.of(context).client.getNotifications();
       userProfile = await OpdSure.of(context).client.getProfile(update: true);
       memberModel = await OpdSure.of(context).client.getFamilyMember(update: true);
       updateMember = await OpdSure.of(context).client.getRequestedMembers();

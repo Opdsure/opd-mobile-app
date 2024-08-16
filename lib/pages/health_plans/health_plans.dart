@@ -15,48 +15,43 @@ class HealthPlans extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return AppBasePage(
       appHeader: AppHeader(headerName: 'Health Plan'),
-      childContent: SizedBox(
-        height: CommonMethods.deviceHeight(context),
-        width: CommonMethods.deviceWidth(context),
-        child: FutureBuilder<BuyHealthPlan>(
-            future: OpdSure.of(context).client.getPurchasedHealtchekupPlans(),
-            builder: (context, snapshot) {
-              if(snapshot.data == null){
-                return const Center(
-                  child: SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-              else{
-                return ListView.builder(
-                    itemCount: snapshot.data!.data!.records!.length,
-                    itemBuilder: (context, index) {
-                      return AppRoundView(
-                        isMargin: true,
-                        corner: 10.0,
-                        color: const Color(0x1A486AB3),
-                        mChild: ListTile(
-                          onTap: () async {
-                            CommonMethods.showAlertDialog(context);
-                            final plan = await OpdSure.of(context).client.getHealthPlanById(snapshot.data!.data!.records![index].healthPlan!.id!);
-                            context.pop();
-                            context.push('/home/health_checkup_details', extra: {"plan" : plan, "isView" : true});
-                          },
-                          title: AppTextView(text: snapshot.data!.data!.records![index].healthPlan!.name!,),
-                          subtitle: AppTextView(text: 'Total no of test ${snapshot.data!.data!.records![index].healthPlan!.parameters!}',),
-                        ),
-                      );
-                    });
-              }
-
+      childContent: FutureBuilder<BuyHealthPlan>(
+          future: OpdSure.of(context).client.getPurchasedHealtchekupPlans(),
+          builder: (context, snapshot) {
+            if(snapshot.data == null){
+              return const Center(
+                child: SizedBox(
+                  width: 60,
+                  height: 60,
+                  child: CircularProgressIndicator(),
+                ),
+              );
             }
-        ),
+            else{
+              return ListView.builder(
+                  itemCount: snapshot.data!.data!.records!.length,
+                  itemBuilder: (context, index) {
+                    return AppRoundView(
+                      isMargin: true,
+                      corner: 10.0,
+                      color: const Color(0x1A486AB3),
+                      mChild: ListTile(
+                        onTap: () async {
+                          CommonMethods.showAlertDialog(context);
+                          final plan = await OpdSure.of(context).client.getHealthPlanById(snapshot.data!.data!.records![index].healthPlan!.id!);
+                          context.pop();
+                          context.push('/home/health_checkup_details', extra: {"plan" : plan, "isView" : true});
+                        },
+                        title: AppTextView(text: snapshot.data!.data!.records![index].healthPlan!.name!,),
+                        subtitle: AppTextView(text: 'Total no of test ${snapshot.data!.data!.records![index].healthPlan!.parameters!}',),
+                      ),
+                    );
+                  });
+            }
+
+          }
       ),
     );
   }

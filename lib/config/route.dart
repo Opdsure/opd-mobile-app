@@ -18,6 +18,7 @@ import 'package:opdsure/pages/health_check_up/health_checkup_details/health_chec
 import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
 import 'package:opdsure/pages/name_email_number/name_email_number_controller.dart';
+import 'package:opdsure/pages/notification/notification_page.dart';
 import 'package:opdsure/pages/opd_plan/opd_plan_view.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
@@ -49,7 +50,6 @@ abstract class AppRoutes {
   ) =>
       OpdSure.of(context).client.isLogged ? null : '/signup';
 
-
   static FutureOr<String?> getRedirectNameForHome(
       BuildContext context, GoRouterState state) async {
     final opd = OpdSure.of(context);
@@ -61,13 +61,12 @@ abstract class AppRoutes {
       if (opd.client.isPlanPurchased) {
         return null;
       } else {
-          return '/view_plans';
+        return '/view_plans';
       }
     } else {
       return '/signup';
     }
   }
-
 
   AppRoutes();
 
@@ -144,46 +143,48 @@ abstract class AppRoutes {
       },
       routes: [
         GoRoute(
-            path: 'select_plans',
-            onExit: (context, state) async {
-              if(!OpdSure.of(context).client.isPlanPurchased){
-               final result = await  CommonMethods.showExitDialog(context, message: 'Are you sure? You want to exit the app without purchased any plan.');
-               if(result){
-                 SystemNavigator.pop();
-               }
-               return result;
-              }else{
-                return true;
+          path: 'select_plans',
+          onExit: (context, state) async {
+            if (!OpdSure.of(context).client.isPlanPurchased) {
+              final result = await CommonMethods.showExitDialog(context,
+                  message:
+                      'Are you sure? You want to exit the app without purchased any plan.');
+              if (result) {
+                SystemNavigator.pop();
               }
-            },
-            pageBuilder: (context, state) {
-              Map<String, dynamic>? data;
-              PlansResponse? plans;
-              PaymentType type;
-              if (state.extra != null) {
-                data = state.extra as Map<String, dynamic>;
-                plans = data['plans'] as PlansResponse;
-                if (data['type'] != null) {
-                  type = data['type'] as PaymentType;
-                } else {
-                  type = PaymentType.buyPlan;
-                }
+              return result;
+            } else {
+              return true;
+            }
+          },
+          pageBuilder: (context, state) {
+            Map<String, dynamic>? data;
+            PlansResponse? plans;
+            PaymentType type;
+            if (state.extra != null) {
+              data = state.extra as Map<String, dynamic>;
+              plans = data['plans'] as PlansResponse;
+              if (data['type'] != null) {
+                type = data['type'] as PaymentType;
               } else {
                 type = PaymentType.buyPlan;
               }
-              return defaultPageBuilder(
-                context,
-                state,
-                PlansPage(
-                  plans: plans,
-                  type: type,
-                ),
-              );
-            },
+            } else {
+              type = PaymentType.buyPlan;
+            }
+            return defaultPageBuilder(
+              context,
+              state,
+              PlansPage(
+                plans: plans,
+                type: type,
+              ),
+            );
+          },
         ),
         GoRoute(
             path: 'plans_payment',
-            onExit: (context, state){
+            onExit: (context, state) {
               OpdSure.of(context).client.getProfile(update: true);
               return true;
             },
@@ -224,7 +225,7 @@ abstract class AppRoutes {
           state,
           OpdThemes.isColumnMode(context)
               ? TwoColumnLayout(
-                  mainView: const  DashBoardPage(
+                  mainView: const DashBoardPage(
                     displayNavigationRail: true,
                   ),
                   sideView: child,
@@ -236,14 +237,14 @@ abstract class AppRoutes {
             path: '/home',
             onExit: (context, state) async {
               OpdSureState opd = OpdSure.of(context);
-              if(opd.client.isLogged){
-                if(opd.selectedPage == 0){
+              if (opd.client.isLogged) {
+                if (opd.selectedPage == 0) {
                   return await CommonMethods.showExitDialog(context);
-                }else{
+                } else {
                   opd.selectedPage = 0;
                   return false;
                 }
-              }else{
+              } else {
                 return true;
               }
             },
@@ -256,53 +257,69 @@ abstract class AppRoutes {
                       : const DashBoardPage(),
                 ),
             routes: [
-              GoRoute(path: 'wallet',
-                pageBuilder: (context, state){
-                return defaultPageBuilder(context, state, WalletPage());
-                }
-              ),
+              GoRoute(
+                  path: 'wallet',
+                  pageBuilder: (context, state) {
+                    return defaultPageBuilder(context, state, WalletPage());
+                  }),
               GoRoute(
                   path: 'opd-plan',
-                pageBuilder: (context, state){
+                  pageBuilder: (context, state) {
                     bool activate = true;
-                  Map<String, dynamic> data = state.extra! as Map<String, dynamic>;
-                  PlanRecords record = data['records'] as PlanRecords;
-                  MembershipOptions options = data['option'] as MembershipOptions;
-                  if(data['active'] != null){
-                    activate = data['active'] as bool;
-                  }
-                return defaultPageBuilder(context, state, OpdPlanView(record: record, options: options, activated : activate));
-                }
-              ),
+                    bool isSub = false;
+                    Map<String, dynamic> data =
+                        state.extra! as Map<String, dynamic>;
+                    PlanRecords record = data['records'] as PlanRecords;
+                    MembershipOptions options =
+                        data['option'] as MembershipOptions;
+                    if (data['active'] != null) {
+                      activate = data['active'] as bool;
+                    }
+                    if (data['isSub'] != null) {
+                      isSub = data['isSub'] as bool;
+                    }
+                    return defaultPageBuilder(
+                        context,
+                        state,
+                        OpdPlanView(
+                            record: record,
+                            options: options,
+                            activated: activate,
+                            isSub: isSub));
+                  }),
               GoRoute(
                   path: 'renew-plan',
-                pageBuilder: (context, state){
-                return defaultPageBuilder(context, state, const RenewPlans());
-                }
-              ),
+                  pageBuilder: (context, state) {
+                    return defaultPageBuilder(
+                        context, state, const RenewPlans());
+                  }),
               GoRoute(
                   path: 'health-plan',
-                pageBuilder: (context, state){
-                return defaultPageBuilder(context, state, const HealthPlans());
-                }
-              ),
+                  pageBuilder: (context, state) {
+                    return defaultPageBuilder(
+                        context, state, const HealthPlans());
+                  }),
               GoRoute(
                   path: 'referral-member',
-                pageBuilder: (context, state){
-                return defaultPageBuilder(context, state, const ReferralMemberPage());
-                }
-              ),
+                  pageBuilder: (context, state) {
+                    return defaultPageBuilder(
+                        context, state, const ReferralMemberPage());
+                  }),
               GoRoute(
                   path: 'add-members',
                   pageBuilder: (context, state) {
-                    Map<String, dynamic> data = state.extra as Map<String, dynamic>;
                     MemberList? member;
-                    bool? isUpdate;
-                    if(data['member'] != null){
-                      member = data['member'] as MemberList;
-                    }
-                    if(data['isUpdate'] != null){
-                      isUpdate = data['isUpdate'] as bool;
+                    bool isUpdate = false;
+                    if (state.extra != null) {
+                      Map<String, dynamic> data =
+                          state.extra as Map<String, dynamic>;
+
+                      if (data['member'] != null) {
+                        member = data['member'] as MemberList;
+                      }
+                      if (data['isUpdate'] != null) {
+                        isUpdate = data['isUpdate'] as bool;
+                      }
                     }
                     return defaultPageBuilder(
                       context,
@@ -316,9 +333,10 @@ abstract class AppRoutes {
               GoRoute(
                   path: 'update-profile',
                   pageBuilder: (context, state) {
-                    Map<String, dynamic> data = state.extra as Map<String, dynamic>;
+                    Map<String, dynamic> data =
+                        state.extra as Map<String, dynamic>;
                     UserProfile? profile;
-                    if(data['profile'] != null){
+                    if (data['profile'] != null) {
                       profile = data['profile'] as UserProfile;
                     }
                     return defaultPageBuilder(
@@ -327,67 +345,165 @@ abstract class AppRoutes {
                       UpdateProfilePage(profile),
                     );
                   }),
-              ShellRoute(
-                pageBuilder: defaultPageBuilder,
+              GoRoute(
+                  path: 'notifications',
+                  pageBuilder: (context, state) {
+                    return defaultPageBuilder(
+                      context,
+                      state,
+                      const NotificationPage(),
+                    );
+                  }),
+              GoRoute(
+                path: 'view_plans',
+                pageBuilder: (context, state) {
+                  PaymentType type;
+                  if (state.extra != null) {
+                    type = state.extra as PaymentType;
+                  } else {
+                    type = PaymentType.buyPlan;
+                  }
+                  return defaultPageBuilder(
+                    context,
+                    state,
+                    ViewPlansPage(type: type),
+                  );
+                },
                 routes: [
                   GoRoute(
-                    path: "name_email_number",
-                    pageBuilder: (context, state) => defaultPageBuilder(
-                      context,
-                      state,
-                      const NameEmailNumber(),
-                    ),
-                  ),
-                  GoRoute(
-                    path: "file_claim",
-                    pageBuilder: (context, state) => defaultPageBuilder(
-                      context,
-                      state,
-                      FileClaimPage(
-                        isUpdate: false,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              ShellRoute(
-                  pageBuilder: defaultPageBuilder, routes: [
-                GoRoute(
-                    path: 'health_checkup_details',
-                    pageBuilder: (context, state) {
-                      HealthCheckupRecords? records;
-                      bool isView = false;
-                      Map<String, dynamic> data = state.extra as Map<String, dynamic>;
-                      if (data['plan'] != null) {
-                        records = data['plan'] as HealthCheckupRecords;
+                    path: 'select_plans',
+                    onExit: (context, state) async {
+                      if (!OpdSure.of(context).client.isPlanPurchased) {
+                        final result = await CommonMethods.showExitDialog(
+                            context,
+                            message:
+                                'Are you sure? You want to exit the app without purchased any plan.');
+                        if (result) {
+                          SystemNavigator.pop();
+                        }
+                        return result;
+                      } else {
+                        return true;
                       }
-                      if(data['isView'] != null){
-                        isView = data['isView'] as bool;
-                      }
-                      return defaultPageBuilder(
-                        context,
-                        state,
-                        HealthCheckupDetails(records: records, isView: isView,),
-                      );
-                    }),
-                GoRoute(
-                    path: 'health_checkup_checkout',
+                    },
                     pageBuilder: (context, state) {
-                      HealthCheckupRecords? records;
+                      Map<String, dynamic>? data;
+                      PlansResponse? plans;
+                      PaymentType type;
                       if (state.extra != null) {
-                        records = state.extra as HealthCheckupRecords;
+                        data = state.extra as Map<String, dynamic>;
+                        plans = data['plans'] as PlansResponse;
+                        if (data['type'] != null) {
+                          type = data['type'] as PaymentType;
+                        } else {
+                          type = PaymentType.buyPlan;
+                        }
+                      } else {
+                        type = PaymentType.buyPlan;
                       }
                       return defaultPageBuilder(
                         context,
                         state,
-                        CheckoutPage(
-                          paymentType: PaymentType.buyHealthCheckup,
-                          healthCheckupRecords: records,
+                        PlansPage(
+                          plans: plans,
+                          type: type,
                         ),
                       );
-                    }),
-              ]
-              )
+                    },
+                  ),
+                  GoRoute(
+                      path: 'plans_payment',
+                      onExit: (context, state) {
+                        OpdSure.of(context).client.getProfile(update: true);
+                        return true;
+                      },
+                      pageBuilder: (context, state) {
+                        Map<String, dynamic>? data;
+                        PlanRecords? records;
+                        MembershipOptions? options;
+                        PaymentType type;
+                        if (state.extra != null) {
+                          data = state.extra as Map<String, dynamic>;
+                          records = data['records'] as PlanRecords;
+                          if (data['options'] != null) {
+                            options = data['options'] as MembershipOptions;
+                          }
+                          if (data['type'] != null) {
+                            type = data['type'] as PaymentType;
+                          } else {
+                            type = PaymentType.buyPlan;
+                          }
+                        } else {
+                          type = PaymentType.buyPlan;
+                        }
+                        return defaultPageBuilder(
+                          context,
+                          state,
+                          CheckoutPage(
+                            paymentType: type,
+                            records: records,
+                            options: options,
+                          ),
+                        );
+                      }),
+                ],
+              ),
+              GoRoute(
+                path: "name_email_number",
+                pageBuilder: (context, state) => defaultPageBuilder(
+                  context,
+                  state,
+                  const NameEmailNumber(),
+                ),
+              ),
+              GoRoute(
+                path: "file_claim",
+                pageBuilder: (context, state) => defaultPageBuilder(
+                  context,
+                  state,
+                  FileClaimPage(
+                    isUpdate: false,
+                  ),
+                ),
+              ),
+              GoRoute(
+                  path: 'health_checkup_details',
+                  pageBuilder: (context, state) {
+                    HealthCheckupRecords? records;
+                    bool isView = false;
+                    Map<String, dynamic> data =
+                        state.extra as Map<String, dynamic>;
+                    if (data['plan'] != null) {
+                      records = data['plan'] as HealthCheckupRecords;
+                    }
+                    if (data['isView'] != null) {
+                      isView = data['isView'] as bool;
+                    }
+                    return defaultPageBuilder(
+                      context,
+                      state,
+                      HealthCheckupDetails(
+                        records: records,
+                        isView: isView,
+                      ),
+                    );
+                  }),
+              GoRoute(
+                  path: 'health_checkup_checkout',
+                  pageBuilder: (context, state) {
+                    HealthCheckupRecords? records;
+                    if (state.extra != null) {
+                      records = state.extra as HealthCheckupRecords;
+                    }
+                    return defaultPageBuilder(
+                      context,
+                      state,
+                      CheckoutPage(
+                        paymentType: PaymentType.buyHealthCheckup,
+                        healthCheckupRecords: records,
+                      ),
+                    );
+                  }),
             ]),
       ],
     ),
