@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
 
+import '../../config/app_config.dart';
 import '../../custom_ui/app_button.dart';
 import '../../custom_ui/app_edit_text.dart';
 import '../../custom_ui/app_text_view.dart';
@@ -75,7 +76,7 @@ class ForgetPasswordPageView extends StatelessWidget{
             Center(
               child: AppTextView(
                 text: 'Back to Login',
-                color: buttonColor,
+                color: AppConfig.primaryColor,
                 size: 14.0,
                 fontWeight: FontWeight.w600,
                 onClick: (){

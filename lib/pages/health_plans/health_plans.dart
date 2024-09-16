@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opdsure/model/buy_health_plan/buy_health_plan.dart';
 import 'package:opdsure/model/update_member/update_member.dart';
 
+import '../../config/app_config.dart';
 import '../../custom_ui/app_base_page.dart';
 import '../../custom_ui/app_header.dart';
 import '../../custom_ui/app_round_view.dart';
@@ -36,7 +37,7 @@ class HealthPlans extends StatelessWidget {
                     return AppRoundView(
                       isMargin: true,
                       corner: 10.0,
-                      color: const Color(0x1A486AB3),
+                      color: AppConfig.roundedViewColor,
                       mChild: ListTile(
                         onTap: () async {
                           CommonMethods.showAlertDialog(context);

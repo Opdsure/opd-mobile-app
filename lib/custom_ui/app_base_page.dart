@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/utils/app_colors.dart';
 
 class AppBasePage extends StatelessWidget {
@@ -7,26 +8,26 @@ class AppBasePage extends StatelessWidget {
   final Widget? bottomContent;
   final bool isFloatingButton;
   final bool isBottomContent;
-  final Widget? floatingView;
+  final Widget? floatingContent;
 
   const AppBasePage({
-    Key? key,
+    super.key,
     this.appHeader,
     this.bottomContent,
     required this.childContent,
     this.isFloatingButton = false,
     this.isBottomContent = false,
-    this.floatingView,
-  }) : super(key: key);
+    this.floatingContent,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: pageBackColor,
+      backgroundColor: AppConfig.primaryColorLight,
       appBar: appHeader != null
           ? PreferredSize(
-        preferredSize: Size.fromHeight(AppBar().preferredSize.height),
+        preferredSize: Size.fromHeight(AppBar().preferredSize.height + 15),
         child: SafeArea(child: appHeader!),
       )
           : null,
@@ -41,7 +42,7 @@ class AppBasePage extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: isBottomContent ? bottomContent : null,
-      floatingActionButton: isFloatingButton ? floatingView : null,
+      floatingActionButton: isFloatingButton ? floatingContent : null,
     );
   }
 }

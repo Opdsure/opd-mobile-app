@@ -67,7 +67,7 @@ class OpdPlanView extends StatelessWidget {
                ),
                AppTextView(
                  text:
-                     '$rupeeSymbol${(double.parse(options.charges!.toString()) + double.parse((options.charges! * 18 /100).toString())).toStringAsFixed(2)}/${CommonMethods.getPlanFrequency(record.frequency!)}',
+                     '$rupeeSymbol ${CommonMethods.amountFormater((double.parse(options.charges!.toString()) + double.parse((options.charges! * 18 /100).toString())).toStringAsFixed(0))}/${CommonMethods.getPlanFrequency(record.frequency!)}',
                  size: 16.0,
                  fontWeight: FontWeight.w600,
                ),
@@ -91,7 +91,7 @@ class OpdPlanView extends StatelessWidget {
 
                ],
                AppTextView(
-                 text: 'Benefits of ${record.name!}',
+                 text: 'Benefits of ${record.name!} plan',
                  size: 20.0,
                  color: Colors.black,
                  fontWeight: FontWeight.w600,

@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/custom_ui/navi_rail_item.dart';
 import 'package:opdsure/pages/home_dashboard/dash_board.dart';
@@ -101,9 +102,7 @@ class DashboardPageView extends StatelessWidget {
                     animation: primaryAnimation,
                     secondaryAnimation: secondaryAnimation,
                     transitionType: SharedAxisTransitionType.vertical,
-                    fillColor: Theme
-                        .of(context)
-                        .scaffoldBackgroundColor,
+                    fillColor: Theme.of(context).scaffoldBackgroundColor,
                     child: child,
                   );
                 },
@@ -116,12 +115,12 @@ class DashboardPageView extends StatelessWidget {
                   labelBehavior:
                   NavigationDestinationLabelBehavior.onlyShowSelected,
                   shadowColor:
-                  Theme.of(context).colorScheme.onSurface,
+                  AppConfig.primaryColorLight,
                   backgroundColor:
-                  Theme.of(context).colorScheme.surface,
-                  surfaceTintColor: Theme.of(context).colorScheme.surface,
+                  AppConfig.primaryColorLight,
+                  surfaceTintColor: AppConfig.primaryColorLight,
                   onDestinationSelected: controller.onDestinationSelected,
-                  indicatorColor: buttonColor.withOpacity(0.3),
+                  indicatorColor: AppConfig.primaryColor.withOpacity(0.3),
                   selectedIndex: controller.selectedIndex,
                   destinations: getNavigationDestinations()),
             ),

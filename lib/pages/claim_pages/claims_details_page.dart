@@ -1,20 +1,16 @@
 import 'dart:convert';
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
-import 'package:opdsure/custom_ui/app_border_box.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/model/claim_status_model.dart';
 import 'package:opdsure/model/my_claim/my_claims_model.dart';
 import 'package:opdsure/pages/claim_pages/dispute_page.dart';
-import 'package:opdsure/pages/my_web_view.dart';
 import 'package:opdsure/pages/view_image_page.dart';
-import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../model/single_claim_model.dart';
@@ -25,7 +21,7 @@ class ClaimsDetailsPage extends StatelessWidget {
   final ClaimRecords oneClaim;
   final bool isDispute;
 
-  ClaimsDetailsPage({required this.oneClaim, this.isDispute = false});
+  const ClaimsDetailsPage({required this.oneClaim, this.isDispute = false, super.key});
 
   Widget commonRow(String key, String value) {
     return Row(
@@ -287,13 +283,10 @@ class ClaimsDetailsPage extends StatelessWidget {
                                   padding: const EdgeInsets.only(right: 8.0),
                                   child: InkWell(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => ViewImagePage(
-                                                'Prescription',
-                                                prescriptionImageList[index])),
-                                      );
+                                      context.push('/home/claim_details/view_image', extra: {
+                                        'headerName': 'Prescription',
+                                        'imageUrl' : prescriptionImageList[index]
+                                      });
                                     },
                                     child: Image.network(
                                       prescriptionImageList[index],
@@ -329,13 +322,10 @@ class ClaimsDetailsPage extends StatelessWidget {
                                   padding: const EdgeInsets.only(right: 8.0),
                                   child: InkWell(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => ViewImagePage(
-                                                'Fees Receipt',
-                                                feeImageList[index])),
-                                      );
+                                      context.push('/home/claim_details/view_image', extra: {
+                                        'headerName': 'Fees Receipt',
+                                        'imageUrl' : prescriptionImageList[index]
+                                      });
                                     },
                                     child: Image.network(
                                       feeImageList[index],
@@ -371,13 +361,10 @@ class ClaimsDetailsPage extends StatelessWidget {
                                   padding: const EdgeInsets.only(right: 8.0),
                                   child: InkWell(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => ViewImagePage(
-                                                'Pharmacy Receipt',
-                                                pharmacyImageList[index])),
-                                      );
+                                      context.push('/home/claim_details/view_image', extra: {
+                                        'headerName': 'Pharmacy Receipt',
+                                        'imageUrl' : prescriptionImageList[index]
+                                      });
                                     },
                                     child: Image.network(
                                       pharmacyImageList[index],
@@ -413,13 +400,10 @@ class ClaimsDetailsPage extends StatelessWidget {
                                   padding: const EdgeInsets.only(right: 8.0),
                                   child: InkWell(
                                     onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => ViewImagePage(
-                                                'Test Receipt',
-                                                testImageList[index])),
-                                      );
+                                      context.push('/home/claim_details/view_image', extra: {
+                                        'headerName': 'Test Receipt',
+                                        'imageUrl' : prescriptionImageList[index]
+                                      });
                                     },
                                     child: Image.network(
                                       testImageList[index],

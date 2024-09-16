@@ -128,20 +128,20 @@ class MemberList {
   @HiveField(13)
   int? _v;
 
-  String? get id => _id;
-  String? get name => _name;
-  int? get phone => _phone;
-  String? get countryCode => _countryCode;
+  String? get id => _id ?? '';
+  String? get name => _name ?? '';
+  int? get phone => _phone ?? 0;
+  String? get countryCode => _countryCode ?? '';
   int? get gender => _gender;
-  String? get dob => _dob;
-  String? get userId => _userId;
-  String? get address => _address;
-  int? get relation => _relation;
-  int? get planStatus => _planStatus;
-  int? get reviewStatus => _reviewStatus;
-  String? get createdAt => _createdAt;
-  String? get updatedAt => _updatedAt;
-  int? get v => _v;
+  String? get dob => _dob ?? '';
+  String? get userId => _userId ?? '';
+  String? get address => _address ?? '';
+  int? get relation => _relation ?? -1;
+  int? get planStatus => _planStatus ?? -1;
+  int? get reviewStatus => _reviewStatus ?? -1;
+  String? get createdAt => _createdAt ?? '';
+  String? get updatedAt => _updatedAt ?? '';
+  int? get v => _v ?? 0;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

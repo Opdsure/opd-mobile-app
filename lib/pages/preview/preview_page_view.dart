@@ -15,6 +15,7 @@ import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/app_keys/app_key.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
+import '../../config/app_config.dart';
 import '../../utils/app_var.dart';
 
 class PreviewPageView extends StatelessWidget {
@@ -39,7 +40,7 @@ class PreviewPageView extends StatelessWidget {
               child: AppTextView(
                 onClick: controller.skip,
                 text: 'Skip',
-                color: buttonColor,
+                color: AppConfig.primaryColor,
                 size: 16.0,
                 fontWeight: FontWeight.w600,
               ),
@@ -81,7 +82,7 @@ class PreviewPageView extends StatelessWidget {
                   width: controller.initialPage == 0 ? w - 30 : w * 0.4,
                   text: 'Next',
                   onClick: () {
-                    if (controller.initialPage != 3) {
+                    if (controller.initialPage != previewImgUri.length -1) {
                       controller.nextPage();
                     } else {
                       controller.skip();

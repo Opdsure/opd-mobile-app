@@ -26,6 +26,7 @@ class AppMobileField extends StatelessWidget {
   final int? maxLength;
   final bool disableText;
   final ValueChanged<String>? mOnChanged;
+  final FocusNode? focusNode;
 
   const AppMobileField({
     required this.hint,
@@ -46,6 +47,7 @@ class AppMobileField extends StatelessWidget {
     this.errorMessage = '',
     this.showErrorMessage = false,
     this.maxLength,
+    this.focusNode,
   });
 
   @override
@@ -104,6 +106,7 @@ class AppMobileField extends StatelessWidget {
                       fontSize: size,
                       color: color
                   ),
+                  focusNode: focusNode,
                   obscureText: isViewPassword,
                   textAlignVertical: TextAlignVertical.center,
                   inputFormatters: inputFormatters,

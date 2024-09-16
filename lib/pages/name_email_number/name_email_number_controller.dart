@@ -29,7 +29,6 @@ class NameEmailNumberController extends State<NameEmailNumber> {
   bool loading = false;
 
   final countryPicker = const FlCountryCodePicker();
-  bool isWithEmail = false;
   String countryCode = '+91';
 
   InputType inputType = InputType.firstName;
@@ -39,7 +38,6 @@ class NameEmailNumberController extends State<NameEmailNumber> {
   @override
   void initState() {
     super.initState();
-    isWithEmail = OpdSure.of(context).isWithEmail;
   }
 
   String? _getFullName() {
@@ -76,8 +74,7 @@ class NameEmailNumberController extends State<NameEmailNumber> {
     final opd = OpdSure.of(context);
     final response = await opd.client.updateUserProfile(
       name: _getFullName(),
-      phone: isWithEmail ? null : phoneTextController.text,
-      email: isWithEmail ? emailTextController.text : null,
+      email: emailTextController.text,
       countryCode: '+91'
     );
     if (response != null) {

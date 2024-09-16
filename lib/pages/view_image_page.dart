@@ -6,7 +6,7 @@ import 'package:opdsure/utils/common_methods.dart';
 class ViewImagePage extends StatelessWidget{
   final String headerName;
   final String imageUrl;
-  ViewImagePage(this.headerName,this.imageUrl);
+  const ViewImagePage({required this.headerName,required this.imageUrl, super.key});
   @override
   Widget build(BuildContext context) {
     // TODO: implement build

@@ -22,9 +22,9 @@ class ProfilePageView extends StatelessWidget {
       length: 3,
       child: AppBasePage(
         appHeader: const AppHomeHeader(
-          titleUi: AppTextView(
+          title: AppTextView(
             text: 'Profile',
-            size: 22.0,
+            size: 16.0,
             fontWeight: FontWeight.w600,
             color: Colors.black,
           ),

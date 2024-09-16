@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:opdsure/config/route.dart';
 import 'package:opdsure/model/claim_status_model.dart';
 import 'package:opdsure/model/my_claim/my_claims_model.dart';
 
@@ -25,15 +27,10 @@ class ClaimTile extends StatelessWidget {
           vertical: 5.0),
       child: InkWell(
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ClaimsDetailsPage(
-                      oneClaim: records,
-                      isDispute: false,
-                    )),
-          );
+          context.push('/home/claim_details', extra: {
+            'claim_records': records,
+            'isDispute': false,
+          });
         },
         child: AppCardView(
           mChaild: Column(
@@ -135,19 +132,7 @@ class ClaimTile extends StatelessWidget {
                 fontWeight:
                 FontWeight.w500,
                 onClick: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) =>
-                          FileClaimPage(
-                            isUpdate:
-                            true,
-                            records:
-                            records,
-                          ),
-                    ),
-                  );
+                  context.push('/home/file_claim', extra: true);
                 },
               )
                   : Row(
@@ -193,11 +178,10 @@ class ClaimTile extends StatelessWidget {
                   fontWeight:
                   FontWeight.w500,
                   onClick: () {
-                    Navigator.push(context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ClaimsDetailsPage(oneClaim: records, isDispute: true,)),
-                    );
+                    context.push('/home/claim_details', extra: {
+                      'claim_records': records,
+                      'isDispute': true,
+                    });
                   },
                 )
                     : Row(

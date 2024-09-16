@@ -40,7 +40,6 @@ class DashBoardPageController extends State<DashBoardPage> {
 
   void onDestinationSelected(int index){
     OpdSureState opd = OpdSure.of(context);
-    // opd.isPlanUpgrade = false;
     opd.setPage(index, (page){
       if(mounted) {
         setState(() {

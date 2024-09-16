@@ -1,49 +1,128 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
 
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'dart:math' as math;
-import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
-import 'package:opdsure/custom_ui/app_gradient.dart';
 import 'package:opdsure/custom_ui/app_home_header.dart';
-import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/pages/claim_pages/claim_tile.dart';
-import 'package:opdsure/pages/health_check_up_page.dart';
-import 'package:opdsure/utils/app_colors.dart';
+import 'package:opdsure/pages/homepage/home_service_tile.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../custom_ui/app_button.dart';
-import '../../custom_ui/app_card_view.dart';
+import '../../config/app_config.dart';
 import '../../model/claim_status_model.dart';
 import '../../model/my_claim/my_claims_model.dart';
-import '../../utils/app_var.dart';
-import '../all_checkup_page.dart';
-import '../claim_pages/claims_details_page.dart';
-import '../file_claim_page.dart';
 
 typedef ValueCallback = void Function(int value);
+
+class OpdService {
+  String image;
+  String title;
+  VoidCallback onTap;
+
+  OpdService({required this.title, required this.onTap, required this.image});
+}
 
 class HomePage extends StatefulWidget {
   final ValueCallback callback;
 
-  HomePage({required this.callback, super.key});
+  const HomePage({required this.callback, super.key});
 
   static const List<IconData> icons = [
     Icons.chat,
     Icons.phone,
     Icons.group_add
+  ];
+
+  static List<OpdService> serviceTittle(BuildContext context, {ValueCallback? callBack}) => [
+    OpdService(
+      title: 'In-Clinic Doctor',
+        image: 'assets/images/offline_doc.png',
+      onTap: (){
+          CommonMethods.customAlertBox(context,
+            title: 'In-Clinic Consultation',
+            message: 'Visit any clinic in india.',
+          );
+      }
+    ),
+    OpdService(
+        title: 'Online Doctor',
+        image: 'assets/images/online_doc.png',
+        onTap: () async {
+          CommonMethods.showAlertDialog(context);
+          final opd = OpdSure.of(context);
+          if(opd.profileData!.plan!.isPlanActive){
+            final mfine = await opd.client.mFine();
+            Navigator.of(context).pop();
+            context.push('/home/web_view', extra: mfine.data!.redirectUrl!);
+          }else{
+            Navigator.of(context).pop();
+            CommonMethods.customAlertBox(context,
+              title: 'Alert',
+              message: "You don't have a valid plan to consult a doctor. Please purchase a plan first.",
+            );
+          }
+        }),
+    OpdService(
+        title: 'Pharmacy',
+        image: 'assets/images/pharma.png',
+        onTap: () async {
+      CommonMethods.customAlertBox(context,
+        negativeButton: 'PharmEasy',
+        positiveButton: 'Apollo 24/7',
+        okCallBack: (context1){
+        Navigator.of(context1, rootNavigator: true).pop();
+        context.push('/home/web_view', extra: AppConfig.apolloPharmaUrl);
+        },
+        cancelCallBack: (context1){
+          Navigator.of(context1, rootNavigator: true).pop();
+          context.push('/home/web_view', extra: AppConfig.pharmaEasyUrl);
+        },
+        isCancelButton: true,
+        message: "Please select one",
+        title: "Pharmacy",
+        shouldDismiss: true,
+      );
+        }),
+    OpdService(
+        title: 'Diagnostic',
+        image: 'assets/images/diag.png',
+        onTap: (){
+          context.push('/home/web_view', extra: AppConfig.apolloPharmaUrl);
+        }),
+    OpdService(
+        title: 'Health Checkups',
+        image: 'assets/images/health.png',
+        onTap: (){
+          context.push('/home/book_checkup');
+        }),
+    OpdService(
+        title: 'Ambulance',
+  image: 'assets/images/ambu.png',
+        onTap: (){
+          launchUrl(Uri(
+            scheme: 'tel',
+            path: '102',
+          ));
+        }),
+    // OpdService(
+    //     title: '',
+    //     image: 'assets/images/quick_claim.png',
+    //     onTap: (){
+    //       callBack!.call(1);
+    //     }),
+    // OpdService(
+    //     title: '',
+    //     image: 'assets/images/app_logo.png',
+    //     onTap: (){
+    //       context.push('/home/web_view', extra: 'https://www.smcinsurance.com/?user=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiT1BEIFN1cmUiLCJ1bmlxdWVfbmFtZSI6Ik9QRCBTdXJlIiwicm9sZSI6IjI5IiwiZW1haWwiOiJ1bWVzaC5nQG9wZHN1cmUuY29tIiwibmFtZWlkIjoiNTIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3VzZXJkYXRhIjoiMTkwNDI1IiwiUm9sZU5hbWUiOiJBZmZpbGlhdGUiLCJNb2JpbGVObyI6Ijg4MDA2MTQ1ODgiLCJQb3NDb2RlIjoiMCIsImJscGF5bG9hZCI6IiIsImNscGF5bG9hZCI6IiIsInVzZXJ0b2tlbiI6ImVmYTBhZDM0ZGY4NDQ3ZmQ4ZWI5YjUyZjJjYWRiOGFhIiwibmJmIjoxNzI1OTYxMjk2LCJleHAiOjE3MjYwNDc2OTYsImlhdCI6MTcyNTk2MTI5NiwiaXNzIjoiaHR0cHM6Ly93d3cuc21jaW5zdXJhbmNlLmNvbSIsImF1ZCI6Imh0dHBzOi8vd3d3LnNtY2luc3VyYW5jZS5jb20ifQ.V4WobGKx6g6eJ72aNjVM5n1AjLGb4Rn7gAlXMxG4RY4&BusinessID=');
+    //     }),
   ];
 
   @override
@@ -55,6 +134,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    super.initState();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 500),
@@ -104,21 +184,21 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     TypeController typeController = Get.put(TypeController());
     return AppBasePage(
       appHeader: AppHomeHeader(
-        titleUi: Text.rich(
+        title: Text.rich(
           TextSpan(
             children: [
               TextSpan(
                   text: 'Welcome, ',
                   style: GoogleFonts.montserrat(
-                      fontSize: 22.0,
+                      fontSize: 16.0,
                       fontWeight: FontWeight.w600,
                       color: Colors.black)),
               TextSpan(
                   text: OpdSure.of(context).profileData!.name!,
                   style: GoogleFonts.montserrat(
-                      fontSize: 22.0,
+                      fontSize: 16.0,
                       fontWeight: FontWeight.w600,
-                      color: buttonColor)),
+                      color: AppConfig.primaryColor)),
             ],
           ),
         ),
@@ -126,168 +206,35 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       childContent: ListView(
         children: [
           const AppTextView(
-            text: 'Have a great day',
-            color: Color(0xFF667085),
-          ),
-          SizedBox(
-            height: h * 0.03,
-          ),
-          AppGradient(
-            mChild: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Image.asset(
-                        'assets/images/claim.png',
-                        height: 30.0,
-                        width: 30.0,
-                      ),
-                      const SizedBox(
-                        width: 15.0,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          SizedBox(
-                            width: w * 0.75,
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    AppTextView(
-                                      text: '100 + Claims Filed',
-                                      size: 13.0,
-                                      color: Color(0xFF667085),
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    AppTextView(
-                                      text: 'File an OPD Claim',
-                                      size: 16.0,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ],
-                                ),
-                                Icon(Icons.keyboard_arrow_right_sharp)
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 5.0,
-                          ),
-                          SizedBox(
-                            width: w * 0.7,
-                            child: const AppTextView(
-                              text:
-                                  'File your OPD Claim quickly and effortlessly, and let us take care of the rest',
-                              size: 14.0,
-                              color: Color(0xFF667085),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
-            mCallback: () {
-              widget.callback.call(1);
-            },
-            colorList: const [
-              Color(0xFFfcf2f9),
-              Color(0xFFede0f2),
-              Color(0xFFe0dff5),
-              Color(0xFFd3dff7),
-            ],
+            text: 'Services',
+            color: Colors.black,
+            size: 18.0,
+            fontWeight: FontWeight.w700,
           ),
           const SizedBox(
-            height: 20,
+            height: 5,
           ),
-          AppGradient(
-            mChild: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const AppRoundView(
-                        corner: 7.0,
-                        color: Color(0xFF79ceff),
-                        mChild: Padding(
-                          padding: EdgeInsets.all(5.0),
-                          child: Icon(
-                            Icons.add_box,
-                            color: Colors.white,
-                            size: 20.0,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 15.0,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(
-                            height: 2,
-                          ),
-                          SizedBox(
-                            width: w * 0.75,
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                AppTextView(
-                                  text: 'Book Free Health Check-up',
-                                  size: 16.0,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                Icon(Icons.keyboard_arrow_right_sharp)
-                              ],
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 5.0,
-                          ),
-                          SizedBox(
-                            width: w * 0.7,
-                            child: const AppTextView(
-                              text:
-                                  'Book your free health check -up today and prioritize your well-being with confidence.',
-                              size: 14.0,
-                              color: Color(0xFF667085),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  )
-                ],
-              ),
+          SizedBox(
+            height: 180,
+            child: ListView.builder(
+              itemCount: HomePage.serviceTittle(context).length,
+              physics: const BouncingScrollPhysics(),
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return HomeServiceTile(
+                    width: 100,
+                    height: 100,
+                    index : index,
+                    title: HomePage.serviceTittle(context)[index],
+                    onTap: HomePage.serviceTittle(context, callBack: (value){
+                      widget.callback(value);
+                    })[index].onTap
+                );
+              },
             ),
-            mCallback: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AllCheckupPage()),
-              );
-            },
-            colorList: const [
-              Color(0xFFeff9ff),
-              Color(0xFFd8f1ff),
-              Color(0xFFc0e7ff),
-              Color(0xFFcaebff),
-            ],
           ),
+
           const SizedBox(
             height: 10,
           ),
@@ -298,7 +245,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 text: 'My Claims',
                 color: Colors.black,
                 size: 18.0,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w700,
               ),
               InkWell(
                 onTap: () {
@@ -326,47 +273,60 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
           Obx(() {
             bool refresh = typeController.refreshClaimList.value;
-            return SizedBox(
-              height: h * 0.37,
-              child: refresh
-                  ? FutureBuilder<MyClaimsModel?>(
-                      future: OpdSure.of(context).client.getAllClaims(),
-                      builder: (context, snapshot) {
-                        if (snapshot.data == null) {
-                          return const Center(
-                            child: AppTextView(
-                              text: 'Claims are loading...',
-                            ),
-                          );
-                        } else {
-                          MyClaimsModel? myClaimsModel = snapshot.data;
-                          List<ClaimRecords> listData = myClaimsModel!.data!.records!;
-                          return listData.isEmpty
-                              ? const Center(
+            return refresh
+                ? FutureBuilder<MyClaimsModel?>(
+                    future: OpdSure.of(context).client.getAllClaims(),
+                    builder: (context, snapshot) {
+                      if (snapshot.data == null) {
+                        return const Center(
+                          child: AppTextView(
+                            text: 'Claims are loading...',
+                          ),
+                        );
+                      } else {
+                        MyClaimsModel? myClaimsModel = snapshot.data;
+                        List<ClaimRecords> listData =
+                            myClaimsModel!.data!.records!;
+                        return listData.isEmpty
+                            ?  const SizedBox(
+                          width: 100,
+                              height: 100,
+                              child: Center(
                                   child: AppTextView(
                                     text: 'No Claim Found',
                                   ),
-                                )
-                              : ListView.builder(
-                                  itemCount:
-                                      listData.length > 3 ? 3 : listData.length,
-                                  itemBuilder: (context, index) {
-                                    ClaimRecords records = listData[index];
-                                    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(records.status!, reSubmit: records.resubmission!);
-                                    ClaimStatusModel disputeClaimStatus = ClaimStatusModel().getDisputeClaimBuStatus(records.disputeDetails!);
-                                    return ClaimTile(records: records, claimStatus: claimStatusModel, disputeClaimStatus: disputeClaimStatus);
-                                  },
-                                );
-                        }
-                      },
-                    )
-                  : Container(),
-            );
+                                ),
+                            )
+                            : ListView.builder(
+                                itemCount:
+                                    listData.length > 3 ? 3 : listData.length,
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemBuilder: (context, index) {
+                                  ClaimRecords records = listData[index];
+                                  ClaimStatusModel claimStatusModel =
+                                      ClaimStatusModel().getClaimBuStatus(
+                                          records.status!,
+                                          reSubmit: records.resubmission!);
+                                  ClaimStatusModel disputeClaimStatus =
+                                      ClaimStatusModel()
+                                          .getDisputeClaimBuStatus(
+                                              records.disputeDetails!);
+                                  return ClaimTile(
+                                      records: records,
+                                      claimStatus: claimStatusModel,
+                                      disputeClaimStatus: disputeClaimStatus);
+                                },
+                              );
+                      }
+                    },
+                  )
+                : Container();
           }),
         ],
       ),
       isFloatingButton: false,
-      floatingView: Column(
+      floatingContent: Column(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(HomePage.icons.length, (int index) {
           Widget child = Container(
@@ -381,7 +341,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
               child: FloatingActionButton(
                 heroTag: null,
-                backgroundColor: buttonColor,
+                backgroundColor: AppConfig.primaryColor,
                 mini: true,
                 child: Icon(HomePage.icons[index], color: Colors.white),
                 onPressed: () {

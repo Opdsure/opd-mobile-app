@@ -8,6 +8,7 @@ import 'package:opdsure/pages/plan/plans_page/plans_page.dart';
 import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/common_methods.dart';
 
+import '../../../config/app_config.dart';
 import '../../../widget/opd_widget.dart';
 
 class PlansPage extends StatefulWidget {
@@ -28,9 +29,9 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
   bool isIndividual = true;
   MembershipOptions? familyOptions;
   MembershipOptions? options;
-  Color buttonColors = buttonColor;
+  Color buttonColors = AppConfig.primaryColor;
   Color textColors = Colors.white;
-  Color borderColors = buttonColor;
+  Color borderColors = AppConfig.primaryColor;
   late TabController tabController = TabController(length: widget.plans!.data!.records!.length, vsync: this);
   void toggleIndividual(bool value) => setState(() {
         isIndividual = value;
@@ -68,9 +69,9 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
       textColors = Colors.black;
       borderColors = Color(0xFFD9D7D7);
     }else{
-      buttonColors = buttonColor;
+      buttonColors = AppConfig.primaryColor;
       textColors = Colors.white;
-      borderColors = buttonColor;
+      borderColors = AppConfig.primaryColor;
     }
     setState(() {
       if (option.membershipLabel == 'Individual') {
@@ -121,9 +122,9 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
         textColors = Colors.black;
         borderColors = const Color(0xFFD9D7D7);
       }else{
-        buttonColors = buttonColor;
+        buttonColors = AppConfig.primaryColor;
         textColors = Colors.white;
-        borderColors = buttonColor;
+        borderColors = AppConfig.primaryColor;
       }
       setState(() {});
   }

@@ -187,7 +187,14 @@ class CheckoutController extends State<CheckoutPage> {
           : 'Health checkup purchased successfully!');
       await opd.client.getProfile(update: true);
       if (widget.paymentType == PaymentType.buyPlan) {
-        context.pushReplacement('/home/add-members');
+       final member = await OpdSure.of(context).client.getFamilyMember(update: true);
+       if(member!.data!.length > 0){
+         context.go('/home/add-members', extra: {"isUpdate" : true, "member" : member.data![0]});
+         await OpdSure.of(context).client.getProfile(update: true);
+       }else{
+         context.pushReplacement('/home/add-members');
+       }
+
       } else {
         context.pop();
         OpdSureApp.router.pushReplacement('/home');

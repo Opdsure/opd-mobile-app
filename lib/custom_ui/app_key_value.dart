@@ -2,14 +2,17 @@ import 'package:flutter/cupertino.dart';
 
 import 'app_text_view.dart';
 
-class AppKeyValue extends StatelessWidget{
+class AppKeyValue extends StatelessWidget {
   final String mKey;
   final String value;
+  final Color? keyColor;
+  final Color? valueColor;
 
-  AppKeyValue({
-    this.mKey = '',
-    this.value = ''
-  });
+  const AppKeyValue(
+      {super.key, this.mKey = '',
+      this.value = '',
+      this.keyColor = const Color(0xFF344054),
+      this.valueColor = const Color(0xFF344054)});
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +24,15 @@ class AppKeyValue extends StatelessWidget{
           text: '$mKey:',
           size: 14.0,
           fontWeight: FontWeight.w600,
-          color: const Color(0xFF344054),
+          color: keyColor!,
         ),
         AppTextView(
           text: value,
           size: 14.0,
           fontWeight: FontWeight.w500,
-          color: const Color(0xFF344054),
+          color: valueColor!,
         ),
       ],
     );
   }
-
 }

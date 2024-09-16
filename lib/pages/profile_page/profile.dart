@@ -3,30 +3,32 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:opdsure/pages/profile_page/profile_page.dart';
 
+import '../../config/app_config.dart';
 import '../../custom_ui/app_key_value.dart';
 import '../../custom_ui/app_round_view.dart';
 import '../../custom_ui/app_text_view.dart';
 import '../../utils/common_methods.dart';
 import '../../widget/opd_widget.dart';
+
 class Profile extends StatelessWidget {
   final ProfilePageController controller;
-  const Profile(this.controller,{super.key});
+
+  const Profile(this.controller, {super.key});
 
   @override
   Widget build(BuildContext context) {
     double w = CommonMethods.deviceWidth(context);
     double h = CommonMethods.deviceHeight(context);
     String actualDob = '';
-    if(controller.userProfile == null){
+    if (controller.userProfile == null) {
       return const Center(
-        child: SizedBox(
-          height: 50,
-            width: 50,
-            child: CircularProgressIndicator()),
+        child:
+            SizedBox(height: 50, width: 50, child: CircularProgressIndicator()),
       );
-    }else{
+    } else {
       if (controller.userProfile!.data!.dob!.isNotEmpty) {
-        actualDob = CommonMethods.formatIsoDateString(controller.userProfile!.data!.dob!);
+        actualDob = CommonMethods.formatIsoDateString(
+            controller.userProfile!.data!.dob!);
       }
       return ListView(
         children: [
@@ -35,30 +37,28 @@ class Profile extends StatelessWidget {
           ),
           AppRoundView(
             corner: 10.0,
-            color: const Color(0x1A486AB3),
+            color: AppConfig.roundedViewColor,
             mChild: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const AppTextView(
                         text: 'Personal Information',
                         size: 16.0,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: AppConfig.primaryColor,
                       ),
                       InkWell(
                         onTap: () {
                           controller.updateProfile();
                         },
-                        child: Image.asset(
-                          'assets/images/edit_pen.png',
-                          height: 20.0,
-                          width: 20.0,
-                        ),
+                        child: Image.asset('assets/images/edit_pen.png',
+                            height: 20.0,
+                            width: 20.0,
+                            color: AppConfig.primaryColor),
                       )
                     ],
                   ),
@@ -76,7 +76,8 @@ class Profile extends StatelessWidget {
                     mKey: 'Age',
                     value: actualDob.isEmpty
                         ? ''
-                        : '${CommonMethods.calculateAge(DateFormat("dd/MM/yyyy").parse(actualDob))} years',
+                        : CommonMethods.calculateAge(
+                            DateFormat("dd/MM/yyyy").parse(actualDob)),
                   ),
                   const SizedBox(
                     height: 5.0,
@@ -100,7 +101,7 @@ class Profile extends StatelessWidget {
                   AppKeyValue(
                     mKey: 'Mobile Number',
                     value:
-                    '${controller.userProfile!.data!.countryCode!} ${controller.userProfile!.data!.phone!}',
+                        '${controller.userProfile!.data!.countryCode!} ${controller.userProfile!.data!.phone!}',
                   ),
                 ],
               ),
@@ -111,28 +112,26 @@ class Profile extends StatelessWidget {
           ),
           AppRoundView(
             corner: 10.0,
-            color: const Color(0x1A486AB3),
+            color: AppConfig.roundedViewColor,
             mChild: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
                 children: [
                   Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const AppTextView(
                         text: 'Address',
                         size: 16.0,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                        color: AppConfig.primaryColor,
                       ),
                       Visibility(
                         visible: false,
-                        child: Image.asset(
-                          'assets/images/edit_pen.png',
-                          height: 20.0,
-                          width: 20.0,
-                        ),
+                        child: Image.asset('assets/images/edit_pen.png',
+                            height: 20.0,
+                            width: 20.0,
+                            color: AppConfig.primaryColor),
                       )
                     ],
                   ),
@@ -155,8 +154,7 @@ class Profile extends StatelessWidget {
                   ),
                   AppKeyValue(
                     mKey: 'Pin code',
-                    value: '${controller.userProfile!.data!.pinCode!}' ==
-                        '0'
+                    value: '${controller.userProfile!.data!.pinCode!}' == '0'
                         ? ''
                         : '${controller.userProfile!.data!.pinCode!}',
                   ),
@@ -169,37 +167,33 @@ class Profile extends StatelessWidget {
           ),
           AppRoundView(
             onClick: () async {
-              final plan = await OpdSure.of(context)
-                  .client
-                  .getPlanById(
-                planId: controller.userProfile!.data!.plan!.id,
-                memberShipId: controller.userProfile!
-                    .data!.plan!.membershipId,
-              );
+              final plan = await OpdSure.of(context).client.getPlanById(
+                    planId: controller.userProfile!.data!.plan!.id,
+                    memberShipId:
+                        controller.userProfile!.data!.plan!.membershipId,
+                  );
               context.push('/home/opd-plan', extra: {
                 'records': plan,
                 'option': plan!.membershipOptions![0],
                 'buyDate': controller.userProfile!.data!,
-                'isSub' : true,
+                'isSub': true,
                 'active': true
               });
             },
             corner: 10.0,
-            color: const Color(0x1A486AB3),
+            color: AppConfig.roundedViewColor,
             mChild: const Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 10.0, vertical: 10.0),
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppTextView(
                     text: 'Subscribed Plan',
                     size: 16.0,
-                    color: Colors.black,
+                    color: AppConfig.primaryColor,
                     fontWeight: FontWeight.w600,
                   ),
-                  Icon(Icons.chevron_right)
+                  Icon(Icons.chevron_right, color: AppConfig.primaryColor)
                 ],
               ),
             ),
@@ -212,21 +206,19 @@ class Profile extends StatelessWidget {
               context.push('/home/renew-plan');
             },
             corner: 10.0,
-            color: const Color(0x1A486AB3),
+            color: AppConfig.roundedViewColor,
             mChild: const Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 10.0, vertical: 10.0),
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppTextView(
                     text: 'Renew Plans',
                     size: 16.0,
-                    color: Colors.black,
+                    color: AppConfig.primaryColor,
                     fontWeight: FontWeight.w600,
                   ),
-                  Icon(Icons.chevron_right)
+                  Icon(Icons.chevron_right, color: AppConfig.primaryColor)
                 ],
               ),
             ),
@@ -239,21 +231,19 @@ class Profile extends StatelessWidget {
               context.push('/home/health-plan');
             },
             corner: 10.0,
-            color: const Color(0x1A486AB3),
+            color: AppConfig.roundedViewColor,
             mChild: const Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 10.0, vertical: 10.0),
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppTextView(
                     text: 'Health Plans',
                     size: 16.0,
-                    color: Colors.black,
+                    color: AppConfig.primaryColor,
                     fontWeight: FontWeight.w600,
                   ),
-                  Icon(Icons.chevron_right)
+                  Icon(Icons.chevron_right, color: AppConfig.primaryColor)
                 ],
               ),
             ),
@@ -266,21 +256,22 @@ class Profile extends StatelessWidget {
               context.push('/home/referral-member');
             },
             corner: 10.0,
-            color: const Color(0x1A486AB3),
+            color: AppConfig.roundedViewColor,
             mChild: const Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 10.0, vertical: 10.0),
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppTextView(
                     text: 'Referral Member',
                     size: 16.0,
-                    color: Colors.black,
+                    color: AppConfig.primaryColor,
                     fontWeight: FontWeight.w600,
                   ),
-                  Icon(Icons.chevron_right)
+                  Icon(
+                    Icons.chevron_right,
+                    color: AppConfig.primaryColor,
+                  )
                 ],
               ),
             ),
@@ -290,31 +281,26 @@ class Profile extends StatelessWidget {
           ),
           AppRoundView(
             onClick: () {
-              CommonMethods.showLogoutAlertDialog(
-                  context,
-                  'Are you sure want to logout',
-                  'Logout',
-                  'Yes',
-                  'Cancel');
+              CommonMethods.showLogoutAlertDialog(context,
+                  'Are you sure want to logout', 'Logout', 'Yes', 'Cancel');
             },
             corner: 10.0,
-            color: const Color(0x1A486AB3),
+            color: AppConfig.roundedViewColor,
             mChild: const Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: 10.0, vertical: 10.0),
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppTextView(
                     text: 'Logout',
                     size: 16.0,
-                    color: Colors.black,
+                    color: AppConfig.primaryColor,
                     fontWeight: FontWeight.w600,
                   ),
                   Icon(
                     Icons.logout,
                     size: 20.0,
+                    color: AppConfig.primaryColor,
                   )
                 ],
               ),
@@ -323,6 +309,5 @@ class Profile extends StatelessWidget {
         ],
       );
     }
-
   }
 }

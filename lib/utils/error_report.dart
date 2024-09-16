@@ -50,7 +50,9 @@ class ErrorReporter {
           ),
           AppTextView(
             text: 'Report',
-            onClick: () {},
+            onClick: () {
+
+            },
           ),
         ],
       ),

@@ -2,7 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:opdsure/config/route.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
+import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
@@ -16,6 +19,7 @@ import '../utils/common_methods.dart';
 
 class AllCheckupPage extends StatelessWidget{
 
+  const AllCheckupPage({super.key});
   String getTestName(List value){
     String allTest = '';
     if(value.contains(1)){
@@ -33,26 +37,9 @@ class AllCheckupPage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     double h = CommonMethods.deviceHeight(context);
-    // TODO: implement build
     return AppBasePage(
-      appHeader: AppHeader(
+      appHeader: const AppHeader(
         headerName: 'Free Health Check-up',
-        showRightView: true,
-        rightView: InkWell(
-          onTap: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context)=>HealthCheckUpPage()),
-            );
-          },
-          child: const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.add),
-              AppTextView(text: 'Add')
-            ],
-          ),
-        ),
       ),
       childContent: FutureBuilder(
         future: OpdSure.of(context).client.getAllCheckup(),
@@ -66,89 +53,94 @@ class AllCheckupPage extends StatelessWidget{
             AllCheckupModel allCheckupModel = AllCheckupModel.fromJson(jsonDecode(snapshot.data));
             List<AllCheckupRecords> allCheckupRecords = allCheckupModel.data!.records!;
             return allCheckupRecords.isEmpty
-                    ? const Center(
-                  child: AppTextView(
-                    text: 'No Data Found',
-                  ),
+                    ? Center(
+                  child: AppButton(text: 'Book Health Checkup', onClick: (){
+                    context.push('/home/book_checkup/add_health_checkup');
+                  },),
                 )
-                    : RefreshIndicator(
-                  onRefresh: () async {
-                    // typeController.refreshClaimListChange(false);
-                    // typeController.refreshClaimListChange(true);
-                  },
-                  child: SizedBox(
-                    height: h*0.9,
-                    child: ListView.builder(
-                      itemCount: allCheckupRecords.length,
-                      itemBuilder: (context, index) {
-                        AllCheckupRecords records = allCheckupRecords[index];
-                        MemberDetails memberDetails = records.memberDetails!;
-                        CheckupStatusModel csm = CheckupStatusModel().getCheckupByStatus(records.status!);
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 5.0),
-                          child: AppCardView(
-                            mChaild: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment
-                                      .spaceBetween,
-                                  children: [
-                                    AppTextView(
-                                      text: memberDetails.name!,
-                                      size: 16,
-                                      fontWeight:
-                                      FontWeight.w500,
-                                      color: Colors.black,
-                                    ),
-                                    const Visibility(
-                                      visible: false,
-                                      child: Icon(
-                                        Icons
-                                            .keyboard_arrow_right_sharp,
+                    : Column(
+                      children: [
+                        RefreshIndicator(
+                                          onRefresh: () async {
+                        // typeController.refreshClaimListChange(false);
+                        // typeController.refreshClaimListChange(true);
+                                          },
+                                          child: ListView.builder(
+                        itemCount: allCheckupRecords.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          AllCheckupRecords records = allCheckupRecords[index];
+                          MemberDetails memberDetails = records.memberDetails!;
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 5.0),
+                            child: AppCardView(
+                              mChaild: Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment
+                                        .spaceBetween,
+                                    children: [
+                                      AppTextView(
+                                        text: memberDetails.name!,
+                                        size: 16,
+                                        fontWeight:
+                                        FontWeight.w500,
                                         color: Colors.black,
                                       ),
-                                    )
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 2.0,
-                                ),
-                                AppTextView(
-                                  text:
-                                  'Health CheckUp ID : ${records.healthCheckupId}',
-                                  size: 12.0,
-                                  color:
-                                  const Color(0xFF667085),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                AppTextView(
-                                  text:
-                                  'Test : ${getTestName(records.checkupFor!)}',
-                                  size: 12.0,
-                                  color:
-                                  const Color(0xFF667085),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                const SizedBox(height: 5,),
-                                AppTextView(
-                                  text: 'Booking Date: ${CommonMethods.formatIsoDateString(records.createdAt!,isTime: true)}',
-                                  size: 10.0,
-                                  color: const Color(0xFF667085),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                const SizedBox(height: 5,),
-                              ],
+                                      const Visibility(
+                                        visible: false,
+                                        child: Icon(
+                                          Icons
+                                              .keyboard_arrow_right_sharp,
+                                          color: Colors.black,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(
+                                    height: 2.0,
+                                  ),
+                                  AppTextView(
+                                    text:
+                                    'Health CheckUp ID : ${records.healthCheckupId}',
+                                    size: 12.0,
+                                    color:
+                                    const Color(0xFF667085),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  AppTextView(
+                                    text:
+                                    'Test : ${getTestName(records.checkupFor!)}',
+                                    size: 12.0,
+                                    color:
+                                    const Color(0xFF667085),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  const SizedBox(height: 5,),
+                                  AppTextView(
+                                    text: 'Booking Date: ${CommonMethods.formatIsoDateString(records.createdAt!,isTime: true)}',
+                                    size: 10.0,
+                                    color: const Color(0xFF667085),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  const SizedBox(height: 5,),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-            );
+                          );
+                        },
+                                          ),
+                                    ),
+                        AppButton(text: 'Book Health Checkup', onClick: (){
+          context.push('/home/book_checkup/add_health_checkup');
+          },)
+                      ],
+                    );
           }
         },
       ),

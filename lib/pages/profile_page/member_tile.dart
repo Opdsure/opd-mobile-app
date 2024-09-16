@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:opdsure/utils/opd_extension/int_extention.dart';
 
+import '../../config/app_config.dart';
 import '../../custom_ui/app_key_value.dart';
 import '../../custom_ui/app_round_view.dart';
 import '../../custom_ui/app_text_view.dart';
@@ -18,18 +19,11 @@ class MemberTile extends StatelessWidget {
     double w = CommonMethods.deviceWidth(context);
     double h = CommonMethods.deviceHeight(context);
     ClaimStatusModel profileStatus = ClaimStatusModel().getProfileStatus(member.reviewStatus!);
-    int fmAge;
-    if (member.dob == null) {
-      fmAge = 0;
-    } else {
-      fmAge = CommonMethods.calculateAge(
-          DateFormat("yyyy-MM-dd").parse(member.dob!));
-    }
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 7.5),
       child: AppRoundView(
         corner: 10.0,
-        color: const Color(0x1A486AB3),
+        color: AppConfig.roundedViewColor,
         mChild: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
@@ -85,7 +79,8 @@ class MemberTile extends StatelessWidget {
               ),
               AppKeyValue(
                 mKey: 'Age',
-                value: '$fmAge years',
+                value: CommonMethods.calculateAge(
+                    DateFormat("yyyy-MM-dd").parse(member.dob!)),
               ),
               const SizedBox(
                 height: 5.0,

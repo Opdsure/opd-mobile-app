@@ -9,6 +9,7 @@ import 'package:opdsure/model/QueuedPlans/renew_plan_status.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../../config/app_config.dart';
 import '../../custom_ui/app_text_view.dart';
 
 class RenewPlans extends StatelessWidget {
@@ -56,7 +57,7 @@ class RenewPlans extends StatelessWidget {
                           });
                         },
                         corner: 10.0,
-                        color: const Color(0x1A486AB3),
+                        color: AppConfig.roundedViewColor,
                         mChild: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                            children: [
@@ -86,7 +87,7 @@ class RenewPlans extends StatelessWidget {
                                ],
                              ),
                              const SizedBox(height: 5,),
-                             AppTextView(text: 'Price Paid - ₹${snapshot.data!.data!.records![index].paidPrice!}(incl. GST)'),
+                             AppTextView(text: 'Price Paid - ₹${CommonMethods.amountFormater(snapshot.data!.data!.records![index].paidPrice!.toStringAsFixed(0))}(incl. GST)'),
                              AppTextView(text: 'Purchased on - ${CommonMethods.formatIsoDateString(snapshot.data!.data!.records![index].createdAt!)}'),
                              AppTextView(text: 'Membership Label: ${snapshot.data!.data!.records![index].planId!.membershipOptions!.where((e) => e.membershipId! == snapshot.data!.data!.records![index].membershipId!).toList()[0].membershipLabel!}'),
                              AppTextView(text: 'Member Count: ${snapshot.data!.data!.records![index].planId!.membershipOptions!.where((e) => e.membershipId! == snapshot.data!.data!.records![index].membershipId!).toList()[0].memberCount!}'),

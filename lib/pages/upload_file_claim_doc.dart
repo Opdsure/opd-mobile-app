@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_bottom_sheet.dart';
@@ -13,6 +14,7 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/pages/view_image_page.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import '../config/app_config.dart';
 import '../custom_ui/app_border_box.dart';
 import '../custom_ui/app_button.dart';
 import '../custom_ui/app_card_view.dart';
@@ -28,7 +30,7 @@ class UploadFileClaimDoc extends StatelessWidget{
   final bool? isUpdate;
   final String? claimId;
   final Map<String, dynamic>? documentMap;
-  UploadFileClaimDoc(this.claimJsonModel,{this.isUpdate,this.claimId, this.documentMap});
+  UploadFileClaimDoc({this.claimJsonModel,this.isUpdate,this.claimId, this.documentMap, super.key});
 
   // List<File> files = [];
   List<File> prescriptionFiles = [];
@@ -122,10 +124,10 @@ class UploadFileClaimDoc extends StatelessWidget{
                                       padding: const EdgeInsets.only(right: 8.0),
                                       child: InkWell(
                                         onTap: (){
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context)=>ViewImagePage('Prescription', prescriptionImageList[index])),
-                                          );
+                                          context.push('/home/claim_details/view_image', extra: {
+                                            'headerName': 'Prescription',
+                                            'imageUrl' : prescriptionImageList[index]
+                                          });
                                         },
                                         child: Image.network(
                                           prescriptionImageList[index],
@@ -159,10 +161,11 @@ class UploadFileClaimDoc extends StatelessWidget{
                                       padding: const EdgeInsets.only(right: 8.0),
                                       child: InkWell(
                                         onTap: (){
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context)=>ViewImagePage('Fees Receipt', feeImageList[index])),
-                                          );
+                                          context.push('/home/claim_details/view_image', extra: {
+                                            'headerName': 'Fees Receipt',
+                                            'imageUrl' : prescriptionImageList[index]
+                                          });
+
                                         },
                                         child: Image.network(
                                           feeImageList[index],
@@ -196,10 +199,10 @@ class UploadFileClaimDoc extends StatelessWidget{
                                       padding: const EdgeInsets.only(right: 8.0),
                                       child: InkWell(
                                         onTap: (){
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context)=>ViewImagePage('Pharmacy Receipt', pharmacyImageList[index])),
-                                          );
+                                          context.push('/home/claim_details/view_image', extra: {
+                                            'headerName': 'Pharmacy Receipt',
+                                            'imageUrl' : prescriptionImageList[index]
+                                          });
                                         },
                                         child: Image.network(
                                           pharmacyImageList[index],
@@ -233,10 +236,10 @@ class UploadFileClaimDoc extends StatelessWidget{
                                       padding: const EdgeInsets.only(right: 8.0),
                                       child: InkWell(
                                         onTap: (){
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(builder: (context)=>ViewImagePage('Test Receipt', testImageList[index])),
-                                          );
+                                          context.push('/home/claim_details/view_image', extra: {
+                                            'headerName': 'Test Receipt',
+                                            'imageUrl' : prescriptionImageList[index]
+                                          });
                                         },
                                         child: Image.network(
                                           testImageList[index],
@@ -384,7 +387,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 text: 'Click to upload',
                                 size: 14.0,
                                 fontWeight: FontWeight.w600,
-                                color: buttonColor,
+                                color: AppConfig.primaryColor,
                               )
                             ],
                           ):
@@ -428,12 +431,12 @@ class UploadFileClaimDoc extends StatelessWidget{
                                   children: [
                                     Icon(
                                       Icons.add_circle,
-                                      color: buttonColor,
+                                      color: AppConfig.primaryColor,
                                     ),
                                     AppTextView(
                                       text: 'Add\nMore',
                                       size: 12.0,
-                                      color: buttonColor,
+                                      color: AppConfig.primaryColor,
                                     )
                                   ],
                                 ),
@@ -556,7 +559,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 text: 'Click to upload',
                                 size: 14.0,
                                 fontWeight: FontWeight.w600,
-                                color: buttonColor,
+                                color: AppConfig.primaryColor,
                               )
                             ],
                           ):Row(
@@ -597,12 +600,12 @@ class UploadFileClaimDoc extends StatelessWidget{
                                   children: [
                                     Icon(
                                       Icons.add_circle,
-                                      color: buttonColor,
+                                      color: AppConfig.primaryColor,
                                     ),
                                     AppTextView(
                                       text: 'Add\nMore',
                                       size: 12.0,
-                                      color: buttonColor,
+                                      color: AppConfig.primaryColor,
                                     )
                                   ],
                                 ),
@@ -728,7 +731,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 text: 'Click to upload',
                                 size: 14.0,
                                 fontWeight: FontWeight.w600,
-                                color: buttonColor,
+                                color: AppConfig.primaryColor,
                               )
                             ],
                           ):
@@ -770,12 +773,12 @@ class UploadFileClaimDoc extends StatelessWidget{
                                   children: [
                                     Icon(
                                       Icons.add_circle,
-                                      color: buttonColor,
+                                      color: AppConfig.primaryColor,
                                     ),
                                     AppTextView(
                                       text: 'Add\nMore',
                                       size: 12.0,
-                                      color: buttonColor,
+                                      color: AppConfig.primaryColor,
                                     )
                                   ],
                                 ),
@@ -902,7 +905,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                 text: 'Click to upload',
                                 size: 14.0,
                                 fontWeight: FontWeight.w600,
-                                color: buttonColor,
+                                color: AppConfig.primaryColor,
                               )
                             ],
                           ):
@@ -944,12 +947,12 @@ class UploadFileClaimDoc extends StatelessWidget{
                                   children: [
                                     Icon(
                                       Icons.add_circle,
-                                      color: buttonColor,
+                                      color: AppConfig.primaryColor,
                                     ),
                                     AppTextView(
                                       text: 'Add\nMore',
                                       size: 12.0,
-                                      color: buttonColor,
+                                      color: AppConfig.primaryColor,
                                     )
                                   ],
                                 ),

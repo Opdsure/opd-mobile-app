@@ -12,14 +12,14 @@ import 'package:simple_html_css/simple_html_css.dart';
 
 class TermsConditionPage extends StatelessWidget{
   final String? termsType;
-  TermsConditionPage({this.termsType});
+  const TermsConditionPage({this.termsType, super.key});
 
   @override
   Widget build(BuildContext context) {
     double h = CommonMethods.deviceHeight(context);
     // TODO: implement build
     return AppBasePage(
-      appHeader: AppHeader(headerName: 'Terms and Conditions',),
+      appHeader: const AppHeader(headerName: 'Terms and Conditions',),
       childContent: ListView(
         children: [
           FutureBuilder(

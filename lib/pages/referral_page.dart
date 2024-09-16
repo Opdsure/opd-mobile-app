@@ -31,10 +31,10 @@ class _ReferralPageState extends State<ReferralPage> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return AppBasePage(
-      appHeader: AppHomeHeader(
-        titleUi: const AppTextView(
+      appHeader: const AppHomeHeader(
+        title: AppTextView(
           text: 'Referral',
-          size: 22.0,
+          size: 16.0,
           fontWeight: FontWeight.w600,
           color: Colors.black,
         ),

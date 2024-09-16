@@ -11,6 +11,7 @@ import 'package:opdsure/utils/app_keys/app_key.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/opd_extension/string_extension.dart';
 
+import '../../config/app_config.dart';
 import '../../custom_ui/app_border_box.dart';
 import '../../custom_ui/app_bottom_sheet.dart';
 import '../../custom_ui/app_button.dart';
@@ -43,8 +44,8 @@ class NameEmailNumberView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context){
-    TypeController typeController = Get.put(TypeController());
     return Scaffold(
+      backgroundColor: AppConfig.primaryColorLight,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
         shape: const RoundedRectangleBorder(
@@ -62,7 +63,8 @@ class NameEmailNumberView extends StatelessWidget {
           color: Colors.black,
         ),
       ),
-      body: StatefulBuilder(builder: (context, setState) {
+      body: StatefulBuilder(
+          builder: (context, setState) {
         return Padding(
           padding: const EdgeInsets.all(12.0),
           child: ListView(
@@ -123,27 +125,13 @@ class NameEmailNumberView extends StatelessWidget {
               const SizedBox(
                 height: 15.0,
               ),
-              AppLabel(label: controller.isWithEmail?'Email':'Mobile',isCompulsory: true,),
-              controller.isWithEmail
-                  ? AppEditText(
+              AppLabel(label: 'Email',isCompulsory: true,),
+              AppEditText(
                 hint: 'Enter your email address',
                 size: 14.0,
                 textInputType: TextInputType.emailAddress,
                 textEditingController: controller.emailTextController,
                 errorMessage: controller.emailError,
-              )
-                  : AppMobileField(
-                hint: 'Enter your mobile number',
-                countryCode: controller.countryCode,
-                textEditingController: controller.phoneTextController,
-                flagUri: controller.flagUri,
-                errorText: controller.phoneError,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(10),
-                ],
-                countryCallback: () {
-                  controller.getCountryCode();
-                },
               ),
               const SizedBox(
                 height: 15.0,
@@ -156,15 +144,9 @@ class NameEmailNumberView extends StatelessWidget {
                       controller.nameError = 'First name is required';
                       CommonMethods.showToast('Enter first name');
                     });
-                  }
-                  else if (!controller.isWithEmail && !controller.phoneTextController.text.isValidPhoneNumber) {
-                    setState((){
-                      controller.phoneError = 'Phone no is empty';
-                      CommonMethods.showToast('Enter mobile number');
-                    });
                     return;
                   }
-                  else if (controller.isWithEmail && (controller.emailTextController.text.isEmpty || !controller.emailTextController.text.isValidEmail)) {
+                  else if ((controller.emailTextController.text.isEmpty || !controller.emailTextController.text.isValidEmail)) {
                     setState((){
                       controller.emailError = 'Email address is empty';
                       CommonMethods.showToast('Please enter valid email address');

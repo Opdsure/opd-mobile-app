@@ -1,15 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:opdsure/pages/name_email_number/name_email_number_view.dart';
 import 'package:opdsure/pages/signup/sign_up_page_view.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import 'package:opdsure/utils/opd_extension/string_extension.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -20,28 +19,21 @@ class SignUpPage extends StatefulWidget {
 
 class SignUpController extends State<SignUpPage> {
   late TapGestureRecognizer loginRecognizer;
-  TextEditingController emailTextController = TextEditingController();
-  TextEditingController passwordTextController = TextEditingController();
-  TextEditingController confirmPasswordTextController = TextEditingController();
   TextEditingController phoneTextController = TextEditingController();
 
   final countryPicker = const FlCountryCodePicker();
   bool isTermAndConditions = false;
 
-  String emailError='';
-  String passwordError='';
-  String confirmPasswordError='';
+  FocusNode focusNode = FocusNode();
+
+  String emailError = '';
+  String passwordError = '';
+  String confirmPasswordError = '';
   String phoneError = '';
   String? nameError = '';
   bool loading = false;
-  bool isShowEmailError = false;
   bool isShowErrorMobile = false;
-  bool isShowErrorPassword = false;
-  bool isShowErrorCPassword = false;
 
-  bool isWithEmail = false;
-  bool isPasswordObscure = true;
-  bool isConfirmPasswordObscure = true;
   String countryCode = '+91';
   String isoCode = 'IN';
 
@@ -50,17 +42,14 @@ class SignUpController extends State<SignUpPage> {
   String flagUri = 'packages/fl_country_code_picker/assets/flags/in.png';
 
   onChanged(String? value) {
-   setState(() {
-     emailError='';
-     passwordError='';
-     confirmPasswordError='';
-     phoneError = '';
-     nameError;
-     isShowEmailError = false;
-     isShowErrorMobile = false;
-     isShowErrorPassword = false;
-     isShowErrorCPassword = false;
-   });
+    setState(() {
+      emailError = '';
+      passwordError = '';
+      confirmPasswordError = '';
+      phoneError = '';
+      nameError;
+      isShowErrorMobile = false;
+    });
   }
 
   onTermAndConditions(bool? value) =>
@@ -75,182 +64,66 @@ class SignUpController extends State<SignUpPage> {
       };
   }
 
-  void signInWithGoogle({required BuildContext context}) async {
-    try {
-      final user = await OpdSure.of(context).client.signInWithGoogle();
-      print(user);
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-
   _login() {
-    context.push('/login');
-  }
-
-  void sendOtp(String accessToken, String userId) async {
-    setState(() => loading = true);
-      OpdSure
-          .of(context)
-          .client
-          .getFirebaseOTP(
-          CommonMethods.convertToE164(phoneTextController.text, isoCode),
-          codeAutoRetrievalTimeout: (_) {
-
-          },
-          codeSent: (_, __) {
-            setState(() => loading = true);
-            context.push('/signup/otp', extra: {
-              "access_token": accessToken,
-              "user_id": userId
-            });
-          },
-          verificationCompleted: (_) {
-
-          },
-          verificationFailed: (_) {
-            setState(() => loading = false);
-          });
-  }
-
-  void toggleEmailOrPhone() {
-    setState(() => isWithEmail = !isWithEmail);
-  }
-
-  void togglePassword() {
-    setState(() => isPasswordObscure = !isPasswordObscure);
-  }
-
-  void toggleConfirmPassword() {
-    setState(() => isConfirmPasswordObscure = !isConfirmPasswordObscure);
+    context.go('/login');
   }
 
   void register() async {
     final opdSure = OpdSure.of(context);
-    bool evOk = true;
-    if (!isWithEmail) {
-      if (phoneTextController.text.isEmpty) {
-        setState((){
-          phoneError = 'Phone no is empty';
-          isShowErrorMobile = true;
-          evOk = false;
-        });
-        // return;
-      }
-      if(!phoneTextController.text.isValidPhoneNumber) {
-          setState((){
-            phoneError = 'Enter a valid phone no';
-            isShowErrorMobile = true;
-            evOk = false;
-          });
-          // return;
-        }
-      else{
-        setState((){
-          isShowErrorMobile = false;
-        });
-      }
-    }
-    else{
-      if(emailTextController.text.isEmpty){
-        setState((){
-          emailError = 'Email address is empty';
-          isShowEmailError = true;
-          evOk = false;
-        });
-      }
-      if (!emailTextController.text.isValidEmail) {
-        setState((){
-          emailError = 'Enter a valid email address';
-          isShowEmailError = true;
-          evOk = false;
-        });
-        // return;
-      }
-    }
-    if(passwordTextController.text.isEmpty){
-      setState((){
-        passwordError = 'password is empty';
-        isShowErrorPassword = true;
-        evOk = false;
-      });
-    }
-    else if(passwordTextController.text.length<8){
-      setState((){
-        passwordError = 'password must be 8 character';
-        isShowErrorPassword = true;
-        evOk = false;
-      });
-    }
-    else{
-      setState((){
-        isShowErrorPassword = false;
-      });
-    }
-    if (confirmPasswordTextController.text.isEmpty) {
+    if (phoneTextController.text.isEmpty) {
       setState(() {
-        confirmPasswordError = 'confirm password is empty';
-        isShowErrorCPassword = true;
-        evOk = false;
+        phoneError = 'Phone no is empty';
+        isShowErrorMobile = true;
       });
+      return;
     }
-    else{
+    if (!phoneTextController.text.isValidPhoneNumber) {
       setState(() {
-        isShowErrorCPassword = false;
+        phoneError = 'Enter a valid phone no';
+        isShowErrorMobile = true;
       });
+      return;
     }
-    if (passwordTextController.text != confirmPasswordTextController.text) {
-      setState((){
-        confirmPasswordError = 'Password not matched';
-        isShowErrorCPassword = true;
-        evOk = false;
+    else {
+      setState(() {
+        isShowErrorMobile = false;
       });
-      // return;
     }
     if (!isTermAndConditions) {
       CommonMethods.showToast('Please accept term and conditions.');
-      evOk = false;
-      // return;
+      return;
     }
-    if(evOk){
-      CommonMethods.showAlertDialog(context);
 
-        try {
-        final response = await opdSure.client.register(
-            emailAddress: isWithEmail ? emailTextController.text : null,
-            password: passwordTextController.text,
-            confirmPassword: confirmPasswordTextController.text,
-            phone: isWithEmail ? null : phoneTextController.text,
-            countryCode: isWithEmail ? null : countryCode,
-            termAndCondition: isTermAndConditions,
-            loginType: isWithEmail ? 0: 1,
-          );
-          if (response.success!) {
+    CommonMethods.showAlertDialog(context);
 
-            // if(!isWithEmail){
-            if(false){
-              sendOtp(response.data!.token!, response.data!.userId!);
-            }else{
-              await opdSure.client.init(
-                  newAccessToken: response.data!.token!,
-                  newUserId: response.data!.userId!);
-            }
+    try {
+      focusNode.unfocus();
+      final response = await opdSure.client.registerOtp(
+        phone: phoneTextController.text,
+        countryCode: countryCode,
+      );
 
-          }else{
-            ///TODO: handel response
-          }
+      if (response.success!) {
+        context.push('/signup/otp', extra: {
+          'otp_type': 1,
+          'phone': phoneTextController.text,
+          'country_code': countryCode
+        });
+      } else {
+        Navigator.of(context, rootNavigator: false).pop();
+        CommonMethods.showToast(response.message!);
+      }
 
-          Navigator.of(context,rootNavigator: false).pop();
-        } catch (e) {
-          setState(() => confirmPasswordError = e.toString());
-          Navigator.of(context,rootNavigator: false).pop();
-          return setState(() => loading = false);
-        }
-
+      Navigator.of(context, rootNavigator: false).pop();
+    } catch (e) {
+      setState(() => confirmPasswordError = e.toString());
+      Navigator.of(context, rootNavigator: false).pop();
+      return setState(() => loading = false);
     }
 
     if (mounted) setState(() => loading = false);
   }
+
 
   getCountryCode() async {
     final picked = await countryPicker.showPicker(context: context);

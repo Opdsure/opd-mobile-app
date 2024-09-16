@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mime/mime.dart';
 import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/model/fileUpload/file_upload_response.dart';
+import 'package:opdsure/model/mFine/m_fine.dart';
 import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/model/relation/relations.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
@@ -19,22 +18,14 @@ import 'package:opdsure/utils/streams/cached_stream_controller.dart';
 import '../../model/forget_password/forget_password_response.dart';
 import '../../model/health_checkup/health_checkup.dart';
 import '../../model/login/login_response.dart';
+import '../../model/notifications/notification_model.dart';
 import '../../model/plans/plans_response.dart';
 import '../../model/register/register_response.dart';
+import '../../model/register_otp_verify.dart';
 import '../database_api/database_api.dart';
 
 enum LoginState { loggedIn, loggedOut }
 
-typedef PhoneVerificationCompleted = void Function(
-  PhoneAuthCredential phoneAuthCredential,
-);
-
-typedef PhoneVerificationFailed = void Function(FirebaseAuthException error);
-
-typedef PhoneCodeSent = void Function(
-  String verificationId,
-  int? forceResendingToken,
-);
 
 typedef PhoneCodeAutoRetrievalTimeout = void Function(String verificationId);
 
@@ -59,25 +50,19 @@ class OpdClient extends OpdApi {
 
   ProfileData? profileData;
 
-  UserCredential? firebaseUser;
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  String? _verificationId;
-  int? _resendToken;
-
   final CachedStreamController<LoginState> onLoginStateChanged =
-  CachedStreamController();
+      CachedStreamController();
 
-  OpdClient(this.clientName, {
+  OpdClient(
+    this.clientName, {
     this.databaseBuilder,
     http.Client? httpClient,
     Duration defaultNetworkRequestTimeout = const Duration(seconds: 35),
   }) : super(
-    baseServerUri: Uri.https(AppConfig.defaultBaseUrl),
-    httpClient: FixedTimeoutHttpClient(
-        httpClient ?? http.Client(), defaultNetworkRequestTimeout),
-  );
+          baseServerUri: Uri.https(AppConfig.defaultBaseUrl),
+          httpClient: FixedTimeoutHttpClient(
+              httpClient ?? http.Client(), defaultNetworkRequestTimeout),
+        );
 
   bool get isLogged => accessToken != null;
 
@@ -85,14 +70,11 @@ class OpdClient extends OpdApi {
 
   Map<String, Map<String, String>> get accountData => _accountData;
 
-  Future<void> init({String? newUserId,
-    String? newAccessToken}) async {
-    if ((newUserId != null ||
-        newAccessToken != null) &&
-        (newUserId == null ||
-            newAccessToken == null)) {
+  Future<void> init({String? newUserId, String? newAccessToken}) async {
+    if ((newUserId != null || newAccessToken != null) &&
+        (newUserId == null || newAccessToken == null)) {
       throw OpdClientInitPreconditionError(
-        'If one of [userId, accessToken, isPlanPurchased] is set then all of them must be set!',
+        'If one of [userId, accessToken] is set then all of them must be set!',
       );
     }
 
@@ -113,7 +95,7 @@ class OpdClient extends OpdApi {
       if (databaseBuilder != null) {
         _database ??= await runBenchmarked(
           'Build database',
-              () async => databaseBuilder(this),
+          () async => databaseBuilder(this),
         );
       }
 
@@ -144,8 +126,7 @@ class OpdClient extends OpdApi {
       }
       await getProfile(update: true);
       await getAllPlans(update: true, isUpgrade: false);
-     isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
-
+      isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
 
       final database = this.database;
       if (database != null) {
@@ -188,11 +169,8 @@ class OpdClient extends OpdApi {
 
   @override
   Future<RegisterResponse> register({
-    String? emailAddress,
-    required String? password,
-    required String? confirmPassword,
-    String? countryCode,
-    String? phone,
+    required String? countryCode,
+    required String? phone,
     required int? loginType,
     required bool? termAndCondition,
   }) async {
@@ -200,9 +178,6 @@ class OpdClient extends OpdApi {
       throw Exception("No baseServerUri set");
     }
     final response = await super.register(
-        emailAddress: emailAddress,
-        password: password,
-        confirmPassword: confirmPassword,
         countryCode: countryCode,
         phone: phone,
         loginType: loginType,
@@ -216,26 +191,59 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<LoginResponse> login({String? emailAddress,
-    String? password,
-    String? phone,
-    String? countryCode,
-    int? loginType}) async {
+  Future<LoginResponse> registerOtp(
+      {String? phone, String? countryCode}) async {
     if (baseServerUri == null) {
       throw Exception("No baseServerUri set");
     }
-    final response = await super.login(
-        emailAddress: emailAddress,
-        password: password,
-        phone: phone,
-        countryCode: countryCode,
-        loginType: loginType);
 
-    if (response.success!) {
-      await init(
-          newAccessToken: response.data!.token!,
-          newUserId: response.data!.userId!);
+    final response = await super.registerOtp(phone: phone, countryCode: countryCode);
+
+    if (response.data == null) {
+      throw Exception(response.toString());
     }
+
+    return response;
+  }
+
+  @override
+  Future<RegisterOtpVerify?> registerVerifyOtp(
+      {String? phone, String? countryCode, int? otp}) async {
+    if (baseServerUri == null) {
+      throw Exception("No baseServerUri set");
+    }
+    final response = await super
+        .registerVerifyOtp(phone: phone, countryCode: countryCode, otp: otp);
+
+    if (response == null) {
+      throw Exception(response.toString());
+    }
+
+    return response;
+  }
+
+  @override
+  Future<LoginResponse> login(
+      {String? phone, String? countryCode, int? loginType, int? otp}) async {
+    if (baseServerUri == null) {
+      throw Exception("No baseServerUri set");
+    }
+    final response = await super
+        .login(otp: otp, phone: phone, countryCode: countryCode, loginType: 1);
+
+    if (response.data == null) {
+      throw Exception(response.toJson());
+    }
+
+    return response;
+  }
+
+  @override
+  Future<LoginResponse> loginOtp({String? phone, String? countryCode}) async {
+    if (baseServerUri == null) {
+      throw Exception("No baseServerUri set");
+    }
+    final response = await super.loginOtp(phone: phone, countryCode: countryCode);
 
     if (response.data == null) {
       throw Exception(response.toJson());
@@ -276,7 +284,8 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<PlansResponse?> getAllPlans({bool update = false, bool isUpgrade = false}) async {
+  Future<PlansResponse?> getAllPlans(
+      {bool update = false, bool isUpgrade = false}) async {
     PlansResponse? plansResponse;
     final database = this.database;
     if (database != null && !update) {
@@ -301,7 +310,7 @@ class OpdClient extends OpdApi {
     UserProfile? userProfile;
     final database = this.database;
     if (database != null) {
-      if(update){
+      if (update) {
         userProfile = await super.getProfile();
         await database.updateUserProfile(userProfile: userProfile);
         await updatePlanPurchasedStatus(userProfile.data!.plan!.purchased!);
@@ -316,69 +325,6 @@ class OpdClient extends OpdApi {
     return userProfile;
   }
 
-  Future getFirebaseOTP(String mobile, {
-    required PhoneVerificationCompleted verificationCompleted,
-    required PhoneVerificationFailed verificationFailed,
-    required PhoneCodeSent codeSent,
-    required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
-  }) async {
-    await _auth.verifyPhoneNumber(
-      phoneNumber: mobile,
-      timeout: const Duration(seconds: 60),
-      forceResendingToken: _resendToken,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        firebaseUser = await _auth.signInWithCredential(credential);
-        _resendToken = null;
-        verificationCompleted.call(credential);
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        verificationFailed.call(e);
-      },
-      codeSent: (String verId, int? resendToken) {
-        _verificationId = verId;
-        _resendToken = resendToken;
-        codeSent.call(verId, resendToken);
-      },
-      codeAutoRetrievalTimeout: (String verId) {
-        _verificationId = verId;
-        codeAutoRetrievalTimeout.call(verId);
-      },
-    );
-  }
-
-  Future<UserCredential?> signInWithOTP(String otp) async {
-    PhoneAuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: _verificationId!,
-      smsCode: otp,
-    );
-    try {
-      firebaseUser = await _auth.signInWithCredential(credential);
-      _resendToken = null;
-      return firebaseUser;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  Future<UserCredential?> signInWithGoogle() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    try {
-      final GoogleSignInAccount? googleSignInAccount =
-      await googleSignIn.signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount!.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleSignInAuthentication.accessToken,
-        idToken: googleSignInAuthentication.idToken,
-      );
-      final UserCredential userCredential =
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      firebaseUser = userCredential;
-      return userCredential;
-    } catch (e) {
-      return null;
-    }
-  }
 
   Future updatePlanPurchasedStatus(bool value) async {
     final database = this.database;
@@ -414,46 +360,46 @@ class OpdClient extends OpdApi {
   //   return response;
   // }
 
-
   @override
-  Future<MyMemberModel?> getFamilyMember({bool update = false}) async  {
+  Future<MyMemberModel?> getFamilyMember({bool update = false}) async {
     MyMemberModel? myMembers;
-      final database = this.database;
+    final database = this.database;
 
-      if(database != null){
-        if(update){
-          myMembers ??= await super.getFamilyMember();
-          await database.updateFamilyMembers(myMember: myMembers);
-          return myMembers;
-        }
-        myMembers = await database.getFamilyMembers();
+    if (database != null) {
+      if (update) {
         myMembers ??= await super.getFamilyMember();
         await database.updateFamilyMembers(myMember: myMembers);
-      }else{
-        return null;
+        return myMembers;
       }
+      myMembers = await database.getFamilyMembers();
+      myMembers ??= await super.getFamilyMember();
+      await database.updateFamilyMembers(myMember: myMembers);
+    } else {
+      return null;
+    }
     return myMembers;
   }
-
 
   @override
   Future<Relations?> getRelations() async {
     Relations? relations;
     final database = this.database;
-    if(database!= null){
+    if (database != null) {
       relations = await database.getRelations();
       relations ?? await super.getRelation();
       await database.updateRelations(relations: relations);
-    }else{
+    } else {
       return null;
     }
     return relations;
   }
 
-  Future<FileUploadResponse?> uploadFiles({required FilePickerResult results}) async {
-    var files =  results.files.map((file) async  {
-      final mimeTypeData = lookupMimeType(file.path!, headerBytes: [0xFF, 0xD8])?.split('/');
-      return  await http.MultipartFile.fromPath(
+  Future<FileUploadResponse?> uploadFiles(
+      {required FilePickerResult results}) async {
+    var files = results.files.map((file) async {
+      final mimeTypeData =
+          lookupMimeType(file.path!, headerBytes: [0xFF, 0xD8])?.split('/');
+      return await http.MultipartFile.fromPath(
         'files',
         file.path!,
         filename: file.name,
@@ -461,34 +407,35 @@ class OpdClient extends OpdApi {
       );
     });
     List<http.MultipartFile> newFile = [];
-    for(var file in files.toList()) {
+    for (var file in files.toList()) {
       newFile.add(await file);
     }
     try {
       return super.uploadFile(results: newFile);
-    }catch(e){
+    } catch (e) {
       return null;
     }
-
   }
 
-  Future<PlanRecords?> getPlanById({required String? planId, int? memberShipId})async {
+  Future<PlanRecords?> getPlanById(
+      {required String? planId, int? memberShipId}) async {
     await getAllPlans(update: true);
     final database = this.database;
-    if(database != null){
-      return await database.getPlanById(planId: planId, memberShipId: memberShipId);
+    if (database != null) {
+      return await database.getPlanById(
+          planId: planId, memberShipId: memberShipId);
     }
     return null;
   }
 
   Future<HealthCheckupRecords> getHealthPlanById(String planId) async {
-    HealthCheckupResponse? health =  await getHealthCheckupPlan();
+    HealthCheckupResponse? health = await getHealthCheckupPlan();
     return health!.data!.records!.where((e) => e.id == planId).toList()[0];
   }
 
   Future<PlansResponse?> getPlansForUpgrade() async {
     final database = this.database;
-    if(database != null) {
+    if (database != null) {
       final userProfile = await database.getUserProfile();
       final currentPlan = userProfile!.data!.plan!;
       PlanRecords? plan = await getPlanById(
@@ -512,14 +459,25 @@ class OpdClient extends OpdApi {
         }
       }
       return PlansResponse(
-        data: PlansData(
-            pagination: null,
-            records: planRecords
-        ),
+        data: PlansData(pagination: null, records: planRecords),
       );
-    }else{
+    } else {
       return null;
     }
   }
 
+  @override
+  Future<MFine> mFine() async  {
+
+    if (baseServerUri == null) {
+      throw Exception("No baseServerUri set");
+    }
+
+    final response = await super.mFine();
+    if (response.data == null) {
+      throw Exception(response.toString());
+    }
+
+    return response;
+  }
 }

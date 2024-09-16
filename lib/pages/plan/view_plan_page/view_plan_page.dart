@@ -34,7 +34,7 @@ class ViewPlanPageView extends StatelessWidget{
           const SizedBox(height: 20.0,),
           const Center(
             child: AppTextView(
-              text: 'Access Exclusive Features by\nSelecting a Plan',
+              text: 'Access Exclusive Doctor Consultation Plan',
               size: 22.0,
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -43,7 +43,7 @@ class ViewPlanPageView extends StatelessWidget{
           ),
           const Center(
             child: AppTextView(
-              text: 'Unlock all our premium features by\nselecting the plan that fits you best.',
+              text: 'Unlock India’s Best Doctor Consultation Plan',
               size: 16.0,
               color: Colors.black,
               mTextAlign: TextAlign.center,

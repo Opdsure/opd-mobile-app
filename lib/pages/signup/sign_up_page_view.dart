@@ -1,26 +1,15 @@
-import 'dart:ui';
-
-import 'package:fl_country_code_picker/fl_country_code_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
-import 'package:opdsure/custom_ui/app_edit_text.dart';
 import 'package:opdsure/custom_ui/app_mobile_field.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
-import 'package:opdsure/custom_ui/login_scafold.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/pages/terms_condition_page.dart';
-import 'package:opdsure/utils/common_methods.dart';
-import 'package:opdsure/widget/opd_widget.dart';
-
-import '../../custom_ui/app_border_box.dart';
-import '../../get_controllers/type_controller.dart';
+import '../../config/app_config.dart';
 import '../../utils/app_colors.dart';
-import '../my_web_view.dart';
 
 class SignUpView extends StatelessWidget {
   final SignUpController controller;
@@ -37,8 +26,19 @@ class SignUpView extends StatelessWidget {
           ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              IconButton(
+                onPressed: () {
+                  if(context.canPop()){
+                    context.pop();
+                  }
+                },
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  color: backIconCl,
+                ),
+              ),
               Image.asset(
                 'assets/images/app_logo.png',
                 height: 100.0,
@@ -68,19 +68,10 @@ class SignUpView extends StatelessWidget {
           const SizedBox(
             height: 24.0,
           ),
-          controller.isWithEmail
-              ? AppEditText(
-            hint: 'Enter your email address',
-            size: 14.0,
-            textInputType: TextInputType.emailAddress,
-            textEditingController: controller.emailTextController,
-            errorMessage: controller.emailError,
-            showErrorMessage: controller.isShowEmailError,
-            mOnChanged: controller.onChanged,
-          )
-              : AppMobileField(
+          AppMobileField(
             hint: 'Enter your mobile number',
             countryCode: controller.countryCode,
+            focusNode: controller.focusNode,
             textEditingController: controller.phoneTextController,
             flagUri: controller.flagUri,
             errorMessage: controller.phoneError,
@@ -94,47 +85,6 @@ class SignUpView extends StatelessWidget {
             },
           ),
           const SizedBox(
-            height: 16.0,
-          ),
-          AppEditText(
-            hint: 'Create a password',
-            size: 14.0,
-            isPasswordField: true,
-            isViewPassword: controller.isPasswordObscure,
-            textEditingController: controller.passwordTextController,
-            viewSuffix: true,
-            eyeCallback: controller.togglePassword,
-            errorMessage: controller.passwordError,
-            showErrorMessage: controller.isShowErrorPassword,
-            mOnChanged: controller.onChanged,
-          ),
-          const SizedBox(
-            height: 5.0,
-          ),
-          const Padding(
-            padding: EdgeInsets.only(left: 3.0),
-            child: AppTextView(
-              text: 'Must be at least 8 characters',
-              color: Color(0xff475467),
-              size: 12.0,
-            ),
-          ),
-          const SizedBox(
-            height: 16.0,
-          ),
-          AppEditText(
-            hint: 'Confirm password',
-            size: 14.0,
-            isPasswordField: true,
-            viewSuffix: true,
-            isViewPassword: controller.isConfirmPasswordObscure,
-            textEditingController: controller.confirmPasswordTextController,
-            eyeCallback: controller.toggleConfirmPassword,
-            errorMessage: controller.confirmPasswordError,
-            showErrorMessage: controller.isShowErrorCPassword,
-            mOnChanged: controller.onChanged,
-          ),
-          const SizedBox(
             height: 24.0,
           ),
           Row(
@@ -145,7 +95,7 @@ class SignUpView extends StatelessWidget {
                 width: 30,
                 height: 20,
                 child: Checkbox(
-                  activeColor: buttonColor,
+                  activeColor: AppConfig.primaryColor,
                   visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                   value: controller.isTermAndConditions,
                   onChanged: controller.onTermAndConditions,
@@ -154,11 +104,7 @@ class SignUpView extends StatelessWidget {
               ),
               InkWell(
                 onTap: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context)=>TermsConditionPage(termsType: 'SIGNUP',)),
-                    // MaterialPageRoute(builder: (context)=>MyWebView()),
-                  );
+                  context.push('/signup/terms', extra: 'SIGNUP');
                 },
                 child: SizedBox(
                   height: 20,
@@ -216,70 +162,6 @@ class SignUpView extends StatelessWidget {
             ],
           ),
           const SizedBox(
-            height: 12.0,
-          ),
-          AppBorderBox(
-            myChild: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/images/google_icon.png',
-                    height: 24.0,
-                    width: 24.0,
-                  ),
-                  const SizedBox(
-                    width: 10.0,
-                  ),
-                  const AppTextView(
-                    text: 'Continue with Google',
-                    size: 16.0,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF344054),
-                  ),
-                ],
-              ),
-            ),
-            borderColor: const Color(0xFFD0D5DD),
-            boxColor: const Color(0x1A101828),
-            mCallback: () => controller.signInWithGoogle(context: context),
-          ),
-          const SizedBox(
-            height: 12.0,
-          ),
-          AppBorderBox(
-            myChild: Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    controller.isWithEmail
-                        ? 'assets/images/phone_img.png'
-                        : 'assets/images/mail_icon.png',
-                    height: 24.0,
-                    width: 24.0,
-                  ),
-                  const SizedBox(
-                    width: 10.0,
-                  ),
-                  AppTextView(
-                    text: controller.isWithEmail
-                        ? 'Continue with Phone'
-                        : 'Continue with Email',
-                    size: 16.0,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF344054),
-                  ),
-                ],
-              ),
-            ),
-            borderColor: const Color(0xFFD0D5DD),
-            boxColor: const Color(0x1A101828),
-            mCallback: () {
-              controller.toggleEmailOrPhone();
-            },
-          ),
-          const SizedBox(
             height: 24.0,
           ),
           Center(
@@ -292,7 +174,7 @@ class SignUpView extends StatelessWidget {
                   TextSpan(
                       text: 'Log In',
                       style: GoogleFonts.montserrat(
-                          fontWeight: FontWeight.w600, color: buttonColor),
+                          fontWeight: FontWeight.w600, color: AppConfig.primaryColor),
                       recognizer: controller.loginRecognizer),
                 ],
               ),

@@ -8,11 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../custom_ui/web_view/open_chrome_sfari.dart';
+typedef ContextCallback = void Function(BuildContext context);
 class CommonMethods{
 
   static double deviceHeight(BuildContext context) {
@@ -56,6 +59,7 @@ class CommonMethods{
     );
   }
 
+
   static Future<bool> showExitDialog(BuildContext context, {String? message}) async {
     OpdSureState opd = OpdSure.of(context);
     if(opd.isExitDialogShowing) return false;
@@ -94,6 +98,97 @@ class CommonMethods{
       },
     ) ??
         false;
+  }
+
+
+  static customAlertBox(BuildContext context,
+      {String title = 'Error',
+        String message = 'message',
+        ContextCallback? okCallBack,
+        ContextCallback? cancelCallBack,
+        bool shouldDismiss = true,
+        bool isCancelButton = false,
+        String positiveButton = 'OK',
+        String negativeButton = 'CANCEL'}) {
+    return showDialog(
+        context: context,
+        barrierDismissible: shouldDismiss,
+        builder: (BuildContext context) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+                textScaler:
+               const TextScaler.linear(1)),
+            child: WillPopScope(
+              onWillPop: () async {
+                return shouldDismiss;
+              },
+              child: AlertDialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                contentPadding: const EdgeInsets.only(top: 10.0),
+                content: Container(
+                  padding: const EdgeInsets.all(15),
+                  width: 300.0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0, bottom: 5.0),
+                        child: AppTextView(
+                          color: AppConfig.primaryColor,
+                          fontWeight: FontWeight.w700,
+                          text: title,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 5.0),
+                        child: AppTextView(
+                          size: 14,
+                          text: message,
+                        ),
+                      ),
+                      const SizedBox(height: 20,),
+                      Row(
+                        mainAxisAlignment: isCancelButton ?  MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                        children: [
+                          isCancelButton
+                              ? AppButton(
+                            textSize: 13,
+                            width: 120,
+                            onClick: () {
+                              if(cancelCallBack == null){
+                                Navigator.pop(context);
+                              }else{
+                                cancelCallBack.call(context);
+                              }
+                            },
+                            text: negativeButton,
+                          )
+                              : Container(),
+                          AppButton(
+                            textSize: 13,
+                            width: !isCancelButton ? 240 : 120,
+                            onClick: () {
+                              if(okCallBack == null){
+                                Navigator.pop(context);
+                              }else{
+                                okCallBack.call(context);
+                              }
+                            },
+                            text: positiveButton,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   static String convertToE164(String phoneNumber, String countryCode) {
@@ -150,6 +245,9 @@ class CommonMethods{
       },
     );
   }
+
+
+
 
   static String getClaimNameById(String id){
     switch(id){
@@ -247,6 +345,7 @@ class CommonMethods{
   }
 
   static String formatIsoDateString(String isoString,{isTime = false, isAddTime = false}) {
+    if(isoString == '') return '';
     DateTime dateTime = DateTime.parse(isoString);
     if(isAddTime) {
       dateTime = dateTime.add(const Duration(hours: 5, minutes: 30));
@@ -261,14 +360,55 @@ class CommonMethods{
     return formattedDate;
   }
 
-  static int calculateAge(DateTime birthDate) {
+  static String calculateAge(DateTime birthDate) {
     DateTime today = DateTime.now();
-    int age = today.year - birthDate.year;
-    if (today.month < birthDate.month || (today.month == birthDate.month && today.day < birthDate.day)) {
-      age--;
+
+    // Calculate year difference
+    int years = today.year - birthDate.year;
+
+    // Adjust year if the birth date hasn't occurred yet this year
+    if (today.month < birthDate.month ||
+        (today.month == birthDate.month && today.day < birthDate.day)) {
+      years--;
     }
-    return age;
+
+    // Calculate the month difference
+    int months = today.month - birthDate.month;
+    if (months < 0) {
+      months += 12;  // Adjust for negative months
+    }
+
+    // Calculate the day difference
+    int days = today.day - birthDate.day;
+    if (days < 0) {
+      // If days are negative, adjust by subtracting 1 month
+      final previousMonth = DateTime(today.year, today.month, 0); // last day of the previous month
+      days += previousMonth.day;
+      months--;
+
+      // If month becomes negative, adjust the year and reset month
+      if (months < 0) {
+        months += 12;
+        years--;
+      }
+    }
+
+    // Build the result string
+    String result = '';
+    if (years > 0) {
+      result += '$years y';
+    }
+    if (months > 0) {
+      result += ' $months m';
+    }
+    if (days > 0) {
+      result += ' $days d';
+    }
+
+    return result.trim(); // Trim to remove any trailing spaces
   }
+
+
 
   static showLogoutAlertDialog(BuildContext context, String message, String heading,
       String buttonAcceptTitle, String buttonCancelTitle) {
@@ -306,15 +446,34 @@ class CommonMethods{
     );
   }
 
-  static FilePickerResult xFileToFilePickerResult(XFile xfile) {
+  static FilePickerResult xFileToFilePickerResult(XFile xFile) {
     final platformFile = PlatformFile(
       name: 'File1',
-      path: xfile.path,
-      size: File(xfile.path).lengthSync(),
-      bytes: File(xfile.path).readAsBytesSync(),
+      path: xFile.path,
+      size: File(xFile.path).lengthSync(),
+      bytes: File(xFile.path).readAsBytesSync(),
     );
 
     return FilePickerResult([platformFile]);
+  }
+
+  static String amountFormater(String amount, {bool isDouble = false}){
+    final formatter = NumberFormat('#,##,###');
+    dynamic newAmount;
+    if(isDouble){
+      newAmount = double.parse(amount);
+      newAmount = formatter.format(newAmount);
+      if(amount.contains('.')){
+        return '$newAmount.${amount.split('.')[1]}';
+      }else{
+        return newAmount;
+      }
+
+    }else{
+      newAmount = int.parse(amount);
+      return formatter.format(newAmount);
+    }
+
   }
 
 }

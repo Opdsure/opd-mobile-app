@@ -7,7 +7,9 @@ import 'package:opdsure/config/themes.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/custom_ui/empty_page.dart';
 import 'package:opdsure/custom_ui/two_column_layout.dart';
+import 'package:opdsure/custom_ui/web_view/webView.dart';
 import 'package:opdsure/model/health_checkup/health_checkup.dart';
+import 'package:opdsure/model/my_claim/my_claims_model.dart';
 import 'package:opdsure/model/my_member_model.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
@@ -22,20 +24,28 @@ import 'package:opdsure/pages/notification/notification_page.dart';
 import 'package:opdsure/pages/opd_plan/opd_plan_view.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
+import 'package:opdsure/pages/preview/preview_page_view.dart';
 import 'package:opdsure/pages/referral_member_page/referral_member_page.dart';
 import 'package:opdsure/pages/referral_page.dart';
 import 'package:opdsure/pages/renew_plans/renew_plans.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
+import 'package:opdsure/pages/terms_condition_page.dart';
 import 'package:opdsure/pages/update_profile_page.dart';
 import 'package:opdsure/pages/wallet_page.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../model/claim_json_model.dart';
+import '../pages/all_checkup_page.dart';
 import '../pages/checkout/checkout_controller.dart';
+import '../pages/claim_pages/claims_details_page.dart';
+import '../pages/health_check_up_page.dart';
 import '../pages/health_plans/health_plans.dart';
 import '../pages/otp_page/otp_page_controller.dart';
 import '../pages/plan/plans_page/plans_page_controller.dart';
+import '../pages/upload_file_claim_doc.dart';
+import '../pages/view_image_page.dart';
 
 abstract class AppRoutes {
   static FutureOr<String?> loggedInRedirect(
@@ -48,14 +58,13 @@ abstract class AppRoutes {
     BuildContext context,
     GoRouterState state,
   ) =>
-      OpdSure.of(context).client.isLogged ? null : '/signup';
+      OpdSure.of(context).client.isLogged ? null : '/login';
 
   static FutureOr<String?> getRedirectNameForHome(
       BuildContext context, GoRouterState state) async {
     final opd = OpdSure.of(context);
     if (opd.client.isLogged) {
-      if (opd.profileData!.phone!.isEmpty || opd.profileData!.email!.isEmpty) {
-        opd.isWithEmail = opd.profileData!.email!.isEmpty;
+      if (opd.profileData!.email!.isEmpty) {
         return '/home/name_email_number';
       }
       if (opd.client.isPlanPurchased) {
@@ -64,25 +73,23 @@ abstract class AppRoutes {
         return '/view_plans';
       }
     } else {
-      return '/signup';
+      return '/login';
     }
   }
 
   AppRoutes();
 
   static final List<RouteBase> routes = [
-    GoRoute(
-        path: '/',
-        redirect: (context, state) =>
-            !OpdSure.of(context).isOnboardScreenActive && !PlatformInfos.isWeb
-                ? "/on_board_screen"
-                : '/signup'),
+    GoRoute(path: '/', redirect: (context, state) =>
+    !OpdSure.of(context).isOnboardScreenActive && !PlatformInfos.isWeb
+        ? "/on_board_screen"
+        : '/login'),
     GoRoute(
       path: '/on_board_screen',
       pageBuilder: (context, state) => defaultPageBuilder(
         context,
         state,
-        PreviewPage(),
+        const PreviewPage(),
       ),
     ),
     GoRoute(
@@ -102,14 +109,17 @@ abstract class AppRoutes {
                   context,
                   state,
                   OtpPage(
-                    userId: otpMap['user_id'],
-                    accessToken: otpMap['access_token'],
-                  ),
+                      otpType: otpMap['otp_type'],
+                      countryCode: otpMap['country_code'],
+                      phone: otpMap['phone']),
                 );
               }),
+          GoRoute(path: 'terms',
+          pageBuilder: (context, state) => defaultPageBuilder(context, state, TermsConditionPage(termsType: state.extra as String,)))
         ]),
     GoRoute(
       path: '/login',
+      redirect: loggedInRedirect,
       pageBuilder: (context, state) => defaultPageBuilder(
         context,
         state,
@@ -117,13 +127,18 @@ abstract class AppRoutes {
       ),
       routes: [
         GoRoute(
-          path: 'forget_password',
-          pageBuilder: (context, state) => defaultPageBuilder(
-            context,
-            state,
-            const ForgetPasswordPage(),
-          ),
-        ),
+            path: 'otp',
+            pageBuilder: (context, state) {
+              final otpMap = state.extra as Map<String, dynamic>;
+              return defaultPageBuilder(
+                context,
+                state,
+                OtpPage(
+                    otpType: otpMap['otp_type'],
+                    countryCode: otpMap['country_code'],
+                    phone: otpMap['phone']),
+              );
+            }),
       ],
     ),
     GoRoute(
@@ -257,6 +272,22 @@ abstract class AppRoutes {
                       : const DashBoardPage(),
                 ),
             routes: [
+              GoRoute(
+                  path: 'book_checkup',
+                  pageBuilder: (context, state) => defaultPageBuilder(
+                        context, state, const AllCheckupPage()),
+                  routes: [
+                    GoRoute(
+                        path: 'add_health_checkup',
+                        pageBuilder: (context, state) => defaultPageBuilder(
+                            context, state, const HealthCheckUpPage()))
+                  ]),
+              GoRoute(
+                  path: 'web_view',
+                  pageBuilder: (context, state) {
+                    return defaultPageBuilder(
+                        context, state, WebView(url: state.extra! as String));
+                  }),
               GoRoute(
                   path: 'wallet',
                   pageBuilder: (context, state) {
@@ -457,15 +488,65 @@ abstract class AppRoutes {
                 ),
               ),
               GoRoute(
-                path: "file_claim",
-                pageBuilder: (context, state) => defaultPageBuilder(
-                  context,
-                  state,
-                  FileClaimPage(
-                    isUpdate: false,
-                  ),
-                ),
-              ),
+                  path: "file_claim",
+                  pageBuilder: (context, state) {
+                    bool isUpdate = state.extra as bool;
+                    return defaultPageBuilder(
+                      context,
+                      state,
+                      FileClaimPage(
+                        isUpdate: isUpdate,
+                      ),
+                    );
+                  },
+                  routes: [
+                    GoRoute(
+                        path: 'upload_image',
+                        pageBuilder: (context, state) {
+                          Map<String, dynamic> extra =
+                              state.extra as Map<String, dynamic>;
+                          return defaultPageBuilder(
+                              context,
+                              state,
+                              UploadFileClaimDoc(
+                                claimId: extra['isUpdate'] as bool ? extra['claimId'] as String : null,
+                                documentMap: extra['isUpdate'] as bool ? extra['documentMap'] as Map<String, dynamic> : null,
+                                isUpdate: extra['isUpdate'] as bool,
+                                claimJsonModel:
+                                    extra['claimJsonModel'] as ClaimJsonModel,
+                              ));
+                        })
+                  ]),
+              GoRoute(
+                  path: "claim_details",
+                  pageBuilder: (context, state) {
+                    Map<String, dynamic> extra =
+                        state.extra as Map<String, dynamic>;
+                    return defaultPageBuilder(
+                      context,
+                      state,
+                      ClaimsDetailsPage(
+                        oneClaim: extra['claim_records'] as ClaimRecords,
+                        isDispute: extra['isDispute'] as bool,
+                      ),
+                    );
+                  },
+                  routes: [
+                    GoRoute(
+                      path: "view_image",
+                      pageBuilder: (context, state) {
+                        Map<String, dynamic> extra =
+                            state.extra as Map<String, dynamic>;
+                        return defaultPageBuilder(
+                            context,
+                            state,
+                            ViewImagePage(
+                              headerName: extra['headerName'] as String,
+                              imageUrl: extra['imageUrl'] as String,
+                            ));
+                      },
+                    ),
+                  ]),
               GoRoute(
                   path: 'health_checkup_details',
                   pageBuilder: (context, state) {

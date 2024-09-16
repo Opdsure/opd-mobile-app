@@ -8,6 +8,7 @@ import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/utils/app_colors.dart';
 import 'package:opdsure/utils/common_methods.dart';
 
+import '../../../config/app_config.dart';
 import '../../../utils/app_var.dart';
 import '../health_checkup_details/health_checkup_details_controller.dart';
 import 'health_checkup_controller.dart';
@@ -21,9 +22,9 @@ class HealthCheckupView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppBasePage(
       appHeader: const AppHomeHeader(
-        titleUi: AppTextView(
+        title: AppTextView(
             text: 'Health Checkup',
-            size: 22.0,
+            size: 16.0,
             fontWeight: FontWeight.w600,
             color: Colors.black),
       ),
@@ -47,7 +48,7 @@ class HealthCheckupView extends StatelessWidget {
                         children: [
                           AppTextView(
                             text: 'Checkup Code : ${healthCheckupRecords.checkupCode}',
-                            color: buttonColor,
+                            color: AppConfig.primaryColor,
                             fontWeight: FontWeight.w600,
                           ),
                           AppTextView(
@@ -59,12 +60,12 @@ class HealthCheckupView extends StatelessWidget {
                             children: [
                               const AppTextView(
                                 text: 'Base Price :',
-                                color: buttonColor,
+                                color: AppConfig.primaryColor,
                                 size: 12,
                                 fontWeight: FontWeight.w600,
                               ),
                               AppTextView(
-                                text: ' $rupeeSymbol $basePriceShow',
+                                text: ' $rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, basePriceShow)}',
                                 size: 12,
                                 fontWeight: FontWeight.w600,
                                 isLineThrough: true,
@@ -72,11 +73,21 @@ class HealthCheckupView extends StatelessWidget {
                               ),
                             ],
                           ),
-                          AppTextView(
-                            text: 'Discount Price : $discountPriceShow',
-                            color: buttonColor,
-                            size: 12,
-                            fontWeight: FontWeight.w600,
+                          Row(
+                            children: [
+                              const AppTextView(
+                                text: 'Discount Price : ',
+                                color: AppConfig.primaryColor,
+                                size: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              AppTextView(
+                                text: CommonMethods.amountFormater(isDouble: true, discountPriceShow),
+                                color: AppConfig.primaryColor,
+                                size: 12,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ],
                           ),
                         ],
                       ),

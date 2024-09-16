@@ -2,17 +2,14 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_border_box.dart';
-import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import '../../config/app_config.dart';
 import '../../custom_ui/app_button.dart';
 import '../../model/file_type_size_model.dart';
 import '../../utils/app_colors.dart';
@@ -145,7 +142,7 @@ class _DisputePageState extends State<DisputePage> {
                             text: 'Click to upload',
                             size: 14.0,
                             fontWeight: FontWeight.w600,
-                            color: buttonColor,
+                            color: AppConfig.primaryColor,
                           )
                         ],
                       ):
@@ -189,12 +186,12 @@ class _DisputePageState extends State<DisputePage> {
                               children: [
                                 Icon(
                                   Icons.add_circle,
-                                  color: buttonColor,
+                                  color: AppConfig.primaryColor,
                                 ),
                                 AppTextView(
                                   text: 'Add\nMore',
                                   size: 12.0,
-                                  color: buttonColor,
+                                  color: AppConfig.primaryColor,
                                 )
                               ],
                             ),

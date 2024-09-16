@@ -12,6 +12,7 @@ import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/add_checkup_model.dart';
 import 'package:opdsure/model/tests_model.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import '../config/app_config.dart';
 import '../custom_ui/app_border_box.dart';
 import '../custom_ui/app_bottom_sheet.dart';
 import '../custom_ui/app_edit_text.dart';
@@ -20,9 +21,10 @@ import '../custom_ui/app_text_view.dart';
 import '../model/my_member_model.dart';
 import '../utils/app_colors.dart';
 import '../widget/opd_widget.dart';
-import 'add_family_details/add_family_details.dart';
 
 class HealthCheckUpPage extends StatefulWidget{
+  const HealthCheckUpPage({super.key});
+
   @override
   State<HealthCheckUpPage> createState() => _HealthCheckUpPageState();
 }
@@ -98,18 +100,18 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
                                 children: [
                                   AppTextView(
                                     text: 'No Family member added',
-                                    color: buttonColor,
+                                    color: AppConfig.primaryColor,
                                     size: 16.0,
                                     fontWeight: FontWeight.w600,
                                   ),
                                   SizedBox(height: 10.0,),
                                   Icon(
                                     Icons.add_circle,
-                                    color: buttonColor,
+                                    color: AppConfig.primaryColor,
                                   ),
                                   AppTextView(
                                     text: 'Add Member',
-                                    color: buttonColor,
+                                    color: AppConfig.primaryColor,
                                     size: 12.0,
                                   )
                                 ],
@@ -246,7 +248,7 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
           const SizedBox(height: 10.0,),
           const AppTextView(
             text: '*Kindly note that post submitting this form, our team will connect with you shortly.',
-            color: buttonColor,
+            color: AppConfig.primaryColor,
           ),
           const SizedBox(height: 15.0,),
           AppButton(

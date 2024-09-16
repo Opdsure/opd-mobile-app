@@ -42,9 +42,7 @@ class LoginScaffold extends StatelessWidget {
         backgroundColor: isMobileMode ? null : Colors.transparent,
       ),
       body: body,
-      backgroundColor: isMobileMode
-          ? null
-          : Theme.of(context).colorScheme.surface.withOpacity(0.8),
+      backgroundColor: AppConfig.primaryColorLight,
 
     );
     if (isMobileMode) return scaffold;

@@ -67,7 +67,7 @@ abstract class OpdThemes {
   ]) {
     final colorScheme = ColorScheme.fromSeed(
       brightness: brightness,
-      seedColor: seed ?? AppConfig.colorSchemeSeed ?? AppConfig.primaryColor,
+      seedColor: seed ?? AppConfig.colorSchemeSeed ?? AppConfig.primaryColorLight,
     );
     return ThemeData(
       visualDensity: VisualDensity.standard,
@@ -114,10 +114,8 @@ abstract class OpdThemes {
         shadowColor: OpdThemes.isColumnMode(context)
             ? Colors.grey.withAlpha(64)
             : null,
-        surfaceTintColor:
-            OpdThemes.isColumnMode(context) ? colorScheme.surface : null,
-        backgroundColor:
-            OpdThemes.isColumnMode(context) ? colorScheme.surface : null,
+        surfaceTintColor: AppConfig.primaryColorLight,
+        backgroundColor: AppConfig.primaryColorLight,
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: brightness.reversed,
@@ -167,7 +165,8 @@ abstract class OpdThemes {
           fontSize: 8,
           fontWeight: FontWeight.bold
         ))
-      )
+      ),
+        canvasColor: AppConfig.primaryColorLight
     );
   }
 }

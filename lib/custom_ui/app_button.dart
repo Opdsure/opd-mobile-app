@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/utils/app_colors.dart';
 
+import '../config/app_config.dart';
+
 class AppButton extends StatelessWidget {
   final String text;
   final double? height;
@@ -18,8 +20,8 @@ class AppButton extends StatelessWidget {
     this.height = 45.0,
     this.width = double.infinity,
     this.fontWeight = FontWeight.w600,
-    this.color = buttonColor,
-    this.borderColor = buttonColor,
+    this.color = AppConfig.primaryColor,
+    this.borderColor = AppConfig.primaryColor,
     this.onClick,
     this.textColor = Colors.white,
     this.textSize = 16.0,

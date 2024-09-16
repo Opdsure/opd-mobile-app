@@ -13,6 +13,7 @@ import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../../../config/app_config.dart';
 import '../../../utils/app_colors.dart';
 
 class PlansPageView extends StatelessWidget {
@@ -55,9 +56,9 @@ class PlansPageView extends StatelessWidget {
               backgroundColor: Colors.transparent,
               unselectedBackgroundColor: Colors.white,
               labelStyle: GoogleFonts.montserrat(
-                color: buttonColor,
+                color: AppConfig.primaryColor,
               ),
-              borderColor: buttonColor,
+              borderColor: AppConfig.primaryColor,
               height: 40.0,
               width: 100.0,
               contentCenter: true,
@@ -86,7 +87,7 @@ class PlansPageView extends StatelessWidget {
                       text: (!controller.isIndividual &&
                               controller.familyOptions == null)
                           ? 'Select Member'
-                          : '₹ ${controller.options!.charges! + ((controller.options!.charges!) * 18) / 100}',
+                          : '₹ ${CommonMethods.amountFormater((controller.options!.charges! + ((controller.options!.charges!) * 18) / 100).toStringAsFixed(0))}',
                       color: textColor,
                       size: (!controller.isIndividual &&
                               controller.familyOptions == null)
@@ -135,7 +136,7 @@ class PlansPageView extends StatelessWidget {
                       ),
                       AppTextView(
                         text:
-                            'Toggle for ${controller.isIndividual ? "family" : "individual"}',
+                        controller.isIndividual ? 'Add family member' : 'Back to individual',
                         size: 12,
                         color: textColor,
                       ),
@@ -157,37 +158,39 @@ class PlansPageView extends StatelessWidget {
               height: 15.0,
             ),
             Container(
+              width: CommonMethods.deviceWidth(context),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                   color: textColor.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12)),
               child: RichText(
+                textAlign: TextAlign.center,
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'On this plan, You will be rewarded with ',
+                      text: 'Your total OPD wallet balance ',
                       style: GoogleFonts.montserrat(
                           color: textColor,
-                          fontSize: 15,
+                          fontSize: 14,
                           fontWeight: FontWeight.w500),
                     ),
                     TextSpan(
                       text:
-                          '$rupeeSymbol${controller.options!.walletBalance!} Wallet Balance.',
+                          '$rupeeSymbol ${CommonMethods.amountFormater(controller.options!.walletBalance!.toString())}',
                       style: GoogleFonts.montserrat(
                           color: textColor,
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
-              ), /*AppTextView(text: 'On this plan, You will be rewarded with $rupeeSymbol${controller.options!.walletBalance!} Wallet Balance.'),*/
+              ),
             ),
             const SizedBox(
               height: 15.0,
             ),
             AppTextView(
-              text: 'Benefits of ${controller.record!.name!}',
+              text: 'Benefits of ${controller.record!.name!} plan',
               size: 20.0,
               color: Colors.black,
               fontWeight: FontWeight.w600,

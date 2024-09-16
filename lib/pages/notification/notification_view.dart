@@ -39,7 +39,7 @@ class NotificationView extends StatelessWidget {
                     return AppRoundView(
                       isMargin: true,
                       corner: 10.0,
-                      color: const Color(0x1A486AB3),
+                      color: AppConfig.roundedViewColor,
                       mChild: ListTile(
                         onTap: () async {
                         },

@@ -9,6 +9,8 @@ import 'package:opdsure/custom_ui/app_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/utils/app_colors.dart';
 
+import '../config/app_config.dart';
+
 class ComplaintsPage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
@@ -71,14 +73,14 @@ class ComplaintsPage extends StatelessWidget{
                 ),
                 SizedBox(height: 10.0,),
                 AppBorderBox(
-                  boxColor: buttonColor,
+                  boxColor: AppConfig.primaryColor,
                   height: 40.0,
                   myChild: Center(
                     child: AppTextView(
                       text: 'Reopen Complaint',
                       size: 12.0,
                       fontWeight: FontWeight.w500,
-                      color: buttonColor,
+                      color: AppConfig.primaryColor,
                     ),
                   ),
                 )

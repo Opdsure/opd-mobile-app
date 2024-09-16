@@ -295,6 +295,14 @@ class Plan {
   String? get startDate => _startDate ?? '';
   String? get endDate => _endDate ?? '';
 
+  bool get isPlanActive {
+    if(endDate == ''){
+      return false;
+    }
+    DateTime endDateTime = DateTime.parse(endDate!);
+    return endDateTime.isAfter(DateTime.now());
+  }
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['purchased'] = _purchased;
@@ -305,8 +313,9 @@ class Plan {
     map['paid_price'] = _pricePaid;
     return map;
   }
-
 }
+
+
 @HiveType(typeId: DatabaseTypeKey.userVerified)
 class Verified {
   Verified({

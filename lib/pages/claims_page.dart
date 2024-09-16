@@ -37,9 +37,9 @@ class ClaimsPage extends StatelessWidget {
       length: 2,
       child: AppBasePage(
         appHeader: const AppHomeHeader(
-          titleUi: AppTextView(
+          title: AppTextView(
               text: 'Claims',
-              size: 22.0,
+              size: 16.0,
               fontWeight: FontWeight.w600,
               color: Colors.black),
         ),
@@ -86,26 +86,14 @@ class ClaimsPage extends StatelessWidget {
                       ? AppButton(
                           text: 'File a claim',
                           onClick: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FileClaimPage(
-                                    isUpdate: false,
-                                  ),
-                                ));
-                            // Navigator.push(context, MaterialPageRoute(builder: (context)=>UploadFileClaimDoc(ClaimJsonModel(),isUpdate: false,)));
+                            context.push('/home/file_claim', extra: false);
                           },
                         )
                       : AppButton(
                           text: 'Select Plan',
                           onClick: () {
-                            // OpdSure.of(context).isSelectPlans = false;
                             context.go('/view_plans', extra: PaymentType.buyPlan);
-                            // Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(
-                            //       builder: (context) => const ViewPlansPage(),
-                            //     ));
+
                           },
                         )
                 ],

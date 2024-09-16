@@ -17,9 +17,9 @@ class LoginResponse {
   bool? _success;
   String? _message;
 
-  LoginData? get data => _data;
-  bool? get success => _success;
-  String? get message => _message;
+  LoginData? get data => _data ??  LoginData();
+  bool? get success => _success ?? false;
+  String? get message => _message ?? '';
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -48,8 +48,8 @@ class LoginData {
   String? _token;
   String? _userId;
 
-  String? get token => _token;
-  String? get userId => _userId;
+  String? get token => _token ?? '';
+  String? get userId => _userId ?? '';
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

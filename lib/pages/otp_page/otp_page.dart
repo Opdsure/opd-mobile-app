@@ -5,15 +5,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../custom_ui/app_button.dart';
 import '../../../custom_ui/app_text_view.dart';
 import '../../../utils/app_colors.dart';
+import '../../config/app_config.dart';
 import 'otp_page_controller.dart';
 
 class OtpPageView extends StatelessWidget{
 
   final OtpPageController controller;
 
-  OtpPageView(this.controller, {super.key});
+  const OtpPageView(this.controller, {super.key});
 
-  var otpTextStyles;
   TextStyle? createStyle() {
     return GoogleFonts.montserrat(
         fontSize: 20.0,
@@ -24,10 +24,8 @@ class OtpPageView extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-
-    // TODO: implement build
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppConfig.primaryColorLight,
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: ListView(
@@ -67,10 +65,10 @@ class OtpPageView extends StatelessWidget{
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const Center(
+            Center(
               child: AppTextView(
-                text: 'Enter the 4-digit code that we have sent\non the email ',
-                color: Color(0xff475467),
+                text: 'Enter the 6-digit code that we have sent\non the +91-${controller.widget.phone} ',
+                color: const Color(0xff475467),
                 size: 16.0,
                 mTextAlign: TextAlign.center,
               ),
@@ -78,9 +76,11 @@ class OtpPageView extends StatelessWidget{
             const SizedBox(height: 24.0,),
 
             OtpTextField(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               numberOfFields: 6,
               showFieldAsBox: true,
-              fieldWidth: 50.0,
+              fieldWidth: 48.5,
               fieldHeight: 60.0,
               showCursor: false,
               styles: [
@@ -91,21 +91,21 @@ class OtpPageView extends StatelessWidget{
                 createStyle(),
                 createStyle(),
               ],
-              focusedBorderColor: const Color(0xFFEAECF0),
+              focusedBorderColor: AppConfig.primaryColor,
+              borderColor: AppConfig.primaryColor,
+              disabledBorderColor: AppConfig.primaryColor,
+              enabledBorderColor: AppConfig.primaryColor,
+              enabled: true,
+              filled: true,
+              fillColor: AppConfig.roundedViewColor,
               borderRadius: const BorderRadius.all(Radius.circular(10.0)),
-              //runs when a code is typed in
-              onCodeChanged: (String code) {
-
-              },
-              //runs when every textfield is filled
-              onSubmit: (String verificationCode){
-                if(verificationCode.length == 6){
-                  controller.otpVerify(verificationCode);
-                }
-              }, // end onSubmit
+              onCodeChanged: controller.onCodeChange,
+              onSubmit: controller.onSubmit, // end onSubmit
             ),
             const SizedBox(height: 24.0,),
-            const AppButton(text: 'Verify OTP'),
+            AppButton(onClick: (){
+              controller.otpVerify();
+            },text: 'Verify OTP'),
 
             const SizedBox(height: 24.0,),
             Center(
@@ -120,7 +120,7 @@ class OtpPageView extends StatelessWidget{
                       text: 'Resend',
                       style: GoogleFonts.montserrat(
                           fontWeight: FontWeight.w600,
-                          color: buttonColor
+                          color: AppConfig.primaryColor
                       ),
                     ),
                   ],

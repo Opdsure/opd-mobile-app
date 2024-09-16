@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:opdsure/pages/profile_page/profile_page.dart';
 import 'package:opdsure/utils/opd_extension/int_extention.dart';
 
+import '../../config/app_config.dart';
 import '../../custom_ui/app_button.dart';
 import '../../custom_ui/app_key_value.dart';
 import '../../custom_ui/app_round_view.dart';
@@ -23,11 +24,12 @@ class FamilyMember extends StatelessWidget {
     double w = CommonMethods.deviceWidth(context);
     double h = CommonMethods.deviceHeight(context);
     if (controller.memberModel == null) {
-      return Center(
+      return const Center(
         child:
             SizedBox(height: 50, width: 50, child: CircularProgressIndicator()),
       );
     } else {
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -37,18 +39,15 @@ class FamilyMember extends StatelessWidget {
                 itemBuilder: (context, index) {
                   MemberList member = controller.memberModel!.data![index];
                   ClaimStatusModel profileStatus = ClaimStatusModel().getProfileStatus(member.reviewStatus!);
-                  int fmAge;
-                  if (member.dob == null) {
-                    fmAge = 0;
-                  } else {
-                    fmAge = CommonMethods.calculateAge(
-                        DateFormat("yyyy-MM-dd").parse(member.dob!));
+                  String actualDob = '';
+                  if (member.dob!.isNotEmpty) {
+                    actualDob = CommonMethods.formatIsoDateString(member.dob!);
                   }
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 7.5),
                     child: AppRoundView(
                       corner: 10.0,
-                      color: const Color(0x1A486AB3),
+                      color: AppConfig.roundedViewColor,
                       mChild: Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: Column(
@@ -109,7 +108,9 @@ class FamilyMember extends StatelessWidget {
                             ),
                             AppKeyValue(
                               mKey: 'Age',
-                              value: '$fmAge years',
+                              value: actualDob.isEmpty
+                                  ? ''
+                                  : CommonMethods.calculateAge(DateFormat("dd/MM/yyyy").parse(actualDob)),
                             ),
                             const SizedBox(
                               height: 5.0,
@@ -177,8 +178,8 @@ class FamilyMember extends StatelessWidget {
           AppButton(
             text: 'Add Member',
             color: const Color(0xFFebecf1),
-            textColor: buttonColor,
-            borderColor: buttonColor,
+            textColor: AppConfig.primaryColor,
+            borderColor: AppConfig.primaryColor,
             onClick: () {
               controller.addFamilyMember();
             },

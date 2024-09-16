@@ -76,7 +76,7 @@ class CheckoutPageView extends StatelessWidget {
                     PaymentType.buyHealthCheckup) ...[
                   AppTextView(
                     text:
-                        '$rupeeSymbol ${controller.options!.charges!}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
+                        '$rupeeSymbol ${CommonMethods.amountFormater(controller.options!.charges!.toString())}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
                     color: const Color(0xFF667085),
                   ),
                   const SizedBox(
@@ -122,13 +122,13 @@ class CheckoutPageView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const AppTextView(
-                      text: 'Plan Charge',
+                      text: 'Plan Base Price',
                       color: Colors.black,
                       size: 16.0,
                     ),
                     AppTextView(
                       text:
-                          '$rupeeSymbol ${controller.planCharge.toStringAsFixed(2)}',
+                          '$rupeeSymbol ${CommonMethods.amountFormater(controller.planCharge.toStringAsFixed(2), isDouble: true)}',
                       color: Colors.black,
                       size: 16.0,
                     ),
@@ -146,7 +146,7 @@ class CheckoutPageView extends StatelessWidget {
                       ),
                       AppTextView(
                         text:
-                            '-$rupeeSymbol ${controller.couponDiscount.toStringAsFixed(2)}',
+                            '-$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true,controller.couponDiscount.toStringAsFixed(2))}',
                         color: Colors.green,
                         size: 16.0,
                       ),
@@ -165,7 +165,7 @@ class CheckoutPageView extends StatelessWidget {
                       ),
                       AppTextView(
                         text:
-                            '-$rupeeSymbol ${controller.previousDiscount.toStringAsFixed(2)}',
+                            '-$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.previousDiscount.toStringAsFixed(2))}',
                         color: Colors.green,
                         size: 16.0,
                       ),
@@ -184,7 +184,7 @@ class CheckoutPageView extends StatelessWidget {
                       ),
                       AppTextView(
                         text:
-                            '$rupeeSymbol ${controller.netAmount.toStringAsFixed(2)}',
+                            '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.netAmount.toStringAsFixed(2))}',
                         color: Colors.black,
                         size: 16.0,
                       ),
@@ -202,45 +202,12 @@ class CheckoutPageView extends StatelessWidget {
                     ),
                     AppTextView(
                       text:
-                          '$rupeeSymbol ${controller.gst.toStringAsFixed(2)}',
+                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.gst.toStringAsFixed(2))}',
                       color: Colors.black,
                       size: 16.0,
                     ),
                   ],
                 ),
-                //net amount
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     const AppTextView(
-                //       text: 'Net amount',
-                //       color: Colors.black,
-                //       size: 16.0,
-                //     ),
-                //     AppTextView(
-                //       text: '$rupeeSymbol ${controller.netAmount.toStringAsFixed(2)}',
-                //       color: Colors.black,
-                //       size: 16.0,
-                //     ),
-                //   ],
-                // ),
-                // // total amount
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     const AppTextView(
-                //       text: 'Net amount(with GST)',
-                //       color: Colors.black,
-                //       size: 16.0,
-                //     ),
-                //     AppTextView(
-                //       text: '$rupeeSymbol ${controller.netAmountWithGst.toStringAsFixed(2)}',
-                //       color: Colors.black,
-                //       size: 16.0,
-                //     ),
-                //   ],
-                // ),
-                // const SizedBox(height: 10.0,),
                 const Divider(
                   height: 1.0,
                   color: Color(0xFFEAECF0),
@@ -259,7 +226,7 @@ class CheckoutPageView extends StatelessWidget {
                     ),
                     AppTextView(
                       text:
-                          '$rupeeSymbol ${controller.netAmountWithGst.toStringAsFixed(2)}',
+                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.netAmountWithGst.toStringAsFixed(2))}',
                       color: Colors.black,
                       size: 16.0,
                       fontWeight: FontWeight.w500,
@@ -286,7 +253,7 @@ class CheckoutPageView extends StatelessWidget {
                       width: 10.0,
                     ),
                     const AppTextView(
-                      text: 'Apply Coupon',
+                      text: 'Apply Coupon Code',
                       color: Colors.black,
                       size: 18.0,
                       fontWeight: FontWeight.w600,

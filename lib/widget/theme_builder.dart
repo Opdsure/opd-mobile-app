@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:collection/collection.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:opdsure/config/app_config.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -90,13 +91,11 @@ class ThemeController extends State<ThemeBuilder> {
   Widget build(BuildContext context) {
     return Provider(
       create: (_) => this,
-      child: DynamicColorBuilder(
-        builder: (light, _) => widget.builder(
-          context,
-          themeMode,
-          primaryColor ?? light?.primary,
-        ),
-      ),
+      child: widget.builder(
+        context,
+        themeMode,
+        AppConfig.primaryColorLight,
+      )
     );
   }
 }

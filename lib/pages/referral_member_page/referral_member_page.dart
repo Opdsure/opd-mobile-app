@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:opdsure/custom_ui/app_key_value.dart';
 import 'package:opdsure/model/referral_member/referral_member.dart';
 
+import '../../config/app_config.dart';
 import '../../custom_ui/app_base_page.dart';
 import '../../custom_ui/app_header.dart';
 import '../../custom_ui/app_round_view.dart';
@@ -39,7 +40,7 @@ class ReferralMemberPage extends StatelessWidget {
 
                         isMargin: true,
                         corner: 10.0,
-                        color: const Color(0x1A486AB3),
+                        color: AppConfig.roundedViewColor,
                         mChild: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(

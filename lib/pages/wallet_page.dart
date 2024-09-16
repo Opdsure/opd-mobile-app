@@ -8,6 +8,7 @@ import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../config/app_config.dart';
 import '../custom_ui/app_header.dart';
 
 class WalletPage extends StatelessWidget {
@@ -51,7 +52,7 @@ class WalletPage extends StatelessWidget {
                                     ? const CircularProgressIndicator()
                                     : AppTextView(
                                         text:
-                                            '$rupeeSymbol ${profile.data!.data!.walletBalance}',
+                                            '$rupeeSymbol ${CommonMethods.amountFormater(profile.data!.data!.walletBalance.toString(), isDouble: true)}',
                                         size: 16.0,
                                         fontWeight: FontWeight.w600,
                                         color: Color(0xFF027A48),
@@ -78,7 +79,7 @@ class WalletPage extends StatelessWidget {
                                 return AppRoundView(
                                     isMargin: true,
                                     corner: 10.0,
-                                    color: const Color(0x1A486AB3),
+                                    color: AppConfig.roundedViewColor,
                                     mChild: ListTile(
                                       title: AppTextView(
                                         text: transaction
@@ -97,7 +98,7 @@ class WalletPage extends StatelessWidget {
                                       ),
                                       trailing: AppTextView(
                                         text:
-                                            '${transaction.data!.data![index].type! == 1 ? '+' : '-'} $rupeeSymbol${transaction.data!.data![index].amount!.toStringAsFixed(2)}',
+                                            '${transaction.data!.data![index].type! == 1 ? '+' : '-'} $rupeeSymbol ${CommonMethods.amountFormater(transaction.data!.data![index].amount!.toStringAsFixed(2), isDouble: true)}',
                                         color: transaction
                                                     .data!.data![index].type! ==
                                                 1

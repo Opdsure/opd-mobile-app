@@ -1,6 +1,6 @@
 class SubscribedPlanModel {
   SubscribedPlanModel({
-      Data? data, 
+      SubscribedPlanData? data,
       bool? success, 
       String? message,}){
     _data = data;
@@ -9,17 +9,17 @@ class SubscribedPlanModel {
 }
 
   SubscribedPlanModel.fromJson(dynamic json) {
-    _data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    _data = json['data'] != null ? SubscribedPlanData.fromJson(json['data']) : null;
     _success = json['success'];
     _message = json['message'];
   }
-  Data? _data;
+  SubscribedPlanData? _data;
   bool? _success;
   String? _message;
 
-  Data? get data => _data;
-  bool? get success => _success;
-  String? get message => _message;
+  SubscribedPlanData? get data => _data ??  SubscribedPlanData();
+  bool? get success => _success ?? false;
+  String? get message => _message ?? '';
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -33,8 +33,8 @@ class SubscribedPlanModel {
 
 }
 
-class Data {
-  Data({
+class SubscribedPlanData {
+  SubscribedPlanData({
       String? id, 
       String? name, 
       int? frequency, 
@@ -69,7 +69,7 @@ class Data {
     _combinedLabPlusTestPercent = combinedLabPlusTestPercent;
 }
 
-  Data.fromJson(dynamic json) {
+  SubscribedPlanData.fromJson(dynamic json) {
     _id = json['_id'];
     _name = json['name'];
     _frequency = json['frequency'];
@@ -114,22 +114,22 @@ class Data {
   dynamic _combinedLabPlusTestMaxDiscount;
   dynamic _combinedLabPlusTestPercent;
 
-  String? get id => _id;
-  String? get name => _name;
-  int? get frequency => _frequency;
-  int? get subscriberType => _subscriberType;
-  int? get opdMaxDiscount => _opdMaxDiscount;
-  int? get opdPrecentDiscount => _opdPrecentDiscount;
-  int? get labMaxDiscount => _labMaxDiscount;
-  int? get labPrecentDiscount => _labPrecentDiscount;
-  int? get pharmacyMaxDiscount => _pharmacyMaxDiscount;
-  int? get pharmacyPrecentDiscount => _pharmacyPrecentDiscount;
-  List<PlanBenefits>? get planBenefits => _planBenefits;
-  MembershipOptions? get membershipOptions => _membershipOptions;
-  List<dynamic>? get files => _files;
-  int? get claimCombination => _claimCombination;
-  dynamic get combinedLabPlusTestMaxDiscount => _combinedLabPlusTestMaxDiscount;
-  dynamic get combinedLabPlusTestPercent => _combinedLabPlusTestPercent;
+  String? get id => _id ?? '';
+  String? get name => _name ?? '';
+  int? get frequency => _frequency ?? -1;
+  int? get subscriberType => _subscriberType ?? -1;
+  int? get opdMaxDiscount => _opdMaxDiscount ?? -1;
+  int? get opdPrecentDiscount => _opdPrecentDiscount ?? -1;
+  int? get labMaxDiscount => _labMaxDiscount ?? -1;
+  int? get labPrecentDiscount => _labPrecentDiscount ?? -1;
+  int? get pharmacyMaxDiscount => _pharmacyMaxDiscount ?? -1;
+  int? get pharmacyPrecentDiscount => _pharmacyPrecentDiscount ?? -1;
+  List<PlanBenefits>? get planBenefits => _planBenefits ?? [];
+  MembershipOptions? get membershipOptions => _membershipOptions ?? MembershipOptions();
+  List<dynamic>? get files => _files ?? [];
+  int? get claimCombination => _claimCombination ?? -1;
+  dynamic get combinedLabPlusTestMaxDiscount => _combinedLabPlusTestMaxDiscount ?? -1;
+  dynamic get combinedLabPlusTestPercent => _combinedLabPlusTestPercent ?? -1;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -187,11 +187,11 @@ class MembershipOptions {
   int? _charges;
   int? _walletBalance;
 
-  int? get membershipId => _membershipId;
-  String? get membershipLabel => _membershipLabel;
-  int? get memberCount => _memberCount;
-  int? get charges => _charges;
-  int? get walletBalance => _walletBalance;
+  int? get membershipId => _membershipId ?? -1;
+  String? get membershipLabel => _membershipLabel ?? '';
+  int? get memberCount => _memberCount ?? -1;
+  int? get charges => _charges ?? -1;
+  int? get walletBalance => _walletBalance ?? -1;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -220,8 +220,8 @@ class PlanBenefits {
   String? _planLabel;
   String? _planFeature;
 
-  String? get planLabel => _planLabel;
-  String? get planFeature => _planFeature;
+  String? get planLabel => _planLabel ?? '';
+  String? get planFeature => _planFeature ?? '';
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:opdsure/repository/client/OpdClient.dart';
 import 'package:opdsure/repository/database_api/database_builder.dart';
@@ -15,9 +14,6 @@ abstract class ClientManager{
 
   static Future<List<OpdClient>> getClients({required SharedPreferences store}) async {
     await Hive.initFlutter();
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
     final clientNames = <String>{};
     try{
       final clientNamesList = store.getStringList(clientNamespace) ?? [];

@@ -9,6 +9,7 @@ import 'package:opdsure/repository/client/client_manager.dart';
 import 'package:opdsure/utils/app_keys/app_key.dart';
 import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_sure_app.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -72,7 +73,6 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
     return bundles.values.first;
   }
 
-  bool isWithEmail = false;
 
 
   Map<String?, List<OpdClient?>> get accountBundles {
@@ -169,7 +169,9 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
     return candidate;
   }
 
-  void initOpd() {
+  void initOpd() async  {
+    final result =  await  [Permission.camera, Permission.microphone, Permission.location, Permission.locationAlways, Permission.locationWhenInUse].request();
+    print(result);
     for (final c in widget.clients) {
       _registerSub(c.clientName);
     }
@@ -205,7 +207,7 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
           }else{
             isLogout = true;
             selectedPage = 0;
-            OpdSureApp.router.pushReplacement('/signup');
+            OpdSureApp.router.pushReplacement('/login');
           }
 
         }
