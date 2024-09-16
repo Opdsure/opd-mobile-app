@@ -39,6 +39,8 @@
         </array>
      <key>NSCameraUsageDescription</key>
      <string>$(PRODUCT_NAME) camera use</string>
+     <key>NSPhotoLibraryUsageDescription</key>
+     <string>We need access to your photo library to allow you to select and upload photos.</string>
      <key>NSMicrophoneUsageDescription</key>
       <string>$(PRODUCT_NAME) microphone use</string>
         <key>UIApplicationSupportsIndirectInputEvents</key>
