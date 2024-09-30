@@ -91,7 +91,7 @@ Page resource error:
 
     // setBackgroundColor is not currently supported on macOS.
     if (kIsWeb || !Platform.isMacOS) {
-      controller.setBackgroundColor(const Color(0x80000000));
+      controller.setBackgroundColor(const Color(0xFFFFFFFF));
     }
 
     // #docregion platform_features
@@ -108,7 +108,16 @@ Page resource error:
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: WebViewWidget(controller: _controller),
+      body: WillPopScope(
+        onWillPop: () async{
+          if(await _controller.canGoBack()){
+            _controller.goBack();
+            return false;
+          }else{
+            return true;
+          }
+        },
+          child: WebViewWidget(controller: _controller)),
     );
   }
 
