@@ -45,7 +45,7 @@ class HomeServiceTile extends StatelessWidget {
                         image: AssetImage(
                           HomePage.serviceTittle(context)[index].image,
                         ),
-                        fit: BoxFit.fill,
+                        fit: BoxFit.contain,
                       ),
                       shape: BoxShape.circle),
                 ),

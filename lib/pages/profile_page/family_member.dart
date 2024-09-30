@@ -119,8 +119,7 @@ class FamilyMember extends StatelessWidget {
                               mKey: 'Date of Birth',
                               value: member.dob == null
                                   ? ''
-                                  : CommonMethods.changeDateFormat(member.dob!,
-                                      from: 'yyyy-MM-dd', to: 'dd/MM/yyyy'),
+                                  : CommonMethods.formatIsoDateString(member.dob!, isAddTime: true),
                             ),
                             const SizedBox(
                               height: 5.0,

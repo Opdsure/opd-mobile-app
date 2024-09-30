@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_home_header.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
+import 'package:opdsure/custom_ui/claim_count_tile.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/pages/claim_pages/claim_tile.dart';
 import 'package:opdsure/pages/homepage/home_service_tile.dart';
@@ -58,9 +59,17 @@ class HomePage extends StatefulWidget {
           CommonMethods.showAlertDialog(context);
           final opd = OpdSure.of(context);
           if(opd.profileData!.plan!.isPlanActive){
-            final mfine = await opd.client.mFine();
-            Navigator.of(context).pop();
-            context.push('/home/web_view', extra: mfine.data!.redirectUrl!);
+            try {
+              final mfine = await opd.client.mFine();
+              Navigator.of(context).pop();
+              context.push('/home/web_view', extra: mfine.data!.redirectUrl!);
+            }catch(e){
+              Navigator.of(context).pop();
+              CommonMethods.customAlertBox(context,
+                title: 'Alert',
+                message: "Service coming soon",
+              );
+            }
           }else{
             Navigator.of(context).pop();
             CommonMethods.customAlertBox(context,
@@ -297,27 +306,56 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   ),
                                 ),
                             )
-                            : ListView.builder(
-                                itemCount:
-                                    listData.length > 3 ? 3 : listData.length,
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemBuilder: (context, index) {
-                                  ClaimRecords records = listData[index];
-                                  ClaimStatusModel claimStatusModel =
-                                      ClaimStatusModel().getClaimBuStatus(
-                                          records.status!,
-                                          reSubmit: records.resubmission!);
-                                  ClaimStatusModel disputeClaimStatus =
-                                      ClaimStatusModel()
-                                          .getDisputeClaimBuStatus(
-                                              records.disputeDetails!);
-                                  return ClaimTile(
-                                      records: records,
-                                      claimStatus: claimStatusModel,
-                                      disputeClaimStatus: disputeClaimStatus);
-                                },
-                              );
+                            : Column(
+                              children: [
+                                SizedBox(
+                                  height: 200,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getTotalClaim, title: 'Total Claims')),
+                                          Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getPendingClaim, title: 'Pending Claims')),
+                                        ],
+                                      ),
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getRejectedClaim, title: 'Rejected Claims')),
+                                          Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getSettledClaim, title: 'Settled Claims')),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                ListView.builder(
+                                    itemCount:
+                                        listData.length > 3 ? 3 : listData.length,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemBuilder: (context, index) {
+                                      ClaimRecords records = listData[index];
+                                      ClaimStatusModel claimStatusModel =
+                                          ClaimStatusModel().getClaimBuStatus(
+                                              records.status!,
+                                              reSubmit: records.resubmission!);
+                                      ClaimStatusModel disputeClaimStatus =
+                                          ClaimStatusModel()
+                                              .getDisputeClaimBuStatus(
+                                                  records.disputeDetails!);
+                                      return ClaimTile(
+                                          records: records,
+                                          claimStatus: claimStatusModel,
+                                          disputeClaimStatus: disputeClaimStatus);
+                                    },
+                                  ),
+                              ],
+                            );
                       }
                     },
                   )

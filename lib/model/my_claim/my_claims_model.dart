@@ -56,6 +56,11 @@ class ClaimData {
   List<ClaimRecords>? get records => _records ?? [];
   Pagination? get pagination => _pagination ?? Pagination();
 
+  int get getTotalClaim => records!.length;
+  int get getPendingClaim => records!.where((c) => c.status! == 0 || c.status! == 4 || c.status! == 6).toList().length;
+  int get getRejectedClaim => records!.where((c) => c.status! == 2 || c.status! == 3 || c.status! == 7).toList().length;
+  int get getSettledClaim => records!.where((c) => c.status! == 1 || c.status! == 12).toList().length;
+
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     if (_records != null) {

@@ -132,7 +132,10 @@ class ClaimTile extends StatelessWidget {
                 fontWeight:
                 FontWeight.w500,
                 onClick: () {
-                  context.push('/home/file_claim', extra: true);
+                  context.push('/home/file_claim', extra: {
+                    'isUpdate' : true,
+                    'records' : records
+                  });
                 },
               )
                   : Row(

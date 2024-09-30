@@ -344,7 +344,7 @@ class CommonMethods{
     return data ?? false;
   }
 
-  static String formatIsoDateString(String isoString,{isTime = false, isAddTime = false}) {
+  static String formatIsoDateString(String isoString,{bool isTime = false, bool isAddTime = false}) {
     if(isoString == '') return '';
     DateTime dateTime = DateTime.parse(isoString);
     if(isAddTime) {

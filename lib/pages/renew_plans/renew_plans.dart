@@ -88,7 +88,7 @@ class RenewPlans extends StatelessWidget {
                              ),
                              const SizedBox(height: 5,),
                              AppTextView(text: 'Price Paid - ₹${CommonMethods.amountFormater(snapshot.data!.data!.records![index].paidPrice!.toStringAsFixed(0))}(incl. GST)'),
-                             AppTextView(text: 'Purchased on - ${CommonMethods.formatIsoDateString(snapshot.data!.data!.records![index].createdAt!)}'),
+                             AppTextView(text: 'Purchased on - ${CommonMethods.formatIsoDateString(snapshot.data!.data!.records![index].createdAt!, isAddTime: true)}',),
                              AppTextView(text: 'Membership Label: ${snapshot.data!.data!.records![index].planId!.membershipOptions!.where((e) => e.membershipId! == snapshot.data!.data!.records![index].membershipId!).toList()[0].membershipLabel!}'),
                              AppTextView(text: 'Member Count: ${snapshot.data!.data!.records![index].planId!.membershipOptions!.where((e) => e.membershipId! == snapshot.data!.data!.records![index].membershipId!).toList()[0].memberCount!}'),
 

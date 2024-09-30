@@ -473,11 +473,14 @@ class OpdClient extends OpdApi {
       throw Exception("No baseServerUri set");
     }
 
-    final response = await super.mFine();
-    if (response.data == null) {
-      throw Exception(response.toString());
+    try {
+      final response = await super.mFine();
+      if (response.data == null) {
+        throw Exception(response.toString());
+      }
+      return response;
+    }catch(e){
+      throw Exception("Something went wrong");
     }
-
-    return response;
   }
 }

@@ -126,9 +126,9 @@ class CheckoutController extends State<CheckoutPage> {
                 : 'Health checkup purchased successfully!');
         await opd.client.getProfile(update: true);
         if (widget.paymentType == PaymentType.buyPlan) {
-          context.pushReplacement('/home/add-members');
+          context.go('/home/add-members');
         } else {
-          context.pushReplacement('/home');
+          context.go('/home');
         }
       } else {
         Razorpay razorpay = Razorpay();
@@ -192,12 +192,12 @@ class CheckoutController extends State<CheckoutPage> {
          context.go('/home/add-members', extra: {"isUpdate" : true, "member" : member.data![0]});
          await OpdSure.of(context).client.getProfile(update: true);
        }else{
-         context.pushReplacement('/home/add-members');
+         context.go('/home/add-members');
        }
 
       } else {
         context.pop();
-        OpdSureApp.router.pushReplacement('/home');
+        OpdSureApp.router.go('/home');
       }
     } else {
       context.pop();

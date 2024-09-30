@@ -29,7 +29,7 @@ class AddFamilyDetails extends StatefulWidget {
   final MemberList? member;
   final bool isUpdate;
 
-  AddFamilyDetails({this.member, this.isUpdate = false});
+  const AddFamilyDetails({this.member, this.isUpdate = false, super.key});
 
   @override
   State<AddFamilyDetails> createState() => _AddFamilyDetailsState();
@@ -103,18 +103,18 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
     // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(
-        headerName: widget.isUpdate! ? 'Update Details' : 'Add Details',
+        headerName: widget.isUpdate ? 'Update Details' : 'Add Details',
         showRightView: true,
         rightView: AppTextView(
           text: 'Done',
           color: const Color(0xFF475467),
           size: 16.0,
           onClick: () {
-            context.go('/');
+            context.go('/home');
           },
         ),
         onBackTap: () {
-          context.go('/');
+          context.go('/home');
         },
       ),
       childContent: ListView(
@@ -542,7 +542,7 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                           'Details updated successfully, We have received your request. We will revert back to you',
                       okCallBack: (context1) {
                     Navigator.of(context1, rootNavigator: true).pop();
-                    context.pushReplacement('/home');
+                    context.go('/home');
                   });
                 } else {
                   CommonMethods.showToast('Member Added successfully');

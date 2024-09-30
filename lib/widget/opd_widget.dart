@@ -171,7 +171,6 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
 
   void initOpd() async  {
     final result =  await  [Permission.camera, Permission.microphone, Permission.location, Permission.locationAlways, Permission.locationWhenInUse].request();
-    print(result);
     for (final c in widget.clients) {
       _registerSub(c.clientName);
     }
@@ -200,14 +199,14 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
             isLogout = false;
             selectedPage = 0;
             if(profileData!.phone!.isEmpty || profileData!.email!.isEmpty){
-              OpdSureApp.router.pushReplacement("/home/name_email_number");
+              OpdSureApp.router.go("/home/name_email_number");
             }else{
-              OpdSureApp.router.pushReplacement("/home");
+              OpdSureApp.router.go("/home");
             }
           }else{
             isLogout = true;
             selectedPage = 0;
-            OpdSureApp.router.pushReplacement('/login');
+            OpdSureApp.router.go('/login');
           }
 
         }

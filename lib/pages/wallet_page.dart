@@ -93,7 +93,7 @@ class WalletPage extends StatelessWidget {
                                         text: CommonMethods.formatIsoDateString(
                                             transaction
                                                 .data!.data![index].createdAt!,
-                                            isTime: true),
+                                            isTime: true, isAddTime: true),
                                         size: 12,
                                       ),
                                       trailing: AppTextView(

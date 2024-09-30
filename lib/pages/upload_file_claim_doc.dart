@@ -115,7 +115,8 @@ class UploadFileClaimDoc extends StatelessWidget{
                             height: h*0.1,
                             child: ListView.builder(
                               itemCount: prescriptionImageList.length,
-                              physics: const NeverScrollableScrollPhysics(),
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
                               itemBuilder: (context, index){
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +153,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                             child: ListView.builder(
                               itemCount: feeImageList.length,
                               scrollDirection: Axis.horizontal,
-                              physics: const NeverScrollableScrollPhysics(),
+                              physics: const BouncingScrollPhysics(),
                               itemBuilder: (context, index){
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -190,7 +191,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                             child: ListView.builder(
                               itemCount: pharmacyImageList.length,
                               scrollDirection: Axis.horizontal,
-                              physics: const NeverScrollableScrollPhysics(),
+                              physics: const BouncingScrollPhysics(),
                               itemBuilder: (context, index){
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

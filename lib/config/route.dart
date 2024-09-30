@@ -490,12 +490,21 @@ abstract class AppRoutes {
               GoRoute(
                   path: "file_claim",
                   pageBuilder: (context, state) {
-                    bool isUpdate = state.extra as bool;
+
+                    bool isUpdate = false;
+                    ClaimRecords? claim;
+                    Map<String, dynamic> extra = {};
+                    if(state.extra != null) {
+                      Map<String, dynamic> extra = state.extra as Map<String, dynamic>;
+                      isUpdate = extra['isUpdate'] ?? false;
+                      claim = extra['records'];
+                    }
                     return defaultPageBuilder(
                       context,
                       state,
                       FileClaimPage(
-                        isUpdate: isUpdate,
+                        records: claim,
+                        isUpdate: isUpdate
                       ),
                     );
                   },
