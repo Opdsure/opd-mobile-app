@@ -179,7 +179,7 @@ class HealthCheckupDetailsView extends StatelessWidget {
               children: [
                 AppTextView(
                   text:
-                      "$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.getDiscountPrice())}",
+                      "$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, roundOff: true, controller.getDiscountPrice())}",
                   size: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -188,7 +188,7 @@ class HealthCheckupDetailsView extends StatelessWidget {
                 ),
                 AppTextView(
                   text:
-                      "$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.getBasePrice())}",
+                      "$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, roundOff: true, controller.getBasePrice())}",
                   fontStyle: FontStyle.italic,
                   isLineThrough: true,
                 ),

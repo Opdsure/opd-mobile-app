@@ -82,7 +82,7 @@ class HealthCheckupView extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                               AppTextView(
-                                text: CommonMethods.amountFormater(isDouble: true, discountPriceShow),
+                                text: CommonMethods.amountFormater(isDouble: true, roundOff: true, discountPriceShow),
                                 color: AppConfig.primaryColor,
                                 size: 12,
                                 fontWeight: FontWeight.w600,

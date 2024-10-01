@@ -202,7 +202,7 @@ class CheckoutPageView extends StatelessWidget {
                     ),
                     AppTextView(
                       text:
-                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.gst.toStringAsFixed(2))}',
+                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, roundOff: true, controller.gst.toStringAsFixed(2))}',
                       color: Colors.black,
                       size: 16.0,
                     ),
@@ -226,7 +226,7 @@ class CheckoutPageView extends StatelessWidget {
                     ),
                     AppTextView(
                       text:
-                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.netAmountWithGst.toStringAsFixed(2))}',
+                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, roundOff: true, controller.netAmountWithGst.toStringAsFixed(2))}',
                       color: Colors.black,
                       size: 16.0,
                       fontWeight: FontWeight.w500,

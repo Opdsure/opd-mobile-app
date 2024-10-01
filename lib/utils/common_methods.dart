@@ -457,13 +457,13 @@ class CommonMethods{
     return FilePickerResult([platformFile]);
   }
 
-  static String amountFormater(String amount, {bool isDouble = false}){
+  static String amountFormater(String amount, {bool isDouble = false, bool roundOff = false}){
     final formatter = NumberFormat('#,##,###');
     dynamic newAmount;
     if(isDouble){
       newAmount = double.parse(amount);
       newAmount = formatter.format(newAmount);
-      if(amount.contains('.')){
+      if(amount.contains('.') && !roundOff){
         return '$newAmount.${amount.split('.')[1]}';
       }else{
         return newAmount;

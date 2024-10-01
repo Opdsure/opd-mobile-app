@@ -5,9 +5,10 @@ void main() {
   final formatter = NumberFormat('#,##,###');
 
   // Example number
-  double amount = 100000000.0;
+  double amount = 100000000.890;
 
   // Format the number and print it
   String formattedAmount = formatter.format(amount);
+
   print(formattedAmount);  // Outputs: 1,000
 }
