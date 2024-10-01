@@ -306,6 +306,36 @@ class Profile extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(
+            height: 10.0,
+          ),
+          AppRoundView(
+            onClick: () {
+              CommonMethods.showLogoutAlertDialog(context,
+                  'Are you sure want to Delete your account', 'Account Deletion', 'Yes', 'Cancel');
+            },
+            corner: 10.0,
+            color: AppConfig.roundedViewColor,
+            mChild: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppTextView(
+                    text: 'Delete Account',
+                    size: 16.0,
+                    color: AppConfig.primaryColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  Icon(
+                    Icons.delete,
+                    size: 20.0,
+                    color: AppConfig.primaryColor,
+                  )
+                ],
+              ),
+            ),
+          ),
         ],
       );
     }
