@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/input_decoration/decoratedInputBorder.dart';
 
-import '../utils/platform_infos.dart';
 import 'app_config.dart';
 
 abstract class OpdThemes {
@@ -74,11 +73,9 @@ abstract class OpdThemes {
       useMaterial3: true,
       brightness: brightness,
       colorScheme: colorScheme,
-      textTheme: PlatformInfos.isDesktop
-          ? brightness == Brightness.light
+      textTheme: brightness == Brightness.light
               ? Typography.material2018().black.merge(fallbackTextTheme)
-              : Typography.material2018().white.merge(fallbackTextTheme)
-          : null,
+              : Typography.material2018().white.merge(fallbackTextTheme),
       snackBarTheme: const SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
       ),
@@ -103,7 +100,6 @@ abstract class OpdThemes {
           color: Color(0xff101828),
           blurRadius: 0.2,
           offset: Offset(0, 1)
-
         )
         ),
         filled: true,
@@ -161,7 +157,7 @@ abstract class OpdThemes {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        labelTextStyle: WidgetStateProperty.all(GoogleFonts.roboto(
+        labelTextStyle: WidgetStateProperty.all(GoogleFonts.montserrat(
           fontSize: 8,
           fontWeight: FontWeight.bold
         ))

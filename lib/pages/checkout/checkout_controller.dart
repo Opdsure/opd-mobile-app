@@ -119,14 +119,20 @@ class CheckoutController extends State<CheckoutPage> {
             : null);
 
     if (createPaymentResponse!.success!) {
-      if (netAmountWithGst <= 0) {
+      if (netAmountWithGst == 0.0) {
         CommonMethods.showToast(
             widget.paymentType != PaymentType.buyHealthCheckup
                 ? 'Plan purchased successfully!'
                 : 'Health checkup purchased successfully!');
         await opd.client.getProfile(update: true);
         if (widget.paymentType == PaymentType.buyPlan) {
-          context.go('/home/add-members');
+          final member = await OpdSure.of(context).client.getFamilyMember(update: true);
+          if(member!.data!.length > 0){
+            context.go('/home/add-members', extra: {"isUpdate" : true, "member" : member.data![0]});
+            await OpdSure.of(context).client.getProfile(update: true);
+          }else{
+            context.go('/home/add-members');
+          }
         } else {
           context.go('/home');
         }

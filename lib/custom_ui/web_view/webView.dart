@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:opdsure/config/route.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 // Import for Android features.
 import 'package:webview_flutter_android/webview_flutter_android.dart';
@@ -118,20 +120,20 @@ Page resource error:
           }
         },
           child: WebViewWidget(controller: _controller)),
+      floatingActionButton: backButton(),
     );
   }
 
-  Widget favoriteButton() {
+  Widget backButton() {
     return FloatingActionButton(
       onPressed: () async {
-        final String? url = await _controller.currentUrl();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Favorited $url')),
-          );
+        if(await _controller.canGoBack()){
+          _controller.goBack();
+        }else{
+         context.pop();
         }
       },
-      child: const Icon(Icons.favorite),
+      child: const Icon(Icons.arrow_back_ios),
     );
   }
 

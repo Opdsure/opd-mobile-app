@@ -23,9 +23,9 @@ class ClaimCountTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppTextView(text: title, size: 16,fontWeight: FontWeight.w700,),
+          AppTextView(text: title, size: 14,fontWeight: FontWeight.w700,),
 
-          AppTextView(text: count.toString(), size: 18,fontWeight: FontWeight.w400,),
+          AppTextView(text: count.toString(), size: 16,fontWeight: FontWeight.w400,),
         ],
       ),
     );

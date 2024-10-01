@@ -24,7 +24,7 @@ class OpdSure extends StatefulWidget {
   final List<OpdClient> clients;
 
   const OpdSure(
-      {required this.clients, required this.store, this.child, super.key});
+      {required this.clients, required this.store, required this.child, super.key});
 
   @override
   State<OpdSure> createState() => OpdSureState();

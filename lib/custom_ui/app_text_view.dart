@@ -36,6 +36,7 @@ class AppTextView extends StatelessWidget {
         textAlign: mTextAlign,
         softWrap: softWrap,
         overflow: textOverflow,
+        textScaler: const TextScaler.linear(0.8),
         style: GoogleFonts.montserrat(
             fontSize: size,
             fontWeight: fontWeight,
@@ -51,6 +52,7 @@ class AppTextView extends StatelessWidget {
           text,
           textAlign: mTextAlign,
           softWrap: softWrap,
+          textScaler: const TextScaler.linear(0.9),
           style: GoogleFonts.montserrat(
               fontSize: size,
               fontWeight: fontWeight,
