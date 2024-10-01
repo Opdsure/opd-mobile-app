@@ -7,12 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00830F5CFC37F3A7E9CCE58C /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 304FD3012CABF35500E355A2 /* Pods_RunnerTests.framework */; };
 		0B6863FD123719307F5428A7 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CFD516320519D33F546A2599 /* GoogleService-Info.plist */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
+		304FD3002CABF35500E355A2 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 304FD2FF2CABF35500E355A2 /* Pods_Runner.framework */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
-		7F7BAAAE39B7DD25469FFB91 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B79C3E4E70B2B7CC8856D493 /* Pods_Runner.framework */; };
 		80F3443796305EBBA7F21B22 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23A6D0FBC4709FD019D73376 /* Pods_RunnerTests.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
@@ -46,6 +47,43 @@
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		23A6D0FBC4709FD019D73376 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2C92CABF31400E355A2 /* razorpay_flutter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = razorpay_flutter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2CB2CABF32F00E355A2 /* DKImagePickerController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DKImagePickerController.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2CD2CABF32F00E355A2 /* DKPhotoGallery.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DKPhotoGallery.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2CF2CABF32F00E355A2 /* file_picker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = file_picker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2D12CABF32F00E355A2 /* fluttertoast.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = fluttertoast.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2D32CABF32F00E355A2 /* image_picker_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = image_picker_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2D52CABF32F00E355A2 /* package_info_plus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = package_info_plus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2D72CABF32F00E355A2 /* path_provider_foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = path_provider_foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2D92CABF32F00E355A2 /* permission_handler_apple.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = permission_handler_apple.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2DB2CABF32F00E355A2 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2DD2CABF32F00E355A2 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2DF2CABF32F00E355A2 /* razorpay_flutter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = razorpay_flutter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2E12CABF32F00E355A2 /* Razorpay.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = Razorpay.xcframework; path = "Pods/razorpay-pod/Pod/Razorpay.xcframework"; sourceTree = "<group>"; };
+		304FD2E32CABF32F00E355A2 /* SDWebImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDWebImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2E52CABF32F00E355A2 /* shared_preferences_foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = shared_preferences_foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2E72CABF32F00E355A2 /* SwiftyGif.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftyGif.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2E92CABF32F00E355A2 /* Toast.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Toast.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2EB2CABF32F00E355A2 /* url_launcher_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = url_launcher_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2ED2CABF32F00E355A2 /* webview_flutter_wkwebview.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = webview_flutter_wkwebview.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2EF2CABF35500E355A2 /* DKImagePickerController.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DKImagePickerController.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2F12CABF35500E355A2 /* DKPhotoGallery.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = DKPhotoGallery.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2F32CABF35500E355A2 /* file_picker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = file_picker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2F52CABF35500E355A2 /* fluttertoast.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = fluttertoast.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2F72CABF35500E355A2 /* image_picker_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = image_picker_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2F92CABF35500E355A2 /* package_info_plus.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = package_info_plus.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2FB2CABF35500E355A2 /* path_provider_foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = path_provider_foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2FD2CABF35500E355A2 /* permission_handler_apple.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = permission_handler_apple.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD2FF2CABF35500E355A2 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD3012CABF35500E355A2 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD3032CABF35500E355A2 /* razorpay_flutter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = razorpay_flutter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD3052CABF35500E355A2 /* SDWebImage.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SDWebImage.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD3072CABF35500E355A2 /* shared_preferences_foundation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = shared_preferences_foundation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD3092CABF35500E355A2 /* SwiftyGif.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SwiftyGif.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD30B2CABF35500E355A2 /* Toast.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = Toast.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD30D2CABF35500E355A2 /* url_launcher_ios.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = url_launcher_ios.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD30F2CABF35500E355A2 /* webview_flutter_wkwebview.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = webview_flutter_wkwebview.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		304FD3122CABF4DC00E355A2 /* razorpay_flutter.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = razorpay_flutter.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		30933CCF2C985B0500ABE255 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -76,6 +114,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				80F3443796305EBBA7F21B22 /* Pods_RunnerTests.framework in Frameworks */,
+				00830F5CFC37F3A7E9CCE58C /* Pods_RunnerTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,7 +122,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7F7BAAAE39B7DD25469FFB91 /* Pods_Runner.framework in Frameworks */,
+				304FD3002CABF35500E355A2 /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,6 +153,43 @@
 		5E2E3AFF7143DA144EC39308 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				304FD3122CABF4DC00E355A2 /* razorpay_flutter.framework */,
+				304FD2EF2CABF35500E355A2 /* DKImagePickerController.framework */,
+				304FD2F12CABF35500E355A2 /* DKPhotoGallery.framework */,
+				304FD2F32CABF35500E355A2 /* file_picker.framework */,
+				304FD2F52CABF35500E355A2 /* fluttertoast.framework */,
+				304FD2F72CABF35500E355A2 /* image_picker_ios.framework */,
+				304FD2F92CABF35500E355A2 /* package_info_plus.framework */,
+				304FD2FB2CABF35500E355A2 /* path_provider_foundation.framework */,
+				304FD2FD2CABF35500E355A2 /* permission_handler_apple.framework */,
+				304FD2FF2CABF35500E355A2 /* Pods_Runner.framework */,
+				304FD3012CABF35500E355A2 /* Pods_RunnerTests.framework */,
+				304FD3032CABF35500E355A2 /* razorpay_flutter.framework */,
+				304FD3052CABF35500E355A2 /* SDWebImage.framework */,
+				304FD3072CABF35500E355A2 /* shared_preferences_foundation.framework */,
+				304FD3092CABF35500E355A2 /* SwiftyGif.framework */,
+				304FD30B2CABF35500E355A2 /* Toast.framework */,
+				304FD30D2CABF35500E355A2 /* url_launcher_ios.framework */,
+				304FD30F2CABF35500E355A2 /* webview_flutter_wkwebview.framework */,
+				304FD2CB2CABF32F00E355A2 /* DKImagePickerController.framework */,
+				304FD2CD2CABF32F00E355A2 /* DKPhotoGallery.framework */,
+				304FD2CF2CABF32F00E355A2 /* file_picker.framework */,
+				304FD2D12CABF32F00E355A2 /* fluttertoast.framework */,
+				304FD2D32CABF32F00E355A2 /* image_picker_ios.framework */,
+				304FD2D52CABF32F00E355A2 /* package_info_plus.framework */,
+				304FD2D72CABF32F00E355A2 /* path_provider_foundation.framework */,
+				304FD2D92CABF32F00E355A2 /* permission_handler_apple.framework */,
+				304FD2DB2CABF32F00E355A2 /* Pods_Runner.framework */,
+				304FD2DD2CABF32F00E355A2 /* Pods_RunnerTests.framework */,
+				304FD2DF2CABF32F00E355A2 /* razorpay_flutter.framework */,
+				304FD2E12CABF32F00E355A2 /* Razorpay.xcframework */,
+				304FD2E32CABF32F00E355A2 /* SDWebImage.framework */,
+				304FD2E52CABF32F00E355A2 /* shared_preferences_foundation.framework */,
+				304FD2E72CABF32F00E355A2 /* SwiftyGif.framework */,
+				304FD2E92CABF32F00E355A2 /* Toast.framework */,
+				304FD2EB2CABF32F00E355A2 /* url_launcher_ios.framework */,
+				304FD2ED2CABF32F00E355A2 /* webview_flutter_wkwebview.framework */,
+				304FD2C92CABF31400E355A2 /* razorpay_flutter.framework */,
 				B79C3E4E70B2B7CC8856D493 /* Pods_Runner.framework */,
 				23A6D0FBC4709FD019D73376 /* Pods_RunnerTests.framework */,
 			);
@@ -290,7 +366,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin\n";
 		};
 		5F2E69419B274F54BE73B68B /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -361,7 +437,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
 		};
 		AEEE5331B4A160DAF0D98B7D /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -495,6 +571,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = X8JCSQZDGC;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -686,6 +763,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = X8JCSQZDGC;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -717,6 +795,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = X8JCSQZDGC;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;

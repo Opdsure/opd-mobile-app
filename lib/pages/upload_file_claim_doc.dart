@@ -400,7 +400,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                   scrollDirection: Axis.horizontal,
                                   itemCount: allFiles.length,
                                   itemBuilder: (context,index){
-                                    String ext = allFiles[index].path.split('.')[3];
+                                    String ext = allFiles[index].path.split('.').last;
                                     return InkWell(
                                       onTap: (){
                                         typeController.removePrescription(allFiles[index]);
@@ -571,7 +571,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                   scrollDirection: Axis.horizontal,
                                   itemCount: allFiles.length,
                                   itemBuilder: (context,index){
-                                    String ext = allFiles[index].path.split('.')[3];
+                                    String ext = allFiles[index].path.split('.').last;
                                     return InkWell(
                                       onTap: (){
                                         typeController.removeDocFeeRcpt(allFiles[index]);
@@ -744,7 +744,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                   scrollDirection: Axis.horizontal,
                                   itemCount: allFiles.length,
                                   itemBuilder: (context,index){
-                                    String ext = allFiles[index].path.split('.')[3];
+                                    String ext = allFiles[index].path.split('.').last;
                                     return InkWell(
                                       onTap: (){
                                         typeController.removePharmacyRcpt(allFiles[index]);
@@ -918,7 +918,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                   scrollDirection: Axis.horizontal,
                                   itemCount: allFiles.length,
                                   itemBuilder: (context,index){
-                                    String ext = allFiles[index].path.split('.')[3];
+                                    String ext = allFiles[index].path.split('.').last;
                                     return InkWell(
                                       onTap: (){
                                         typeController.removeLabTestRcpt(allFiles[index]);

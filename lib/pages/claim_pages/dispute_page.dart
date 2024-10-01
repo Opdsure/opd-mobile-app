@@ -154,7 +154,7 @@ class _DisputePageState extends State<DisputePage> {
                               scrollDirection: Axis.horizontal,
                               itemCount: allFiles.length,
                               itemBuilder: (context,index){
-                                String ext = allFiles[index].path.split('.')[3];
+                                String ext = allFiles[index].path.split('.').last;
                                 return InkWell(
                                   onTap: (){
                                     typeController.removePrescription(allFiles[index]);
