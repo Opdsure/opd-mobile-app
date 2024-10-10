@@ -6,6 +6,7 @@ import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/checkout/checkout_page_view.dart';
+import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_sure_app.dart';
@@ -128,10 +129,10 @@ class CheckoutController extends State<CheckoutPage> {
         if (widget.paymentType == PaymentType.buyPlan) {
           final member = await OpdSure.of(context).client.getFamilyMember(update: true);
           if(member!.data!.length > 0){
-            context.go('/home/add-members', extra: {"isUpdate" : true, "member" : member.data![0]});
+            context.go('/home/add-members', extra: {"isUpdate" : true,  "isAddingFirstMember" : true, "member" : member.data![0]});
             await OpdSure.of(context).client.getProfile(update: true);
           }else{
-            context.go('/home/add-members');
+            context.go('/home/add-members', extra: {"isUpdate" : false,  "isAddingFirstMember" : true});
           }
         } else {
           context.go('/home');
@@ -195,10 +196,10 @@ class CheckoutController extends State<CheckoutPage> {
       if (widget.paymentType == PaymentType.buyPlan) {
        final member = await OpdSure.of(context).client.getFamilyMember(update: true);
        if(member!.data!.length > 0){
-         context.go('/home/add-members', extra: {"isUpdate" : true, "member" : member.data![0]});
+         context.go('/home/add-members', extra: {"isUpdate" : true, "isAddingFirstMember" : true, "member" : member.data![0]});
          await OpdSure.of(context).client.getProfile(update: true);
        }else{
-         context.go('/home/add-members');
+         context.go('/home/add-members', extra: {"isUpdate" : false, "isAddingFirstMember" : true});
        }
 
       } else {

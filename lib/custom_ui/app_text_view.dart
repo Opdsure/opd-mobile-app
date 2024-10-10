@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/utils/app_colors.dart';
 
+import '../config/app_config.dart';
+
 class AppTextView extends StatelessWidget {
   final String text;
   final double size;
@@ -36,7 +38,7 @@ class AppTextView extends StatelessWidget {
         textAlign: mTextAlign,
         softWrap: softWrap,
         overflow: textOverflow,
-        textScaler: const TextScaler.linear(0.8),
+        textScaler:  TextScaler.linear(AppConfig.fontSizeFactor),
         style: GoogleFonts.montserrat(
             fontSize: size,
             fontWeight: fontWeight,
@@ -52,7 +54,7 @@ class AppTextView extends StatelessWidget {
           text,
           textAlign: mTextAlign,
           softWrap: softWrap,
-          textScaler: const TextScaler.linear(0.9),
+          textScaler: TextScaler.linear(AppConfig.fontSizeFactor),
           style: GoogleFonts.montserrat(
               fontSize: size,
               fontWeight: fontWeight,

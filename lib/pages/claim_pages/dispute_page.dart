@@ -11,6 +11,7 @@ import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import '../../config/app_config.dart';
 import '../../custom_ui/app_button.dart';
+import '../../custom_ui/app_rich_text.dart';
 import '../../model/file_type_size_model.dart';
 import '../../utils/app_colors.dart';
 import '../../widget/opd_widget.dart';
@@ -31,8 +32,8 @@ class _DisputePageState extends State<DisputePage> {
   TextEditingController remarkCtrl = TextEditingController();
 
   Widget compulsoryField(String text){
-    return Text.rich(
-      TextSpan(
+    return AppRichText(
+      textSpan: TextSpan(
         children: [
           TextSpan(
               text: text,

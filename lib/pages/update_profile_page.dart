@@ -21,7 +21,7 @@ import '../widget/opd_widget.dart';
 
 class UpdateProfilePage extends StatefulWidget{
   final UserProfile? userProfile;
-  UpdateProfilePage(this.userProfile);
+  const UpdateProfilePage(this.userProfile, {super.key});
   @override
   State<UpdateProfilePage> createState() => _UpdateProfilePageState();
 }

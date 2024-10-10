@@ -80,10 +80,12 @@ abstract class AppRoutes {
   AppRoutes();
 
   static final List<RouteBase> routes = [
-    GoRoute(path: '/', redirect: (context, state) =>
-    !OpdSure.of(context).isOnboardScreenActive && !PlatformInfos.isWeb
-        ? "/on_board_screen"
-        : '/login'),
+    GoRoute(
+        path: '/',
+        redirect: (context, state) =>
+            !OpdSure.of(context).isOnboardScreenActive && !PlatformInfos.isWeb
+                ? "/on_board_screen"
+                : '/login'),
     GoRoute(
       path: '/on_board_screen',
       pageBuilder: (context, state) => defaultPageBuilder(
@@ -114,8 +116,14 @@ abstract class AppRoutes {
                       phone: otpMap['phone']),
                 );
               }),
-          GoRoute(path: 'terms',
-          pageBuilder: (context, state) => defaultPageBuilder(context, state, TermsConditionPage(termsType: state.extra as String,)))
+          GoRoute(
+              path: 'terms',
+              pageBuilder: (context, state) => defaultPageBuilder(
+                  context,
+                  state,
+                  TermsConditionPage(
+                    termsType: state.extra as String,
+                  )))
         ]),
     GoRoute(
       path: '/login',
@@ -264,18 +272,26 @@ abstract class AppRoutes {
               }
             },
             redirect: getRedirectNameForHome,
-            pageBuilder: (context, state) => defaultPageBuilder(
-                  context,
-                  state,
-                  OpdThemes.isColumnMode(context)
-                      ? const EmptyPage()
-                      : const DashBoardPage(),
-                ),
+            pageBuilder: (context, state)
+            {
+              ActiveDestination destination = ActiveDestination.home;
+              if(state.extra != null && state.extra!.runtimeType == ActiveDestination){
+                destination = state.extra as ActiveDestination;
+              }
+                  return defaultPageBuilder(
+                    context,
+                    state,
+                    OpdThemes.isColumnMode(context)
+                        ? const EmptyPage()
+                        : DashBoardPage(
+                            destination: destination),
+                  );
+                },
             routes: [
               GoRoute(
                   path: 'book_checkup',
                   pageBuilder: (context, state) => defaultPageBuilder(
-                        context, state, const AllCheckupPage()),
+                      context, state, const AllCheckupPage()),
                   routes: [
                     GoRoute(
                         path: 'add_health_checkup',
@@ -341,6 +357,7 @@ abstract class AppRoutes {
                   pageBuilder: (context, state) {
                     MemberList? member;
                     bool isUpdate = false;
+                    bool isAddingFirstMember = false;
                     if (state.extra != null) {
                       Map<String, dynamic> data =
                           state.extra as Map<String, dynamic>;
@@ -351,14 +368,18 @@ abstract class AppRoutes {
                       if (data['isUpdate'] != null) {
                         isUpdate = data['isUpdate'] as bool;
                       }
+                      if (data['isAddingFirstMember'] != null) {
+                        isAddingFirstMember =
+                            data['isAddingFirstMember'] as bool;
+                      }
                     }
                     return defaultPageBuilder(
                       context,
                       state,
                       AddFamilyDetails(
-                        isUpdate: isUpdate,
-                        member: member,
-                      ),
+                          isUpdate: isUpdate,
+                          member: member,
+                          isAddingFirstMember: isAddingFirstMember),
                     );
                   }),
               GoRoute(
@@ -490,22 +511,19 @@ abstract class AppRoutes {
               GoRoute(
                   path: "file_claim",
                   pageBuilder: (context, state) {
-
                     bool isUpdate = false;
                     ClaimRecords? claim;
                     Map<String, dynamic> extra = {};
-                    if(state.extra != null) {
-                      Map<String, dynamic> extra = state.extra as Map<String, dynamic>;
+                    if (state.extra != null) {
+                      Map<String, dynamic> extra =
+                          state.extra as Map<String, dynamic>;
                       isUpdate = extra['isUpdate'] ?? false;
                       claim = extra['records'];
                     }
                     return defaultPageBuilder(
                       context,
                       state,
-                      FileClaimPage(
-                        records: claim,
-                        isUpdate: isUpdate
-                      ),
+                      FileClaimPage(records: claim, isUpdate: isUpdate),
                     );
                   },
                   routes: [
@@ -518,8 +536,13 @@ abstract class AppRoutes {
                               context,
                               state,
                               UploadFileClaimDoc(
-                                claimId: extra['isUpdate'] as bool ? extra['claimId'] as String : null,
-                                documentMap: extra['isUpdate'] as bool ? extra['documentMap'] as Map<String, dynamic> : null,
+                                claimId: extra['isUpdate'] as bool
+                                    ? extra['claimId'] as String
+                                    : null,
+                                documentMap: extra['isUpdate'] as bool
+                                    ? extra['documentMap']
+                                        as Map<String, dynamic>
+                                    : null,
                                 isUpdate: extra['isUpdate'] as bool,
                                 claimJsonModel:
                                     extra['claimJsonModel'] as ClaimJsonModel,

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../utils/app_colors.dart';
 import 'app_text_view.dart';
@@ -32,7 +33,7 @@ class AppHeader extends StatelessWidget {
               child: IconButton(
                 onPressed: onBackTap ??
                         () {
-                      Navigator.of(context, rootNavigator: false).pop();
+                      context.pop();
                     },
                 icon: const Icon(
                   Icons.arrow_back_ios,

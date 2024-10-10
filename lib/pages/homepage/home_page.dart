@@ -17,6 +17,7 @@ import 'package:opdsure/widget/opd_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../config/app_config.dart';
+import '../../custom_ui/app_rich_text.dart';
 import '../../model/claim_status_model.dart';
 import '../../model/my_claim/my_claims_model.dart';
 
@@ -109,7 +110,7 @@ class HomePage extends StatefulWidget {
         title: 'Health Checkups',
         image: 'assets/images/health.png',
         onTap: (){
-          context.push('/home/book_checkup');
+          callBack!.call(3);
         }),
     OpdService(
         title: 'Ambulance',
@@ -193,8 +194,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     TypeController typeController = Get.put(TypeController());
     return AppBasePage(
       appHeader: AppHomeHeader(
-        title: Text.rich(
-          TextSpan(
+        title: AppRichText(
+          textSpan: TextSpan(
             children: [
               TextSpan(
                   text: 'Welcome, ',
@@ -212,219 +213,161 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
         ),
       ),
-      childContent: ListView(
-        children: [
-          const AppTextView(
-            text: 'Services',
-            color: Colors.black,
-            size: 18.0,
-            fontWeight: FontWeight.w700,
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          SizedBox(
-            height: 180,
-            child: ListView.builder(
-              itemCount: HomePage.serviceTittle(context).length,
-              physics: const BouncingScrollPhysics(),
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index) {
-                return HomeServiceTile(
-                    width: 100,
-                    height: 100,
-                    index : index,
-                    title: HomePage.serviceTittle(context)[index],
-                    onTap: HomePage.serviceTittle(context, callBack: (value){
-                      widget.callback(value);
-                    })[index].onTap
-                );
-              },
+      childContent: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const AppTextView(
+              text: 'Services',
+              color: Colors.black,
+              size: 18.0,
+              fontWeight: FontWeight.w700,
             ),
-          ),
-
-          const SizedBox(
-            height: 10,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const AppTextView(
-                text: 'My Claims',
-                color: Colors.black,
-                size: 18.0,
-                fontWeight: FontWeight.w700,
-              ),
-              InkWell(
-                onTap: () {
-                  widget.callback.call(1);
-                },
-                child: const Row(
-                  children: [
-                    AppTextView(
-                      text: 'View all',
-                      color: Color(0xFF98A2B3),
-                      size: 13.0,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    Icon(
-                      Icons.keyboard_arrow_right_sharp,
-                      color: Color(0xFF98A2B3),
-                    )
-                  ],
+            const SizedBox(
+              height: 5,
+            ),
+            Column(
+              children: [
+                GridView.builder(
+                  itemCount: HomePage.serviceTittle(context).length,
+                  physics: const BouncingScrollPhysics(),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) {
+                    return HomeServiceTile(
+                        width: 100,
+                        height: 100,
+                        index : index,
+                        title: HomePage.serviceTittle(context)[index],
+                        onTap: HomePage.serviceTittle(context, callBack: (value){
+                          widget.callback(value);
+                        })[index].onTap
+                    );
+                  }, gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2, // 2 columns
+                  crossAxisSpacing: 10.0,
+                  mainAxisSpacing: 10.0,
+                  childAspectRatio: 1.0, // Optional: Adjust height-to-width ratio
                 ),
-              )
-            ],
-          ),
-          const SizedBox(
-            height: 5,
-          ),
-          Obx(() {
-            bool refresh = typeController.refreshClaimList.value;
-            return refresh
-                ? FutureBuilder<MyClaimsModel?>(
-                    future: OpdSure.of(context).client.getAllClaims(),
-                    builder: (context, snapshot) {
-                      if (snapshot.data == null) {
-                        return const Center(
-                          child: AppTextView(
-                            text: 'Claims are loading...',
-                          ),
-                        );
-                      } else {
-                        MyClaimsModel? myClaimsModel = snapshot.data;
-                        List<ClaimRecords> listData =
-                            myClaimsModel!.data!.records!;
-                        return listData.isEmpty
-                            ?  const SizedBox(
-                          width: 100,
-                              height: 100,
-                              child: Center(
+                ),
+              ],
+            ),
+        
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const AppTextView(
+                  text: 'My Claims',
+                  color: Colors.black,
+                  size: 18.0,
+                  fontWeight: FontWeight.w700,
+                ),
+                InkWell(
+                  onTap: () {
+                    widget.callback.call(1);
+                  },
+                  child: const Row(
+                    children: [
+                      AppTextView(
+                        text: 'View all',
+                        color: Color(0xFF98A2B3),
+                        size: 13.0,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_right_sharp,
+                        color: Color(0xFF98A2B3),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+            const SizedBox(
+              height: 5,
+            ),
+            Obx(() {
+              bool refresh = typeController.refreshClaimList.value;
+              return refresh
+                  ? FutureBuilder<MyClaimsModel?>(
+                      future: OpdSure.of(context).client.getAllClaims(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data == null) {
+                          return const Center(
+                            child: AppTextView(
+                              text: 'Claims are loading...',
+                            ),
+                          );
+                        } else {
+                          MyClaimsModel? myClaimsModel = snapshot.data;
+                          List<ClaimRecords> listData =
+                              myClaimsModel!.data!.records!;
+                          return listData.isEmpty
+                              ? const Center(
                                   child: AppTextView(
                                     text: 'No Claim Found',
                                   ),
-                                ),
-                            )
-                            : Column(
-                              children: [
-                                SizedBox(
-                                  height: 200,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getTotalClaim, title: 'Total Claims')),
-                                          Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getPendingClaim, title: 'Pending Claims')),
-                                        ],
-                                      ),
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getRejectedClaim, title: 'Rejected Claims')),
-                                          Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getSettledClaim, title: 'Settled Claims')),
-                                        ],
-                                      ),
-                                    ],
+                                )
+                              : Column(
+                                children: [
+                                  SizedBox(
+                                    height: 200,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getTotalClaim, title: 'Total Claims')),
+                                            Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getPendingClaim, title: 'Pending Claims')),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getRejectedClaim, title: 'Rejected Claims')),
+                                            Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getSettledClaim, title: 'Settled Claims')),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                ListView.builder(
-                                    itemCount:
-                                        listData.length > 3 ? 3 : listData.length,
-                                    physics: const NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemBuilder: (context, index) {
-                                      ClaimRecords records = listData[index];
-                                      ClaimStatusModel claimStatusModel =
-                                          ClaimStatusModel().getClaimBuStatus(
-                                              records.status!,
-                                              reSubmit: records.resubmission!);
-                                      ClaimStatusModel disputeClaimStatus =
-                                          ClaimStatusModel()
-                                              .getDisputeClaimBuStatus(
-                                                  records.disputeDetails!);
-                                      return ClaimTile(
-                                          records: records,
-                                          claimStatus: claimStatusModel,
-                                          disputeClaimStatus: disputeClaimStatus);
-                                    },
-                                  ),
-                              ],
-                            );
-                      }
-                    },
-                  )
-                : Container();
-          }),
-        ],
-      ),
-      isFloatingButton: false,
-      floatingContent: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: List.generate(HomePage.icons.length, (int index) {
-          Widget child = Container(
-            height: 70.0,
-            width: 56.0,
-            alignment: FractionalOffset.topCenter,
-            child: ScaleTransition(
-              scale: CurvedAnimation(
-                parent: _controller!,
-                curve: Interval(0.0, 1.0 - index / HomePage.icons.length / 2.0,
-                    curve: Curves.easeOut),
-              ),
-              child: FloatingActionButton(
-                heroTag: null,
-                backgroundColor: AppConfig.primaryColor,
-                mini: true,
-                child: Icon(HomePage.icons[index], color: Colors.white),
-                onPressed: () {
-                  switch (index) {
-                    case 0:
-                      openWhatsapp();
-                      break;
-                    case 1:
-                      openDialerPad();
-                      break;
-                    case 2:
-                      joinWhatsAppGroup();
-                      break;
-                  }
-                },
-              ),
-            ),
-          );
-          return child;
-        }).toList()
-          ..add(
-            FloatingActionButton(
-              heroTag: null,
-              child: AnimatedBuilder(
-                animation: _controller!,
-                builder: (context, child) {
-                  return Transform(
-                    transform:
-                        Matrix4.rotationZ(_controller!.value * 0.5 * math.pi),
-                    alignment: FractionalOffset.center,
-                    child: Icon(_controller!.isDismissed
-                        ? Icons.support_agent_outlined
-                        : Icons.close),
-                  );
-                },
-              ),
-              onPressed: () {
-                if (_controller!.isDismissed) {
-                  _controller!.forward();
-                } else {
-                  _controller!.reverse();
-                }
-              },
-            ),
-          ),
+                                  ListView.builder(
+                                      itemCount:
+                                          listData.length > 3 ? 3 : listData.length,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      shrinkWrap: true,
+                                      itemBuilder: (context, index) {
+                                        ClaimRecords records = listData[index];
+                                        ClaimStatusModel claimStatusModel =
+                                            ClaimStatusModel().getClaimBuStatus(
+                                                records.status!,
+                                                reSubmit: records.resubmission!);
+                                        ClaimStatusModel disputeClaimStatus =
+                                            ClaimStatusModel()
+                                                .getDisputeClaimBuStatus(
+                                                    records.disputeDetails!);
+                                        return ClaimTile(
+                                            records: records,
+                                            claimStatus: claimStatusModel,
+                                            disputeClaimStatus: disputeClaimStatus);
+                                      },
+                                    ),
+                                ],
+                              );
+                        }
+                      },
+                    )
+                  : Container();
+            }),
+          ],
+        ),
       ),
     );
   }

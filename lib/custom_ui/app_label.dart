@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'app_rich_text.dart';
+
 class AppLabel extends StatelessWidget{
   final String? label;
   final bool isCompulsory;
@@ -12,8 +14,8 @@ class AppLabel extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
-    return Text.rich(
-      TextSpan(
+    return AppRichText(
+      textSpan: TextSpan(
         children: [
           TextSpan(
               text: label,

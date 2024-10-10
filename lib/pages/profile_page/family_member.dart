@@ -34,145 +34,150 @@ class FamilyMember extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: ListView.builder(
-                itemCount: controller.memberModel!.data!.length,
-                itemBuilder: (context, index) {
-                  MemberList member = controller.memberModel!.data![index];
-                  ClaimStatusModel profileStatus = ClaimStatusModel().getProfileStatus(member.reviewStatus!);
-                  String actualDob = '';
-                  if (member.dob!.isNotEmpty) {
-                    actualDob = CommonMethods.formatIsoDateString(member.dob!);
-                  }
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 7.5),
-                    child: AppRoundView(
-                      corner: 10.0,
-                      color: AppConfig.roundedViewColor,
-                      mChild: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                AppTextView(
-                                  text:
-                                      '${member.name!} | ${member.relation!.getRelation()}',
-                                  size: 16.0,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    controller.updateFamilyMember(member);
-                                  },
-                                  child: Image.asset(
-                                    'assets/images/edit_pen.png',
-                                    height: 20.0,
-                                    width: 20.0,
-                                  ),
-                                )
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10.0,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const AppTextView(
-                                  text: 'Status',
-                                  size: 16.0,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                ),
-                                Row(
-                                  children: [
-                                    Icon(
-                                      profileStatus.iconData,
-                                      size: 17.0,
-                                      color: profileStatus.statusColor,
-                                    ),
-                                    AppTextView(
-                                      text: profileStatus.statusName!,
-                                      size: 14.0,
-                                      fontWeight: FontWeight.w500,
-                                      color: profileStatus.statusColor!,
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 5.0,
-                            ),
-                            AppKeyValue(
-                              mKey: 'Age',
-                              value: actualDob.isEmpty
-                                  ? ''
-                                  : CommonMethods.calculateAge(DateFormat("dd/MM/yyyy").parse(actualDob)),
-                            ),
-                            const SizedBox(
-                              height: 5.0,
-                            ),
-                            AppKeyValue(
-                              mKey: 'Date of Birth',
-                              value: member.dob == null
-                                  ? ''
-                                  : CommonMethods.formatIsoDateString(member.dob!, isAddTime: true),
-                            ),
-                            const SizedBox(
-                              height: 5.0,
-                            ),
-                            AppKeyValue(
-                              mKey: 'Mobile',
-                              value: '${member.phone!}',
-                            ),
-                            AppKeyValue(
-                              mKey: 'Plan',
-                              value:
-                                  (member.planStatus! == 1) ? 'Paid' : 'Unpaid',
-                            ),
-                            const SizedBox(
-                              height: 5.0,
-                            ),
-                            SizedBox(
-                              width: w * 0.9,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+            child: RefreshIndicator(
+              onRefresh: () async {
+                controller.getProfileData();
+              },
+              child: ListView.builder(
+                  itemCount: controller.memberModel!.data!.length,
+                  itemBuilder: (context, index) {
+                    MemberList member = controller.memberModel!.data![index];
+                    ClaimStatusModel profileStatus = ClaimStatusModel().getProfileStatus(member.reviewStatus!);
+                    String actualDob = '';
+                    if (member.dob!.isNotEmpty) {
+                      actualDob = CommonMethods.formatIsoDateString(member.dob!);
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 7.5),
+                      child: AppRoundView(
+                        corner: 10.0,
+                        color: AppConfig.roundedViewColor,
+                        mChild: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const AppTextView(
-                                    text: 'Address:',
-                                    size: 14.0,
+                                  AppTextView(
+                                    text:
+                                        '${member.name!} | ${member.relation!.getRelation()}',
+                                    size: 16.0,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF344054),
+                                    color: Colors.black,
                                   ),
-                                  member.address == null
-                                      ? Container()
-                                      : SizedBox(
-                                          width: w * 0.55,
-                                          child: AppTextView(
-                                            text: member.address!,
-                                            size: 14.0,
-                                            fontWeight: FontWeight.w500,
-                                            color: const Color(0xFF344054),
-                                            mTextAlign:
-                                                member.address!.length > 30
-                                                    ? TextAlign.start
-                                                    : TextAlign.end,
-                                          ),
-                                        ),
+                                  InkWell(
+                                    onTap: () {
+                                      controller.updateFamilyMember(member);
+                                    },
+                                    child: Image.asset(
+                                      'assets/images/edit_pen.png',
+                                      height: 20.0,
+                                      width: 20.0,
+                                    ),
+                                  )
                                 ],
                               ),
-                            ),
-                          ],
+                              const SizedBox(
+                                height: 10.0,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const AppTextView(
+                                    text: 'Status',
+                                    size: 16.0,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        profileStatus.iconData,
+                                        size: 17.0,
+                                        color: profileStatus.statusColor,
+                                      ),
+                                      AppTextView(
+                                        text: profileStatus.statusName!,
+                                        size: 14.0,
+                                        fontWeight: FontWeight.w500,
+                                        color: profileStatus.statusColor!,
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 5.0,
+                              ),
+                              AppKeyValue(
+                                mKey: 'Age',
+                                value: actualDob.isEmpty
+                                    ? ''
+                                    : CommonMethods.calculateAge(DateFormat("dd/MM/yyyy").parse(actualDob)),
+                              ),
+                              const SizedBox(
+                                height: 5.0,
+                              ),
+                              AppKeyValue(
+                                mKey: 'Date of Birth',
+                                value: member.dob == null
+                                    ? ''
+                                    : CommonMethods.formatIsoDateString(member.dob!, isAddTime: true),
+                              ),
+                              const SizedBox(
+                                height: 5.0,
+                              ),
+                              AppKeyValue(
+                                mKey: 'Mobile',
+                                value: '${member.phone!}',
+                              ),
+                              AppKeyValue(
+                                mKey: 'Plan',
+                                value:
+                                    (member.planStatus! == 1) ? 'Paid' : 'Unpaid',
+                              ),
+                              const SizedBox(
+                                height: 5.0,
+                              ),
+                              SizedBox(
+                                width: w * 0.9,
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const AppTextView(
+                                      text: 'Address:',
+                                      size: 14.0,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF344054),
+                                    ),
+                                    member.address == null
+                                        ? Container()
+                                        : SizedBox(
+                                            width: w * 0.55,
+                                            child: AppTextView(
+                                              text: member.address!,
+                                              size: 14.0,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xFF344054),
+                                              mTextAlign:
+                                                  member.address!.length > 30
+                                                      ? TextAlign.start
+                                                      : TextAlign.end,
+                                            ),
+                                          ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  }),
+            ),
           ),
           AppButton(
             text: 'Add Member',

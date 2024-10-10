@@ -16,6 +16,7 @@ import '../../../custom_ui/app_border_box.dart';
 import '../../../custom_ui/app_button.dart';
 import '../../../custom_ui/app_edit_text.dart';
 import '../../../custom_ui/app_mobile_field.dart';
+import '../../../custom_ui/app_rich_text.dart';
 import '../../../custom_ui/app_text_view.dart';
 import '../../../get_controllers/type_controller.dart';
 import '../../../utils/app_colors.dart';
@@ -121,8 +122,8 @@ class LoginView extends StatelessWidget {
             height: 12.0,
           ),
           Center(
-            child: Text.rich(
-              TextSpan(
+            child: AppRichText(
+              textSpan: TextSpan(
                 children: [
                   TextSpan(
                       text: 'Don’t have an account? ',

@@ -45,12 +45,13 @@ class ProfilePageController extends State<ProfilePage> {
   }
 
   void updateFamilyMember(MemberList member) async {
-    await context.push('/home/add-members', extra: {"isUpdate" : true, "member" : member});
+    await context.push('/home/add-members', extra: {"isUpdate" : true, "member" : member, "isAddingFirstMember" : false});
     getProfileData();
   }
 
   void addFamilyMember() async {
-    await context.push('/home/add-members', extra: {"isUpdate" : false});
+   final result =  await context.push('/home/add-members', extra: {"isUpdate" : false , "isAddingFirstMember" : false});
+   print(result);
     getProfileData();
   }
 }

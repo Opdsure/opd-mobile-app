@@ -32,6 +32,7 @@ import '../config/app_config.dart';
 import '../custom_ui/app_bottom_sheet.dart';
 import '../custom_ui/app_edit_text.dart';
 import '../custom_ui/app_mobile_field.dart';
+import '../custom_ui/app_rich_text.dart';
 import '../custom_ui/app_text_view.dart';
 import '../model/my_claim/my_claims_model.dart';
 import '../model/plans/plans_response.dart';
@@ -272,8 +273,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
   }
 
   Widget compulsoryField(String text) {
-    return Text.rich(
-      TextSpan(
+    return AppRichText(
+      textSpan: TextSpan(
         children: [
           TextSpan(
               text: text,
@@ -297,7 +298,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
     double h = CommonMethods.deviceHeight(context);
     // TODO: implement build
     return AppBasePage(
-      appHeader: AppHeader(
+      appHeader: const AppHeader(
         headerName: 'File a Claim',
       ),
       childContent: ListView(
@@ -335,7 +336,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                                             onTap: () {
                                               Navigator.pop(context);
                                               context.push('/home/add-members',
-                                                  extra: {"isUpdate": false});
+                                                  extra: {"isUpdate": false, "isAddingFirstMember" : false});
                                             },
                                             child: const Center(
                                               child: Column(
@@ -986,8 +987,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
             },
           ),
           const SizedBox(height: 20.0),
-          Text.rich(
-            TextSpan(
+          AppRichText(
+            textSpan: TextSpan(
               children: [
                 TextSpan(
                     text: 'Disclaimer: ',

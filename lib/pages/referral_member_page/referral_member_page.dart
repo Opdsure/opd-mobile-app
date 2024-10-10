@@ -16,7 +16,7 @@ class ReferralMemberPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBasePage(
-      appHeader: AppHeader(headerName: 'Referred Member'),
+      appHeader: const AppHeader(headerName: 'Referred Member'),
       childContent: SizedBox(
         height: CommonMethods.deviceHeight(context),
         width: CommonMethods.deviceWidth(context),
@@ -33,11 +33,19 @@ class ReferralMemberPage extends StatelessWidget {
                 );
               }
               else{
+                if(snapshot.data!.data!.records!.length == 0){
+                  return const Center(
+                    child: AppTextView(
+                        fontWeight: FontWeight.w600,
+                        mTextAlign: TextAlign.center,
+                        text:
+                        "You haven't refer a member."),
+                  );
+                }
                 return ListView.builder(
                     itemCount: snapshot.data!.data!.records!.length,
                     itemBuilder: (context, index) {
                       return AppRoundView(
-
                         isMargin: true,
                         corner: 10.0,
                         color: AppConfig.roundedViewColor,
@@ -45,7 +53,7 @@ class ReferralMemberPage extends StatelessWidget {
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                            children: [
-                             AppKeyValue(mKey: 'Date', value: CommonMethods.formatIsoDateString(snapshot.data!.data!.records![index].createdAt!, isTime: true),),
+                             AppKeyValue(mKey: 'Date', value: CommonMethods.formatIsoDateString(snapshot.data!.data!.records![index].createdAt!, isTime: true, isAddTime: true),),
                              AppKeyValue(mKey: 'Name', value: snapshot.data!.data!.records![index].referName!,),
                              AppKeyValue(mKey: 'Email', value: snapshot.data!.data!.records![index].referEmail!,),
                              AppKeyValue(mKey: 'Phone No.', value: snapshot.data!.data!.records![index].referPhone!,),

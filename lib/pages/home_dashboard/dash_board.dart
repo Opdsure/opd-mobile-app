@@ -11,15 +11,16 @@ enum ActiveDestination { home, claim, referral, checkup, profile }
 
 class DashBoardPage extends StatefulWidget {
   final bool displayNavigationRail;
+  final ActiveDestination destination;
 
-  const DashBoardPage({this.displayNavigationRail = false, super.key});
+  const DashBoardPage({this.displayNavigationRail = false, this.destination = ActiveDestination.home, super.key});
 
   @override
   State<DashBoardPage> createState() => DashBoardPageController();
 }
 
 class DashBoardPageController extends State<DashBoardPage> {
-  ActiveDestination activeDestination = ActiveDestination.home;
+  ActiveDestination? activeDestination;
 
   ActiveDestination getActiveDestinationByIndex(int? i) {
     switch (i) {
@@ -35,6 +36,23 @@ class DashBoardPageController extends State<DashBoardPage> {
         return ActiveDestination.profile;
       default:
         return ActiveDestination.home;
+    }
+  }
+
+  int getActiveIndexByDestination() {
+    switch (activeDestination) {
+      case ActiveDestination.home:
+        return 0;
+      case ActiveDestination.claim:
+        return 1;
+      case ActiveDestination.referral:
+        return 2;
+      case ActiveDestination.checkup:
+        return 3;
+      case ActiveDestination.profile:
+        return 4;
+      default:
+        return 0;
     }
   }
 
@@ -71,6 +89,17 @@ class DashBoardPageController extends State<DashBoardPage> {
           onDestinationSelected(index);
         },);
     }
+  }
+
+  void setDestinationIndex() {
+    activeDestination = widget.destination;
+    onDestinationSelected(getActiveIndexByDestination());
+  }
+
+  @override
+  void initState() {
+    setDestinationIndex();
+    super.initState();
   }
 
   @override

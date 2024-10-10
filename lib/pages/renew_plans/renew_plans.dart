@@ -35,6 +35,15 @@ class RenewPlans extends StatelessWidget {
               );
             }
             else{
+              if(snapshot.data!.data!.records!.length == 0){
+                return const Center(
+                  child: AppTextView(
+                      fontWeight: FontWeight.w600,
+                      mTextAlign: TextAlign.center,
+                      text:
+                      "You haven't renew a plan."),
+                );
+              }
               return ListView.builder(
                 itemCount: snapshot.data!.data!.records!.length,
                   itemBuilder: (context, index) {

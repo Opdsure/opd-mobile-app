@@ -6,6 +6,7 @@ import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../utils/common_methods.dart';
+import '../home_dashboard/dash_board.dart';
 import 'name_email_number_view.dart';
 
 class NameEmailNumber extends StatefulWidget {
@@ -79,7 +80,7 @@ class NameEmailNumberController extends State<NameEmailNumber> {
     );
     if (response != null) {
       await opd.client.getProfile(update: true);
-      context.pushReplacement('/home');
+      context.pushReplacement('/home', extra:  ActiveDestination.home);
     } else {}
   }
 

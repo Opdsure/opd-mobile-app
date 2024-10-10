@@ -24,12 +24,14 @@ import 'package:opdsure/widget/opd_widget.dart';
 
 import '../../custom_ui/app_mobile_field.dart';
 import '../../model/my_member_model.dart';
+import '../home_dashboard/dash_board.dart';
 
 class AddFamilyDetails extends StatefulWidget {
   final MemberList? member;
   final bool isUpdate;
+  final bool isAddingFirstMember;
 
-  const AddFamilyDetails({this.member, this.isUpdate = false, super.key});
+  const AddFamilyDetails({this.member, this.isUpdate = false, this.isAddingFirstMember = false, super.key});
 
   @override
   State<AddFamilyDetails> createState() => _AddFamilyDetailsState();
@@ -110,11 +112,19 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
           color: const Color(0xFF475467),
           size: 16.0,
           onClick: () {
-            context.go('/home');
+            if(widget.isAddingFirstMember){
+              context.go('/home', extra:  ActiveDestination.home);
+            }else{
+              context.pop();
+            }
           },
         ),
         onBackTap: () {
-          context.go('/home');
+          if(widget.isAddingFirstMember){
+            context.go('/home', extra:  ActiveDestination.home);
+          }else{
+            context.pop();
+          }
         },
       ),
       childContent: ListView(
@@ -520,7 +530,6 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                     address: addressCtrl.text);
               }
               Navigator.of(context).pop();
-              print(data);
               Map<String, dynamic> resMap = jsonDecode(data);
               if (resMap['success']) {
                 FocusScope.of(context).unfocus();
@@ -542,7 +551,11 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
                           'Details updated successfully, We have received your request. We will revert back to you',
                       okCallBack: (context1) {
                     Navigator.of(context1, rootNavigator: true).pop();
-                    context.go('/home');
+                    if(widget.isAddingFirstMember){
+                      context.go('/home', extra:  ActiveDestination.home);
+                    }else{
+                      context.pop();
+                    }
                   });
                 } else {
                   CommonMethods.showToast('Member Added successfully');

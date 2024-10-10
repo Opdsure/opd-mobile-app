@@ -31,11 +31,16 @@ class PendingFamilyMember extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
             Expanded(
-                child: ListView.builder(
-                    itemCount: controller.updateMember!.data!.length,
-                    itemBuilder: (context, index) {
-                     return MemberTile(controller.updateMember!.data![index]);
-                    }))
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    controller.getProfileData();
+                  },
+                  child: ListView.builder(
+                      itemCount: controller.updateMember!.data!.length,
+                      itemBuilder: (context, index) {
+                       return MemberTile(controller.updateMember!.data![index]);
+                      }),
+                ))
         ],
       );
     }

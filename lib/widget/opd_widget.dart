@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/app_config.dart';
+import '../pages/home_dashboard/dash_board.dart';
 import '../utils/logs/logs.dart';
 import '../utils/opd_extension/account_bundles.dart';
 typedef ValueCallback = void Function(int value);
@@ -164,7 +165,7 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
         );
         _registerSub(_loginClientCandidate!.clientName);
         _loginClientCandidate = null;
-        OpdSureApp.router.go('/home');
+        OpdSureApp.router.go('/home', extra:  ActiveDestination.home);
       });
     return candidate;
   }

@@ -9,6 +9,7 @@ import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/pages/terms_condition_page.dart';
 import '../../config/app_config.dart';
+import '../../custom_ui/app_rich_text.dart';
 import '../../utils/app_colors.dart';
 
 class SignUpView extends StatelessWidget {
@@ -108,8 +109,8 @@ class SignUpView extends StatelessWidget {
                 },
                 child: SizedBox(
                   height: 20,
-                  child: Text.rich(
-                    TextSpan(
+                  child: AppRichText(
+                    textSpan: TextSpan(
                       children: [
                         TextSpan(
                             text: 'I agree to the ',
@@ -165,8 +166,8 @@ class SignUpView extends StatelessWidget {
             height: 24.0,
           ),
           Center(
-            child: Text.rich(
-              TextSpan(
+            child: AppRichText(
+              textSpan: TextSpan(
                 children: [
                   TextSpan(
                       text: 'Already have an account? ',

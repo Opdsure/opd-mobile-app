@@ -8,6 +8,7 @@ class AppBasePage extends StatelessWidget {
   final Widget? bottomContent;
   final bool isFloatingButton;
   final bool isBottomContent;
+  final bool isAddBottomPadding;
   final Widget? floatingContent;
 
   const AppBasePage({
@@ -17,6 +18,7 @@ class AppBasePage extends StatelessWidget {
     required this.childContent,
     this.isFloatingButton = false,
     this.isBottomContent = false,
+    this.isAddBottomPadding = false,
     this.floatingContent,
   });
 
@@ -38,6 +40,7 @@ class AppBasePage extends StatelessWidget {
             Expanded(
               child: childContent,
             ),
+            if(isAddBottomPadding)...[const SizedBox(height: 20,)]
           ],
         ),
       ),

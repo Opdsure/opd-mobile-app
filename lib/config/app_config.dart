@@ -6,7 +6,7 @@ abstract class AppConfig{
   // static String _defaultBaseUrl = 'stage.opdsure.net';
   static String _defaultBaseUrl = 'dev.opdsure.net';
   static String get defaultBaseUrl => _defaultBaseUrl;
-  static double fontSizeFactor = 1;
+  static double fontSizeFactor = 01;
   static Color? colorSchemeSeed = primaryColor;
   static const Color primaryColor = Color(0xff233672);
   static const Color primaryColorLight = Color(0xFFebf3ff);

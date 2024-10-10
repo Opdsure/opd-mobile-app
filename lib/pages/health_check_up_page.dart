@@ -17,6 +17,7 @@ import '../custom_ui/app_border_box.dart';
 import '../custom_ui/app_bottom_sheet.dart';
 import '../custom_ui/app_edit_text.dart';
 import '../custom_ui/app_header.dart';
+import '../custom_ui/app_rich_text.dart';
 import '../custom_ui/app_text_view.dart';
 import '../model/my_member_model.dart';
 import '../utils/app_colors.dart';
@@ -36,8 +37,8 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
   List<ValueItem> allValueList = [];
 
   Widget compulsoryField(String text){
-    return Text.rich(
-      TextSpan(
+    return AppRichText(
+      textSpan: TextSpan(
         children: [
           TextSpan(
               text: text,
@@ -92,7 +93,7 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
                           mChild: memberList!.isEmpty?InkWell(
                             onTap: (){
                               Navigator.pop(context);
-                              context.push('/home/add-members', extra: {"isUpdate" : false});
+                              context.push('/home/add-members', extra: {"isUpdate" : false, "isAddingFirstMember" : false});
                             },
                             child: const Center(
                               child: Column(

@@ -80,8 +80,9 @@ class ClaimTile extends StatelessWidget {
                 color: const Color(0xFF667085),
                 fontWeight: FontWeight.w500,
               ),
-              Text.rich(
-                TextSpan(
+              RichText(
+                  textScaler: const TextScaler.linear(1),
+                text: TextSpan(
                   children: [
                     TextSpan(
                         text:

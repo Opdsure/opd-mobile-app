@@ -51,7 +51,7 @@ class ProfilePageView extends StatelessWidget {
                   ),
                   Tab(
                     child: AppTextView(text: 'Pending for approval', size: 12, fontWeight: FontWeight.bold,),
-                    
+
                   ),
                 ],
                 indicatorSize: TabBarIndicatorSize.tab,
