@@ -20,8 +20,7 @@ class PlansPageView extends StatelessWidget {
   final PlansPageController controller;
 
   const PlansPageView(this.controller, {super.key});
-
-  final Color textColor = const Color(0xFF8A48B3);
+  
 
   Widget commonRow(BuildContext context, String imgUri, String desc) {
     double w = CommonMethods.deviceWidth(context);
@@ -88,7 +87,7 @@ class PlansPageView extends StatelessWidget {
                               controller.familyOptions == null)
                           ? 'Select Member'
                           : '₹ ${CommonMethods.amountFormater((controller.options!.charges! + ((controller.options!.charges!) * 18) / 100).toStringAsFixed(0))}',
-                      color: textColor,
+                      color: AppConfig.primaryColor,
                       size: (!controller.isIndividual &&
                               controller.familyOptions == null)
                           ? 16.0
@@ -97,7 +96,7 @@ class PlansPageView extends StatelessWidget {
                     ),
                     AppTextView(
                       text: '(incl GST 18%)',
-                      color: textColor,
+                      color: AppConfig.primaryColor,
                       size: 12.0,
                       fontWeight: FontWeight.w500,
                     )
@@ -111,24 +110,24 @@ class PlansPageView extends StatelessWidget {
                         children: [
                           AppTextView(
                             text: controller.planType,
-                            color: textColor,
+                            color: AppConfig.primaryColor,
                             fontWeight: FontWeight.w500,
                           ),
                           Switch(
                             value: controller.isIndividual,
                             onChanged: controller.toggleIndividual,
-                            activeTrackColor: textColor,
-                            inactiveTrackColor: textColor,
+                            activeTrackColor: AppConfig.primaryColor,
+                            inactiveTrackColor: AppConfig.primaryColor,
                             trackOutlineColor: controller.isIndividual
                                 ? null
-                                : WidgetStatePropertyAll<Color>(textColor),
+                                : WidgetStatePropertyAll<Color>(AppConfig.primaryColor),
                             inactiveThumbColor: Colors.white,
                             thumbIcon: WidgetStatePropertyAll<Icon>(
                               Icon(
                                 controller.isIndividual
                                     ? Icons.person
                                     : Icons.family_restroom,
-                                color: textColor,
+                                color: AppConfig.primaryColor,
                               ),
                             ),
                           ),
@@ -138,7 +137,7 @@ class PlansPageView extends StatelessWidget {
                         text:
                         controller.isIndividual ? 'Add family member' : 'Back to individual',
                         size: 12,
-                        color: textColor,
+                        color: AppConfig.primaryColor,
                       ),
                     ],
                   ),
@@ -161,7 +160,7 @@ class PlansPageView extends StatelessWidget {
               width: CommonMethods.deviceWidth(context),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                  color: textColor.withOpacity(0.12),
+                  color: AppConfig.primaryColor.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12)),
               child: RichText(
                 textAlign: TextAlign.center,
@@ -170,7 +169,7 @@ class PlansPageView extends StatelessWidget {
                     TextSpan(
                       text: 'Your total OPD wallet balance ',
                       style: GoogleFonts.montserrat(
-                          color: textColor,
+                          color: AppConfig.primaryColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w500),
                     ),
@@ -178,7 +177,7 @@ class PlansPageView extends StatelessWidget {
                       text:
                           '$rupeeSymbol ${CommonMethods.amountFormater(controller.options!.walletBalance!.toString())}',
                       style: GoogleFonts.montserrat(
-                          color: textColor,
+                          color: AppConfig.primaryColor,
                           fontSize: 16,
                           fontWeight: FontWeight.w700),
                     ),
@@ -223,7 +222,7 @@ class PlansPageView extends StatelessWidget {
                     return ListTile(
                       leading: Icon(
                         Icons.verified,
-                        color: textColor,
+                        color: AppConfig.primaryColor,
                       ),
                       title: AppTextView(
                         color: Colors.black,

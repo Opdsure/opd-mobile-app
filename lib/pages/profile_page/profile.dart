@@ -257,6 +257,31 @@ class Profile extends StatelessWidget {
             ),
             AppRoundView(
               onClick: () {
+                context.push('/home/free-health-plan');
+              },
+              corner: 10.0,
+              color: AppConfig.roundedViewColor,
+              mChild: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    AppTextView(
+                      text: 'Booked Free Health Checkup ',
+                      size: 16.0,
+                      color: AppConfig.primaryColor,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    Icon(Icons.chevron_right, color: AppConfig.primaryColor)
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10.0,
+            ),
+            AppRoundView(
+              onClick: () {
                 context.push('/home/referral-member');
               },
               corner: 10.0,

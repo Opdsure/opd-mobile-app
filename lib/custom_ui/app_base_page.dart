@@ -33,15 +33,20 @@ class AppBasePage extends StatelessWidget {
         child: SafeArea(child: appHeader!),
       )
           : null,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: childContent,
-            ),
-            if(isAddBottomPadding)...[const SizedBox(height: 20,)]
-          ],
+      body: GestureDetector(
+        onTap: (){
+          FocusNode().unfocus();
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          child: Column(
+            children: [
+              Expanded(
+                child: childContent,
+              ),
+              if(isAddBottomPadding)...[const SizedBox(height: 20,)]
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: isBottomContent ? bottomContent : null,

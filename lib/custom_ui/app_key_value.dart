@@ -11,12 +11,11 @@ class AppKeyValue extends StatelessWidget {
   const AppKeyValue(
       {super.key, this.mKey = '',
       this.value = '',
-      this.keyColor = const Color(0xFF344054),
-      this.valueColor = const Color(0xFF344054)});
+      this.keyColor = const Color(0xFF000000),
+      this.valueColor = const Color(0xFF000000)});
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

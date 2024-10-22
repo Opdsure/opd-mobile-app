@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opdsure/custom_ui/app_button.dart';
+import 'package:opdsure/custom_ui/app_key_value.dart';
 import 'package:opdsure/model/buy_health_plan/buy_health_plan.dart';
 import 'package:opdsure/model/update_member/update_member.dart';
 
@@ -17,7 +19,7 @@ class HealthPlans extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBasePage(
-      appHeader: AppHeader(headerName: 'Health Plan'),
+      appHeader: const AppHeader(headerName: 'Health Plan'),
       childContent: FutureBuilder<BuyHealthPlan>(
           future: OpdSure.of(context).client.getPurchasedHealtchekupPlans(),
           builder: (context, snapshot) {
@@ -45,18 +47,25 @@ class HealthPlans extends StatelessWidget {
                   itemBuilder: (context, index) {
                     return AppRoundView(
                       isMargin: true,
+                      isPadding: true,
                       corner: 10.0,
                       color: AppConfig.roundedViewColor,
-                      mChild: ListTile(
-                        onTap: () async {
-                          CommonMethods.showAlertDialog(context);
-                          final plan = await OpdSure.of(context).client.getHealthPlanById(snapshot.data!.data!.records![index].healthPlan!.id!);
-                          context.pop();
-                          context.push('/home/health_checkup_details', extra: {"plan" : plan, "isView" : true});
-                        },
-                        title: AppTextView(text: snapshot.data!.data!.records![index].healthPlan!.name!,),
-                        subtitle: AppTextView(text: 'Total no of test ${snapshot.data!.data!.records![index].healthPlan!.parameters!}',),
-                      ),
+                      mChild: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          AppTextView(text: snapshot.data!.data!.records![index].healthPlan!.name!, fontWeight: FontWeight.bold,),
+                          AppKeyValue(mKey: 'Price paid', value: '${snapshot.data!.data!.records![index].paidPrice!}/-',),
+                          AppKeyValue(mKey: 'Purchased on', value: CommonMethods.formatIsoDateString(snapshot.data!.data!.records![index].createdAt!),),
+
+                          if(!snapshot.data!.data!.records![index].detailsSubmitted!)...[
+                            const SizedBox(height: 10,),
+                            AppButton(
+                              onClick: (){
+                                context.push('/home/health-plan/add-patient-details', extra: snapshot.data!.data!.records![index].id!);
+                              },
+                                text: 'Submit Patient Details')]
+                        ],
+                      )
                     );
                   });
             }

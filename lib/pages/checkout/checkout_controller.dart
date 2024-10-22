@@ -134,7 +134,9 @@ class CheckoutController extends State<CheckoutPage> {
           }else{
             context.go('/home/add-members', extra: {"isUpdate" : false,  "isAddingFirstMember" : true});
           }
-        } else {
+        } else if(widget.paymentType == PaymentType.buyHealthCheckup){
+          context.go('/home/add-patient-details');
+        }else{
           context.go('/home');
         }
       } else {
@@ -202,6 +204,8 @@ class CheckoutController extends State<CheckoutPage> {
          context.go('/home/add-members', extra: {"isUpdate" : false, "isAddingFirstMember" : true});
        }
 
+      } else if(widget.paymentType == PaymentType.buyHealthCheckup){
+        context.go('/home/add-patient-details');
       } else {
         context.pop();
         OpdSureApp.router.go('/home');

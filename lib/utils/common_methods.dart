@@ -113,7 +113,7 @@ class CommonMethods{
     return showDialog(
         context: context,
         barrierDismissible: shouldDismiss,
-        builder: (BuildContext context) {
+        builder: (BuildContext context1) {
           return MediaQuery(
             data: MediaQuery.of(context).copyWith(
                 textScaler:
@@ -160,9 +160,9 @@ class CommonMethods{
                             width: 120,
                             onClick: () {
                               if(cancelCallBack == null){
-                                Navigator.pop(context);
+                                Navigator.pop(context1);
                               }else{
-                                cancelCallBack.call(context);
+                                cancelCallBack.call(context1);
                               }
                             },
                             text: negativeButton,
@@ -173,9 +173,9 @@ class CommonMethods{
                             width: !isCancelButton ? 240 : 120,
                             onClick: () {
                               if(okCallBack == null){
-                                Navigator.pop(context);
+                                Navigator.pop(context1);
                               }else{
-                                okCallBack.call(context);
+                                okCallBack.call(context1);
                               }
                             },
                             text: positiveButton,
@@ -405,7 +405,7 @@ class CommonMethods{
       result += ' $days d';
     }
 
-    return result.trim(); // Trim to remove any trailing spaces
+    return result.isEmpty ? '0 Days' :  result.trim(); // Trim to remove any trailing spaces
   }
 
 

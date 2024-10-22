@@ -7,6 +7,7 @@ import 'package:opdsure/model/QueuedPlans/quequed_plans.dart';
 import 'package:opdsure/model/buy_health_plan/buy_health_plan.dart';
 import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
+import 'package:opdsure/model/free_health_test_model/free_health_test_model.dart';
 import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/login/login_response.dart';
 import 'package:opdsure/model/mFine/m_fine.dart';
@@ -23,6 +24,7 @@ import 'package:opdsure/pages/checkout/checkout_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
 
 import '../../config/app_config.dart';
+import '../../model/free_health_checkups/free_health_checkups_model.dart';
 import '../../model/my_claim/my_claims_model.dart';
 import '../../model/my_member_model.dart';
 import '../../model/plans/plans_response.dart';
@@ -80,6 +82,14 @@ class Api {
         return Uri(path: 'api/v1/user/create-plan-upgrade-orders');
       case PaymentType.planRenew:
         return Uri(path: 'api/v1/user/create-plan-renew-orders');
+    }
+  }
+
+  Uri _getCollectionApi({String? healthPlanId}){
+    if(healthPlanId != null){
+      return Uri(path: 'api/v1/user/collection-details/$healthPlanId');
+    }else{
+      return Uri(path: 'api/v1/user/collection-details');
     }
   }
 
@@ -424,18 +434,21 @@ class Api {
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
+
     return responseString;
   }
 
-  Future getHealthTest() async {
-    final requestUri = Uri(path: 'api/v1/public/get-health-tests');
+  Future<FreeHealthTestModel?> getHealthTest() async {
+    final requestUri = Uri(path: 'api/v1/user/get-free-health-tests');
     final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['Authorization'] = 'Bearer $bearerToken';
     request.headers['content-type'] = 'application/json';
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    return responseString;
+    final json = jsonDecode(responseString);
+    return FreeHealthTestModel.fromJson(json);
   }
 
   Future fileAClaim(String jsonData) async {
@@ -622,8 +635,9 @@ class Api {
 
   Future addHealthCheckup({
     String? memberId,
-    List<int>? checkupFor,
+    List<String>? checkupFor,
     String? message,
+    required String? appointmentDataTime,
   }) async {
     final requestUri = Uri(path: 'api/v1/user/add-health-checkup');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
@@ -632,7 +646,8 @@ class Api {
     request.bodyBytes = utf8.encode(jsonEncode({
       "member_id": memberId,
       "checkup_for": checkupFor,
-      "message": message
+      "message": message,
+      "appointment" : appointmentDataTime
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -668,6 +683,27 @@ class Api {
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
     return responseString;
+  }
+
+  Future<QueuedPlans?> collectSampleCollectionData({required String patientName, required int age, required int gender, required String address, required int pinCode, required String appointment, String? healthPlanId}) async {
+    final requestUri = _getCollectionApi(healthPlanId: healthPlanId);
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8.encode(jsonEncode({
+      "patient_name" : patientName,
+      "age" : age,
+      "gender" : gender,
+      "address" : address,
+      "pincode" : pinCode,
+      "appointment" : pinCode
+    }));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return QueuedPlans.fromJson(json);
   }
 
   Future<QueuedPlans> getQueuedPlans() async {
@@ -720,6 +756,19 @@ class Api {
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return BuyHealthPlan.fromJson(json);
+  }
+
+  Future<FreeHealthCheckupsModel?> getFreeHealthCheckup() async {
+    final requestUri = Uri(path: 'api/v1/user/get-health-checkups');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return FreeHealthCheckupsModel.fromJson(json);
   }
 
   Future<UpdateMember> getRequestedMembers() async {

@@ -16,6 +16,7 @@ import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/file_claim_page.dart';
 import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
+import 'package:opdsure/pages/free_health_tests/free_health_tests.dart';
 import 'package:opdsure/pages/health_check_up/health_checkup_details/health_checkup_details_controller.dart';
 import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 import 'package:opdsure/pages/login/login_page/login_controller.dart';
@@ -29,6 +30,7 @@ import 'package:opdsure/pages/referral_member_page/referral_member_page.dart';
 import 'package:opdsure/pages/referral_page.dart';
 import 'package:opdsure/pages/renew_plans/renew_plans.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
+import 'package:opdsure/pages/submit_patient_details/submit_patient_details.dart';
 import 'package:opdsure/pages/terms_condition_page.dart';
 import 'package:opdsure/pages/update_profile_page.dart';
 import 'package:opdsure/pages/wallet_page.dart';
@@ -153,7 +155,7 @@ abstract class AppRoutes {
       path: '/view_plans',
       pageBuilder: (context, state) {
         PaymentType type;
-        if (state.extra != null) {
+        if (state.extra != null && state.extra.runtimeType == PaymentType) {
           type = state.extra as PaymentType;
         } else {
           type = PaymentType.buyPlan;
@@ -345,6 +347,27 @@ abstract class AppRoutes {
                   pageBuilder: (context, state) {
                     return defaultPageBuilder(
                         context, state, const HealthPlans());
+                  },
+                routes: [
+                  GoRoute(
+                      path: 'add-patient-details',
+                    pageBuilder: (context, state) {
+                    return defaultPageBuilder(context, state, SubmitPatientDetails(healthCheckupId: state.extra as String?,));
+                    }
+                  )
+                ]
+              ),
+              GoRoute(
+                  path: 'add-patient-details',
+                  pageBuilder: (context, state) {
+                    return defaultPageBuilder(context, state, SubmitPatientDetails(healthCheckupId: state.extra as String?,));
+                  }
+              ),
+              GoRoute(
+                  path: 'free-health-plan',
+                  pageBuilder: (context, state) {
+                    return defaultPageBuilder(
+                        context, state, const FreeHealthTests());
                   }),
               GoRoute(
                   path: 'referral-member',

@@ -59,7 +59,7 @@ class HomePage extends StatefulWidget {
         onTap: () async {
           CommonMethods.showAlertDialog(context);
           final opd = OpdSure.of(context);
-          if(opd.profileData!.plan!.isPlanActive){
+          if(opd.profileData!.plan!.purchased!){
             try {
               final mfine = await opd.client.mFine();
               Navigator.of(context).pop();
@@ -110,7 +110,16 @@ class HomePage extends StatefulWidget {
         title: 'Health Checkups',
         image: 'assets/images/health.png',
         onTap: (){
-          callBack!.call(3);
+          final opd = OpdSure.of(context);
+          if(opd.profileData!.plan!.purchased!){
+            context.push('/home/book_checkup/add_health_checkup');
+          }else{
+            Navigator.of(context).pop();
+            CommonMethods.customAlertBox(context,
+              title: 'Alert',
+              message: "You don't have a valid plan to book . Please purchase a plan first.",
+            );
+          }
         }),
     OpdService(
         title: 'Ambulance',

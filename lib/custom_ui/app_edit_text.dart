@@ -24,7 +24,10 @@ class AppEditText extends StatelessWidget {
   final ValueChanged<String>? mOnChanged;
   final String errorMessage;
   final bool showErrorMessage;
+  final bool expands;
   final int? maxLength;
+  final int? maxLines;
+  final int? minLines;
   final List<TextInputFormatter>? inputFormatters;
 
   const AppEditText({
@@ -44,7 +47,10 @@ class AppEditText extends StatelessWidget {
     this.mOnChanged,
     this.errorMessage = '',
     this.showErrorMessage = false,
+    this.expands = false,
     this.maxLength,
+    this.maxLines = 1,
+    this.minLines,
     this.inputFormatters,
   });
 
@@ -62,6 +68,9 @@ class AppEditText extends StatelessWidget {
               style: GoogleFonts.montserrat(fontSize: size, color: color),
               obscureText: isViewPassword,
               maxLength: maxLength,
+              minLines: minLines,
+              maxLines: maxLines,
+              expands: expands,
               textAlignVertical: TextAlignVertical.center,
               onChanged: mOnChanged,
               inputFormatters: inputFormatters,

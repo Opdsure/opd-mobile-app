@@ -470,31 +470,23 @@ class _FileClaimPageState extends State<FileClaimPage> {
               showDate = CommonMethods.changeDateFormat(date,
                   from: 'yyyy-MM-dd', to: 'dd/MM/yyyy');
             }
-            return Stack(
-              children: [
-                AppEditText(
-                  hint: date.isEmpty ? 'Enter OPD Visit Date' : showDate,
-                  disableText: true,
-                  viewSuffix: true,
-                  suffixWidget: const Icon(
-                    Icons.calendar_today_outlined,
-                    color: Color(0xff667085),
-                    size: 24.0,
-                  ),
-                  eyeCallback: () {
-                    _selectDate(context, typeController);
-                  },
+            return InkWell(
+              onTap: () {
+                _selectDate(context, typeController);
+              },
+              child: AppEditText(
+                hint: date.isEmpty ? 'Enter OPD Visit Date' : showDate,
+                disableText: true,
+                viewSuffix: true,
+                suffixWidget: const Icon(
+                  Icons.calendar_today_outlined,
+                  color: Color(0xff667085),
+                  size: 24.0,
                 ),
-                InkWell(
-                  onTap: () {
-                    _selectDate(context, typeController);
-                  },
-                  child: SizedBox(
-                    height: 40,
-                    width: w * 0.8,
-                  ),
-                )
-              ],
+                eyeCallback: () {
+                  _selectDate(context, typeController);
+                },
+              ),
             );
           }),
           const SizedBox(height: 15.0),
@@ -517,7 +509,6 @@ class _FileClaimPageState extends State<FileClaimPage> {
           const SizedBox(height: 15.0),
           const AppTextView(
             text: 'Specialization',
-            size: 14.0,
             fontWeight: FontWeight.w500,
             color: Color(0xFF1D2939),
           ),

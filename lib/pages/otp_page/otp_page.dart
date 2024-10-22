@@ -114,7 +114,7 @@ class OtpPageView extends StatelessWidget{
                 textSpan: TextSpan(
                   children: [
                     TextSpan(
-                        text: 'Don’t receive the OTP? ',
+                        text: "Didn't receive the OTP? ",
                         style: GoogleFonts.montserrat()
                     ),
                     TextSpan(

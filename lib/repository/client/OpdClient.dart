@@ -126,7 +126,7 @@ class OpdClient extends OpdApi {
       }
       await getProfile(update: true);
       await getAllPlans(update: true, isUpgrade: false);
-      isPlanPurchased = isPlanBuy = profileData!.plan!.purchased!;
+      isPlanPurchased = isPlanBuy = profileData!.firstPlanPurchase! == 1;
 
       final database = this.database;
       if (database != null) {
@@ -313,7 +313,7 @@ class OpdClient extends OpdApi {
       if (update) {
         userProfile = await super.getProfile();
         await database.updateUserProfile(userProfile: userProfile);
-        await updatePlanPurchasedStatus(userProfile.data!.plan!.purchased!);
+        await updatePlanPurchasedStatus(userProfile.data!.firstPlanPurchase! == 1);
         profileData = userProfile.data!;
         return userProfile;
       }

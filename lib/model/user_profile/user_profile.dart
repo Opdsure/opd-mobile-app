@@ -62,7 +62,8 @@ class ProfileData {
       String? organizationId, 
       String? profileImage, 
       String? name,
-  int? walletBalance}){
+  int? walletBalance,
+  int? firstPlanPurchase}){
     _verified = verified;
     _plan = plan;
     _id = id;
@@ -79,6 +80,7 @@ class ProfileData {
     _profileImage = profileImage;
     _name = name;
     _walletBalance = walletBalance;
+    _firstPlanPurchase = firstPlanPurchase;
 }
 
   ProfileData.fromJson(dynamic json) {
@@ -107,6 +109,7 @@ class ProfileData {
     _profileImage = json['profile_image'];
     _name = json['name'];
     _walletBalance = json['wallet_balance'];
+    _firstPlanPurchase = json['first_plan_purchase'];
   }
 
   @HiveField(0)
@@ -141,6 +144,8 @@ class ProfileData {
   String? _name;
   @HiveField(15)
   int? _walletBalance;
+  @HiveField(16)
+  int? _firstPlanPurchase;
 
   Verified? get verified => _verified ?? Verified();
   Plan? get plan => _plan ?? Plan();
@@ -158,6 +163,7 @@ class ProfileData {
   String? get profileImage => _profileImage ?? "";
   String? get name => _name ?? "";
   int? get walletBalance => _walletBalance ?? 0;
+  int? get firstPlanPurchase => _firstPlanPurchase ?? 0;
 
 
   Map<String, dynamic> toJson() {
@@ -182,6 +188,7 @@ class ProfileData {
     map['profile_image'] = _profileImage;
     map['name'] = _name;
     map['wallet_balance'] = _walletBalance;
+    map['first_plan_purchase'] = _walletBalance;
     return map;
   }
 
@@ -295,13 +302,7 @@ class Plan {
   String? get startDate => _startDate ?? '';
   String? get endDate => _endDate ?? '';
 
-  bool get isPlanActive {
-    if(endDate == ''){
-      return false;
-    }
-    DateTime endDateTime = DateTime.parse(endDate!);
-    return endDateTime.isAfter(DateTime.now());
-  }
+
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
