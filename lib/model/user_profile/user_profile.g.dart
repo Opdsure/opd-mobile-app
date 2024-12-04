@@ -61,7 +61,7 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       .._id = fields[2] as String?
       .._phone = fields[3] as String?
       .._email = fields[4] as String?
-      .._state = fields[5] as int?
+      .._state = fields[5] as dynamic?
       .._city = fields[6] as String?
       .._pinCode = fields[7] as int?
       .._address = fields[8] as String?
@@ -71,13 +71,14 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       .._organizationId = fields[12] as String?
       .._profileImage = fields[13] as String?
       .._name = fields[14] as String?
-      .._walletBalance = fields[15] as int?;
+      .._walletBalance = fields[15] as int?
+      .._firstPlanPurchase = fields[16] as int?;
   }
 
   @override
   void write(BinaryWriter writer, ProfileData obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj._verified)
       ..writeByte(1)
@@ -109,7 +110,9 @@ class ProfileDataAdapter extends TypeAdapter<ProfileData> {
       ..writeByte(14)
       ..write(obj._name)
       ..writeByte(15)
-      ..write(obj._walletBalance);
+      ..write(obj._walletBalance)
+      ..writeByte(16)
+      ..write(obj._firstPlanPurchase);
   }
 
   @override

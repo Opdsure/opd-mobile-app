@@ -52,18 +52,18 @@ class ProfileData {
       String? id, 
       String? phone,
       String? email, 
-      int? state, 
+      dynamic state, 
       String? city, 
-      int? pinCode, 
+      dynamic pinCode, 
       String? address, 
       String? countryCode, 
-      int? gender, 
+      dynamic gender, 
       String? dob, 
       String? organizationId, 
       String? profileImage, 
       String? name,
-  int? walletBalance,
-  int? firstPlanPurchase}){
+  dynamic walletBalance,
+  dynamic firstPlanPurchase}){
     _verified = verified;
     _plan = plan;
     _id = id;
@@ -123,17 +123,17 @@ class ProfileData {
   @HiveField(4)
   String? _email;
   @HiveField(5)
-  int? _state;
+  dynamic _state;
   @HiveField(6)
   String? _city;
   @HiveField(7)
-  int? _pinCode;
+  dynamic _pinCode;
   @HiveField(8)
   String? _address;
   @HiveField(9)
   String? _countryCode;
   @HiveField(10)
-  int? _gender;
+  dynamic _gender;
   @HiveField(11)
   String? _dob;
   @HiveField(12)
@@ -143,27 +143,27 @@ class ProfileData {
   @HiveField(14)
   String? _name;
   @HiveField(15)
-  int? _walletBalance;
+  dynamic _walletBalance;
   @HiveField(16)
-  int? _firstPlanPurchase;
+  dynamic _firstPlanPurchase;
 
   Verified? get verified => _verified ?? Verified();
   Plan? get plan => _plan ?? Plan();
   String? get id => _id ?? "";
   String? get phone => _phone ?? "";
   String? get email => _email ?? "";
-  int? get state => _state ?? 0;
+  dynamic get state => _state ?? 0;
   String? get city => _city ?? "";
-  int? get pinCode => _pinCode ?? 0;
+  dynamic get pinCode => _pinCode ?? 0;
   String? get address => _address ?? "";
   String? get countryCode => _countryCode ?? "";
-  int? get gender => _gender ?? 0;
+  dynamic get gender => _gender ?? 0;
   String? get dob => _dob ?? "";
   String? get organizationId => _organizationId ?? "";
   String? get profileImage => _profileImage ?? "";
   String? get name => _name ?? "";
-  int? get walletBalance => _walletBalance ?? 0;
-  int? get firstPlanPurchase => _firstPlanPurchase ?? 0;
+  dynamic get walletBalance => _walletBalance ?? 0;
+  dynamic get firstPlanPurchase => _firstPlanPurchase ?? 0;
 
 
   Map<String, dynamic> toJson() {
@@ -212,7 +212,7 @@ class ProfileData {
     _email = value;
   }
 
-  set state(int? value) {
+  set state(dynamic value) {
     _state = value;
   }
 
@@ -220,7 +220,7 @@ class ProfileData {
     _city = value;
   }
 
-  set pinCode(int? value) {
+  set pinCode(dynamic value) {
     _pinCode = value;
   }
 
@@ -232,7 +232,7 @@ class ProfileData {
     _countryCode = value;
   }
 
-  set gender(int? value) {
+  set gender(dynamic value) {
     _gender = value;
   }
 
@@ -252,7 +252,7 @@ class ProfileData {
     _name = value;
   }
 
-  set walletBalance(int? value){
+  set walletBalance(dynamic value){
     _walletBalance = value;
   }
 }
@@ -261,10 +261,10 @@ class Plan {
   Plan({
       bool? purchased, 
       String? id, 
-      int? membershipId,
+      dynamic membershipId,
   String? startDate,
   String? endDate,
-  int? pricePaid}){
+  dynamic pricePaid}){
     _purchased = purchased;
     _id = id;
     _membershipId = membershipId;
@@ -287,18 +287,18 @@ class Plan {
   @HiveField(1)
   String? _id;
   @HiveField(2)
-  int? _membershipId;
+  dynamic _membershipId;
   @HiveField(3)
   String? _startDate;
   @HiveField(4)
   String? _endDate;
   @HiveField(5)
-  int? _pricePaid;
+  dynamic _pricePaid;
 
   bool? get purchased => _purchased ?? false;
   String? get id => _id ?? "";
-  int? get membershipId => _membershipId ?? 0;
-  int? get pricePaid => _pricePaid ?? 0;
+  dynamic get membershipId => _membershipId ?? 0;
+  dynamic get pricePaid => _pricePaid ?? 0;
   String? get startDate => _startDate ?? '';
   String? get endDate => _endDate ?? '';
 

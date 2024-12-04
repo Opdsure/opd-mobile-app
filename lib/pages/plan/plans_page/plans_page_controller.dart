@@ -103,6 +103,7 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
     }
   }
 
+
   void getIndexedRecords({required int index}) async {
 
       record = widget.plans!.data!.records![index];

@@ -391,7 +391,7 @@ class MembershipOptions {
   @HiveField(2)
   int? _memberCount;
   @HiveField(3)
-  int? _charges;
+  dynamic _charges;
   @HiveField(4)
   int? _walletBalance;
 
@@ -401,7 +401,7 @@ class MembershipOptions {
 
   int? get memberCount => _memberCount ?? 0;
 
-  int? get charges => _charges ?? 0;
+  dynamic get charges => _charges ?? 0;
 
   int? get walletBalance => _walletBalance ?? 0;
 

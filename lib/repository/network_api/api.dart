@@ -129,8 +129,7 @@ class Api {
     return RegisterResponse.fromJson(json);
   }
 
-  Future<LoginResponse> login(
-      {int? otp,
+  Future<LoginResponse> login({int? otp,
       String? phone,
       String? countryCode,
       int loginType = 1}) async {

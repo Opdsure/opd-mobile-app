@@ -104,9 +104,10 @@ class SignUpController extends State<SignUpPage> {
       );
 
       if (response.success!) {
-        context.push('/signup/otp', extra: {
+        context.push('/signup/otp',
+            extra: {
           'otp_type': 1,
-          'phone': phoneTextController.text,
+          'phone': phoneTextController.text.toString(),
           'country_code': countryCode
         });
       } else {

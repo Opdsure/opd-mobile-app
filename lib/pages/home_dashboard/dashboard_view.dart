@@ -17,49 +17,82 @@ class DashboardPageView extends StatelessWidget {
   List<NavigationDestination> getNavigationDestinations() {
     return [
       NavigationDestination(
-        // selectedIcon: Image.asset('assets/images/bottom_home.png'),
+         selectedIcon: Image.asset(
+           'assets/images/bottom_home.png',
+           height: 30.0,
+           width: 30.0,
+           color: AppConfig.primaryColor,
+         ),
         icon: Image.asset(
           'assets/images/bottom_home.png',
           height: 30.0,
           width: 30.0,
+          color: Colors.white,
         ),
         label: 'Home',
         tooltip: 'Home',
 
       ),
       NavigationDestination(
+        selectedIcon: Image.asset(
+          'assets/images/bottom_home.png',
+          height: 30.0,
+          width: 30.0,
+          color: AppConfig.primaryColor,
+        ),
         icon: Image.asset(
           'assets/images/bottom_claim.png',
           height: 30.0,
           width: 30.0,
+          color: Colors.white,
         ),
         label: 'Claims',
         tooltip: 'Claims',
       ),
       NavigationDestination(
+        selectedIcon: Image.asset(
+          'assets/images/bottom_home.png',
+          height: 30.0,
+          width: 30.0,
+          color: AppConfig.primaryColor,
+        ),
         icon: Image.asset(
           'assets/images/referral_img.png',
           height: 25.0,
           width: 25.0,
-          color: const Color(0xFF667085),
+          color: Colors.white,
         ),
         label: 'Referral',
         tooltip: 'Referral',
       ),
       NavigationDestination(
+        selectedIcon: Image.asset(
+          'assets/images/bottom_home.png',
+          height: 30.0,
+          width: 30.0,
+          color: AppConfig.primaryColor,
+        ),
         icon: Image.asset(
           'assets/images/bottom_appointment.png',
           height: 30.0,
           width: 30.0,
+          color: Colors.white,
         ),
         label: 'Health Plans',
         tooltip: 'Health Plans',
       ),
       NavigationDestination(
+        selectedIcon: Image.asset(
+          'assets/images/bottom_home.png',
+          height: 30.0,
+          width: 30.0,
+          color: AppConfig.primaryColor,
+        ),
         icon: Image.asset(
           'assets/images/bottom_profile.png',
           height: 30.0,
           width: 30.0,
+          color: Colors.white,
         ),
         label: 'Profile',
         tooltip: 'Profile',
@@ -115,12 +148,12 @@ class DashboardPageView extends StatelessWidget {
                   labelBehavior:
                   NavigationDestinationLabelBehavior.onlyShowSelected,
                   shadowColor:
-                  AppConfig.primaryColorLight,
+                  AppConfig.primaryColor,
                   backgroundColor:
-                  AppConfig.primaryColorLight,
+                  AppConfig.primaryColor,
                   surfaceTintColor: AppConfig.primaryColorLight,
                   onDestinationSelected: controller.onDestinationSelected,
-                  indicatorColor: AppConfig.primaryColor.withOpacity(0.3),
+                  indicatorColor: AppConfig.primaryColorLight,
                   selectedIndex: controller.selectedIndex,
                   destinations: getNavigationDestinations()),
             ),

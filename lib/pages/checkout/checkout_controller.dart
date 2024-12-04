@@ -142,7 +142,7 @@ class CheckoutController extends State<CheckoutPage> {
       } else {
         Razorpay razorpay = Razorpay();
         var paymentOptions = {
-          'key': 'rzp_test_sXPx4ftQc94AZA',
+          'key': 'rzp_live_VhALW56rJ4qcov',
           'amount': createPaymentResponse.data!.amount!,
           'currency': createPaymentResponse.data!.currency!,
           'name': 'OPD Sure',
@@ -165,10 +165,8 @@ class CheckoutController extends State<CheckoutPage> {
           }
         };
         razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
-        razorpay.on(
-            Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
-        razorpay.on(
-            Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
+        razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
+        razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
         razorpay.open(paymentOptions);
       }
 

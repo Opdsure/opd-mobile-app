@@ -34,7 +34,8 @@ class LoginPageController extends State<LoginPage> {
     super.initState();
     signupRecognizer = TapGestureRecognizer()
       ..onTap = () {
-        _signUp();
+        context.push('/signup');
+        // _signUp();
       };
   }
 

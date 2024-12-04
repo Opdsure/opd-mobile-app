@@ -39,12 +39,11 @@ class OtpPageController extends State<OtpPage> {
   }
 
   void otpVerify() async {
-    if (otp.length != 6) {
-      return;
-    }
+    // if (otp.length != 6) {
+    //   return;
+    // }
     {
-
-      switch(widget.otpType){
+      switch (widget.otpType) {
         case 1:
           await _register(OpdSure.of(context));
           break;
@@ -65,30 +64,32 @@ class OtpPageController extends State<OtpPage> {
 
     if (loginResponse.data != null) {
       opd.client.init(newUserId: loginResponse.data!.userId!, newAccessToken: loginResponse.data!.token!);
-    }else{
+    } else {
       CommonMethods.showToast(loginResponse.message!);
     }
   }
 
   Future<void> _register(OpdSureState opd) async {
     RegisterOtpVerify? isOtpVerify = await opd.client.registerVerifyOtp(
-          phone: widget.phone,
-          countryCode: widget.countryCode,
-          otp: int.parse(otp));
-    if(isOtpVerify != null){
-
-      if(isOtpVerify.data!.verified!){
-        final response = await opd.client.register(countryCode: widget.countryCode, phone: widget.phone, loginType: 1, termAndCondition: true);
-        if(response.success!){
+        phone: widget.phone,
+        countryCode: widget.countryCode,
+        otp: int.parse(otp));
+    if (isOtpVerify != null) {
+      if (isOtpVerify.data!.verified!) {
+        final response = await opd.client.register(
+            countryCode: widget.countryCode,
+            phone: widget.phone,
+            loginType: 1,
+            termAndCondition: true);
+        if (response.success!) {
           opd.client.init(newUserId: response.data!.userId!, newAccessToken: response.data!.token!);
-        } else{
+        } else {
           CommonMethods.showToast(response.message!);
         }
-      }
-     else{
+      } else {
         CommonMethods.showToast(isOtpVerify.message!);
       }
-    }else{
+    } else {
       CommonMethods.showToast('Try again');
     }
   }

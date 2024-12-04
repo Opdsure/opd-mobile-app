@@ -16,6 +16,7 @@ void main() async {
   if (PlatformInfos.isAndroid &&
       AppLifecycleState.detached == WidgetsBinding.instance.lifecycleState) {
     WidgetsBinding.instance.addObserver(AppStarter(clients, store));
+
   }
   await startGui(clients, store);
 }

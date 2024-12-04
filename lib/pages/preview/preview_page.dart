@@ -58,7 +58,7 @@ class PreviewPageController extends State<PreviewPage> {
         children: [
           Expanded(
               child: Image.asset('assets/images/${previewImgUri[i]}.png')),
-          SizedBox(height: h * 0.05,),
+          SizedBox(height: h * 0.03,),
           Center(
               child: AppTextView(
                 text: previewTitleStr[i],

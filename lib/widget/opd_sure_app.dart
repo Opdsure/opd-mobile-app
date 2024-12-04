@@ -33,6 +33,7 @@ class OpdSureApp extends StatelessWidget {
     return ThemeBuilder(
       builder: (context, mode, color) => MaterialApp.router(
         title: AppConfig.applicationName,
+        debugShowCheckedModeBanner: false,
         themeMode: mode,
         theme: OpdThemes.buildTheme(context, Brightness.light, color),
         darkTheme: OpdThemes.buildTheme(context, Brightness.light, color),

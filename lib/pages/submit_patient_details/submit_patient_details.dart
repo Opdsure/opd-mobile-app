@@ -68,7 +68,7 @@ class SubmitPatientDetailsController extends State<SubmitPatientDetails> {
           isCancelButton: true,
           negativeButton: 'Fill',
           positiveButton: 'Exit',
-          okCallBack: (context1)async  {
+          okCallBack: (context1) async {
         if (widget.healthCheckupId == null) {
           context.go('/home');
           Navigator.of(context1, rootNavigator: false).pop();

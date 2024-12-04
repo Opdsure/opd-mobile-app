@@ -18,7 +18,6 @@ import 'package:opdsure/utils/streams/cached_stream_controller.dart';
 import '../../model/forget_password/forget_password_response.dart';
 import '../../model/health_checkup/health_checkup.dart';
 import '../../model/login/login_response.dart';
-import '../../model/notifications/notification_model.dart';
 import '../../model/plans/plans_response.dart';
 import '../../model/register/register_response.dart';
 import '../../model/register_otp_verify.dart';
@@ -148,8 +147,7 @@ class OpdClient extends OpdApi {
       _initLock = false;
 
       onLoginStateChanged.add(LoginState.loggedIn);
-      Logs().i(
-        'Successfully connected as $userId with ${baseServerUri.toString()}',
+      Logs().i('Successfully connected as $userId with ${baseServerUri.toString()}',
       );
     } on OpdClientInitException {
       rethrow;
@@ -223,13 +221,11 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<LoginResponse> login(
-      {String? phone, String? countryCode, int? loginType, int? otp}) async {
+  Future<LoginResponse> login({String? phone, String? countryCode, int? loginType, int? otp}) async {
     if (baseServerUri == null) {
       throw Exception("No baseServerUri set");
     }
-    final response = await super
-        .login(otp: otp, phone: phone, countryCode: countryCode, loginType: 1);
+    final response = await super.login(otp: otp, phone: phone, countryCode: countryCode, loginType: 1);
 
     if (response.data == null) {
       throw Exception(response.toJson());

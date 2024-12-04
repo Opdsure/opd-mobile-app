@@ -25,15 +25,24 @@ if (flutterVersionName == null) {
 
 android {
     namespace = "io.app.opdsure"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 34
+//    ndkVersion = flutter.ndkVersion
+    ndkVersion = "25.1.8937393"
+    buildToolsVersion "21.1.2"
+
+
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
     }
 
     defaultConfig {
+        multiDexEnabled true
         applicationId = "io.app.opdsure"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
@@ -42,7 +51,7 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('/Users/sahilyadav/StudioProjects/opd_sure_app/android/opdsure.jks')
+            storeFile file('/Users/neha/AndroidStudioProjects/Aman/opd_sure_app/android/opdsure.jks')
             storePassword 'Intileo@123'
             keyAlias 'opdsure'
             keyPassword 'Intileo@123'

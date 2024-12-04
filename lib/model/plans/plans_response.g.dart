@@ -224,7 +224,7 @@ class MembershipOptionsAdapter extends TypeAdapter<MembershipOptions> {
       .._membershipId = fields[0] as int?
       .._membershipLabel = fields[1] as String?
       .._memberCount = fields[2] as int?
-      .._charges = fields[3] as int?
+      .._charges = fields[3] as dynamic
       .._walletBalance = fields[4] as int?;
   }
 

@@ -158,11 +158,12 @@ abstract class OpdThemes {
       ),
       navigationBarTheme: NavigationBarThemeData(
         labelTextStyle: WidgetStateProperty.all(GoogleFonts.montserrat(
-          fontSize: 8,
-          fontWeight: FontWeight.bold
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+          color: Colors.white
         ))
       ),
-        canvasColor: AppConfig.primaryColorLight
+        canvasColor: AppConfig.primaryColor
     );
   }
 }
