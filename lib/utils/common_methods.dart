@@ -14,34 +14,29 @@ import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../custom_ui/web_view/open_chrome_sfari.dart';
+
 typedef ContextCallback = void Function(BuildContext context);
 class CommonMethods{
 
   static double deviceHeight(BuildContext context) {
-    return MediaQuery
-        .of(context)
-        .size
-        .height;
+    return MediaQuery.of(context).size.height;
   }
+
   static double deviceWidth(BuildContext context) {
-    return MediaQuery
-        .of(context)
-        .size
-        .width;
+    return MediaQuery.of(context).size.width;
   }
 
 
   static String getPlanFrequency(int frequency,{bool isBilled = true}) {
     switch (frequency) {
       case 1:
-        return '${isBilled ? "Billed " : ""}yearly';
+        return '${isBilled ? "Billed " : ""} yearly';
       case 2:
-        return '${isBilled ? "Billed " : ""}Billed half yearly';
+        return '${isBilled ? "Billed " : ""} Billed half yearly';
       case 3:
-        return '${isBilled ? "Billed " : ""}Billed quarterly';
+        return '${isBilled ? "Billed " : ""} Billed quarterly';
       case 4:
-        return '${isBilled ? "Billed " : ""}Billed monthly';
+        return '${isBilled ? "Billed " : ""} Billed monthly';
       default:
         return '';
     }
@@ -344,20 +339,40 @@ class CommonMethods{
     return data ?? false;
   }
 
-  static String formatIsoDateString(String isoString,{bool isTime = false, bool isAddTime = false}) {
-    if(isoString == '') return '';
-    DateTime dateTime = DateTime.parse(isoString);
-    if(isAddTime) {
-      dateTime = dateTime.add(const Duration(hours: 5, minutes: 30));
+  // static String formatIsoDateString(String isoString,{bool isTime = false, bool isAddTime = false}) {
+  //   if(isoString == '') return '';
+  //   DateTime dateTime = DateTime.parse(isoString);
+  //   if(isAddTime) {
+  //     dateTime = dateTime.add(const Duration(hours: 5, minutes: 30));
+  //   }
+  //   String formattedDate = '';
+  //   if(isTime){
+  //     formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(dateTime);
+  //   }
+  //   else{
+  //     formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+  //   }
+  //   return formattedDate;
+  // }
+
+
+  static String formatIsoDateString(String isoString, {bool isTime = false, bool isAddTime = false}) {
+    if (isoString.isEmpty) return '';
+
+    try {
+      DateTime dateTime = DateTime.parse(isoString);
+      dateTime = dateTime.toLocal(); // Convert to user's local time
+
+      String formattedDate = isTime
+          ? DateFormat('dd/MM/yyyy hh:mm a').format(dateTime)
+          : DateFormat('dd/MM/yyyy').format(dateTime);
+
+      return formattedDate;
+    } catch (e) {
+      // Handle invalid input string
+      print('Error parsing ISO date string: $e');
+      return '';
     }
-    String formattedDate = '';
-    if(isTime){
-      formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(dateTime);
-    }
-    else{
-      formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
-    }
-    return formattedDate;
   }
 
   static String calculateAge(DateTime birthDate) {
@@ -470,7 +485,8 @@ class CommonMethods{
       }
 
     }else{
-      newAmount = int.parse(amount);
+
+      newAmount = int.parse(amount.toString().trim());
       return formatter.format(newAmount);
     }
 

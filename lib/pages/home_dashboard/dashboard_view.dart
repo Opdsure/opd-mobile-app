@@ -78,8 +78,8 @@ class DashboardPageView extends StatelessWidget {
           width: 30.0,
           color: Colors.white,
         ),
-        label: 'Health Plans',
-        tooltip: 'Health Plans',
+        label:'CheckUp Plan',
+        tooltip: 'CheckUp Plans',
       ),
       NavigationDestination(
         selectedIcon: Image.asset(
@@ -117,7 +117,6 @@ class DashboardPageView extends StatelessWidget {
                       onTap: (){ controller.onDestinationSelected(i);},
                       icon: destinations[i].icon);
                 }
-
             ),
           )
         ],

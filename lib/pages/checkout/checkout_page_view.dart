@@ -56,8 +56,8 @@ class CheckoutPageView extends StatelessWidget {
                               border: Border.all(
                                 color: const Color(0xFF8A48B3),
                               ),
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(20))),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20))),
                           child: const Center(
                             child: Padding(
                               padding: EdgeInsets.all(5.0),
@@ -76,7 +76,7 @@ class CheckoutPageView extends StatelessWidget {
                     PaymentType.buyHealthCheckup) ...[
                   AppTextView(
                     text:
-                        '$rupeeSymbol ${CommonMethods.amountFormater(controller.options!.charges!.toString())}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
+                        '$rupeeSymbol ${CommonMethods.amountFormater(controller.options!.charges!.toStringAsFixed(0))}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
                     color: const Color(0xFF667085),
                   ),
                   const SizedBox(
@@ -146,7 +146,7 @@ class CheckoutPageView extends StatelessWidget {
                       ),
                       AppTextView(
                         text:
-                            '-$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true,controller.couponDiscount.toStringAsFixed(2))}',
+                            '-$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.couponDiscount.toStringAsFixed(2))}',
                         color: Colors.green,
                         size: 16.0,
                       ),

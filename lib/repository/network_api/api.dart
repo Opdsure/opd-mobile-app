@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
@@ -485,8 +484,7 @@ class Api {
   Future<FileUploadResponse?> uploadFile(
       {required List<http.MultipartFile> results}) async {
     final requestUri = Uri(path: 'api/v1/user/upload-file');
-    final request =
-        http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
+    final request = http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.files.addAll(results);
     final response = await request.send();

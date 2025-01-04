@@ -126,7 +126,6 @@ class OpdClient extends OpdApi {
       await getProfile(update: true);
       await getAllPlans(update: true, isUpgrade: false);
       isPlanPurchased = isPlanBuy = profileData!.firstPlanPurchase! == 1;
-
       final database = this.database;
       if (database != null) {
         if (id != null) {
@@ -240,7 +239,6 @@ class OpdClient extends OpdApi {
       throw Exception("No baseServerUri set");
     }
     final response = await super.loginOtp(phone: phone, countryCode: countryCode);
-
     if (response.data == null) {
       throw Exception(response.toJson());
     }
@@ -390,11 +388,9 @@ class OpdClient extends OpdApi {
     return relations;
   }
 
-  Future<FileUploadResponse?> uploadFiles(
-      {required FilePickerResult results}) async {
+  Future<FileUploadResponse?> uploadFiles({required FilePickerResult results}) async {
     var files = results.files.map((file) async {
-      final mimeTypeData =
-          lookupMimeType(file.path!, headerBytes: [0xFF, 0xD8])?.split('/');
+      final mimeTypeData = lookupMimeType(file.path!, headerBytes: [0xFF, 0xD8])?.split('/');
       return await http.MultipartFile.fromPath(
         'files',
         file.path!,

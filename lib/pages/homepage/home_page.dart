@@ -107,7 +107,7 @@ class HomePage extends StatefulWidget {
           context.push('/home/web_view', extra: AppConfig.apolloPharmaUrl);
         }),
     OpdService(
-        title: 'Health Checkups',
+        title: 'Free Health Checkups',
         image: 'assets/images/health.png',
         onTap: (){
           final opd = OpdSure.of(context);

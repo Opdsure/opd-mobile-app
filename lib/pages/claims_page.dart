@@ -105,50 +105,11 @@ class ClaimsPage extends StatelessWidget {
             const SizedBox(
               height: 20.0,
             ),
-            // Center(
-            //   child: AppRoundView(
-            //     mChild: Padding(
-            //       padding: const EdgeInsets.symmetric(
-            //           vertical: 2.0, horizontal: 5.0),
-            //       child: ButtonsTabBar(
-            //         backgroundColor: buttonColor,
-            //         unselectedBackgroundColor: Colors.transparent,
-            //         labelStyle: GoogleFonts.montserrat(
-            //             color: Colors.white,
-            //             fontSize: 14.0,
-            //             fontWeight: FontWeight.w500),
-            //         borderColor: buttonColor,
-            //         height: 45.0,
-            //         width: w * 0.45,
-            //         contentCenter: true,
-            //         unselectedLabelStyle: GoogleFonts.montserrat(
-            //             color: Colors.black,
-            //             fontSize: 14.0,
-            //             fontWeight: FontWeight.w500),
-            //         borderWidth: 1,
-            //         unselectedBorderColor: Colors.transparent,
-            //         radius: 5,
-            //         tabs: const [
-            //           Tab(
-            //             text: "Active Claims",
-            //           ),
-            //           Tab(
-            //             text: "Past Claims",
-            //           )
-            //         ],
-            //       ),
-            //     ),
-            //     color: const Color(0xFFEAECF0),
-            //     corner: 5.0,
-            //   ),
-            // ),
-            // const SizedBox(
-            //   height: 10.0,
-            // ),
+
             Obx(() {
               bool refresh = typeController.refreshClaimList.value;
               return SizedBox(
-                height: h * 0.6,
+                height: h * 0.55,
                 child: refresh
                     ? FutureBuilder<MyClaimsModel?>(
                         future: OpdSure.of(context).client.getAllClaims(),
@@ -161,13 +122,10 @@ class ClaimsPage extends StatelessWidget {
                             );
                           } else {
                             MyClaimsModel? myClaimsModel = snapshot.data;
-                            List<ClaimRecords> listData =
-                                myClaimsModel!.data!.records!;
+                            List<ClaimRecords> listData = myClaimsModel!.data!.records!;
                             return listData.isEmpty
                                 ? const Center(
-                                    child: AppTextView(
-                                      text: 'No Claim Found',
-                                    ),
+                                    child: AppTextView(text: 'No Claim Found',),
                                   )
                                 : RefreshIndicator(
                                     onRefresh: () async {

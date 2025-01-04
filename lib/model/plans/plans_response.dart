@@ -219,7 +219,7 @@ class PlanRecords {
     if (json['membership_options'] != null) {
       _membershipOptions = [];
       json['membership_options'].forEach((v) {
-        _membershipOptions?.add(MembershipOptions.fromJson(v));
+        _membershipOptions?.add(MembershipOptions.  fromJson(v));
       });
     }
     _files = json['files'] != null ? json['files'].cast<String>() : [];
@@ -309,7 +309,6 @@ class PlanRecords {
       if (!isIndividual && isFamily) {
         return PlanType.family;
       }
-
       if (isIndividual && isFamily) {
         return PlanType.both;
       }
@@ -393,7 +392,7 @@ class MembershipOptions {
   @HiveField(3)
   dynamic _charges;
   @HiveField(4)
-  int? _walletBalance;
+  dynamic? _walletBalance;
 
   int? get membershipId => _membershipId ?? 0;
 
@@ -403,7 +402,7 @@ class MembershipOptions {
 
   dynamic get charges => _charges ?? 0;
 
-  int? get walletBalance => _walletBalance ?? 0;
+  dynamic? get walletBalance => _walletBalance ?? 0;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};

@@ -92,7 +92,7 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
     plansTab = widget.plans!.data!.records!.map((records) => Tab(text: records.name!,)).toList();
   }
 
-  goToCheckout() async {
+     goToCheckout() async {
     if (record != null) {
       /*final result = await */context.push(widget.type == PaymentType.buyPlan ? '/view_plans/plans_payment' : '/home/view_plans/plans_payment', extra: {"records": record, "options": options, "type" : widget.type});
       // if(result != null && result == true){

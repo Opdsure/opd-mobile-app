@@ -58,7 +58,7 @@ class MemberListAdapter extends TypeAdapter<MemberList> {
     return MemberList()
       .._id = fields[0] as String?
       .._name = fields[1] as String?
-      .._phone = fields[2] as int?
+      .._phone = fields[2] as dynamic?
       .._countryCode = fields[3] as String?
       .._gender = fields[4] as int?
       .._dob = fields[5] as String?

@@ -184,13 +184,13 @@ class MembershipOptions {
   int? _membershipId;
   String? _membershipLabel;
   int? _memberCount;
-  int? _charges;
+  dynamic _charges;
   int? _walletBalance;
 
   int? get membershipId => _membershipId ?? -1;
   String? get membershipLabel => _membershipLabel ?? '';
   int? get memberCount => _memberCount ?? -1;
-  int? get charges => _charges ?? -1;
+  dynamic get charges => _charges ?? -1;
   int? get walletBalance => _walletBalance ?? -1;
 
   Map<String, dynamic> toJson() {

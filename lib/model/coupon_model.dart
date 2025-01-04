@@ -57,14 +57,14 @@ class Data {
     _consumedDays = json['consumed_days'];
     _remainingDays = json['remaining_days'];
   }
-  int? _planPrice;
+  dynamic _planPrice;
   dynamic _gst;
   int? _couponDiscount;
   int? _preDiscount;
   int? _consumedDays;
   int? _remainingDays;
 
-  int? get planPrice => _planPrice ?? 0;
+  dynamic get planPrice => _planPrice ?? 0;
   dynamic get gst => _gst?? 0;
   int? get couponDiscount => _couponDiscount?? 0;
   int? get preDiscount => _preDiscount ?? 0;

@@ -262,8 +262,11 @@ class UploadFileClaimDoc extends StatelessWidget{
                 ),
               ],
             ),
-          ):Container(),
+          ):
+
+          Container(),
           const SizedBox(height: 15.0,),
+
           FutureBuilder(
             future: OpdSure.of(context).client.getFileTypeAndSize(),
             builder: (context,snapshot){
@@ -306,25 +309,17 @@ class UploadFileClaimDoc extends StatelessWidget{
                                         typeController.prescriptionListChange(file);
                                         CommonMethods.showAlertDialog(context);
                                         try {
-                                          var response = await OpdSure
-                                              .of(context)
-                                              .client
-                                              .uploadFiles(results: result);
+                                          var response = await OpdSure.of(context).client.uploadFiles(results: result);
                                           if (response != null) {
-                                            prescriptionUrlList =
-                                                prescriptionUrlList +
-                                                    response.data!;
-                                            filesUrl['prescription'] =
-                                                prescriptionUrlList;
+                                            prescriptionUrlList = prescriptionUrlList + response.data!;
+                                            filesUrl['prescription'] = prescriptionUrlList;
                                             Navigator.of(context).pop();
                                           } else {
-                                            CommonMethods.showToast(
-                                                'File not upload try again');
+                                            CommonMethods.showToast('File not upload try again');
                                             Navigator.of(context).pop();
                                           }
                                         }catch(e){
-                                          CommonMethods.showToast(
-                                              'File not upload try again');
+                                          CommonMethods.showToast('File not upload try again');
                                           Navigator.of(context).pop();
                                         }
                                       } else {
@@ -995,7 +990,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                 data['test_receipt'] = filesUrl['test_receipt'];
               }
               if(filesUrl['prescription']==null && !(isUpdate!)){
-                CommonMethods.showToast('Please upload Prescription');
+                CommonMethods.showToast('Please Upload Prescription');
               }
               else{
                 // if(filesUrl['doc_receipt']==null && !(isUpdate!)){
@@ -1016,7 +1011,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                 else{
                   response = await OpdSure.of(context).client.fileAClaim(jsonEncode(data));
                 }
-                print(response);
+                print("this is response $response");
                 Map<String,dynamic> resMap = jsonDecode(response);
                 if(resMap['success'] && isUpdate!){
                   Navigator.of(context,rootNavigator: false).pop();

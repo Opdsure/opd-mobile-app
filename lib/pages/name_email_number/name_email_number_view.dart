@@ -98,7 +98,7 @@ class NameEmailNumberView extends StatelessWidget {
                 textInputType: TextInputType.name,
                 textEditingController: controller.firstNameTextController,
                 errorMessage: controller.nameError,
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")), ],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")), ],
               ),
               const SizedBox(
                 height: 15.0,
@@ -109,7 +109,7 @@ class NameEmailNumberView extends StatelessWidget {
                 size: 14.0,
                 textInputType: TextInputType.name,
                 textEditingController: controller.middleNameTextController,
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")), ],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")), ],
               ),
               const SizedBox(
                 height: 15.0,
@@ -120,7 +120,7 @@ class NameEmailNumberView extends StatelessWidget {
                 size: 14.0,
                 textInputType: TextInputType.name,
                 textEditingController: controller.lastNameControllerTextController,
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")),],
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),],
               ),
               const SizedBox(
                 height: 15.0,

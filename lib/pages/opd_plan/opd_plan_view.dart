@@ -79,10 +79,12 @@ class OpdPlanView extends StatelessWidget {
                    crossAxisAlignment: CrossAxisAlignment.start,
                    children: [
                      AppTextView(
+                       // text: 'Purchased On: ${"45678"}',
                        text: 'Purchased On: ${CommonMethods.formatIsoDateString(snapshot.data!.data!.plan!.startDate!)}',
                        color: Colors.black,
                      ),
                      AppTextView(
+                       // text: 'Valid till: ${"45678"}',
                        text: 'Valid till: ${CommonMethods.formatIsoDateString(snapshot.data!.data!.plan!.endDate!)}',
                        color: Colors.black,
                      ),

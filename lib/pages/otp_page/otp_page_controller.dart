@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/utils/common_methods.dart';
@@ -24,24 +25,39 @@ class OtpPage extends StatefulWidget {
 class OtpPageController extends State<OtpPage> {
   bool? loading;
   String otp = '';
+  late TapGestureRecognizer otpRecognizer;
+
 
   @override
   void initState() {
     super.initState();
+
+    otpRecognizer = TapGestureRecognizer()
+      ..onTap = () {
+        _resendOto();
+      };
   }
 
-  void onCodeChange(String code) {
-    setState(() => otp = code);
+  _resendOto() {
+    CommonMethods.showToast('otp send successfully');
   }
+
+  // void onCodeChange(String code) {
+  //   otp = code;
+  //   setState(() => otp = code);
+  // }
 
   void onSubmit(String code) {
-    setState(() => otp = code);
+    otp = code;
+    otp = code.length > 6 ? code.substring(0, 6) : code;
+
+    // setState(() => otp = code);
   }
 
   void otpVerify() async {
-    // if (otp.length != 6) {
-    //   return;
-    // }
+    if (otp.length != 6) {
+      return;
+    }
     {
       switch (widget.otpType) {
         case 1:
@@ -93,6 +109,37 @@ class OtpPageController extends State<OtpPage> {
       CommonMethods.showToast('Try again');
     }
   }
+
+  String countryCode = '+91';
+
+  FocusNode focusNode = FocusNode();
+
+
+  Future<void>  login(String phoneNo) async {
+    final opdSure = OpdSure.of(context);
+
+    setState(() => loading = true);
+
+    try {
+      CommonMethods.showAlertDialog(context);
+      focusNode.unfocus();
+      final response = await opdSure.client.loginOtp(
+          countryCode: countryCode,
+          phone: phoneNo);
+      if(response.success!){
+        context.push('/login/otp', extra: {'otp_type' : 2, 'phone' : phoneNo, 'country_code' : countryCode});
+      }else{
+        CommonMethods.showToast(response.message!);
+      }
+      Navigator.of(context, rootNavigator: false).pop();
+    } catch (e) {
+      Navigator.of(context, rootNavigator: false).pop();
+      return setState(() => loading = false);
+    }
+
+    if (mounted) setState(() => loading = false);
+  }
+
 
   @override
   Widget build(BuildContext context) => OtpPageView(this);

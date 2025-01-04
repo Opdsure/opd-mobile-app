@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:opdsure/custom_ui/app_border_box.dart';
 
+import '../config/app_config.dart';
+import '../utils/app_colors.dart';
+
 class AppDropDown<T> extends StatelessWidget {
   final List<DropdownMenuItem<T>>? items;
   final ValueChanged<T?>? onChanged;
@@ -16,6 +19,7 @@ class AppDropDown<T> extends StatelessWidget {
         value: value,
         elevation: 6,
         isExpanded: true,
+        dropdownColor: AppConfig.primaryColorLight,
         icon: const Icon(Icons.keyboard_arrow_down_rounded),
         items: items,
         onChanged: onChanged,

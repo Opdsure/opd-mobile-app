@@ -144,11 +144,12 @@ class _AddFamilyDetailsState extends State<AddFamilyDetails> {
             fontWeight: FontWeight.w500,
             color: Color(0xFF1D2939),
           ),
+
           AppEditText(
             hint: 'Enter the name',
             textEditingController: nameCtrl,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")),
+              FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
             ],
             disableText:
                 (widget.member != null && widget.member!.relation! == 0) &&

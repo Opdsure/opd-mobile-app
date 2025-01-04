@@ -102,18 +102,13 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
             : a.bundle!.priority!.compareTo(b.bundle!.priority!),
       );
     }
-    return resBundles
-        .map((k, v) => MapEntry(k, v.map((vv) => vv.client).toList()));
+    return resBundles.map((k, v) => MapEntry(k, v.map((vv) => vv.client).toList()));
   }
 
   bool get hasComplexBundles => accountBundles.values.any((v) => v.length > 1);
+  bool isSelectPlans = false;
 
-
-  // bool isSelectPlans = false;
-  //
-  //
   // bool isPlansSelect = false;
-  //
   // bool isPlanUpgrade = false;
 
   OpdClient get client {
@@ -185,11 +180,10 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
   void _registerSub(String name) {
     final c = getClientByName(name);
     if (c != null) {
-      onLoginStateChanged[name] ??=
-          c.onLoginStateChanged.stream.listen((state) {
+      onLoginStateChanged[name] ??= c.onLoginStateChanged.stream.listen((state) {
         final loggedInWithMultipleClients = widget.clients.length > 1;
         if (state == LoginState.loggedOut) {
-          // isSelectPlans = false;
+          isSelectPlans = false;
         }
         if (loggedInWithMultipleClients && state != LoginState.loggedIn) {
           _clearSub(c.clientName);
@@ -204,12 +198,11 @@ class OpdSureState extends State<OpdSure> with WidgetsBindingObserver {
             }else{
               OpdSureApp.router.go("/home");
             }
-          }else{
+          } else {
             isLogout = true;
             selectedPage = 0;
             OpdSureApp.router.go('/login');
           }
-
         }
       });
     }

@@ -58,8 +58,7 @@ abstract class AppRoutes {
 
   static FutureOr<String?> loggedOutRedirect(
     BuildContext context,
-    GoRouterState state,
-  ) =>
+    GoRouterState state,) =>
       OpdSure.of(context).client.isLogged ? null : '/login';
 
   static FutureOr<String?> getRedirectNameForHome(
