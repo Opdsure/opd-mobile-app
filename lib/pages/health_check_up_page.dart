@@ -385,7 +385,12 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
                   AddCheckupModel addCheckupModel =
                   AddCheckupModel.fromJson(jsonDecode(response));
                   if (addCheckupModel.success!) {
-                    CommonMethods.showToast('Your request added successfully!');
+
+
+
+
+
+
                     setState(() {
                       typeController.memberList.value.clear();
                       messageCtrl.text = '';
@@ -394,9 +399,12 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
                       _controller.clearAllSelection();
                       Navigator.pop(context);
                     });
+                    CommonMethods.showToast('Your request added successfully!');
                   }
                 }catch(e){
+
                   Navigator.of(context).pop();
+                  CommonMethods.showToast(e.toString());
                 }
 
               }

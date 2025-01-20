@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:opdsure/custom_ui/app_key_value.dart';
 import 'package:opdsure/model/referral_member/referral_member.dart';
-
 import '../../config/app_config.dart';
-import '../../custom_ui/app_base_page.dart';
 import '../../custom_ui/app_header.dart';
 import '../../custom_ui/app_round_view.dart';
 import '../../custom_ui/app_text_view.dart';
 import '../../utils/common_methods.dart';
 import '../../widget/opd_widget.dart';
+import 'package:opdsure/custom_ui/app_base_page.dart';
+
+import '../plus_referral_page.dart';
 
 class ReferralMemberPage extends StatelessWidget {
   const ReferralMemberPage({super.key});
@@ -33,40 +34,90 @@ class ReferralMemberPage extends StatelessWidget {
                 );
               }
               else{
-                if(snapshot.data!.data!.records!.length == 0){
+                if(snapshot.data!.data!.records!.isEmpty){
                   return const Center(
                     child: AppTextView(
                         fontWeight: FontWeight.w600,
                         mTextAlign: TextAlign.center,
-                        text:
-                        "You haven't refer a member."),
+                        text: "You haven't referred a member."),
                   );
                 }
-                return ListView.builder(
-                    itemCount: snapshot.data!.data!.records!.length,
-                    itemBuilder: (context, index) {
-                      return AppRoundView(
-                        isMargin: true,
-                        corner: 10.0,
-                        color: AppConfig.roundedViewColor,
-                        mChild: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                           children: [
-                             AppKeyValue(mKey: 'Date', value: CommonMethods.formatIsoDateString(snapshot.data!.data!.records![index].createdAt!, isTime: true, isAddTime: true),),
-                             AppKeyValue(mKey: 'Name', value: snapshot.data!.data!.records![index].referName!,),
-                             AppKeyValue(mKey: 'Email', value: snapshot.data!.data!.records![index].referEmail!,),
-                             AppKeyValue(mKey: 'Phone No.', value: snapshot.data!.data!.records![index].referPhone!,),
-                           ],
-                          ),
-                        ),
-                      );
-                    });
-              }
+                return
 
+
+
+                  Column(
+                    children: [
+
+
+
+                      Expanded(
+                        child: RefreshIndicator(
+                          onRefresh: () async {
+                            OpdSure.of(context).client.getReferredUsers();
+                          },
+                          child:  ListView.builder(
+                              itemCount: snapshot.data!.data!.records!.length,
+                              itemBuilder: (context, index) {
+                                return AppRoundView(
+                                  isMargin: true,
+                                  corner: 10.0,
+                                  color: AppConfig.roundedViewColor,
+                                  mChild: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      children: [
+                                        AppKeyValue(
+                                          mKey: 'Date',
+                                          value: CommonMethods.formatIsoDateString(
+                                              snapshot.data!.data!.records![index].createdAt!,
+                                              isTime: true,
+                                              isAddTime: true
+                                          ),
+                                        ),
+                                        AppKeyValue(
+                                          mKey: 'Name',
+                                          value: snapshot.data!.data!.records![index].referName!,
+                                        ),
+                                        AppKeyValue(
+                                          mKey: 'Email',
+                                          value: snapshot.data!.data!.records![index].referEmail!,
+                                        ),
+                                        AppKeyValue(
+                                          mKey: 'Phone No.',
+                                          value: snapshot.data!.data!.records![index].referPhone!,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }),
+                        ),
+                      ),
+
+                    ],
+                  );
+
+
+
+              }
             }
         ),
       ),
+      // Add floating action button here
+      // isFloatingButton: true,
+      // floatingContent: FloatingActionButton(
+      //   onPressed: () {
+      //
+      //     Navigator.push(
+      //       context,
+      //       MaterialPageRoute(builder: (context) => const PlusReferralPage()),
+      //     );
+      //
+      //   },
+      //   backgroundColor: AppConfig.primaryColorLight,
+      //   child: const Icon(Icons.add),
+      // ),
     );
   }
 }

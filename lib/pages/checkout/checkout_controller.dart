@@ -83,8 +83,7 @@ class CheckoutController extends State<CheckoutPage> {
 
   dataAfterApplyCoupon() async {
     var response = await OpdSure.of(context).client.applyCoupon(couponCtrl.text,
-        widget.paymentType != PaymentType.buyHealthCheckup
-            ? records!.id!
+        widget.paymentType != PaymentType.buyHealthCheckup ? records!.id!
             : healthCheckupRecords!.id!,
         options == null ? '' : options!.membershipId.toString(),
         widget.paymentType);
