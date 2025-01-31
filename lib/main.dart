@@ -14,8 +14,7 @@ void main() async {
   final store = await SharedPreferences.getInstance();
   final clients = await ClientManager.getClients(store: store);
 
-  if (PlatformInfos.isAndroid &&
-      AppLifecycleState.detached == WidgetsBinding.instance.lifecycleState) {
+  if (PlatformInfos.isAndroid && AppLifecycleState.detached == WidgetsBinding.instance.lifecycleState) {
     WidgetsBinding.instance.addObserver(AppStarter(clients, store));
 
   }

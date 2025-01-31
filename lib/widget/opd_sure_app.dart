@@ -22,7 +22,6 @@ class OpdSureApp extends StatelessWidget {
     required this.store,
     this.testWidget,
     super.key});
-  // static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   static final GoRouter router = GoRouter(routes: AppRoutes.routes);
   @override
   Widget build(BuildContext context) {

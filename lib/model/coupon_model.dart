@@ -59,14 +59,14 @@ class Data {
   }
   dynamic _planPrice;
   dynamic _gst;
-  int? _couponDiscount;
+  dynamic _couponDiscount;
   int? _preDiscount;
   int? _consumedDays;
   int? _remainingDays;
 
   dynamic get planPrice => _planPrice ?? 0;
   dynamic get gst => _gst?? 0;
-  int? get couponDiscount => _couponDiscount?? 0;
+  dynamic get couponDiscount => _couponDiscount?? 0;
   int? get preDiscount => _preDiscount ?? 0;
   int? get consumedDays => _consumedDays ?? 0;
   int? get remainingDays => _remainingDays ?? 0;

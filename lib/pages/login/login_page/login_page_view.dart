@@ -90,7 +90,7 @@ class LoginView extends StatelessWidget {
             height: 24.0,
           ),
           AppButton(text: 'Continue', onClick: (){
-            controller.login();
+            controller.login(controller);
           },),
           const SizedBox(
             height: 12.0,
