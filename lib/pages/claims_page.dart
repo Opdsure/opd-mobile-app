@@ -1,30 +1,20 @@
-import 'dart:convert';
 import 'dart:ui';
-import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/custom_ui/app_home_header.dart';
-import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/claim_status_model.dart';
-import 'package:opdsure/model/my_claim/my_claims_model.dart';
 import 'package:opdsure/pages/checkout/checkout_controller.dart';
-import 'package:opdsure/pages/claim_pages/claims_details_page.dart';
-import 'package:opdsure/pages/file_claim_page.dart';
-import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
-import 'package:opdsure/pages/upload_file_claim_doc.dart';
-import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
-import '../model/claim_json_model.dart';
-import '../utils/app_colors.dart';
+import '../model/my_claim/my_claims_list_model.dart';
+import '../model/my_claim/my_claims_model.dart';
 import 'claim_pages/claim_tile.dart';
 
 class ClaimsPage extends StatelessWidget {

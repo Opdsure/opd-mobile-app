@@ -8,6 +8,7 @@ import 'package:opdsure/model/my_claim/my_claims_model.dart';
 import '../../custom_ui/app_button.dart';
 import '../../custom_ui/app_card_view.dart';
 import '../../custom_ui/app_text_view.dart';
+import '../../model/my_claim/my_claims_list_model.dart';
 import '../../utils/app_var.dart';
 import '../../utils/common_methods.dart';
 import '../file_claim_page.dart';
@@ -208,8 +209,7 @@ class ClaimTile extends StatelessWidget {
                       width: 5,
                     ),
                     AppTextView(
-                      text:
-                      disputeClaimStatus.statusName!,
+                      text: disputeClaimStatus.statusName!,
                       size: 12.0,
                       color: disputeClaimStatus.statusColor!,
                     ),

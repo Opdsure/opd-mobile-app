@@ -26,24 +26,27 @@ if (flutterVersionName == null) {
 android {
     namespace = "io.app.opdsure"
     compileSdk = 34
-    ndkVersion = "25.1.8937393"
-    buildToolsVersion "21.1.2"
+    ndkVersion = "27.0.12077973"
 
 
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    sourceSets{
+        main.java.srcDirs+='src/main/kotlin'
     }
 
     defaultConfig {
         multiDexEnabled true
         applicationId = "io.app.opdsure"
-        minSdk = 23
+        minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()  /// TODO: Current Version Code is 5
         versionName = flutterVersionName  /// TODO: Current Version Name is 1.0.0
@@ -60,16 +63,9 @@ android {
         release {
             signingConfig signingConfigs.release
 //            minifyEnabled true
-//            shrinkResources true
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
-
-            minifyEnabled false // Disable code shrinking
-            shrinkResources false // Disable resource shrinking
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-
-
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled false  // Change this to false
+            shrinkResources false // Change this to false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -79,4 +75,5 @@ flutter {
 }
 
 dependencies {
+    implementation 'com.android.support:multidex:2.0.1'
 }

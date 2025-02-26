@@ -6,13 +6,10 @@ import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/checkout/checkout_page_view.dart';
-import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 import 'package:opdsure/utils/common_methods.dart';
-import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_sure_app.dart';
 import 'package:opdsure/widget/opd_widget.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
-
+import 'package:razorpay_flutter/razorpay_flutter.dart' show ExternalWalletResponse, PaymentFailureResponse, PaymentSuccessResponse, Razorpay;
 import '../../model/coupon_model.dart';
 
 enum PaymentType { buyPlan, buyHealthCheckup, planUpgrade, planRenew }
@@ -32,9 +29,16 @@ class CheckoutPage extends StatefulWidget {
 
   @override
   State<CheckoutPage> createState() => CheckoutController();
+
+
 }
 
+
 class CheckoutController extends State<CheckoutPage> {
+
+  // late Razorpay razorpay;
+
+
   PlanRecords? records;
   MembershipOptions? options;
   HealthCheckupRecords? healthCheckupRecords;
@@ -139,7 +143,12 @@ class CheckoutController extends State<CheckoutPage> {
           context.go('/home');
         }
       } else {
+        // razorpay = Razorpay(); // ✅ Use default constructor
+        // razorpay = Razorpay(); // ✅ Use default constructor
+
         Razorpay razorpay = Razorpay();
+
+
         var paymentOptions = {
           'key': 'rzp_live_VhALW56rJ4qcov',
           'amount': createPaymentResponse.data!.amount!,

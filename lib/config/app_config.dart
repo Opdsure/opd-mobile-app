@@ -15,6 +15,7 @@ abstract class AppConfig{
   static const double borderRadius = 18.0;
   static const String pharmaEasyUrl = "https://pharmeasy.in/online-medicine-order?utm_source=alz-finlyt&utm_medium=alliance&utm_campaign=finlyt-20april2022";
   static const String apolloPharmaUrl = "https://www.apollopharmacy.in/?utm_source=HANA_Brand&utm_medium=Brand&utm_campaign=OPDSure_Pharma";
+  static const String simplyfiyInsurenceUrl = "https://www.smcinsurance.com";
 
 
   void loadFromJson(Map<String, dynamic> json){

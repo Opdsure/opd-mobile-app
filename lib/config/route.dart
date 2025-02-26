@@ -39,6 +39,7 @@ import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../model/claim_json_model.dart';
+import '../model/my_claim/my_claims_list_model.dart';
 import '../pages/all_checkup_page.dart';
 import '../pages/checkout/checkout_controller.dart';
 import '../pages/claim_pages/claims_details_page.dart';

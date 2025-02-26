@@ -34,6 +34,7 @@ import '../custom_ui/app_edit_text.dart';
 import '../custom_ui/app_mobile_field.dart';
 import '../custom_ui/app_rich_text.dart';
 import '../custom_ui/app_text_view.dart';
+import '../model/my_claim/my_claims_list_model.dart';
 import '../model/my_claim/my_claims_model.dart';
 import '../model/plans/plans_response.dart';
 import '../model/state_model.dart';

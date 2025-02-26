@@ -24,6 +24,7 @@ import 'package:opdsure/utils/common_methods.dart';
 
 import '../../config/app_config.dart';
 import '../../model/free_health_checkups/free_health_checkups_model.dart';
+import '../../model/my_claim/my_claims_list_model.dart';
 import '../../model/my_claim/my_claims_model.dart';
 import '../../model/my_member_model.dart';
 import '../../model/plans/plans_response.dart';

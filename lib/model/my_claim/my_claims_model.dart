@@ -1,12 +1,12 @@
 class MyClaimsModel {
   MyClaimsModel({
-      ClaimData? data,
-      bool? success, 
-      String? message,}){
+    ClaimData? data,
+    bool? success,
+    String? message,}){
     _data = data;
     _success = success;
     _message = message;
-}
+  }
 
   MyClaimsModel.fromJson(dynamic json) {
     _data = json['data'] != null ? ClaimData.fromJson(json['data']) : null;
@@ -35,11 +35,11 @@ class MyClaimsModel {
 
 class ClaimData {
   ClaimData({
-      List<ClaimRecords>? records,
-      Pagination? pagination,}){
+    List<ClaimRecords>? records,
+    Pagination? pagination,}){
     _records = records;
     _pagination = pagination;
-}
+  }
 
   ClaimData.fromJson(dynamic json) {
     if (json['records'] != null) {
@@ -76,19 +76,19 @@ class ClaimData {
 
 class Pagination {
   Pagination({
-      int? totalRecords,
-      int? pageSize,
-      int? totalPages,
-      int? currentPage,
-      int? nextPage,
-      int? prevPage,}){
+    dynamic? totalRecords,
+    dynamic? pageSize,
+    dynamic? totalPages,
+    dynamic? currentPage,
+    dynamic nextPage,
+    dynamic prevPage,}){
     _totalRecords = totalRecords;
     _pageSize = pageSize;
     _totalPages = totalPages;
     _currentPage = currentPage;
     _nextPage = nextPage;
     _prevPage = prevPage;
-}
+  }
 
   Pagination.fromJson(dynamic json) {
     _totalRecords = json['totalRecords'];
@@ -98,12 +98,12 @@ class Pagination {
     _nextPage = json['nextPage'];
     _prevPage = json['prevPage'];
   }
-  int? _totalRecords;
-  int? _pageSize;
-  int? _totalPages;
-  int? _currentPage;
-  int? _nextPage;
-  int? _prevPage;
+  dynamic _totalRecords;
+  dynamic _pageSize;
+  dynamic _totalPages;
+  dynamic _currentPage;
+  dynamic _nextPage;
+  dynamic _prevPage;
 
   int? get totalRecords => _totalRecords ?? 0;
   int? get pageSize => _pageSize ?? 0;
@@ -127,46 +127,46 @@ class Pagination {
 
 class ClaimRecords {
   ClaimRecords({
-      String? id,
-      String? opdDate,
-      String? docName,
-      String? docEmail,
-      String? docCountryCode,
-      dynamic docPhone,
-      String? claimId,
-      String? docRegistration,
-      String? pincode,
-      String? docAddress,
-      String? city,
-      String? diagonosisDetail,
-      dynamic doctorFee,
-      dynamic pharmacyFee,
-      dynamic labTestFee,
-      dynamic claimableDoctorFee,
-      dynamic? claimablePharmacyFee,
-      dynamic? claimableLabTestFee,
-      dynamic billAmount,
-      dynamic? claimableAmount,
-      dynamic claimType,
-      dynamic claimCombination,
-      String? hospital,
-      String? userRemark,
-      List<String>? feeReceipt,
-      List<String>? prescription,
-      List<String>? pharmacyReceipt,
-      List<String>? testReceipt,
-      dynamic? status,
-      MemberId? memberId,
-      String? userId,
-      bool? subscriberReaction,
-      bool? resubmission,
-      bool? dispute,
-      List<SubscriberRemark>? subscriberRemark,
-      String? createdAt,
-      String? updatedAt,
-      dynamic? v,
-      String? claimClosureDate,
-      dynamic? disputeDetails,}){
+    String? id,
+    String? opdDate,
+    String? docName,
+    String? docEmail,
+    String? docCountryCode,
+    dynamic docPhone,
+    String? claimId,
+    String? docRegistration,
+    String? pincode,
+    String? docAddress,
+    String? city,
+    String? diagonosisDetail,
+    dynamic doctorFee,
+    dynamic pharmacyFee,
+    dynamic labTestFee,
+    dynamic claimableDoctorFee,
+    dynamic? claimablePharmacyFee,
+    dynamic? claimableLabTestFee,
+    dynamic billAmount,
+    dynamic? claimableAmount,
+    dynamic claimType,
+    dynamic claimCombination,
+    String? hospital,
+    String? userRemark,
+    List<String>? feeReceipt,
+    List<String>? prescription,
+    List<String>? pharmacyReceipt,
+    List<String>? testReceipt,
+    dynamic? status,
+    MemberId? memberId,
+    // String? userId,
+    bool? subscriberReaction,
+    bool? resubmission,
+    bool? dispute,
+    List<SubscriberRemark>? subscriberRemark,
+    String? createdAt,
+    String? updatedAt,
+    dynamic? v,
+    String? claimClosureDate,
+    dynamic? disputeDetails,}){
     _id = id;
     _opdDate = opdDate;
     _docName = docName;
@@ -197,7 +197,7 @@ class ClaimRecords {
     _testReceipt = testReceipt;
     _status = status;
     _memberId = memberId;
-    _userId = userId;
+    // _userId = userId;
     _subscriberReaction = subscriberReaction;
     _resubmission = resubmission;
     _dispute = dispute;
@@ -207,7 +207,7 @@ class ClaimRecords {
     _v = v;
     _claimClosureDate = claimClosureDate;
     _disputeDetails = disputeDetails;
-}
+  }
 
   ClaimRecords.fromJson(dynamic json) {
     _id = json['_id'];
@@ -245,7 +245,7 @@ class ClaimRecords {
     _testReceipt = json['test_receipt'] != null ? json['test_receipt'].cast<String>() : [];
     _status = json['status'];
     _memberId = json['member_id'] != null ? MemberId.fromJson(json['member_id']) : null;
-    _userId = json['user_id'];
+    // _userId = json['user_id'];
     _subscriberReaction = json['subscriber_reaction'];
     _resubmission = json['resubmission'];
     _dispute = json['dispute'];
@@ -265,11 +265,11 @@ class ClaimRecords {
   String? _opdDate;
   String? _docName;
   String? _docEmail;
-  String? _docCountryCode;
+  dynamic? _docCountryCode;
   dynamic _docPhone;
   String? _claimId;
   String? _docRegistration;
-  String? _pincode;
+  dynamic _pincode;
   String? _docAddress;
   String? _city;
   String? _diagonosisDetail;
@@ -279,10 +279,10 @@ class ClaimRecords {
   dynamic? _claimableDoctorFee;
   dynamic? _claimablePharmacyFee;
   dynamic? _claimableLabTestFee;
-  dynamic? _billAmount;
-  dynamic? _claimableAmount;
-  dynamic? _claimType;
-  dynamic? _claimCombination;
+  dynamic _billAmount;
+  dynamic _claimableAmount;
+  dynamic _claimType;
+  dynamic _claimCombination;
   String? _hospital;
   String? _userRemark;
   List<String>? _feeReceipt;
@@ -306,11 +306,11 @@ class ClaimRecords {
   String? get opdDate => _opdDate ?? "";
   String? get docName => _docName ?? "";
   String? get docEmail => _docEmail ?? "";
-  String? get docCountryCode => _docCountryCode ?? "";
+  dynamic? get docCountryCode => _docCountryCode ?? "";
   dynamic? get docPhone => _docPhone ?? 0;
   String? get claimId => _claimId ?? "";
   String? get docRegistration => _docRegistration ?? "";
-  String? get pincode => _pincode ?? "";
+  dynamic? get pincode => _pincode ?? "";
   String? get docAddress => _docAddress ?? "";
   String? get city => _city ?? "";
   String? get diagonosisDetail => _diagonosisDetail ?? "";
@@ -397,18 +397,18 @@ class ClaimRecords {
 class SubscriberRemark {
   SubscriberRemark({
     dynamic? designation,
-      String? approverId,
-      String? message,
+    String? approverId,
+    String? message,
     dynamic? messageClaimInternalStatus,
-      String? id,
-      String? createdAt,}){
+    String? id,
+    String? createdAt,}){
     _designation = designation;
     _approverId = approverId;
     _message = message;
     _messageClaimInternalStatus = messageClaimInternalStatus;
     _id = id;
     _createdAt = createdAt;
-}
+  }
 
   SubscriberRemark.fromJson(dynamic json) {
     _designation = json['designation'];
@@ -447,13 +447,13 @@ class SubscriberRemark {
 
 class MemberId {
   MemberId({
-      String? id,
-      String? name,
+    String? id,
+    String? name,
     dynamic? relation,}){
     _id = id;
     _name = name;
     _relation = relation;
-}
+  }
 
   MemberId.fromJson(dynamic json) {
     _id = json['_id'];

@@ -15,10 +15,10 @@ import 'package:opdsure/pages/homepage/home_service_tile.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../../config/app_config.dart';
 import '../../custom_ui/app_rich_text.dart';
 import '../../model/claim_status_model.dart';
+import '../../model/my_claim/my_claims_list_model.dart';
 import '../../model/my_claim/my_claims_model.dart';
 
 typedef ValueCallback = void Function(int value);
@@ -130,6 +130,14 @@ class HomePage extends StatefulWidget {
             path: '102',
           ));
         }),
+
+    OpdService(
+        title: 'Simplify Insurance',
+        image: 'assets/images/diag.png',
+        onTap: (){
+          context.push('/home/web_view', extra: AppConfig.simplyfiyInsurenceUrl);
+        }),
+
     // OpdService(
     //     title: '',
     //     image: 'assets/images/quick_claim.png',
@@ -348,24 +356,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                     ),
                                   ),
                                   ListView.builder(
-                                      itemCount:
-                                          listData.length > 3 ? 3 : listData.length,
+                                      itemCount: listData.length > 3 ? 3 : listData.length,
                                       physics: const NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemBuilder: (context, index) {
+
                                         ClaimRecords records = listData[index];
                                         ClaimStatusModel claimStatusModel =
                                             ClaimStatusModel().getClaimBuStatus(
-                                                records.status!,
+                                                records.status!!,
                                                 reSubmit: records.resubmission!);
                                         ClaimStatusModel disputeClaimStatus =
-                                            ClaimStatusModel()
-                                                .getDisputeClaimBuStatus(
-                                                    records.disputeDetails!);
+                                            ClaimStatusModel().getDisputeClaimBuStatus(records.disputeDetails!);
                                         return ClaimTile(
                                             records: records,
                                             claimStatus: claimStatusModel,
                                             disputeClaimStatus: disputeClaimStatus);
+
+
+
                                       },
                                     ),
                                 ],
