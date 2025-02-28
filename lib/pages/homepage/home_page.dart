@@ -131,12 +131,12 @@ class HomePage extends StatefulWidget {
           ));
         }),
 
-    OpdService(
-        title: 'Simplify Insurance',
-        image: 'assets/images/diag.png',
-        onTap: (){
-          context.push('/home/web_view', extra: AppConfig.simplyfiyInsurenceUrl);
-        }),
+    // OpdService(
+    //     title: 'Simplify Insurance',
+    //     image: 'assets/images/diag.png',
+    //     onTap: (){
+    //       context.push('/home/web_view', extra: AppConfig.simplyfiyInsurenceUrl);
+    //     }),
 
     // OpdService(
     //     title: '',
@@ -144,12 +144,12 @@ class HomePage extends StatefulWidget {
     //     onTap: (){
     //       callBack!.call(1);
     //     }),
-    // OpdService(
-    //     title: '',
-    //     image: 'assets/images/app_logo.png',
-    //     onTap: (){
-    //       context.push('/home/web_view', extra: 'https://www.smcinsurance.com/?user=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiT1BEIFN1cmUiLCJ1bmlxdWVfbmFtZSI6Ik9QRCBTdXJlIiwicm9sZSI6IjI5IiwiZW1haWwiOiJ1bWVzaC5nQG9wZHN1cmUuY29tIiwibmFtZWlkIjoiNTIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3VzZXJkYXRhIjoiMTkwNDI1IiwiUm9sZU5hbWUiOiJBZmZpbGlhdGUiLCJNb2JpbGVObyI6Ijg4MDA2MTQ1ODgiLCJQb3NDb2RlIjoiMCIsImJscGF5bG9hZCI6IiIsImNscGF5bG9hZCI6IiIsInVzZXJ0b2tlbiI6ImVmYTBhZDM0ZGY4NDQ3ZmQ4ZWI5YjUyZjJjYWRiOGFhIiwibmJmIjoxNzI1OTYxMjk2LCJleHAiOjE3MjYwNDc2OTYsImlhdCI6MTcyNTk2MTI5NiwiaXNzIjoiaHR0cHM6Ly93d3cuc21jaW5zdXJhbmNlLmNvbSIsImF1ZCI6Imh0dHBzOi8vd3d3LnNtY2luc3VyYW5jZS5jb20ifQ.V4WobGKx6g6eJ72aNjVM5n1AjLGb4Rn7gAlXMxG4RY4&BusinessID=');
-    //     }),
+    OpdService(
+        title: 'Simplify Insurance',
+        image: 'assets/images/app_logo.png',
+        onTap: (){
+          context.push('/home/web_view', extra: 'https://www.smcinsurance.com/?user=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiT1BEIFN1cmUiLCJ1bmlxdWVfbmFtZSI6Ik9QRCBTdXJlIiwicm9sZSI6IjI5IiwiZW1haWwiOiJ1bWVzaC5nQG9wZHN1cmUuY29tIiwibmFtZWlkIjoiNTIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3VzZXJkYXRhIjoiMTkwNDI1IiwiUm9sZU5hbWUiOiJBZmZpbGlhdGUiLCJNb2JpbGVObyI6Ijg4MDA2MTQ1ODgiLCJQb3NDb2RlIjoiMCIsImJscGF5bG9hZCI6IiIsImNscGF5bG9hZCI6IiIsInVzZXJ0b2tlbiI6ImVmYTBhZDM0ZGY4NDQ3ZmQ4ZWI5YjUyZjJjYWRiOGFhIiwibmJmIjoxNzI1OTYxMjk2LCJleHAiOjE3MjYwNDc2OTYsImlhdCI6MTcyNTk2MTI5NiwiaXNzIjoiaHR0cHM6Ly93d3cuc21jaW5zdXJhbmNlLmNvbSIsImF1ZCI6Imh0dHBzOi8vd3d3LnNtY2luc3VyYW5jZS5jb20ifQ.V4WobGKx6g6eJ72aNjVM5n1AjLGb4Rn7gAlXMxG4RY4&BusinessID=');
+        }),
   ];
 
   @override
