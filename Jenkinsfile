@@ -85,6 +85,7 @@ pipeline {
         // 🛠 Define Flutter installation path and update system PATH
         FLUTTER_HOME = "/Users/intileotechnologies/Documents/Aman/flutter"
         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$PATH"
+        CLOUDPATH = "/opt/homebrew/bin:$PATH"
 
         // 🔐 Securely store Android keystore credentials using Jenkins credentials
         ANDROID_KEYSTORE_PATH = "/Users/intileotechnologies/Documents/Aman/opd_sure_app/android/opdsure.jks"
@@ -98,6 +99,14 @@ pipeline {
     }
 
     stages {
+       stage('Check gcloud') {
+                   steps {
+                       sh 'which gcloud'
+                       sh 'gcloud --version'
+                   }
+               }
+
+
         stage('Cleanup') {
             steps {
                 echo "🧹 Cleaning up old files..."
