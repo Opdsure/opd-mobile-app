@@ -1,0 +1,25 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    match(type: "appstore") # Fetch signing certificates
+    build_app(scheme: "Runner") # Build the app
+    upload_to_testflight(
+      username: ENV['APPLE_ID'], # Secure Apple ID reference
+      app_identifier: "io.app.opdsure",
+      password: ENV['APP_SPECIFIC_PASSWORD'] # Secure password reference
+    )
+  end
+
+  desc "Build and deploy to App Store"
+  lane :release do
+    match(type: "appstore") # Fetch signing certificates
+    build_app(scheme: "Runner")
+    upload_to_app_store(
+      username: ENV['APPLE_ID'],
+      app_identifier: "io.app.opdsure",
+      password: ENV['APP_SPECIFIC_PASSWORD']
+    )
+  end
+end

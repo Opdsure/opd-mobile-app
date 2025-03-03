@@ -13,7 +13,7 @@ pipeline {
         ANDROID_KEY_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
         ANDROID_STORE_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
 
-        // 🍏 Securely store Apple credentials for iOS deployment
+        //  Securely store Apple credentials for iOS deployment
         APPLE_ID = credentials('APPLE_ID')
         APPLE_APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
     }
@@ -117,8 +117,7 @@ pipeline {
                 xcodebuild archive -workspace ios/Runner.xcworkspace \
                 -scheme Runner \
                 -archivePath $WORKSPACE/build/ios_archive.xcarchive \
-                CODE_SIGN_IDENTITY="iPhone Distribution" \
-                PROVISIONING_PROFILE_SPECIFIER="YourProvisioningProfile"
+                CODE_SIGN_IDENTITY="iPhone Distribution"
                 '''
             }
         }
@@ -157,3 +156,86 @@ pipeline {
         }
     }
 }
+
+
+// pipeline {
+//     agent any  // Runs on any available Jenkins machine
+//
+//     environment {
+//         FLUTTER_HOME = "/Users/intileotechnologies/Documents/Aman/flutter"
+//         CLOUD_SDK_HOME = "/opt/homebrew/bin"
+//         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH"
+//
+//         APPLE_ID = credentials('APPLE_ID')
+//         APPLE_APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
+//     }
+//
+//     stages {
+//         stage('Cleanup') {
+//             steps {
+//                 echo "🧹 Cleaning up workspace..."
+//                 cleanWs()
+//             }
+//         }
+//
+//         stage('Checkout Code') {
+//             steps {
+//                 echo "🔄 Fetching latest code..."
+//                 git url: 'https://amanrao@bitbucket.org/sahil1321/opd_sure_app.git', branch: 'master'
+//             }
+//         }
+//
+//         stage('Setup Flutter') {
+//             steps {
+//                 echo "🛠 Checking Flutter installation..."
+//                 sh 'flutter --version'
+//             }
+//         }
+//
+//         stage('Install Dependencies') {
+//             steps {
+//                 echo "📦 Installing Flutter dependencies..."
+//                 sh 'flutter pub get'
+//             }
+//         }
+//
+//         // ✅ ANDROID BUILD (No Changes)
+//         stage('Build APK & AAB') {
+//             steps {
+//                 echo "🚀 Building Android APK & AAB..."
+//                 sh '''
+//                 flutter build apk --release
+//                 flutter build appbundle --release
+//                 '''
+//             }
+//         }
+//
+//         // ✅ iOS BUILD WITH FASTLANE
+//         stage('Build iOS with Fastlane') {
+//             steps {
+//                 echo "🚀 Running Fastlane build for iOS..."
+//                 sh '''
+//                 cd ios && fastlane build
+//                 '''
+//             }
+//         }
+//
+//         stage('Upload IPA to App Store') {
+//             steps {
+//                 echo "🚀 Uploading IPA using Fastlane..."
+//                 sh '''
+//                 cd ios && fastlane upload
+//                 '''
+//             }
+//         }
+//     }
+//
+//     post {
+//         success {
+//             echo "✅ Build and deployment completed successfully!"
+//         }
+//         failure {
+//             echo "❌ Build failed. Check logs for issues!"
+//         }
+//     }
+// }
