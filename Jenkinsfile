@@ -168,10 +168,10 @@ pipeline {
         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:/opt/homebrew/bin:$PATH"
 
         // 🔐 Securely store Android keystore credentials using Jenkins credentials
-        ANDROID_KEYSTORE_PATH = "android/app/opdsure.jks"
+        ANDROID_KEYSTORE_PATH = "Users/intileotechnologies/Documents/Aman/opd_sure_app/android/opdsure.jks"
         ANDROID_KEY_ALIAS = "opdsure"
         ANDROID_KEY_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
-        ANDROID_STORE_PASSWORD = credentials('ANDROID_STORE_PASSWORD')
+        ANDROID_STORE_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
 
         // 🔐 Securely store Apple credentials for iOS deployment
         APPLE_ID = credentials('APPLE_ID')
