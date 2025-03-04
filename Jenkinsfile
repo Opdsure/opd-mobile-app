@@ -7,14 +7,13 @@ pipeline {
         CLOUD_SDK_HOME = "/opt/homebrew/bin"  // Ensure gcloud is found
         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH"
 
-        // 🔐 Securely store credentials in Jenkins
+        // 🔐 Securely store Android keystore credentials using Jenkins credentials
         ANDROID_KEYSTORE_PATH = "/Users/intileotechnologies/Documents/Aman/opd_sure_app/android/opdsure.jks"
         ANDROID_KEY_ALIAS = "opdsure"
         ANDROID_KEY_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
         ANDROID_STORE_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
 
-        PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS_JSON') // Jenkins credential for Google Play JSON key
-
+        //  Securely store Apple credentials for iOS deployment
         APPLE_ID = credentials('APPLE_ID')
         APPLE_APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
     }
@@ -73,9 +72,17 @@ pipeline {
             steps {
                 echo "🚀 Building Android APK & AAB..."
                 sh '''
-                flutter build apk --release
+                flutter build apk --release \
+                --dart-define=ANDROID_KEYSTORE_PATH=$ANDROID_KEYSTORE_PATH \
+                --dart-define=ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS \
+                --dart-define=ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD \
+                --dart-define=ANDROID_STORE_PASSWORD=$ANDROID_STORE_PASSWORD
 
-                flutter build appbundle --release
+                flutter build appbundle --release \
+                --dart-define=ANDROID_KEYSTORE_PATH=$ANDROID_KEYSTORE_PATH \
+                --dart-define=ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS \
+                --dart-define=ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD \
+                --dart-define=ANDROID_STORE_PASSWORD=$ANDROID_STORE_PASSWORD
                 '''
             }
         }
@@ -87,14 +94,10 @@ pipeline {
                 export PATH="/opt/homebrew/bin:$PATH"
 
                 echo "🔐 Authenticating with Google Cloud..."
-                echo $PLAYSTORE_CREDENTIALS > playstore-credentials.json
                 gcloud auth activate-service-account --key-file=playstore-credentials.json || echo "❌ gcloud authentication failed!"
 
                 echo "🚀 Deploying AAB to Google Play..."
-                gcloud --quiet --no-user-output-enabled beta androidapps bundles upload \
-                  --package io.app.opdsure \
-                  --bundle build/app/outputs/bundle/release/app-release.aab \
-                  --track production || echo "❌ Deployment failed!"
+                gcloud --quiet --no-user-output-enabled app deploy build/app/outputs/bundle/release/app-release.aab --release-track=production || echo "❌ Deployment failed!"
                 '''
             }
         }
@@ -153,3 +156,6 @@ pipeline {
         }
     }
 }
+
+
+

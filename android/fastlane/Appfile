@@ -1,0 +1,2 @@
+json_key_file("./playstore-credentials.json") # Path to your Google Play API credentials JSON
+package_name "io.app.opdsure" # Your app's package name
