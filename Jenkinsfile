@@ -7,13 +7,14 @@ pipeline {
         CLOUD_SDK_HOME = "/opt/homebrew/bin"  // Ensure gcloud is found
         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH"
 
-        // 🔐 Securely store Android keystore credentials using Jenkins credentials
+        // 🔐 Securely store credentials in Jenkins
         ANDROID_KEYSTORE_PATH = "/Users/intileotechnologies/Documents/Aman/opd_sure_app/android/opdsure.jks"
         ANDROID_KEY_ALIAS = "opdsure"
         ANDROID_KEY_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
         ANDROID_STORE_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
 
-        //  Securely store Apple credentials for iOS deployment
+        PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS_JSON') // Jenkins credential for Google Play JSON key
+
         APPLE_ID = credentials('APPLE_ID')
         APPLE_APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
     }
@@ -72,17 +73,9 @@ pipeline {
             steps {
                 echo "🚀 Building Android APK & AAB..."
                 sh '''
-                flutter build apk --release \
-                --dart-define=ANDROID_KEYSTORE_PATH=$ANDROID_KEYSTORE_PATH \
-                --dart-define=ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS \
-                --dart-define=ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD \
-                --dart-define=ANDROID_STORE_PASSWORD=$ANDROID_STORE_PASSWORD
+                flutter build apk --release
 
-                flutter build appbundle --release \
-                --dart-define=ANDROID_KEYSTORE_PATH=$ANDROID_KEYSTORE_PATH \
-                --dart-define=ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS \
-                --dart-define=ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD \
-                --dart-define=ANDROID_STORE_PASSWORD=$ANDROID_STORE_PASSWORD
+                flutter build appbundle --release
                 '''
             }
         }
@@ -94,10 +87,14 @@ pipeline {
                 export PATH="/opt/homebrew/bin:$PATH"
 
                 echo "🔐 Authenticating with Google Cloud..."
+                echo $PLAYSTORE_CREDENTIALS > playstore-credentials.json
                 gcloud auth activate-service-account --key-file=playstore-credentials.json || echo "❌ gcloud authentication failed!"
 
                 echo "🚀 Deploying AAB to Google Play..."
-                gcloud --quiet --no-user-output-enabled app deploy build/app/outputs/bundle/release/app-release.aab --release-track=production || echo "❌ Deployment failed!"
+                gcloud --quiet --no-user-output-enabled beta androidapps bundles upload \
+                  --package io.app.opdsure \
+                  --bundle build/app/outputs/bundle/release/app-release.aab \
+                  --track production || echo "❌ Deployment failed!"
                 '''
             }
         }
@@ -156,86 +153,3 @@ pipeline {
         }
     }
 }
-
-
-// pipeline {
-//     agent any  // Runs on any available Jenkins machine
-//
-//     environment {
-//         FLUTTER_HOME = "/Users/intileotechnologies/Documents/Aman/flutter"
-//         CLOUD_SDK_HOME = "/opt/homebrew/bin"
-//         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH"
-//
-//         APPLE_ID = credentials('APPLE_ID')
-//         APPLE_APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
-//     }
-//
-//     stages {
-//         stage('Cleanup') {
-//             steps {
-//                 echo "🧹 Cleaning up workspace..."
-//                 cleanWs()
-//             }
-//         }
-//
-//         stage('Checkout Code') {
-//             steps {
-//                 echo "🔄 Fetching latest code..."
-//                 git url: 'https://amanrao@bitbucket.org/sahil1321/opd_sure_app.git', branch: 'master'
-//             }
-//         }
-//
-//         stage('Setup Flutter') {
-//             steps {
-//                 echo "🛠 Checking Flutter installation..."
-//                 sh 'flutter --version'
-//             }
-//         }
-//
-//         stage('Install Dependencies') {
-//             steps {
-//                 echo "📦 Installing Flutter dependencies..."
-//                 sh 'flutter pub get'
-//             }
-//         }
-//
-//         // ✅ ANDROID BUILD (No Changes)
-//         stage('Build APK & AAB') {
-//             steps {
-//                 echo "🚀 Building Android APK & AAB..."
-//                 sh '''
-//                 flutter build apk --release
-//                 flutter build appbundle --release
-//                 '''
-//             }
-//         }
-//
-//         // ✅ iOS BUILD WITH FASTLANE
-//         stage('Build iOS with Fastlane') {
-//             steps {
-//                 echo "🚀 Running Fastlane build for iOS..."
-//                 sh '''
-//                 cd ios && fastlane build
-//                 '''
-//             }
-//         }
-//
-//         stage('Upload IPA to App Store') {
-//             steps {
-//                 echo "🚀 Uploading IPA using Fastlane..."
-//                 sh '''
-//                 cd ios && fastlane upload
-//                 '''
-//             }
-//         }
-//     }
-//
-//     post {
-//         success {
-//             echo "✅ Build and deployment completed successfully!"
-//         }
-//         failure {
-//             echo "❌ Build failed. Check logs for issues!"
-//         }
-//     }
-// }
