@@ -89,16 +89,25 @@ pipeline {
 
         stage('Upload AAB to Google Play') {
             steps {
-                echo "🚀 Uploading AAB to Google Play..."
-                sh '''
-                export PATH="/opt/homebrew/bin:$PATH"
+               echo "🚀 Uploading AAB to Google Play..."
 
-                echo "🔐 Authenticating with Google Cloud..."
-                gcloud auth activate-service-account --key-file=playstore-credentials.json || echo "❌ gcloud authentication failed!"
+                       // Save the credential to a JSON file
+                       sh '''
+                       echo "$PLAYSTORE_CREDENTIALS" > playstore-credentials.json
 
-                echo "🚀 Deploying AAB to Google Play..."
-                gcloud --quiet --no-user-output-enabled app deploy build/app/outputs/bundle/release/app-release.aab --release-track=production || echo "❌ Deployment failed!"
-                '''
+                       export PATH="/opt/homebrew/bin:$PATH"
+                       echo "🔐 Authenticating with Google Cloud..."
+                       gcloud auth activate-service-account --key-file=playstore-credentials.json || echo "❌ gcloud authentication failed!"
+
+                       echo "🚀 Deploying AAB to Google Play..."
+                       gcloud beta androidpublisher bundles upload --package="com.ksbm.astrochats" \
+                         --bundle="build/app/outputs/bundle/release/app-release.aab" \
+                         --service-account-key=playstore-credentials.json \
+                         --track=production || echo "❌ Deployment failed!"
+                       '''
+
+
+
             }
         }
 
