@@ -98,8 +98,8 @@ pipeline {
                     sh '''"
                     export PATH="/opt/homebrew/bin:$PATH"
 
-                    echo "$PLAYSTORE_CREDENTIALS"
-                    echo "$PLAYSTORE_CREDENTIALS_FILE
+                    echo "this is playstore cred $PLAYSTORE_CREDENTIALS"
+                    echo "this is not play cred $PLAYSTORE_CREDENTIALS_FILE
                     echo "🔐 Authenticating with Google Cloud..."
                     gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE"
 
