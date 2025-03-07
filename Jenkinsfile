@@ -97,7 +97,10 @@ pipeline {
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
                     echo "this is playstore cred $PLAYSTORE_CREDENTIALS"
-                    echo "this is not play cred $PLAYSTORE_CREDENTIALS_FILE
+                    echo "this is not play cred $PLAYSTORE_CREDENTIALS_FILE"
+
+                     export PATH="/opt/homebrew/bin:$PATH"
+
 
                     echo "🔐 Authenticating with Google Cloud..."
                     gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE"
