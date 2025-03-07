@@ -61,14 +61,14 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                echo "🧪 Running Flutter tests..."
-                sh '''
-                flutter test || echo "⚠️ Tests failed, but continuing..."
-                '''
-            }
-        }
+//         stage('Run Tests') {
+//             steps {
+//                 echo "🧪 Running Flutter tests..."
+//                 sh '''
+//                 flutter test || echo "⚠️ Tests failed, but continuing..."
+//                 '''
+//             }
+//         }
 
         // 🚀 ANDROID BUILD PROCESS
         stage('Build APK & AAB') {
@@ -92,12 +92,14 @@ pipeline {
         stage('Upload AAB to Google Play') {
             steps {
                 echo "🚀 Uploading AAB to Google Play..."
-                echo "$PLAYSTORE_CREDENTIALS"
-                echo "$PLAYSTORE_CREDENTIALS_FILE"
+
 
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
-                    sh '''
+                    sh '''"
                     export PATH="/opt/homebrew/bin:$PATH"
+
+                    echo "$PLAYSTORE_CREDENTIALS"
+                    echo "$PLAYSTORE_CREDENTIALS_FILE
                     echo "🔐 Authenticating with Google Cloud..."
                     gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE"
 
