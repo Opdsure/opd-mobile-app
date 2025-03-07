@@ -228,7 +228,8 @@ pipeline {
                     def credentialsPath = "playstore-credentials.json"
 
                     // Save the credential to a JSON file
-                    sh "echo '${PLAYSTORE_CREDENTIALS}' | base64 --decode > ${credentialsPath}"
+                   withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
+
 
                     sh '''
                     export PATH="/opt/homebrew/bin:$PATH"
@@ -236,10 +237,10 @@ pipeline {
                     gcloud auth activate-service-account --key-file=playstore-credentials.json || echo "❌ gcloud authentication failed!"
 
                     echo "🚀 Deploying AAB to Google Play..."
-                    gcloud beta androidpublisher bundles upload --package="com.ksbm.astrochats" \
-                        --bundle="build/app/outputs/bundle/release/app-release.aab" \
-                        --service-account-key=playstore-credentials.json \
-                        --track=production || echo "❌ Deployment failed!"
+                    gcloud beta androidpublisher bundles upload --package="io.app.opdsure" \
+                            --bundle="build/app/outputs/bundle/release/app-release.aab" \
+                            --service-account-key="$PLAYSTORE_CREDENTIALS_FILE" \
+                            --track=production
                     '''
                 }
             }
