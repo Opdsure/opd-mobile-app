@@ -92,8 +92,9 @@ pipeline {
         stage('Upload AAB to Google Play') {
             steps {
                 echo "🚀 Uploading AAB to Google Play..."
-                echo "$PLAYSTORE_CREDENTIALS_FILE"
                 echo "$PLAYSTORE_CREDENTIALS"
+                echo "$PLAYSTORE_CREDENTIALS_FILE"
+
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
                     export PATH="/opt/homebrew/bin:$PATH"
