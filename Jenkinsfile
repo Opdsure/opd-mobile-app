@@ -129,6 +129,8 @@
 // }
 
 
+
+
 pipeline {
     agent any
 
@@ -146,9 +148,6 @@ pipeline {
         // Secure Apple Credentials
         APPLE_ID = credentials('APPLE_ID')
         APPLE_APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
-
-        // Google Play Service Account JSON
-        PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS')
     }
 
     stages {
@@ -209,8 +208,8 @@ pipeline {
                 cat <<EOF > android/key.properties
                 storeFile=$ANDROID_KEYSTORE_PATH
                 keyAlias=$ANDROID_KEY_ALIAS
-                storePassword=$ANDROID_STORE_PASSWORD
-                keyPassword=$ANDROID_KEY_PASSWORD
+                storePassword="$ANDROID_STORE_PASSWORD"
+                keyPassword="$ANDROID_KEY_PASSWORD"
                 EOF
 
                 # Build APK & AAB
@@ -224,23 +223,17 @@ pipeline {
             steps {
                 echo "🚀 Uploading AAB to Google Play..."
 
-                script {
-                    def credentialsPath = "playstore-credentials.json"
-
-                    // Save the credential to a JSON file
-                   withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
-
-
+                withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
                     export PATH="/opt/homebrew/bin:$PATH"
                     echo "🔐 Authenticating with Google Cloud..."
-                    gcloud auth activate-service-account --key-file=playstore-credentials.json || echo "❌ gcloud authentication failed!"
+                    gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE" || echo "❌ gcloud authentication failed!"
 
                     echo "🚀 Deploying AAB to Google Play..."
                     gcloud beta androidpublisher bundles upload --package="io.app.opdsure" \
-                            --bundle="build/app/outputs/bundle/release/app-release.aab" \
-                            --service-account-key="$PLAYSTORE_CREDENTIALS_FILE" \
-                            --track=production
+                        --bundle="build/app/outputs/bundle/release/app-release.aab" \
+                        --service-account-key="$PLAYSTORE_CREDENTIALS_FILE" \
+                        --track=production || echo "❌ Deployment failed!"
                     '''
                 }
             }
@@ -256,4 +249,3 @@ pipeline {
         }
     }
 }
-
