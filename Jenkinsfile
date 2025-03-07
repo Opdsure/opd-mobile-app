@@ -227,13 +227,13 @@ pipeline {
                     sh '''
                     export PATH="/opt/homebrew/bin:$PATH"
                     echo "🔐 Authenticating with Google Cloud..."
-                    gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE""
+                    gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE"
 
                     echo "🚀 Deploying AAB to Google Play..."
                     gcloud beta androidpublisher bundles upload --package="io.app.opdsure" \
                         --bundle="build/app/outputs/bundle/release/app-release.aab" \
                         --service-account-key="$PLAYSTORE_CREDENTIALS_FILE" \
-                        --track=production"
+                        --track=production
                     '''
                 }
             }
