@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -7,17 +6,15 @@ pipeline {
         CLOUD_SDK_HOME = "/opt/homebrew/bin"
         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH"
 
-        // Secure Android Keystore Credentials
+        ANDROID_HOME = "$HOME/Library/Android/sdk"
         ANDROID_KEYSTORE_PATH = "/Users/intileotechnologies/Documents/Aman/opd_sure_app/android/opdsure.jks"
         ANDROID_KEY_ALIAS = "opdsure"
         ANDROID_KEY_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
         ANDROID_STORE_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
 
-        // Secure Apple Credentials
         APPLE_ID = credentials('APPLE_ID')
         APPLE_APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
 
-         // Google Play Service Account JSON
         PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS')
     }
 
@@ -27,8 +24,8 @@ pipeline {
                 echo "🔍 Checking gcloud installation..."
                 sh '''
                 export PATH="/opt/homebrew/bin:$PATH"
-                which gcloud || echo "❌ gcloud not found!"
-                gcloud --version || echo "❌ gcloud command failed!"
+                which gcloud || { echo "❌ gcloud not found!"; exit 1; }
+                gcloud --version || { echo "❌ gcloud command failed!"; exit 1; }
                 '''
             }
         }
@@ -50,42 +47,47 @@ pipeline {
         stage('Setup Flutter') {
             steps {
                 echo "🛠 Checking Flutter installation..."
-                sh 'flutter --version'
+                sh '''
+                flutter --version || { echo "❌ Flutter is not installed correctly!"; exit 1; }
+                java -version || { echo "❌ Java is not installed correctly!"; exit 1; }
+                '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 echo "📦 Installing Flutter dependencies..."
-                sh 'flutter pub get'
+                sh '''
+                flutter clean
+                flutter pub get || { echo "❌ Failed to fetch dependencies!"; exit 1; }
+                '''
             }
         }
 
-
-        // 🚀 ANDROID BUILD PROCESS
         stage('Build APK & AAB') {
             steps {
                 echo "🚀 Building Android APK & AAB..."
                 sh '''
-                # Writing Keystore Credentials to key.properties
+                set -e  # Stop script on any error
+
+                echo "🔐 Writing Keystore Credentials to key.properties"
                 cat <<EOF > android/key.properties
                 storeFile=$ANDROID_KEYSTORE_PATH
                 keyAlias=$ANDROID_KEY_ALIAS
-                storePassword="$ANDROID_STORE_PASSWORD"
-                keyPassword="$ANDROID_KEY_PASSWORD"
+                storePassword=$ANDROID_STORE_PASSWORD
+                keyPassword=$ANDROID_KEY_PASSWORD
                 EOF
 
-                # Build APK & AAB
-                 flutter build appbundle --release --verbose
+                echo "🛠 Running Flutter build..."
+                flutter build appbundle --release --verbose || { echo "❌ Flutter build failed!"; exit 1; }
 
-                 echo "📂 Checking if AAB is created..."
-                 if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
-                   echo "❌ AAB file not found!"
-                   exit 1
-                 fi
+                echo "📂 Checking if AAB is created..."
+                ls -lah build/app/outputs/bundle/release/ || { echo "❌ AAB directory is missing!"; exit 1; }
 
-                ls -lah build/app/outputs/bundle/release/
-
+                if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
+                    echo "❌ AAB file not found!"
+                    exit 1
+                fi
                 '''
             }
         }
@@ -96,32 +98,33 @@ pipeline {
 
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
+                        set -e  # Stop script on any error
+
                         export PATH="/opt/homebrew/bin:$PATH"
 
                         echo "🔄 Updating gcloud (if needed)..."
                         gcloud components update --quiet || echo "✅ gcloud update skipped!"
 
                         echo "🔐 Authenticating with Google Cloud..."
-                        gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE" --quiet
+                        gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE" --quiet || { echo "❌ Google Cloud authentication failed!"; exit 1; }
 
                         echo "📂 Checking AAB build output..."
-                        ls -lah build/app/outputs/bundle/release/
+                        ls -lah build/app/outputs/bundle/release/ || { echo "❌ AAB directory is missing before upload!"; exit 1; }
 
                         if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
-                          echo "❌ AAB file not found!"
-                          exit 1
+                            echo "❌ AAB file not found before upload!"
+                            exit 1
                         fi
 
                         echo "🚀 Deploying AAB to Google Play..."
                         gcloud beta androidpublisher bundles upload \
                         --package="io.app.opdsure" \
                         --bundle="build/app/outputs/bundle/release/app-release.aab" \
-                        --track=production --quiet
+                        --track=production --quiet || { echo "❌ Failed to upload AAB to Google Play!"; exit 1; }
                     '''
                 }
             }
         }
-
     }
 
     post {
