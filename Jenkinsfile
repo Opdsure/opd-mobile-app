@@ -94,15 +94,12 @@ pipeline {
             steps {
                 echo "🚀 Uploading AAB to Google Play..."
 
-
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
                      export PATH="/opt/homebrew/bin:$PATH"
 
-
                      echo "🔄 Updating gcloud (if needed)..."
                      gcloud components update --quiet || echo "✅ gcloud update skipped!"
-
 
                      echo "🔐 Authenticating with Google Cloud..."
                      gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE" --quiet
@@ -111,12 +108,9 @@ pipeline {
                      ls -lah build/app/outputs/bundle/release/"
 
                      echo "🚀 Deploying AAB to Google Play..."
-                     gcloud beta android publishing bundles upload --package="io.app.opdsure" \
-                      --bundle="build/app/outputs/bundle/release/app-release.aab" \
-                      --track=internal --quiet
-
-
-
+                     gcloud beta androidpublisher bundles upload --package="io.app.opdsure" \
+                     --bundle="build/app/outputs/bundle/release/app-release.aab" \
+                     --track=production --quiet "
                     '''
                 }
             }
