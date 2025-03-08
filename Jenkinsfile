@@ -77,14 +77,6 @@ pipeline {
 
                 # Build APK & AAB
                 flutter build appbundle --release
-                \
-                \\\
-
-
-
-
-
-
 
                 '''
             }
