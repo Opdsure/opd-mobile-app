@@ -94,19 +94,20 @@ pipeline {
                      export PATH="/opt/homebrew/bin:$PATH"
 
 
-                    echo "🔐 Authenticating with Google Cloud..."
-                    gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE"
-                    gcloud services list | grep androidpublisher || echo "❌ API not enabled!"
+                     echo "🔄 Updating gcloud (if needed)..."
+                     gcloud components update --quiet || echo "✅ gcloud update skipped!"
 
 
+                     echo "🔐 Authenticating with Google Cloud..."
+                     gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE" --quiet
 
+                     echo "📂 Checking AAB build output..."
+                     ls -lah build/app/outputs/bundle/release/ || echo "❌ AAB file not found!"
 
-                    echo "🚀 Deploying AAB to Google Play..."
-
-                    gcloud alpha android-bundles upload --package="io.app.opdsure" \
-                        --bundle="build/app/outputs/bundle/release/app-release.aab" \
-                        --service-account-key="$PLAYSTORE_CREDENTIALS_FILE" \
-                        --track=production
+                     echo "🚀 Deploying AAB to Google Play..."
+                     gcloud beta android publishing bundles upload --package="io.app.opdsure" \
+                     --bundle="build/app/outputs/bundle/release/app-release.aab" \
+                     --track=production --quiet || echo "❌ Deployment failed!"
                     '''
                 }
             }
