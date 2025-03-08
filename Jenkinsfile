@@ -96,6 +96,8 @@ pipeline {
 
                     echo "🔐 Authenticating with Google Cloud..."
                     gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE"
+                    gcloud services list | grep androidpublisher || echo "❌ API not enabled!"
+
 
 
 
