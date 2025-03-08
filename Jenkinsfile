@@ -88,25 +88,32 @@ pipeline {
 
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
-                     export PATH="/opt/homebrew/bin:$PATH"
+                        export PATH="/opt/homebrew/bin:$PATH"
 
-                     echo "🔄 Updating gcloud (if needed)..."
-                     gcloud components update --quiet || echo "✅ gcloud update skipped!"
+                        echo "🔄 Updating gcloud (if needed)..."
+                        gcloud components update --quiet || echo "✅ gcloud update skipped!"
 
-                     echo "🔐 Authenticating with Google Cloud..."
-                     gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE" --quiet
+                        echo "🔐 Authenticating with Google Cloud..."
+                        gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE" --quiet
 
-                     echo "📂 Checking AAB build output..."
-                     ls -lah build/app/outputs/bundle/release/"
+                        echo "📂 Checking AAB build output..."
+                        ls -lah build/app/outputs/bundle/release/
 
-                     echo "🚀 Deploying AAB to Google Play..."
-                     gcloud beta androidpublisher bundles upload --package="io.app.opdsure" \
-                     --bundle="build/app/outputs/bundle/release/app-release.aab" \
-                     --track=production --quiet "
+                        if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
+                          echo "❌ AAB file not found!"
+                          exit 1
+                        fi
+
+                        echo "🚀 Deploying AAB to Google Play..."
+                        gcloud beta androidpublisher bundles upload \
+                        --package="io.app.opdsure" \
+                        --bundle="build/app/outputs/bundle/release/app-release.aab" \
+                        --track=production --quiet
                     '''
                 }
             }
         }
+
     }
 
     post {
