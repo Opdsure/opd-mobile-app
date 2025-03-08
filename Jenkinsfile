@@ -101,7 +101,7 @@ pipeline {
 
                     echo "🚀 Deploying AAB to Google Play..."
 
-                    gcloud beta androidpublisher bundles upload --package="io.app.opdsure" \
+                    gcloud alpha android-bundles upload --package="io.app.opdsure" \
                         --bundle="build/app/outputs/bundle/release/app-release.aab" \
                         --service-account-key="$PLAYSTORE_CREDENTIALS_FILE" \
                         --track=production
