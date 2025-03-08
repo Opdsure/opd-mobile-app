@@ -76,7 +76,15 @@ pipeline {
                 EOF
 
                 # Build APK & AAB
-                flutter build appbundle --release
+                 flutter build appbundle --release --verbose
+
+                 echo "📂 Checking if AAB is created..."
+                 if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
+                   echo "❌ AAB file not found!"
+                   exit 1
+                 fi
+
+                ls -lah build/app/outputs/bundle/release/
 
                 '''
             }
