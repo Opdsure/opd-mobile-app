@@ -105,7 +105,7 @@ pipeline {
                      ls -lah build/app/outputs/bundle/release/ || echo "❌ AAB file not found!"
 
                      echo "🚀 Deploying AAB to Google Play..."
-                     gcloud beta android publishing bundles upload --package="io.app.opdsure" \
+                     gcloud beta androidpublisher bundles upload --package="io.app.opdsure" \
                      --bundle="build/app/outputs/bundle/release/app-release.aab" \
                      --track=production --quiet || echo "❌ Deployment failed!"
                     '''
