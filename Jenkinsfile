@@ -70,7 +70,7 @@ pipeline {
                         exit 1
                     fi
 
-                    gcloud alpha android-bundles upload \
+                 gcloud beta androidpublisher bundles upload \
                     --package="io.app.opdsure" \
                     --bundle="$AAB_FILE" \
                     --track=production
