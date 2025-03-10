@@ -64,27 +64,12 @@ pipeline {
 
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
-                    AAB_FILE="build/app/outputs/bundle/release/app-release.aab"
-                    if [ ! -f "$AAB_FILE" ]; then
-                        echo "❌ ERROR: AAB file not found!"
-                        exit 1
-                    fi
 
 
-
-
-
-export GOOGLE_APPLICATION_CREDENTIALS="$PLAYSTORE_CREDENTIALS_FILE"
-
-    gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
-
-    gcloud androidpublisher bundles upload \
-        --package="io.app.opdsure" \
-        --bundle="build/app/outputs/bundle/release/app-release.aab" \
-        --track=production
-
-
-
+                 gcloud beta androidpublisher bundles upload \
+                    --package="io.app.opdsure" \
+                    --bundle="build/app/outputs/bundle/release/app-release.aab" \
+                    --track=production
                     '''
                 }
             }
