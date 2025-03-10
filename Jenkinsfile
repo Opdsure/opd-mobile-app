@@ -66,6 +66,9 @@ pipeline {
                     sh '''
                     export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
 
+                    gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                    gcloud config set project opdsure-452612
+
                     gcloud services enable androidpublisher.googleapis.com
 
                     gcloud beta androidpublishing bundles upload \
@@ -77,8 +80,7 @@ pipeline {
                 }
             }
         }
-    }
-    }
+
 
     post {
 
