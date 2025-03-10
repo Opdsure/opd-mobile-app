@@ -42,6 +42,9 @@ pipeline {
 
         stage('Build AAB') {
             steps {
+
+                echo "🚀 Building Android APK & AAB..."
+
                 script {
                     sh '''
                     echo "storeFile=$ANDROID_KEYSTORE_PATH" > android/key.properties
@@ -57,6 +60,8 @@ pipeline {
 
         stage('Upload AAB to Google Play') {
             steps {
+                echo "🚀 Uploading AAB to Google Play..."
+
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
                     AAB_FILE="build/app/outputs/bundle/release/app-release.aab"
