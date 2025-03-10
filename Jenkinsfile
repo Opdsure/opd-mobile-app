@@ -85,12 +85,9 @@ pipeline {
                         rm -rf build/ android/app/build/
                         flutter pub get
 
-                        echo "🛠 Running Flutter build..."
-                        flutter build appbundle --release --verbose > flutter_build.log 2>&1 || {
-                            echo "❌ Flutter build failed! Showing logs:"
-                            cat flutter_build.log | tail -n 100
-                            exit 1
-                        }
+
+                        flutter build appbundle --release
+
 
                         echo "✅ Flutter build completed successfully!"
 
@@ -112,7 +109,7 @@ pipeline {
                         '''
 
                         // Stash the AAB file for the next stage
-                        stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
+//                         stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
 
                     } catch (Exception e) {
                         echo "⚠️ Flutter build failed! Full logs:"
