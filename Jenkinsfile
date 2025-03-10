@@ -89,45 +89,57 @@ pipeline {
                     echo "📂 Checking if AAB is created..."
                     find build/ -name "*.aab"
 
+                    # Verify output location
+                    echo "📂 Checking generated AAB file..."
+                    ls -lah build/app/outputs/bundle/release/
+
                     if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
                         echo "❌ AAB file not found! Here is the build directory structure:"
                         ls -lah build/app/outputs/bundle/
                         exit 1
                     fi
                     '''
+
+                    stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
+
                 }
         }
 
-        stage('Upload AAB to Google Play') {
-            steps {
-                echo "🚀 Uploading AAB to Google Play..."
+       stage('Upload AAB to Google Play') {
+           steps {
+               echo "🚀 Uploading AAB to Google Play..."
 
-                withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
-                    sh '''
-                        set -e  # Stop script on any error
+               unstash 'aab-file'  // Retrieve AAB file if workspace is cleaned
 
-                        echo "📂 Current Workspace:"
-                        pwd
-                        ls -lah
+               withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
+                   sh '''
+                       set -e
 
-                        echo "🔍 Searching for AAB file..."
-                        find build/ -name "*.aab" || echo "❌ No AAB file found!"
+                       echo "📂 Current Workspace:"
+                       pwd
+                       ls -lah
 
-                        # Ensure the AAB file exists before proceeding
-                        if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
-                            echo "❌ AAB file not found before upload!"
-                            exit 1
-                        fi
+                       echo "🔍 Searching for AAB file..."
+                       find build/ -name "*.aab" || echo "⚠️ No AAB files found!"
 
-                        echo "🚀 Deploying AAB to Google Play..."
-                        gcloud beta androidpublisher bundles upload \
-                        --package="io.app.opdsure" \
-                        --bundle="build/app/outputs/bundle/release/app-release.aab" \
-                        --track=production --quiet || { echo "❌ Failed to upload AAB to Google Play!"; exit 1; }
-                    '''
-                }
-            }
-        }
+                       # Ensure the AAB file exists
+                       AAB_FILE="build/app/outputs/bundle/release/app-release.aab"
+                       if [ ! -f "$AAB_FILE" ]; then
+                           echo "❌ ERROR: AAB file not found!"
+                           echo "📂 Available build files:"
+                           ls -lah build/app/outputs/bundle/release/ || echo "⚠️ No release build directory!"
+                           exit 1
+                       fi
+
+                       echo "🚀 Deploying AAB to Google Play..."
+                       gcloud beta androidpublisher bundles upload \
+                       --package="io.app.opdsure" \
+                       --bundle="$AAB_FILE" \
+                       --track=production --quiet || { echo "❌ Failed to upload AAB!"; exit 1; }
+                   '''
+               }
+           }
+       }
 
     }
 
