@@ -66,7 +66,7 @@ pipeline {
                     sh '''
 
 
-                 gcloud beta androidpublisher bundles upload \
+                 gcloud alpha android-bundle upload \
                     --package="io.app.opdsure" \
                     --bundle="build/app/outputs/bundle/release/app-release.aab" \
                     --track=production
