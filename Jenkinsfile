@@ -88,7 +88,7 @@ pipeline {
                         echo "🛠 Running Flutter build..."
                         flutter build appbundle --release --verbose > flutter_build.log 2>&1 || {
                             echo "❌ Flutter build failed! Showing logs:"
-                            cat flutter_build.log  # Print the log file in case of failure
+                            cat flutter_build.log | tail -n 100  # Show last 100 lines of the build log
                             exit 1
                         }
 
@@ -110,13 +110,14 @@ pipeline {
                         stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
 
                     } catch (Exception e) {
-                        echo "⚠️ Flutter build failed! Check the logs above for details."
-                        currentBuild.result = 'FAILURE'
+                        echo "⚠️ Flutter build failed! Full logs:"
+                        sh 'cat flutter_build.log || echo "⚠️ No logs found!"'
                         error "Stopping pipeline due to Flutter build failure."
                     }
                 }
             }
         }
+
 
 
        stage('Upload AAB to Google Play') {
