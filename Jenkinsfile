@@ -72,12 +72,16 @@ pipeline {
 
 
 
-                    googlePlayPublish appID: 'io.app.opdsure',
-                     credentialId: '$PLAYSTORE_CREDENTIALS',
-                    apkPath: '$AAB_FILE',
-                    track: 'production'
 
 
+export GOOGLE_APPLICATION_CREDENTIALS="$PLAYSTORE_CREDENTIALS_FILE"
+
+    gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+
+    gcloud --quiet beta androidpublisher bundles upload \
+        --package="io.app.opdsure" \
+        --bundle="build/app/outputs/bundle/release/app-release.aab" \
+        --track=production
 
 
 
