@@ -70,10 +70,17 @@ pipeline {
                         exit 1
                     fi
 
-                 gcloud beta androidpublisher bundles upload \
-                    --package="io.app.opdsure" \
-                    --bundle="$AAB_FILE" \
-                    --track=production
+
+
+                    googlePlayPublish appID: 'io.app.opdsure',
+                     credentialId: '$PLAYSTORE_CREDENTIALS',
+                    apkPath: '$AAB_FILE',
+                    track: 'production'
+
+
+
+
+
                     '''
                 }
             }
