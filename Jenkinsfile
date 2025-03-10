@@ -70,7 +70,7 @@ pipeline {
                 script {
                     try {
                         sh '''
-                        set -e  # Stop script on any error
+                        set -e
 
                         echo "🔐 Writing Keystore Credentials to key.properties"
                         cat <<EOF > android/key.properties
@@ -88,26 +88,31 @@ pipeline {
                         echo "🛠 Running Flutter build..."
                         flutter build appbundle --release --verbose > flutter_build.log 2>&1 || {
                             echo "❌ Flutter build failed! Showing logs:"
-                            cat flutter_build.log | tail -n 100  # Show last 100 lines of the build log
+                            cat flutter_build.log | tail -n 100
                             exit 1
                         }
 
-                        echo "📂 Checking if AAB is created..."
-                        find build/ -name "*.aab"
+                        echo "✅ Flutter build completed successfully!"
 
-                        # Verify output location
-                        echo "📂 Checking generated AAB file..."
+                        echo "📂 Checking if AAB is created..."
+                        find build/ -name "*.aab" || {
+                            echo "❌ ERROR: AAB file not found!"
+                            exit 1
+                        }
+
+                        echo "📂 Build directory structure:"
                         ls -lah build/app/outputs/bundle/release/
 
-                        if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
-                            echo "❌ AAB file not found! Here is the build directory structure:"
-                            ls -lah build/app/outputs/bundle/
+                        if [ -f build/app/outputs/bundle/release/app-release.aab ]; then
+                            echo "✅ SUCCESS: AAB file exists!"
+                        else
+                            echo "❌ ERROR: AAB file is missing!"
                             exit 1
                         fi
                         '''
 
-//                         // 🔹 Stash the AAB file after verifying it exists
-//                         stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
+                        // Stash the AAB file for the next stage
+                        stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
 
                     } catch (Exception e) {
                         echo "⚠️ Flutter build failed! Full logs:"
@@ -117,6 +122,7 @@ pipeline {
                 }
             }
         }
+
 
 
 
