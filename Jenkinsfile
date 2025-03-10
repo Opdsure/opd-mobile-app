@@ -68,6 +68,7 @@ pipeline {
 
                     gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
                     gcloud config set project opdsure-452612
+
                     gcloud services enable androidpublisher.googleapis.com
 
                     gcloud beta androidpublishing bundles upload \
