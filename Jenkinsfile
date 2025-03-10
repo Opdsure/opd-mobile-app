@@ -106,8 +106,8 @@ pipeline {
                         fi
                         '''
 
-                        // 🔹 Stash the AAB file after verifying it exists
-                        stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
+//                         // 🔹 Stash the AAB file after verifying it exists
+//                         stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
 
                     } catch (Exception e) {
                         echo "⚠️ Flutter build failed! Full logs:"
