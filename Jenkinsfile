@@ -78,7 +78,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="$PLAYSTORE_CREDENTIALS_FILE"
 
     gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
 
-    gcloud --quiet beta androidpublisher bundles upload \
+    gcloud androidpublisher bundles upload \
         --package="io.app.opdsure" \
         --bundle="build/app/outputs/bundle/release/app-release.aab" \
         --track=production
