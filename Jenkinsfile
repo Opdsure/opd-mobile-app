@@ -66,30 +66,36 @@ pipeline {
 
         stage('Build APK & AAB') {
             steps {
-                echo "🚀 Building Android APK & AAB..."
-                sh '''
-                set -e  # Stop script on any error
+                    echo "🚀 Building Android APK & AAB..."
+                    sh '''
+                    set -e  # Stop script on any error
 
-                echo "🔐 Writing Keystore Credentials to key.properties"
-                cat <<EOF > android/key.properties
-                storeFile=$ANDROID_KEYSTORE_PATH
-                keyAlias=$ANDROID_KEY_ALIAS
-                storePassword=$ANDROID_STORE_PASSWORD
-                keyPassword=$ANDROID_KEY_PASSWORD
-                EOF
+                    echo "🔐 Writing Keystore Credentials to key.properties"
+                    cat <<EOF > android/key.properties
+                    storeFile=$ANDROID_KEYSTORE_PATH
+                    keyAlias=$ANDROID_KEY_ALIAS
+                    storePassword=$ANDROID_STORE_PASSWORD
+                    keyPassword=$ANDROID_KEY_PASSWORD
+                    EOF
 
-                echo "🛠 Running Flutter build..."
-                flutter build appbundle --release --verbose || { echo "❌ Flutter build failed!"; exit 1; }
+                    echo "🛠 Cleaning & Fetching Packages..."
+                    flutter clean
+                    rm -rf build/ android/app/build/
+                    flutter pub get
 
-                echo "📂 Checking if AAB is created..."
-                ls -lah build/app/outputs/bundle/release/ || { echo "❌ AAB directory is missing!"; exit 1; }
+                    echo "🛠 Running Flutter build..."
+                    flutter build appbundle --release --verbose > flutter_build.log 2>&1 || { cat flutter_build.log; echo "❌ Flutter build failed!"; exit 1; }
 
-                if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
-                    echo "❌ AAB file not found!"
-                    exit 1
-                fi
-                '''
-            }
+                    echo "📂 Checking if AAB is created..."
+                    find build/ -name "*.aab"
+
+                    if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
+                        echo "❌ AAB file not found! Here is the build directory structure:"
+                        ls -lah build/app/outputs/bundle/
+                        exit 1
+                    fi
+                    '''
+                }
         }
 
         stage('Upload AAB to Google Play') {
