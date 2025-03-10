@@ -73,7 +73,7 @@ pipeline {
                     gcloud alpha android-bundles upload \
                     --package="io.app.opdsure" \
                     --bundle="$AAB_FILE" \
-                    --track=production --quiet
+                    --track=production
                     '''
                 }
             }
