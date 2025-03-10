@@ -59,7 +59,7 @@ pipeline {
                 echo "📦 Installing Flutter dependencies..."
                 sh '''
                 flutter clean
-                flutter pub get || { echo "❌ Failed to fetch dependencies!"; exit 1; }
+                flutter pub get
                 '''
             }
         }
@@ -67,43 +67,57 @@ pipeline {
         stage('Build APK & AAB') {
             steps {
                 echo "🚀 Building Android APK & AAB..."
-                sh '''
-                    set -e  # Stop script on any error
+                script {
+                    try {
+                        sh '''
+                        set -e  # Stop script on any error
 
-                    echo "🔐 Writing Keystore Credentials to key.properties"
-                    cat <<EOF > android/key.properties
-                    storeFile=$ANDROID_KEYSTORE_PATH
-                    keyAlias=$ANDROID_KEY_ALIAS
-                    storePassword=$ANDROID_STORE_PASSWORD
-                    keyPassword=$ANDROID_KEY_PASSWORD
-                    EOF
+                        echo "🔐 Writing Keystore Credentials to key.properties"
+                        cat <<EOF > android/key.properties
+                        storeFile=$ANDROID_KEYSTORE_PATH
+                        keyAlias=$ANDROID_KEY_ALIAS
+                        storePassword=$ANDROID_STORE_PASSWORD
+                        keyPassword=$ANDROID_KEY_PASSWORD
+                        EOF
 
-                    echo "🛠 Cleaning & Fetching Packages..."
-                    flutter clean
-                    rm -rf build/ android/app/build/
-                    flutter pub get
+                        echo "🛠 Cleaning & Fetching Packages..."
+                        flutter clean
+                        rm -rf build/ android/app/build/
+                        flutter pub get
 
-                    echo "🛠 Running Flutter build..."
-                    flutter build appbundle --release --verbose > flutter_build.log 2>&1 || { cat flutter_build.log; echo "❌ Flutter build failed!"; exit 1; }
+                        echo "🛠 Running Flutter build..."
+                        flutter build appbundle --release --verbose > flutter_build.log 2>&1 || {
+                            echo "❌ Flutter build failed! Showing logs:"
+                            cat flutter_build.log  # Print the log file in case of failure
+                            exit 1
+                        }
 
-                    echo "📂 Checking if AAB is created..."
-                    find build/ -name "*.aab"
+                        echo "📂 Checking if AAB is created..."
+                        find build/ -name "*.aab"
 
-                    # Verify output location
-                    echo "📂 Checking generated AAB file..."
-                    ls -lah build/app/outputs/bundle/release/
+                        # Verify output location
+                        echo "📂 Checking generated AAB file..."
+                        ls -lah build/app/outputs/bundle/release/
 
-                    if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
-                        echo "❌ AAB file not found! Here is the build directory structure:"
-                        ls -lah build/app/outputs/bundle/
-                        exit 1
-                    fi
-                '''
+                        if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
+                            echo "❌ AAB file not found! Here is the build directory structure:"
+                            ls -lah build/app/outputs/bundle/
+                            exit 1
+                        fi
+                        '''
 
-                // 🔹 Stash the AAB file so it's available in later stages
-                stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
+                        // 🔹 Stash the AAB file after verifying it exists
+                        stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
+
+                    } catch (Exception e) {
+                        echo "⚠️ Flutter build failed! Check the logs above for details."
+                        currentBuild.result = 'FAILURE'
+                        error "Stopping pipeline due to Flutter build failure."
+                    }
+                }
             }
         }
+
 
        stage('Upload AAB to Google Play') {
            steps {
