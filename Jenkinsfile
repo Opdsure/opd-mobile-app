@@ -66,8 +66,8 @@ pipeline {
 
         stage('Build APK & AAB') {
             steps {
-                    echo "🚀 Building Android APK & AAB..."
-                    sh '''
+                echo "🚀 Building Android APK & AAB..."
+                sh '''
                     set -e  # Stop script on any error
 
                     echo "🔐 Writing Keystore Credentials to key.properties"
@@ -98,16 +98,19 @@ pipeline {
                         ls -lah build/app/outputs/bundle/
                         exit 1
                     fi
-                    '''
+                '''
 
-                }
+                // 🔹 Stash the AAB file so it's available in later stages
+                stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
+            }
         }
 
        stage('Upload AAB to Google Play') {
            steps {
                echo "🚀 Uploading AAB to Google Play..."
 
-               unstash 'aab-file'  // Retrieve AAB file if workspace is cleaned
+               // 🔹 Unstash the AAB file to restore it in case the workspace was cleaned
+               unstash 'aab-file'
 
                withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                    sh '''
@@ -138,7 +141,6 @@ pipeline {
                }
            }
        }
-
     }
 
     post {
