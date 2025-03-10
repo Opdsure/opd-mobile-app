@@ -106,17 +106,14 @@ pipeline {
                     sh '''
                         set -e  # Stop script on any error
 
-                        export PATH="/opt/homebrew/bin:$PATH"
+                        echo "📂 Current Workspace:"
+                        pwd
+                        ls -lah
 
-                        echo "🔄 Updating gcloud (if needed)..."
-                        gcloud components update --quiet || echo "✅ gcloud update skipped!"
+                        echo "🔍 Searching for AAB file..."
+                        find build/ -name "*.aab" || echo "❌ No AAB file found!"
 
-                        echo "🔐 Authenticating with Google Cloud..."
-                        gcloud auth activate-service-account --key-file="$PLAYSTORE_CREDENTIALS_FILE" --quiet || { echo "❌ Google Cloud authentication failed!"; exit 1; }
-
-                        echo "📂 Checking AAB build output..."
-                        ls -lah build/app/outputs/bundle/release/ || { echo "❌ AAB directory is missing before upload!"; exit 1; }
-
+                        # Ensure the AAB file exists before proceeding
                         if [ ! -f build/app/outputs/bundle/release/app-release.aab ]; then
                             echo "❌ AAB file not found before upload!"
                             exit 1
@@ -131,6 +128,7 @@ pipeline {
                 }
             }
         }
+
     }
 
     post {
