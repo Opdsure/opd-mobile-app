@@ -81,6 +81,7 @@ pipeline {
     }
 
     post {
+
         success {
             echo "✅ Build and deployment completed successfully!"
         }
