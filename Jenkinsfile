@@ -30,34 +30,38 @@ pipeline {
 
         stage('Setup Flutter') {
             steps {
-                sh 'flutter --version'
+                sh 'export PATH=$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH && flutter --version'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'flutter pub get'
+                sh '''
+                export PATH=$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH
+                flutter clean
+                flutter pub get
+                '''
             }
         }
 
         stage('Build AAB') {
             steps {
-
                 echo "🚀 Building Android APK & AAB..."
-
                 script {
                     sh '''
-                    echo "storeFile=$ANDROID_KEYSTORE_PATH" > android/key.properties
-                    echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/key.properties
-                    echo "storePassword=$ANDROID_STORE_PASSWORD" >> android/key.properties
-                    echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/key.properties
+                    mkdir -p android/app/
 
+                    echo "storeFile=$ANDROID_KEYSTORE_PATH" > android/app/key.properties
+                    echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/app/key.properties
+                    echo "storePassword=$ANDROID_STORE_PASSWORD" >> android/app/key.properties
+                    echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/app/key.properties
+
+                    export PATH=$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH
                     flutter build appbundle --release
                     '''
                 }
             }
         }
-
 
         stage('Upload AAB to Google Play') {
             steps {
@@ -68,7 +72,6 @@ pipeline {
 
                     gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
                     gcloud config set project opdsure-452612
-
                     gcloud services enable androidpublisher.googleapis.com
 
                     gcloud beta androidpublishing bundles upload \
@@ -80,10 +83,9 @@ pipeline {
                 }
             }
         }
-
+    }
 
     post {
-
         success {
             echo "✅ Build and deployment completed successfully!"
         }
