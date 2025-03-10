@@ -100,8 +100,6 @@ pipeline {
                     fi
                     '''
 
-                    stash includes: 'build/app/outputs/bundle/release/*.aab', name: 'aab-file'
-
                 }
         }
 
