@@ -64,13 +64,22 @@ pipeline {
 
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
+                                   # Authenticate using the service account
+                                   gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 
+                                   # Set project ID (replace with your actual project ID)
+                                   gcloud config set project opdsure-452612
 
-                 gcloud alpha android-bundle upload \
-                    --package="io.app.opdsure" \
-                    --bundle="build/app/outputs/bundle/release/app-release.aab" \
-                    --track=production
-                    '''
+                                   # Enable required API (ensure it's enabled)
+                                   gcloud services enable androidpublisher.googleapis.com
+
+                                   # Upload AAB using the correct command
+                                   gcloud beta androidpublishing bundles upload \
+                                       --package="io.app.opdsure" \
+                                       --bundle="build/app/outputs/bundle/release/app-release.aab" \
+                                       --track=production \
+                                       --service-account-key=$GOOGLE_APPLICATION_CREDENTIALS
+                               '''
                 }
             }
         }
