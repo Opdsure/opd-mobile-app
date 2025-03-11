@@ -86,18 +86,25 @@ pipeline {
         stage('Upload AAB to Google Play') {
             steps {
                 echo "🚀 Uploading AAB to Google Play using Fastlane..."
-//                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
-                    sh '''
-#                     export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
-                    cd android
+                withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
+                            sh '''
+                            export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
+                            cd android
 
-                     # Ensure Bundler is installed
-                     gem install bundler -v 2.6.3 || exit 1
-                     bundle install || exit 1
+                            # Initialize rbenv (VERY IMPORTANT)
+                            export PATH="$HOME/.rbenv/bin:$PATH"
+                            eval "$(rbenv init -)"
 
-                     fastlane deploy
-                    '''
-//                 }
+                            # Install Bundler locally (No sudo needed)
+                            gem install bundler -v 2.6.3 --user-install
+                            export PATH="$HOME/.gem/ruby/3.2.0/bin:$PATH"
+
+                            # Install dependencies and deploy
+                            bundle install
+                            fastlane deploy
+                            '''
+                        }
+
             }
         }
 
