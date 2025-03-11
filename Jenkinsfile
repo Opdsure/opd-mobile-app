@@ -110,13 +110,23 @@ pipeline {
 
         stage('Build iOS App') {
             steps {
-                echo "🚀 Archiving & Building iOS App..."
-                sh '''
-                cd ios
-                bundle install
-                fastlane setup_signing
-                fastlane build
-                '''
+                   echo "🚀 Archiving & Building iOS App..."
+                        sh '''
+                        cd ios
+
+                        # Use rbenv (VERY IMPORTANT)
+                        export PATH="$HOME/.rbenv/bin:$PATH"
+                        eval "$(rbenv init -)"
+
+                        # Install Bundler Locally (No sudo needed)
+                        gem install bundler -v 2.6.3 --user-install
+                        export PATH="$HOME/.gem/ruby/3.2.0/bin:$PATH"
+
+                        # Install dependencies and build
+                        bundle install
+                        fastlane setup_signing
+                        fastlane build
+                        '''
             }
         }
 
