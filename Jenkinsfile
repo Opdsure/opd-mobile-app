@@ -28,16 +28,24 @@ pipeline {
             }
         }
 
-        stage('Setup Flutter') {
+        stage('Setup Environment') {
             steps {
-                sh 'export PATH=$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH && flutter --version'
+                sh '''
+                echo "🚀 Verifying Flutter & Android SDK setup..."
+                which flutter || { echo "❌ Flutter not found!"; exit 1; }
+                which java || { echo "❌ Java not found!"; exit 1; }
+                which bundle || { echo "❌ Bundler not found! Run 'gem install bundler'"; exit 1; }
+
+                flutter --version
+                flutter doctor
+                '''
             }
         }
 
         stage('Install Dependencies') {
             steps {
                 sh '''
-                export PATH=$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH
+                echo "🚀 Installing Flutter dependencies..."
                 flutter clean
                 flutter pub get
                 '''
@@ -46,35 +54,36 @@ pipeline {
 
         stage('Build AAB') {
             steps {
-                echo "🚀 Building Android APK & AAB..."
-                script {
-                    sh '''
-                    mkdir -p android/app/
+                echo "🚀 Building Android App Bundle (AAB)..."
+                sh '''
+                echo "Writing keystore properties..."
+                cat <<EOF > android/app/key.properties
+                storeFile=$ANDROID_KEYSTORE_PATH
+                keyAlias=$ANDROID_KEY_ALIAS
+                storePassword=$ANDROID_STORE_PASSWORD
+                keyPassword=$ANDROID_KEY_PASSWORD
+                EOF
 
-                    echo "storeFile=$ANDROID_KEYSTORE_PATH" > android/app/key.properties
-                    echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/app/key.properties
-                    echo "storePassword=$ANDROID_STORE_PASSWORD" >> android/app/key.properties
-                    echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/app/key.properties
-
-                    export PATH=$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH
-                    flutter build appbundle --release
-                    '''
-                }
+                echo "Building release AAB..."
+                flutter build appbundle --release
+                '''
             }
         }
 
         stage('Upload AAB to Google Play') {
             steps {
-                 echo "🚀 Uploading AAB to Google Play using Fastlane..."
-                                withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
-                                    sh '''
-                                    export PATH=$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH
-                                    export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
+                echo "🚀 Uploading AAB to Google Play using Fastlane..."
+                withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
+                    sh '''
+                    export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
 
-                                    cd android
-                                    bundle install
-                                    fastlane deploy
-                                    '''
+                    cd android
+                    echo "🚀 Checking Bundler dependencies..."
+                    bundle check || bundle install
+
+                    echo "🚀 Running Fastlane deployment..."
+                    fastlane deploy --verbose
+                    '''
                 }
             }
         }
