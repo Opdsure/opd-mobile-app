@@ -13,9 +13,14 @@ platform :ios do
 
   desc "Release app to beta"
   lane :beta do
-    sh "rm -rf ~/Library/Developer/Xcode/DerivedData"
-    sh "rm -rf ios/Pods ios/Podfile.lock"
-    sh "pod install --repo-update"
+      sh "export PATH=$HOME/.rbenv/shims:$PATH"
+      sh "export PATH=$HOME/.gem/bin:$PATH"
+      sh "which pod" # Debugging: check if pod is found
+      sh "pod install --repo-update || bundle exec pod install --repo-update"
+
+#     sh "rm -rf ~/Library/Developer/Xcode/DerivedData"
+#     sh "rm -rf ios/Pods ios/Podfile.lock"
+#     sh "pod install --repo-update"
 
     build_app(
       workspace: "Runner.xcworkspace",
