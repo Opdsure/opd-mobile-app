@@ -64,23 +64,24 @@ pipeline {
             }
         }
 
-        stage('Build Android AAB') {
-            steps {
-                echo "🚀 Building Android App Bundle (AAB)..."
-                sh '''
-                echo "Writing keystore properties..."
-                cat <<EOF > android/app/key.properties
-                storeFile=$ANDROID_KEYSTORE_PATH
-                keyAlias=$ANDROID_KEY_ALIAS
-                storePassword=$ANDROID_STORE_PASSWORD
-                keyPassword=$ANDROID_KEY_PASSWORD
-                EOF
+        stage('Build AAB') {
+                    steps {
+                        echo "🚀 Building Android APK & AAB..."
+                        script {
+                            sh '''
+                            mkdir -p android/app/
 
-                echo "Building release AAB..."
-                flutter build appbundle --release
-                '''
-            }
-        }
+                            echo "storeFile=$ANDROID_KEYSTORE_PATH" > android/app/key.properties
+                            echo "keyAlias=$ANDROID_KEY_ALIAS" >> android/app/key.properties
+                            echo "storePassword=$ANDROID_STORE_PASSWORD" >> android/app/key.properties
+                            echo "keyPassword=$ANDROID_KEY_PASSWORD" >> android/app/key.properties
+
+                            export PATH=$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH
+                            flutter build appbundle --release
+                            '''
+                        }
+                    }
+                }
 
         stage('Upload AAB to Google Play') {
             steps {
