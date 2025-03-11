@@ -108,6 +108,18 @@ pipeline {
 //             }
 //         }
 
+
+       stage('Fix CocoaPods & Fastlane') {
+           steps {
+               sh '''
+               echo "🚀 Running CocoaPods & Fastlane Fix Script..."
+               bash ios/fix_cocoapods.sh
+               '''
+           }
+       }
+
+
+
         stage('Build iOS App') {
             steps {
                     echo "🚀 Archiving & Building iOS App..."
