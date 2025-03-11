@@ -20,7 +20,7 @@ platform :ios do
   lane :release do
     build_app(
       workspace: "Runner.xcworkspace",
-      scheme: "Runner",a
+      scheme: "Runner",
       export_method: "app-store"
     )
 
