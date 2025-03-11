@@ -6,26 +6,22 @@ pipeline {
         CLOUD_SDK_HOME = "/opt/homebrew/bin"
         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH"
 
-        # Android Environment Variables
+        // Android Environment Variables
         ANDROID_HOME = "$HOME/Library/Android/sdk"
         ANDROID_KEYSTORE_PATH = "/Users/intileotechnologies/Documents/Aman/opd_sure_app/android/opdsure.jks"
         ANDROID_KEY_ALIAS = "opdsure"
         ANDROID_KEY_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
         ANDROID_STORE_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
 
-        # iOS Environment Variables
+        // iOS Environment Variables
         APPLE_ID = credentials('APPLE_ID')
         APP_SPECIFIC_PASSWORD = credentials('APP_SPECIFIC_PASSWORD')
+        MATCH_PASSWORD = credentials('MATCH_PASSWORD')
+        FASTLANE_USER = credentials('FASTLANE_USER')
+        FASTLANE_PASSWORD = credentials('FASTLANE_PASSWORD')
 
-        # Google Play Credentials
+        // Google Play Credentials
         PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS')
-
-         # iOS Credentials
-                MATCH_PASSWORD = credentials('MATCH_PASSWORD')
-                APPLE_ID = credentials('APPLE_ID')
-                APP_SPECIFIC_PASSWORD = credentials('APP_SPECIFIC_PASSWORD')
-                FASTLANE_USER = credentials('FASTLANE_USER')
-                FASTLANE_PASSWORD = credentials('FASTLANE_PASSWORD')
     }
 
     stages {
@@ -95,7 +91,6 @@ pipeline {
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
                     export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
-
                     cd android && bundle install
                     fastlane deploy
                     '''
@@ -103,32 +98,29 @@ pipeline {
             }
         }
 
-
-
-
         stage('Build iOS App') {
-                    steps {
-                        echo "🚀 Archiving & Building iOS App..."
-                        sh '''
-                        cd ios
-                         bundle install
-                                        fastlane setup_signing
-                                        fastlane build
-                        '''
-                    }
+            steps {
+                echo "🚀 Archiving & Building iOS App..."
+                sh '''
+                cd ios
+                bundle install
+                fastlane setup_signing
+                fastlane build
+                '''
+            }
+        }
+
+        stage('Upload iOS App to App Store') {
+            steps {
+                withCredentials([string(credentialsId: 'APPLE_ID', variable: 'APPLE_ID'),
+                                 string(credentialsId: 'APP_SPECIFIC_PASSWORD', variable: 'APP_SPECIFIC_PASSWORD')]) {
+                    sh '''
+                    cd ios
+                    fastlane upload_to_app_store
+                    '''
                 }
-
-
-
-                steps {
-                                withCredentials([string(credentialsId: 'APPLE_ID', variable: 'APPLE_ID'),
-                                                 string(credentialsId: 'APP_SPECIFIC_PASSWORD', variable: 'APP_SPECIFIC_PASSWORD')]) {
-                                    sh '''
-                                    cd ios
-                                    fastlane upload_to_app_store
-                                    '''
-                                }
-                            }
+            }
+        }
     }
 
     post {
