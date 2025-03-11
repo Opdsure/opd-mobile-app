@@ -1,21 +1,29 @@
+default_platform(:ios)
+
 platform :ios do
-  desc "Build iOS archive"
-  lane :build do
-    gym(
-      scheme: "Runner",
-      export_method: "app-store",
-      output_directory: "../build/ios",
-      output_name: "Runner.ipa"
+  desc "Build and upload app to TestFlight"
+  lane :beta do
+    increment_build_number(
+      xcodeproj: "Runner.xcodeproj"
     )
+
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store"
+    )
+
+    upload_to_testflight
   end
 
-  desc "Deploy iOS build to App Store"
-  lane :deploy do
-    upload_to_app_store(
-      skip_metadata: true,
-      skip_screenshots: true,
-      apple_id: ENV['APPLE_ID'],
-      app_version: "1.7.0"
+  desc "Release app to App Store"
+  lane :release do
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store"
     )
+
+    upload_to_app_store
   end
 end

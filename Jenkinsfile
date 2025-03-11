@@ -19,6 +19,13 @@ pipeline {
 
         # Google Play Credentials
         PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS')
+
+         # iOS Credentials
+                MATCH_PASSWORD = credentials('MATCH_PASSWORD')
+                APPLE_ID = credentials('APPLE_ID')
+                APP_SPECIFIC_PASSWORD = credentials('APP_SPECIFIC_PASSWORD')
+                FASTLANE_USER = credentials('FASTLANE_USER')
+                FASTLANE_PASSWORD = credentials('FASTLANE_PASSWORD')
     }
 
     stages {
@@ -89,46 +96,39 @@ pipeline {
                     sh '''
                     export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
 
-                    cd android
-                    echo "🚀 Checking Bundler dependencies..."
-                    bundle check || bundle install
-
-                    echo "🚀 Running Fastlane deployment..."
-                    fastlane android deploy --verbose
+                    cd android && bundle install
+                                        fastlane deploy
                     '''
                 }
             }
         }
 
-        stage('Build iOS Archive') {
-            steps {
-                echo "🚀 Building iOS Archive..."
-                sh '''
-                cd ios
-                echo "Installing CocoaPods dependencies..."
-                pod install --repo-update
 
-                echo "Building iOS Archive..."
-                fastlane ios build
-                '''
-            }
-        }
 
-        stage('Upload iOS to App Store') {
-            steps {
-                echo "🚀 Uploading iOS Build to App Store using Fastlane..."
-                withCredentials([
-                    string(credentialsId: 'APPLE_ID', variable: 'APPLE_ID'),
-                    string(credentialsId: 'APP_SPECIFIC_PASSWORD', variable: 'APP_SPECIFIC_PASSWORD')
-                ]) {
-                    sh '''
-                    cd ios
-                    echo "🚀 Running Fastlane deployment for iOS..."
-                    fastlane ios deploy --verbose
-                    '''
+
+        stage('Build iOS App') {
+                    steps {
+                        echo "🚀 Archiving & Building iOS App..."
+                        sh '''
+                        cd ios
+                         bundle install
+                                        fastlane setup_signing
+                                        fastlane build
+                        '''
+                    }
                 }
-            }
-        }
+
+
+
+                steps {
+                                withCredentials([string(credentialsId: 'APPLE_ID', variable: 'APPLE_ID'),
+                                                 string(credentialsId: 'APP_SPECIFIC_PASSWORD', variable: 'APP_SPECIFIC_PASSWORD')]) {
+                                    sh '''
+                                    cd ios
+                                    fastlane upload_to_app_store
+                                    '''
+                                }
+                            }
     }
 
     post {
