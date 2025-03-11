@@ -124,7 +124,8 @@ pipeline {
 
                         # Install dependencies and build
                         bundle install
-                        bundle exec fastlane setup_signing
+                        bundle exec fastlane beta
+//                         bundle exec fastlane setup_signing
                         bundle exec fastlane build
                         '''
             }
