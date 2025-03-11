@@ -114,17 +114,26 @@ pipeline {
                         sh '''
                         cd ios
 
-                        # Use rbenv (VERY IMPORTANT)
-                        export PATH="$HOME/.rbenv/bin:$PATH"
-                        eval "$(rbenv init -)"
+                           # Load rbenv (VERY IMPORTANT)
+                                export PATH="$HOME/.rbenv/bin:$PATH"
+                                eval "$(rbenv init -)"
 
-                        # Install Bundler Locally (No sudo needed)
-                        gem install bundler -v 2.6.3 --user-install
-                        export PATH="$HOME/.gem/ruby/3.2.0/bin:$PATH"
+                                # Ensure correct Ruby version
+                                rbenv global 3.2.0  # Set correct version (adjust if needed)
 
-                        # Install dependencies and build
-                        bundle install
-                        bundle exec fastlane beta
+                                # Set GEM_HOME to avoid permission issues
+                                export GEM_HOME="$HOME/.gem"
+                                export PATH="$GEM_HOME/bin:$PATH"
+
+                                # Install the required Bundler version
+                                gem install bundler -v 2.6.3
+
+                                # Ensure dependencies are installed in project directory
+                                bundle config set path 'vendor/bundle'
+                                bundle install
+
+                                # Run Fastlane
+                                bundle exec fastlane beta
                         '''
             }
         }
