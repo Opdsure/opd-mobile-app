@@ -6,12 +6,18 @@ pipeline {
         CLOUD_SDK_HOME = "/opt/homebrew/bin"
         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH"
 
+        # Android Environment Variables
         ANDROID_HOME = "$HOME/Library/Android/sdk"
         ANDROID_KEYSTORE_PATH = "/Users/intileotechnologies/Documents/Aman/opd_sure_app/android/opdsure.jks"
         ANDROID_KEY_ALIAS = "opdsure"
         ANDROID_KEY_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
         ANDROID_STORE_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
 
+        # iOS Environment Variables
+        APPLE_ID = credentials('APPLE_ID')
+        APP_SPECIFIC_PASSWORD = credentials('APP_SPECIFIC_PASSWORD')
+
+        # Google Play Credentials
         PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS')
     }
 
@@ -38,6 +44,12 @@ pipeline {
 
                 flutter --version
                 flutter doctor
+
+                echo "🚀 Verifying Xcode & Fastlane setup..."
+                which xcodebuild || { echo "❌ Xcode not found! Install Xcode."; exit 1; }
+                which fastlane || { echo "❌ Fastlane not found! Run 'gem install fastlane'"; exit 1; }
+
+                echo "✅ Environment setup complete!"
                 '''
             }
         }
@@ -52,7 +64,7 @@ pipeline {
             }
         }
 
-        stage('Build AAB') {
+        stage('Build Android AAB') {
             steps {
                 echo "🚀 Building Android App Bundle (AAB)..."
                 sh '''
@@ -82,7 +94,37 @@ pipeline {
                     bundle check || bundle install
 
                     echo "🚀 Running Fastlane deployment..."
-                    fastlane deploy --verbose
+                    fastlane android deploy --verbose
+                    '''
+                }
+            }
+        }
+
+        stage('Build iOS Archive') {
+            steps {
+                echo "🚀 Building iOS Archive..."
+                sh '''
+                cd ios
+                echo "Installing CocoaPods dependencies..."
+                pod install --repo-update
+
+                echo "Building iOS Archive..."
+                fastlane ios build
+                '''
+            }
+        }
+
+        stage('Upload iOS to App Store') {
+            steps {
+                echo "🚀 Uploading iOS Build to App Store using Fastlane..."
+                withCredentials([
+                    string(credentialsId: 'APPLE_ID', variable: 'APPLE_ID'),
+                    string(credentialsId: 'APP_SPECIFIC_PASSWORD', variable: 'APP_SPECIFIC_PASSWORD')
+                ]) {
+                    sh '''
+                    cd ios
+                    echo "🚀 Running Fastlane deployment for iOS..."
+                    fastlane ios deploy --verbose
                     '''
                 }
             }
