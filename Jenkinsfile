@@ -15,7 +15,7 @@ pipeline {
 
         // iOS Environment Variables
         APPLE_ID = credentials('APPLE_ID')
-        APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD'
+        APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
 
         // Google Play Credentials
         PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS')
