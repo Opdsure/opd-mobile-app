@@ -13,15 +13,19 @@ pipeline {
         ANDROID_KEY_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
         ANDROID_STORE_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
 
-        # iOS & Fastlane Credentials
+        # iOS Environment Variables
         APPLE_ID = credentials('APPLE_ID')
         APP_SPECIFIC_PASSWORD = credentials('APP_SPECIFIC_PASSWORD')
-        MATCH_PASSWORD = credentials('MATCH_PASSWORD')
-        FASTLANE_USER = credentials('FASTLANE_USER')
-        FASTLANE_PASSWORD = credentials('FASTLANE_PASSWORD')
 
         # Google Play Credentials
         PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS')
+
+         # iOS Credentials
+                MATCH_PASSWORD = credentials('MATCH_PASSWORD')
+                APPLE_ID = credentials('APPLE_ID')
+                APP_SPECIFIC_PASSWORD = credentials('APP_SPECIFIC_PASSWORD')
+                FASTLANE_USER = credentials('FASTLANE_USER')
+                FASTLANE_PASSWORD = credentials('FASTLANE_PASSWORD')
     }
 
     stages {
@@ -40,14 +44,18 @@ pipeline {
         stage('Setup Environment') {
             steps {
                 sh '''
-                echo "🚀 Verifying Flutter, Java, and Fastlane setup..."
-
-                for tool in flutter java bundle xcodebuild fastlane; do
-                    which $tool || { echo "❌ $tool not found!"; exit 1; }
-                done
+                echo "🚀 Verifying Flutter & Android SDK setup..."
+                which flutter || { echo "❌ Flutter not found!"; exit 1; }
+                which java || { echo "❌ Java not found!"; exit 1; }
+                which bundle || { echo "❌ Bundler not found! Run 'gem install bundler'"; exit 1; }
 
                 flutter --version
                 flutter doctor
+
+                echo "🚀 Verifying Xcode & Fastlane setup..."
+                which xcodebuild || { echo "❌ Xcode not found! Install Xcode."; exit 1; }
+                which fastlane || { echo "❌ Fastlane not found! Run 'gem install fastlane'"; exit 1; }
+
                 echo "✅ Environment setup complete!"
                 '''
             }
@@ -68,7 +76,7 @@ pipeline {
                 echo "🚀 Building Android App Bundle (AAB)..."
                 sh '''
                 echo "Writing keystore properties..."
-                cat <<EOF > android/key.properties
+                cat <<EOF > android/app/key.properties
                 storeFile=$ANDROID_KEYSTORE_PATH
                 keyAlias=$ANDROID_KEY_ALIAS
                 storePassword=$ANDROID_STORE_PASSWORD
@@ -83,10 +91,11 @@ pipeline {
 
         stage('Upload AAB to Google Play') {
             steps {
-                echo "🚀 Uploading AAB to Google Play..."
+                echo "🚀 Uploading AAB to Google Play using Fastlane..."
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
                     export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
+
                     cd android && bundle install
                     fastlane deploy
                     '''
@@ -94,30 +103,32 @@ pipeline {
             }
         }
 
-        stage('Build iOS App') {
-            steps {
-                echo "🚀 Archiving & Building iOS App..."
-                sh '''
-                cd ios
-                bundle install
-                fastlane setup_signing
-                fastlane build
-                '''
-            }
-        }
 
-        stage('Upload iOS to App Store') {
-            steps {
-                echo "🚀 Uploading iOS App to App Store..."
-                withCredentials([string(credentialsId: 'APPLE_ID', variable: 'APPLE_ID'),
-                                 string(credentialsId: 'APP_SPECIFIC_PASSWORD', variable: 'APP_SPECIFIC_PASSWORD')]) {
-                    sh '''
-                    cd ios
-                    fastlane upload_to_app_store
-                    '''
+
+
+        stage('Build iOS App') {
+                    steps {
+                        echo "🚀 Archiving & Building iOS App..."
+                        sh '''
+                        cd ios
+                         bundle install
+                                        fastlane setup_signing
+                                        fastlane build
+                        '''
+                    }
                 }
-            }
-        }
+
+
+
+                steps {
+                                withCredentials([string(credentialsId: 'APPLE_ID', variable: 'APPLE_ID'),
+                                                 string(credentialsId: 'APP_SPECIFIC_PASSWORD', variable: 'APP_SPECIFIC_PASSWORD')]) {
+                                    sh '''
+                                    cd ios
+                                    fastlane upload_to_app_store
+                                    '''
+                                }
+                            }
     }
 
     post {
