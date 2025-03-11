@@ -15,7 +15,7 @@ pipeline {
 
         // iOS Environment Variables
         APPLE_ID = credentials('APPLE_ID')
-        APP_SPECIFIC_PASSWORD = credentials('APP_SPECIFIC_PASSWORD')
+//         APP_SPECIFIC_PASSWORD = credentials('APP_SPECIFIC_PASSWORD')
 //         MATCH_PASSWORD = credentials('MATCH_PASSWORD')
 //         FASTLANE_USER = credentials('FASTLANE_USER')
 //         FASTLANE_PASSWORD = credentials('FASTLANE_PASSWORD')
