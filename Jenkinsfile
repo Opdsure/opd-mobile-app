@@ -86,7 +86,7 @@ pipeline {
         stage('Upload AAB to Google Play') {
             steps {
                 echo "🚀 Uploading AAB to Google Play using Fastlane..."
-                withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
+//                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
                     export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
                     cd android
@@ -97,7 +97,7 @@ pipeline {
 
                      fastlane deploy
                     '''
-                }
+//                 }
             }
         }
 
