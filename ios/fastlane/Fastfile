@@ -26,4 +26,19 @@ platform :ios do
 
     upload_to_app_store
   end
+
+
+
+  desc "Release app to beta"
+  lane :beta do
+    sh "rm -rf ~/Library/Developer/Xcode/DerivedData"
+    sh "rm -rf Pods"
+    sh "pod deintegrate"
+    sh "pod install --repo-update"
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      export_method: "app-store"
+    )
+  end
 end
