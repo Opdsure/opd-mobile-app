@@ -1,21 +1,6 @@
 default_platform(:ios)
 
 platform :ios do
-#   desc "Build and upload app to TestFlight"
-#   lane :beta do
-#     increment_build_number(
-#       xcodeproj: "Runner.xcodeproj"
-#     )
-#
-#     build_app(
-#       workspace: "Runner.xcworkspace",
-#       scheme: "Runner",
-#       export_method: "app-store"
-#     )
-#
-#     upload_to_testflight
-#   end
-
   desc "Release app to App Store"
   lane :release do
     build_app(
@@ -23,22 +8,21 @@ platform :ios do
       scheme: "Runner",
       export_method: "app-store"
     )
-
     upload_to_app_store
   end
-
-
 
   desc "Release app to beta"
   lane :beta do
     sh "rm -rf ~/Library/Developer/Xcode/DerivedData"
-    sh "rm -rf Pods"
-    sh "pod deintegrate"
+    sh "rm -rf ios/Pods ios/Podfile.lock"
     sh "pod install --repo-update"
+
     build_app(
       workspace: "Runner.xcworkspace",
       scheme: "Runner",
       export_method: "app-store"
     )
+
+    upload_to_testflight  # Add this if uploading to TestFlight
   end
 end
