@@ -38,16 +38,16 @@ pipeline {
             steps {
                 sh '''
                 echo "🚀 Verifying Flutter & Android SDK setup..."
-                which flutter || { echo "❌ Flutter not found!"; exit 1; }
-                which java || { echo "❌ Java not found!"; exit 1; }
-                which bundle || { echo "❌ Bundler not found! Run 'gem install bundler'"; exit 1; }
+                which flutter
+                which java
+                which bundle
 
                 flutter --version
                 flutter doctor
 
                 echo "🚀 Verifying Xcode & Fastlane setup..."
-                which xcodebuild || { echo "❌ Xcode not found! Install Xcode."; exit 1; }
-                which fastlane || { echo "❌ Fastlane not found! Run 'gem install fastlane'"; exit 1; }
+                which xcodebuild
+                which fastlane
 
                 echo "✅ Environment setup complete!"
                 '''
@@ -89,8 +89,13 @@ pipeline {
                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
                     export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
-                    cd android && bundle install
-                    fastlane deploy
+                    cd android
+
+                     # Ensure Bundler is installed
+                     gem install bundler -v 2.6.3 || exit 1
+                     bundle install || exit 1
+
+                     fastlane deploy
                     '''
                 }
             }
