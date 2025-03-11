@@ -1,0 +1,12 @@
+default_platform(:android)
+
+platform :android do
+  desc "Upload AAB to Google Play"
+  lane :deploy do
+    upload_to_play_store(
+      track: "production",  # Change to 'internal', 'beta' or 'alpha' if needed
+      aab: "../build/app/outputs/bundle/release/app-release.aab", 
+      json_key: "/Users/intileotechnologies/Documents/Aman/opd_sure_app/android/playstore-credentials.json" # Path to your Play Store JSON key
+    )
+  end
+end

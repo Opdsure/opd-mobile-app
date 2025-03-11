@@ -65,21 +65,16 @@ pipeline {
 
         stage('Upload AAB to Google Play') {
             steps {
-                echo "🚀 Uploading AAB to Google Play..."
-                withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
-                    sh '''
-                    export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
+                 echo "🚀 Uploading AAB to Google Play using Fastlane..."
+                                withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
+                                    sh '''
+                                    export PATH=$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH
+                                    export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
 
-                    gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                    gcloud config set project opdsure-452612
-                    gcloud services enable androidpublisher.googleapis.com
-
-                    gcloud beta androidpublishing bundles upload \
-                        --package="io.app.opdsure" \
-                        --bundle="build/app/outputs/bundle/release/app-release.aab" \
-                        --track=production \
-                        --service-account-key=$GOOGLE_APPLICATION_CREDENTIALS
-                    '''
+                                    cd android
+                                    bundle install
+                                    fastlane deploy
+                                    '''
                 }
             }
         }
