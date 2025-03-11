@@ -88,7 +88,7 @@ pipeline {
                 echo "🚀 Uploading AAB to Google Play using Fastlane..."
 //                 withCredentials([file(credentialsId: 'PLAYSTORE_CREDENTIALS', variable: 'PLAYSTORE_CREDENTIALS_FILE')]) {
                     sh '''
-                    export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
+#                     export GOOGLE_APPLICATION_CREDENTIALS=$PLAYSTORE_CREDENTIALS_FILE
                     cd android
 
                      # Ensure Bundler is installed
