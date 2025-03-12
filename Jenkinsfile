@@ -54,15 +54,15 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                echo "🚀 Installing Flutter dependencies..."
-                flutter clean
-                flutter pub get
-                '''
-            }
-        }
+//         stage('Install Dependencies') {
+//             steps {
+//                 sh '''
+//                 echo "🚀 Installing Flutter dependencies..."
+//                 flutter clean
+//                 flutter pub get
+//                 '''
+//             }
+//         }
 
 //         stage('Build AAB') {
 //                     steps {
