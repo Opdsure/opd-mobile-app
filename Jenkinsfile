@@ -113,7 +113,7 @@ pipeline {
            steps {
                sh '''
                echo "🚀 Running CocoaPods & Fastlane Fix Script..."
-               bash ios/fix_cocoapods.sh
+               bash -x ios/fix_cocoapods.sh
                '''
            }
        }
