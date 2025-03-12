@@ -3,6 +3,8 @@
 app_identifier("io.app.opdsure") # Your Bundle ID
 apple_id("opdsure3@gmail.com") # Your Apple Developer email
 team_id("X8JCSQZDGC") # Your Apple Developer Team ID
+# itc_team_id("YOUR_TEAM_ID") # Found in App Store Connect
+json_key_file("./fastlane/AuthKey_Q72Q6X565Z.p8")
 
 # For more information about the Appfile, see:
 #     https://docs.fastlane.tools/advanced/#appfile

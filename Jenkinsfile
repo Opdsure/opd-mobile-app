@@ -132,6 +132,7 @@ pipeline {
         stage('Upload iOS App to App Store') {
             steps {
                 dir('ios') {
+                 echo "🚀 Upload build to App Store"
                         sh 'fastlane release'
 
                              }
