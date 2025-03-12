@@ -136,8 +136,7 @@ pipeline {
                 dir('ios') {
                  echo "🚀 Upload build to App Store"
                         sh 'fastlane release'
-
-                             }
+                 }
             }
         }
     }
