@@ -109,14 +109,14 @@ pipeline {
 //         }
 
 
-       stage('Fix CocoaPods & Fastlane') {
-           steps {
-               sh '''
-               echo "🚀 Running CocoaPods & Fastlane Fix Script..."
-               bash -x ios/fix_cocoapods.sh
-               '''
-           }
-       }
+//        stage('Fix CocoaPods & Fastlane') {
+//            steps {
+//                sh '''
+//                echo "🚀 Running CocoaPods & Fastlane Fix Script..."
+//                bash -x ios/fix_cocoapods.sh
+//                '''
+//            }
+//        }
 
 
 
@@ -124,48 +124,17 @@ pipeline {
             steps {
                     echo "🚀 Archiving & Building iOS App..."
                           sh '''
-                          cd ios
-
-                          # Load rbenv
-                          export PATH="$HOME/.rbenv/bin:$PATH"
-                          eval "$(rbenv init -)"
-
-                          # Check if Ruby 3.2.0 is installed, if not install it
-                          if ! rbenv versions | grep -q "3.2.0"; then
-                              echo "Installing Ruby 3.2.0..."
-                              rbenv install 3.2.0
-                          fi
-
-                          # Set Ruby version
-                          rbenv global 3.2.0
-                          rbenv rehash
-
-                          # Set GEM_HOME to avoid permission issues
-                          export GEM_HOME="$HOME/.gem"
-                          export PATH="$GEM_HOME/bin:$PATH"
-
-                          # Install Bundler
-                          gem install bundler -v 2.6.3
-
-                          # Ensure dependencies are installed in project directory
-                          bundle config set path 'vendor/bundle'
-                          bundle install
-
-                          # Run Fastlane
-                          bundle exec fastlane beta
+                         flutter build ios --release --no-codesign
                           '''
             }
         }
 
         stage('Upload iOS App to App Store') {
             steps {
-                withCredentials([string(credentialsId: 'APPLE_ID', variable: 'APPLE_ID'),
-                                 string(credentialsId: 'APP_SPECIFIC_PASSWORD', variable: 'APP_SPECIFIC_PASSWORD')]) {
-                    sh '''
-                    cd ios
-                    fastlane upload_to_app_store
-                    '''
-                }
+                dir('ios') {
+                        sh 'fastlane release'
+
+                             }
             }
         }
     }
