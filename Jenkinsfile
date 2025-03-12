@@ -120,22 +120,14 @@ pipeline {
 
 
 
-//         stage('Build iOS App') {
-//             steps {
-//                     echo "🚀 Archiving & Building iOS App..."
-//                           sh '''
-//                          flutter build ios --release --no-codesign
-//                           '''
-//             }
-//         }
-
-
-      stage('Build iOS') {
-                  steps {
-                  echo "🚀 Archiving & Building iOS App..."
-                      sh 'cd ios && fastlane ios release'
-                  }
-              }
+        stage('Build iOS App') {
+            steps {
+                    echo "🚀 Archiving & Building iOS App..."
+                          sh '''
+                         flutter build ios --release --no-codesign
+                          '''
+            }
+        }
 
 
 
