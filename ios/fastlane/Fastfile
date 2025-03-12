@@ -1,10 +1,27 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Build and upload to App Store"
+  desc "Build and upload iOS app to TestFlight and App Store"
   lane :release do
-    increment_build_number
-    build_app(scheme: "Runner")
-    upload_to_app_store
+    increment_build_number(xcodeproj: "Runner.xcodeproj")
+
+    build_app(
+      scheme: "Runner",
+      export_method: "app-store"
+    )
+
+    # 🔹 Use App-Specific Password (Recommended for Simplicity)
+    upload_to_app_store(
+      username: ENV['opdsure3@gmail.com'],  # Apple ID (Set in Environment)
+      skip_metadata: true,
+      skip_screenshots: true,
+      force: true
+    )
+
+
+
+    slack(
+      message: "🚀 New iOS build uploaded to App Store Connect!"
+    )
   end
 end

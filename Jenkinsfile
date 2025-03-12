@@ -14,7 +14,7 @@ pipeline {
         ANDROID_STORE_PASSWORD = credentials('ANDROID_KEY_PASSWORD')
 
         // iOS Environment Variables
-        APPLE_ID = credentials('APPLE_ID')
+        APPLE_ID = 'opdsure3@gmail.com'
         APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
 
         // Google Play Credentials
@@ -120,14 +120,24 @@ pipeline {
 
 
 
-        stage('Build iOS App') {
-            steps {
-                    echo "🚀 Archiving & Building iOS App..."
-                          sh '''
-                         flutter build ios --release --no-codesign
-                          '''
-            }
-        }
+//         stage('Build iOS App') {
+//             steps {
+//                     echo "🚀 Archiving & Building iOS App..."
+//                           sh '''
+//                          flutter build ios --release --no-codesign
+//                           '''
+//             }
+//         }
+
+
+      stage('Build iOS') {
+                  steps {
+                  echo "🚀 Archiving & Building iOS App..."
+                      sh 'cd ios && fastlane ios release'
+                  }
+              }
+
+
 
         stage('Upload iOS App to App Store') {
             steps {
