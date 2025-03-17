@@ -2,6 +2,11 @@ pipeline {
     agent any
 
     environment {
+
+       LANG = "en_US.UTF-8"
+       LC_ALL = "en_US.UTF-8"
+
+
         FLUTTER_HOME = "/Users/intileotechnologies/Documents/Aman/flutter"
         CLOUD_SDK_HOME = "/opt/homebrew/bin"
         PATH = "$FLUTTER_HOME/bin:$FLUTTER_HOME/bin/cache/dart-sdk/bin:$CLOUD_SDK_HOME:$PATH"
@@ -15,7 +20,7 @@ pipeline {
 
         // iOS Environment Variables
         APPLE_ID = 'opdsure3@gmail.com'
-        APP_SPECIFIC_PASSWORD = credentials('APPLE_APP_PASSWORD')
+        APP_SPECIFIC_PASSWORD = credentials('App_Specific_OPDSure')
 
         // Google Play Credentials
         PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS')
@@ -135,7 +140,10 @@ pipeline {
             steps {
                 dir('ios') {
                  echo "🚀 Upload build to App Store"
-                        sh 'fastlane release'
+                 sh '''
+                       fastlane ios beta
+
+                  '''
                  }
             }
         }

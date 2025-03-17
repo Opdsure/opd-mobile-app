@@ -2,3 +2,4 @@
 app_identifier("io.app.opdsure") # Your Bundle ID
 apple_id("opdsure3@gmail.com") # Your Apple Developer email
 team_id("X8JCSQZDGC") # Your Apple Developer Team ID
+api_key_path("../fastlane/AuthKey_Q72Q6X565Z.p8") # Update with correct path
