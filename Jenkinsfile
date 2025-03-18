@@ -24,6 +24,11 @@ pipeline {
 
         // Google Play Credentials
         PLAYSTORE_CREDENTIALS = credentials('PLAYSTORE_CREDENTIALS')
+
+        //////
+        APP_STORE_USERNAME = credentials('OPD_Username_Apple')
+        FASTLANE_API_KEY_PATH = credentials('OPDSURE_API_KEY_PATH')
+
     }
 
     stages {
@@ -141,7 +146,9 @@ pipeline {
                 dir('ios') {
                  echo "🚀 Upload build to App Store"
                  sh '''
-                       fastlane ios beta
+                 set -e  # Exit on any command failure
+                 pod install --repo-update  # Ensure latest pod dependencies
+                 fastlane beta  # Run Fastlane beta lane
 
                   '''
                  }

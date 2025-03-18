@@ -1,76 +1,72 @@
-# default_platform(:ios)
-#
-# platform :ios do
-#
-#    desc "Build and upload iOS app to TestFlight"
-#    lane :beta do
-#      sync_code_signing(type: "appstore") # see code signing guide for more information
-#      build_app(scheme: "Runner")
-#
-#      api_key = app_store_connect_api_key(
-#        key_id: "Q72Q6X565Z",
-#        issuer_id: "7abb20de-99b1-49a2-a6c8-66cb6d80e85a",
-#        key_content: File.read("/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_Q72Q6X565Z.p8"),
-#        in_house: false
-#      )
-#
-#      upload_to_testflight(api_key: api_key)
-#
-#      slack(message: "Successfully distributed a new beta build")
-#    end
-#
-#
-#   desc "Build and upload iOS app to TestFlight and App Store"
-#   lane :release do
-#
-#     build_app(
-#       scheme: "Runner",
-#       export_method: "app-store",
-#       output_directory: "./build",
-#       output_name: "Runner.ipa"
-#     )
-#
-#     api_key = app_store_connect_api_key(
-#       key_id: "Q72Q6X565Z",
-#       issuer_id: "7abb20de-99b1-49a2-a6c8-66cb6d80e85a",
-#       key_content: File.read("/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_Q72Q6X565Z.p8"),
-#       in_house: false
-#     )
-#
-#     upload_to_app_store(
-#       username: "opdsure3@gmail.com",
-#       app_identifier: "io.app.opdsure",
-#       ipa: "./build/Runner.ipa",
-#       team_id: "X8JCSQZDGC",
-#     )
-#
-#     slack( message: "🚀 New iOS build uploaded to App Store Connect!")
-#   end
-#
-# end
-#
-#
-#
-#
-
-
 default_platform(:ios)
 
 platform :ios do
-  desc "Build and upload iOS app to TestFlight"
-  lane :beta do
-    sync_code_signing(type: "appstore") # Ensure code signing is correct
-    build_app(scheme: "Runner")
+
+   desc "Build and upload iOS app to TestFlight"
+   lane :beta do
+     sync_code_signing(type: "appstore") # see code signing guide for more information
+     build_app(scheme: "Runner")
+
+     api_key = app_store_connect_api_key(
+       key_id: "R8DWU66GG9",
+       issuer_id: "a0bf4e3c-a1ed-4325-8f16-25317a6d2727",
+       key_content: File.read("/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_R8DWU66GG9.p8"),
+       in_house: false
+     )
+
+     upload_to_testflight(api_key: api_key)
+
+     slack(message: "Successfully distributed a new beta build")
+
+
+
+
+   end
+
+
+  desc "Build and upload iOS app to TestFlight and App Store"
+  lane :release do
+
+    build_app(
+      scheme: "Runner",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "Runner.ipa"
+    )
 
     api_key = app_store_connect_api_key(
-      key_id: "Q72Q6X565Z",
-      issuer_id: "7abb20de-99b1-49a2-a6c8-66cb6d80e85a",
-      key_content: File.read("/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_Q72Q6X565Z.p8").strip,
+      key_id: "R8DWU66GG9",
+      issuer_id: "a0bf4e3c-a1ed-4325-8f16-25317a6d2727",
+      key_content: File.read("/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_R8DWU66GG9.p8"),
       in_house: false
     )
 
-    upload_to_testflight(api_key: api_key)
+    upload_to_app_store(
+      username: "opdsure3@gmail.com",
+      app_identifier: "io.app.opdsure",
+      ipa: "./build/Runner.ipa",
+      team_id: "X8JCSQZDGC",
+    )
 
-    slack(message: "Successfully distributed a new beta build")
+    slack( message: "🚀 New iOS build uploaded to App Store Connect!")
   end
+
 end
+
+
+
+# default_platform(:ios)
+#
+# platform :ios do
+#   desc "Build and upload to App Store"
+#   lane :release do
+#     match(type: "appstore", readonly: true)
+#     build_ios_app(workspace: "Runner.xcworkspace", scheme: "Runner")
+#
+#     upload_to_app_store(
+#       skip_metadata: true,
+#       skip_screenshots: true, # Skips screenshots upload
+#       api_key_path: "/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_NDXM9C5279.p8"
+#     )
+#   end
+# end

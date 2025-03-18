@@ -1,13 +1,13 @@
 require 'jwt'
 
 # 🔹 Set your private key file path
-key_file = "/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_Q72Q6X565Z.p8" # Replace with your actual .p8 file path
+key_file = "/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_R8DWU66GG9.p8"
 
 # 🔹 Replace with your actual Key ID from Apple Developer
-key_id = "Q72Q6X565Z"
+key_id = "R8DWU66GG9"
 
 # 🔹 Replace with your actual Issuer ID from App Store Connect
-issuer_id = "7abb20de-99b1-49a2-a6c8-66cb6d80e85a"
+issuer_id = "7a0bf4e3c-a1ed-4325-8f16-25317a6d2727"
 
 begin
   # Load private key
