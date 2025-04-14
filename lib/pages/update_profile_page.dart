@@ -69,7 +69,6 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   @override
   Widget build(BuildContext context) {
     TypeController typeController = Get.put(TypeController());
-    // TODO: implement build
     return AppBasePage(
       appHeader: AppHeader(headerName: 'Update Profile',),
       childContent: ListView(

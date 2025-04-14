@@ -9,6 +9,7 @@ import '../../custom_ui/app_round_view.dart';
 import '../../custom_ui/app_text_view.dart';
 import '../../utils/common_methods.dart';
 import '../../widget/opd_widget.dart';
+import '../checkout/checkout_controller.dart';
 
 class Profile extends StatelessWidget {
   final ProfilePageController controller;
@@ -206,8 +207,24 @@ class Profile extends StatelessWidget {
               height: 10.0,
             ),
             AppRoundView(
-              onClick: () {
-                context.push('/home/renew-plan');
+              onClick: () async {
+
+                context.push('/home/view_plans', extra: PaymentType.planRenew);
+                // final plan = await OpdSure.of(context).client.getPlanById(
+                //   planId: controller.userProfile!.data!.plan!.id,
+                //   memberShipId:
+                //   controller.userProfile!.data!.plan!.membershipId,
+                // );
+                // context.push('/home/opd-plan', extra: {
+                //   'records': plan,
+                //   'option': plan!.membershipOptions![0],
+                //   'buyDate': controller.userProfile!.data!,
+                //   'isSub': true,
+                //   'active': true
+                // });
+
+
+                // context.push('/home/renew-plan');
               },
               corner: 10.0,
               color: AppConfig.roundedViewColor,

@@ -8,7 +8,6 @@ import 'package:opdsure/utils/custom_scroll_behaviour.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:opdsure/widget/theme_builder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../repository/client/OpdClient.dart';
 
 
@@ -38,15 +37,29 @@ class OpdSureApp extends StatelessWidget {
         darkTheme: OpdThemes.buildTheme(context, Brightness.light, color),
         scrollBehavior: CustomScrollBehavior(),
         routerConfig: router,
-        builder: (context, child) => Navigator(
-          onGenerateRoute: (_) =>
-              MaterialPageRoute(builder: (_) =>
-                  OpdSure(
-                    clients: clients,
-                    store: store,
-                    child: child,
-          )),
-        ),
+        // builder: (context, child) => Navigator(
+        //   onGenerateRoute: (_) =>
+        //       MaterialPageRoute(builder: (_) =>
+        //           OpdSure(
+        //             clients: clients,
+        //             store: store,
+        //             child: child,
+        //   )),
+        // ),
+
+        builder: (context, child) {
+          return  Navigator(
+              onGenerateRoute: (_) => MaterialPageRoute(
+                builder: (_) => OpdSure(
+                  clients: clients,
+                  store: store,
+                  child: child,
+                ),
+              ),
+
+          );
+        },
+
       ),
     );
   }

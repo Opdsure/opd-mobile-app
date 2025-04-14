@@ -138,6 +138,7 @@ class OpdPlanView extends StatelessWidget {
                const SizedBox(
                  height: 15.0,
                ),
+
                Expanded(
                  child: ListView.builder(
                      itemCount: record.planBenefits!.length,

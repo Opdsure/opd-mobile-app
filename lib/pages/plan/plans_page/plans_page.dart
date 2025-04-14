@@ -59,11 +59,12 @@ class PlansPageView extends StatelessWidget {
               ),
               borderColor: AppConfig.primaryColor,
               height: 40.0,
-              width: 100.0,
+              // width: 100.0,
               contentCenter: true,
               unselectedLabelStyle: GoogleFonts.montserrat(
                 color: Colors.black,
               ),
+              contentPadding :EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               borderWidth: 1,
               unselectedBorderColor: const Color(0xFFEAECF0),
               radius: 15,
@@ -72,6 +73,9 @@ class PlansPageView extends StatelessWidget {
                 controller.getIndexedRecords(index: index);
               },
             ),
+
+
+
             const SizedBox(
               height: 15.0,
             ),
