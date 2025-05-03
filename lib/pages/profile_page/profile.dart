@@ -174,8 +174,7 @@ class Profile extends StatelessWidget {
               onClick: () async {
                 final plan = await OpdSure.of(context).client.getPlanById(
                       planId: controller.userProfile!.data!.plan!.id,
-                      memberShipId:
-                          controller.userProfile!.data!.plan!.membershipId,
+                      memberShipId: controller.userProfile!.data!.plan!.membershipId,
                     );
                 context.push('/home/opd-plan', extra: {
                   'records': plan,

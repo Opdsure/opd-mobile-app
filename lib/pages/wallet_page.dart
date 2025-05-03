@@ -12,6 +12,8 @@ import '../config/app_config.dart';
 import '../custom_ui/app_header.dart';
 
 class WalletPage extends StatelessWidget {
+  const WalletPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return AppBasePage(

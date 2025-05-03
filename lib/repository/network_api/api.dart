@@ -54,8 +54,7 @@ class Api {
     throw Exception('body size $actual exceeded $expected');
   }
 
-  Uri _getCouponUri(PaymentType type,
-      {String? planId, String? memberId, String? couponCode}) {
+  Uri _getCouponUri(PaymentType type, {String? planId, String? memberId, String? couponCode}) {
     switch (type) {
       case PaymentType.buyPlan:
         return Uri.parse(
@@ -238,6 +237,7 @@ class Api {
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
+    print("token $bearerToken");
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);

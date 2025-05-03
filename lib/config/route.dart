@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/themes.dart';
-import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/custom_ui/empty_page.dart';
 import 'package:opdsure/custom_ui/two_column_layout.dart';
 import 'package:opdsure/custom_ui/web_view/webView.dart';
@@ -15,7 +14,6 @@ import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/add_family_details/add_family_details.dart';
 import 'package:opdsure/pages/file_claim_page.dart';
-import 'package:opdsure/pages/forget_password/forget_password_controller.dart';
 import 'package:opdsure/pages/free_health_tests/free_health_tests.dart';
 import 'package:opdsure/pages/health_check_up/health_checkup_details/health_checkup_details_controller.dart';
 import 'package:opdsure/pages/home_dashboard/dash_board.dart';
@@ -25,9 +23,7 @@ import 'package:opdsure/pages/notification/notification_page.dart';
 import 'package:opdsure/pages/opd_plan/opd_plan_view.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
-import 'package:opdsure/pages/preview/preview_page_view.dart';
 import 'package:opdsure/pages/referral_member_page/referral_member_page.dart';
-import 'package:opdsure/pages/referral_page.dart';
 import 'package:opdsure/pages/renew_plans/renew_plans.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
 import 'package:opdsure/pages/submit_patient_details/submit_patient_details.dart';
@@ -59,7 +55,8 @@ abstract class AppRoutes {
 
   static FutureOr<String?> loggedOutRedirect(
     BuildContext context,
-    GoRouterState state,) =>
+    GoRouterState state,
+  ) =>
       OpdSure.of(context).client.isLogged ? null : '/login';
 
   static FutureOr<String?> getRedirectNameForHome(
@@ -274,21 +271,20 @@ abstract class AppRoutes {
               }
             },
             redirect: getRedirectNameForHome,
-            pageBuilder: (context, state)
-            {
+            pageBuilder: (context, state) {
               ActiveDestination destination = ActiveDestination.home;
-              if(state.extra != null && state.extra!.runtimeType == ActiveDestination){
+              if (state.extra != null &&
+                  state.extra!.runtimeType == ActiveDestination) {
                 destination = state.extra as ActiveDestination;
               }
-                  return defaultPageBuilder(
-                    context,
-                    state,
-                    OpdThemes.isColumnMode(context)
-                        ? const EmptyPage()
-                        : DashBoardPage(
-                            destination: destination),
-                  );
-                },
+              return defaultPageBuilder(
+                context,
+                state,
+                OpdThemes.isColumnMode(context)
+                    ? const EmptyPage()
+                    : DashBoardPage(destination: destination),
+              );
+            },
             routes: [
               GoRoute(
                   path: 'book_checkup',
@@ -316,11 +312,10 @@ abstract class AppRoutes {
                   pageBuilder: (context, state) {
                     bool activate = true;
                     bool isSub = false;
-                    Map<String, dynamic> data =
-                        state.extra! as Map<String, dynamic>;
+                    Map<String, dynamic> data = state.extra! as Map<String, dynamic>;
                     PlanRecords record = data['records'] as PlanRecords;
                     MembershipOptions options =
-                        data['option'] as MembershipOptions;
+                    data['option'] as MembershipOptions;
                     if (data['active'] != null) {
                       activate = data['active'] as bool;
                     }
@@ -348,21 +343,28 @@ abstract class AppRoutes {
                     return defaultPageBuilder(
                         context, state, const HealthPlans());
                   },
-                routes: [
-                  GoRoute(
-                      path: 'add-patient-details',
-                    pageBuilder: (context, state) {
-                    return defaultPageBuilder(context, state, SubmitPatientDetails(healthCheckupId: state.extra as String?,));
-                    }
-                  )
-                ]
-              ),
+                  routes: [
+                    GoRoute(
+                        path: 'add-patient-details',
+                        pageBuilder: (context, state) {
+                          return defaultPageBuilder(
+                              context,
+                              state,
+                              SubmitPatientDetails(
+                                healthCheckupId: state.extra as String?,
+                              ));
+                        })
+                  ]),
               GoRoute(
                   path: 'add-patient-details',
                   pageBuilder: (context, state) {
-                    return defaultPageBuilder(context, state, SubmitPatientDetails(healthCheckupId: state.extra as String?,));
-                  }
-              ),
+                    return defaultPageBuilder(
+                        context,
+                        state,
+                        SubmitPatientDetails(
+                          healthCheckupId: state.extra as String?,
+                        ));
+                  }),
               GoRoute(
                   path: 'free-health-plan',
                   pageBuilder: (context, state) {

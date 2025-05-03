@@ -149,6 +149,16 @@ class ClaimRecords {
     dynamic? claimableAmount,
     dynamic claimType,
     dynamic claimCombination,
+
+
+    dynamic approvedClaimableAmount,
+    dynamic approvedClaimableDoctorFee,
+    dynamic approvedClaimablePharmacyFee,
+    dynamic approvedClaimableLabTestFee,
+    dynamic approvedClaimableCombinedPharmacyTestFees,
+
+
+
     String? hospital,
     String? userRemark,
     List<String>? feeReceipt,
@@ -157,6 +167,7 @@ class ClaimRecords {
     List<String>? testReceipt,
     dynamic? status,
     MemberId? memberId,
+
     // String? userId,
     bool? subscriberReaction,
     bool? resubmission,
@@ -166,7 +177,9 @@ class ClaimRecords {
     String? updatedAt,
     dynamic? v,
     String? claimClosureDate,
-    dynamic? disputeDetails,}){
+    dynamic? disputeDetails,})
+  {
+
     _id = id;
     _opdDate = opdDate;
     _docName = docName;
@@ -207,6 +220,14 @@ class ClaimRecords {
     _v = v;
     _claimClosureDate = claimClosureDate;
     _disputeDetails = disputeDetails;
+
+
+    _approvedClaimableAmount = approvedClaimableAmount;
+    _approvedClaimableDoctorFee = approvedClaimableDoctorFee;
+    _approvedClaimablePharmacyFee = approvedClaimablePharmacyFee;
+    _approvedClaimableLabTestFee = approvedClaimableLabTestFee;
+    _approvedClaimableCombinedPharmacyTestFees = approvedClaimableCombinedPharmacyTestFees;
+    // _claimableCombinedPharmacyTestFees = claimableCombinedPharmacyTestFees;
   }
 
   ClaimRecords.fromJson(dynamic json) {
@@ -260,6 +281,15 @@ class ClaimRecords {
     _v = json['__v'];
     _claimClosureDate = json['claim_closure_Date'];
     _disputeDetails = json['dispute_details'];
+
+    _approvedClaimableAmount = json['approved_claimable_amount'];
+    _approvedClaimableDoctorFee = json['approved_claimable_doctor_fee'];
+    _approvedClaimablePharmacyFee = json['approved_claimable_pharmacy_fee'];
+    _approvedClaimableLabTestFee = json['approved_claimable_lab_test_fee'];
+    _approvedClaimableCombinedPharmacyTestFees =
+    json['approved_claimable_combined_pharmacy_test_fees'];
+    // _claimableCombinedPharmacyTestFees =
+    // json['claimable_combined_pharmacy_test_fees'];
   }
   String? _id;
   String? _opdDate;
@@ -301,6 +331,12 @@ class ClaimRecords {
   dynamic? _v;
   String? _claimClosureDate;
   dynamic? _disputeDetails;
+  dynamic _approvedClaimableAmount;
+  dynamic _approvedClaimableDoctorFee;
+  dynamic _approvedClaimablePharmacyFee;
+  dynamic _approvedClaimableLabTestFee;
+  dynamic _approvedClaimableCombinedPharmacyTestFees;
+  // dynamic _claimableCombinedPharmacyTestFees;
 
   String? get id => _id ?? "";
   String? get opdDate => _opdDate ?? "";
@@ -342,6 +378,16 @@ class ClaimRecords {
   dynamic? get v => _v ?? 0;
   String? get claimClosureDate => _claimClosureDate ?? "";
   dynamic? get disputeDetails => _disputeDetails ?? -1;
+  dynamic get approvedClaimableAmount => _approvedClaimableAmount;
+  dynamic get approvedClaimableDoctorFee => _approvedClaimableDoctorFee;
+  dynamic get approvedClaimablePharmacyFee => _approvedClaimablePharmacyFee;
+  dynamic get approvedClaimableLabTestFee => _approvedClaimableLabTestFee;
+  dynamic get approvedClaimableCombinedPharmacyTestFees =>
+      _approvedClaimableCombinedPharmacyTestFees;
+  // dynamic get claimableCombinedPharmacyTestFees =>
+  //     _claimableCombinedPharmacyTestFees;
+
+
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -389,6 +435,12 @@ class ClaimRecords {
     map['__v'] = _v;
     map['claim_closure_Date'] = _claimClosureDate;
     map['dispute_details'] = _disputeDetails;
+    map['approved_claimable_amount'] = _approvedClaimableAmount;
+    map['approved_claimable_doctor_fee'] = _approvedClaimableDoctorFee;
+    map['approved_claimable_pharmacy_fee'] = _approvedClaimablePharmacyFee;
+    map['approved_claimable_lab_test_fee'] = _approvedClaimableLabTestFee;
+    map['approved_claimable_combined_pharmacy_test_fees'] =
+        _approvedClaimableCombinedPharmacyTestFees;
     return map;
   }
 

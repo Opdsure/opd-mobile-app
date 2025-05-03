@@ -111,6 +111,48 @@ class ClaimTile extends StatelessWidget {
                   ],
                 ),
               ),
+
+
+              (records.approvedClaimableAmount != null &&
+                  records.approvedClaimableAmount.toString().isNotEmpty)?
+              RichText(
+                textScaler: const TextScaler.linear(1),
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                        text:
+                        'Approved Amount: ',
+                        style: GoogleFonts
+                            .montserrat(
+                          fontSize: 12.0,
+                          fontWeight:
+                          FontWeight.w500,
+                          color: const Color(
+                              0xFF667085),
+                        )),
+                    TextSpan(
+                      // text: "vghjk",
+                      text:records.approvedClaimableAmount != null &&
+                          records.approvedClaimableAmount.toString().isNotEmpty
+                          ? '$rupeeSymbol ${records.approvedClaimableAmount}'
+                          : '',
+
+
+
+                      // '$rupeeSymbol ${records.approvedClaimableAmount}',
+                      style: GoogleFonts
+                          .montserrat(
+                          fontSize: 12.0,
+                          fontWeight:
+                          FontWeight
+                              .w500,
+                          color: const Color(
+                              0xFF027A48)),
+                    ),
+                  ],
+                ),
+              ):SizedBox(),
+                  // SizedBox(),
               AppTextView(
                 text:
                 'Claim Date: ${CommonMethods.formatIsoDateString(records.createdAt!)}',

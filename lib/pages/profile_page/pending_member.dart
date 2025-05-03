@@ -17,7 +17,7 @@ import '../../utils/common_methods.dart';
 class PendingFamilyMember extends StatelessWidget {
   final ProfilePageController controller;
 
-  const PendingFamilyMember(this.controller, {super.key});
+  const  PendingFamilyMember(this.controller, {super.key});
 
   @override
   Widget build(BuildContext context) {

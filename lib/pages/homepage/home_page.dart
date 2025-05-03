@@ -41,103 +41,115 @@ class HomePage extends StatefulWidget {
     Icons.group_add
   ];
 
-  static List<OpdService> serviceTittle(BuildContext context, {ValueCallback? callBack}) => [
-    OpdService(
-      title: 'In-Clinic Doctor',
-        image: 'assets/images/offline_doc.png',
-      onTap: (){
-          CommonMethods.customAlertBox(context,
-            title: 'In-Clinic Consultation',
-            message: 'Visit any clinic in India.',
-          );
-      }
-    ),
-    OpdService(
-        title: 'Online Doctor',
-        image: 'assets/images/online_doc.png',
-        onTap: () async {
-          CommonMethods.showAlertDialog(context);
-          final opd = OpdSure.of(context);
-          if(opd.profileData!.plan!.purchased!){
-            try {
-              final mfine = await opd.client.mFine();
-              Navigator.of(context).pop();
-              context.push('/home/web_view', extra: mfine.data!.redirectUrl!);
-            }catch(e){
-              Navigator.of(context).pop();
-              CommonMethods.customAlertBox(context,
-                title: 'Alert',
-                message: "Service coming soon",
+  static List<OpdService> serviceTittle(BuildContext context,
+          {ValueCallback? callBack}) =>
+      [
+        OpdService(
+            title: 'In-Clinic Doctor',
+            image: 'assets/images/offline_doc.png',
+            onTap: () {
+              CommonMethods.customAlertBox(
+                context,
+                title: 'In-Clinic Consultation',
+                message:
+                    '🏥 Freedom to visit any Clinic or Hospital\n📍  No Network Restrictions\n👨‍⚕️ Consult with Specialist Doctors Across All Major Fields\n ⏰ 24/7 Doctor Access – Anytime, Anywhere in India\n🌿 Consult Doctors from Allopathy, Homeopathy, Ayurveda & Unani Disciplines',
               );
-            }
-          }else{
-            Navigator.of(context).pop();
-            CommonMethods.customAlertBox(context,
-              title: 'Alert',
-              message: "You don't have a valid plan to consult a doctor. Please purchase a plan first.",
-            );
-          }
-        }),
-    OpdService(
-        title: 'Pharmacy',
-        image: 'assets/images/pharma.png',
-        onTap: () async {
-      CommonMethods.customAlertBox(context,
-        negativeButton: 'PharmEasy',
-        positiveButton: 'Apollo 24/7',
-        okCallBack: (context1){
-        Navigator.of(context1, rootNavigator: true).pop();
-        context.push('/home/web_view', extra: AppConfig.apolloPharmaUrll);
-        },
-        cancelCallBack: (context1){
-          Navigator.of(context1, rootNavigator: true).pop();
-          context.push('/home/web_view', extra: AppConfig.pharmaEasyUrl);
-        },
-        isCancelButton: true,
-        message: "Please select one",
-        title: "Pharmacy",
-        shouldDismiss: true,
-      );
-        }),
-    OpdService(
-        title: 'Diagnostic',
-        image: 'assets/images/diag.png',
-        onTap: (){
-          context.push('/home/web_view', extra: AppConfig.apolloPharmaUrl);
-        }),
-    OpdService(
-        title: 'Free Health Checkups',
-        image: 'assets/images/health.png',
-        onTap: (){
-          final opd = OpdSure.of(context);
-          if(opd.profileData!.plan!.purchased!){
-            context.push('/home/book_checkup/add_health_checkup');
-          }else{
-            Navigator.of(context).pop();
-            CommonMethods.customAlertBox(context,
-              title: 'Alert',
-              message: "You don't have a valid plan to book . Please purchase a plan first.",
-            );
-          }
-        }),
-    OpdService(
-        title: 'Ambulance',
-  image: 'assets/images/ambu.png',
-        onTap: (){
-          launchUrl(Uri(
-            scheme: 'tel',
-            path: '102',
-          ));
-        }),
-
-
-    OpdService(
-        title: 'Simplify Insurance',
-        image: 'assets/images/insurance.png',
-        onTap: (){
-          context.push('/home/web_view', extra: 'https://www.smcinsurance.com/?user=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiT1BEIFN1cmUiLCJ1bmlxdWVfbmFtZSI6Ik9QRCBTdXJlIiwicm9sZSI6IjI5IiwiZW1haWwiOiJ1bWVzaC5nQG9wZHN1cmUuY29tIiwibmFtZWlkIjoiNTIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3VzZXJkYXRhIjoiMTkwNDI1IiwiUm9sZU5hbWUiOiJBZmZpbGlhdGUiLCJNb2JpbGVObyI6Ijg4MDA2MTQ1ODgiLCJQb3NDb2RlIjoiMCIsImJscGF5bG9hZCI6IiIsImNscGF5bG9hZCI6IiIsInVzZXJ0b2tlbiI6ImVmYTBhZDM0ZGY4NDQ3ZmQ4ZWI5YjUyZjJjYWRiOGFhIiwibmJmIjoxNzI1OTYxMjk2LCJleHAiOjE3MjYwNDc2OTYsImlhdCI6MTcyNTk2MTI5NiwiaXNzIjoiaHR0cHM6Ly93d3cuc21jaW5zdXJhbmNlLmNvbSIsImF1ZCI6Imh0dHBzOi8vd3d3LnNtY2luc3VyYW5jZS5jb20ifQ.V4WobGKx6g6eJ72aNjVM5n1AjLGb4Rn7gAlXMxG4RY4&BusinessID=');
-        }),
-  ];
+            }),
+        OpdService(
+            title: 'Online Doctor',
+            image: 'assets/images/online_doc.png',
+            onTap: () async {
+              CommonMethods.showAlertDialog(context);
+              final opd = OpdSure.of(context);
+              if (opd.profileData!.plan!.purchased!) {
+                try {
+                  final mfine = await opd.client.mFine();
+                  Navigator.of(context).pop();
+                  context.push('/home/web_view',
+                      extra: mfine.data!.redirectUrl!);
+                } catch (e) {
+                  Navigator.of(context).pop();
+                  CommonMethods.customAlertBox(
+                    context,
+                    title: 'Alert',
+                    message: "Service coming soon",
+                  );
+                }
+              } else {
+                Navigator.of(context).pop();
+                CommonMethods.customAlertBox(
+                  context,
+                  title: 'Alert',
+                  message:
+                      "You don't have a valid plan to consult a doctor. Please purchase a plan first.",
+                );
+              }
+            }),
+        OpdService(
+            title: 'Pharmacy',
+            image: 'assets/images/pharma.png',
+            onTap: () async {
+              CommonMethods.customAlertBox(
+                context,
+                negativeButton: 'PharmEasy',
+                positiveButton: 'Apollo 24/7',
+                okCallBack: (context1) {
+                  Navigator.of(context1, rootNavigator: true).pop();
+                  context.push('/home/web_view',
+                      extra: AppConfig.apolloPharmaUrll);
+                },
+                cancelCallBack: (context1) {
+                  Navigator.of(context1, rootNavigator: true).pop();
+                  context.push('/home/web_view',
+                      extra: AppConfig.pharmaEasyUrl);
+                },
+                isCancelButton: true,
+                message: "Please select one",
+                title: "Pharmacy",
+                shouldDismiss: true,
+              );
+            }),
+        OpdService(
+            title: 'Diagnostic',
+            image: 'assets/images/diag.png',
+            onTap: () {
+              context.push('/home/web_view', extra: AppConfig.apolloPharmaUrl);
+            }),
+        OpdService(
+            title: 'Free Health Checkups',
+            image: 'assets/images/health.png',
+            onTap: () {
+              final opd = OpdSure.of(context);
+              if (opd.profileData!.plan!.purchased!) {
+                context.push('/home/book_checkup/add_health_checkup');
+              } else {
+                Navigator.of(context).pop();
+                CommonMethods.customAlertBox(
+                  context,
+                  title: 'Alert',
+                  message:
+                      "You don't have a valid plan to book . Please purchase a plan first.",
+                );
+              }
+            }),
+        OpdService(
+            title: 'Ambulance',
+            image: 'assets/images/ambu.png',
+            onTap: () {
+              launchUrl(Uri(
+                scheme: 'tel',
+                path: '102',
+              ));
+            }),
+        OpdService(
+            title: 'Simplify Insurance',
+            image: 'assets/images/insurance.png',
+            onTap: () {
+              context.push('/home/web_view',
+                  extra:
+                      'https://www.smcinsurance.com/?user=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiT1BEIFN1cmUiLCJ1bmlxdWVfbmFtZSI6Ik9QRCBTdXJlIiwicm9sZSI6IjI5IiwiZW1haWwiOiJ1bWVzaC5nQG9wZHN1cmUuY29tIiwibmFtZWlkIjoiNTIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3VzZXJkYXRhIjoiMTkwNDI1IiwiUm9sZU5hbWUiOiJBZmZpbGlhdGUiLCJNb2JpbGVObyI6Ijg4MDA2MTQ1ODgiLCJQb3NDb2RlIjoiMCIsImJscGF5bG9hZCI6IiIsImNscGF5bG9hZCI6IiIsInVzZXJ0b2tlbiI6ImVmYTBhZDM0ZGY4NDQ3ZmQ4ZWI5YjUyZjJjYWRiOGFhIiwibmJmIjoxNzI1OTYxMjk2LCJleHAiOjE3MjYwNDc2OTYsImlhdCI6MTcyNTk2MTI5NiwiaXNzIjoiaHR0cHM6Ly93d3cuc21jaW5zdXJhbmNlLmNvbSIsImF1ZCI6Imh0dHBzOi8vd3d3LnNtY2luc3VyYW5jZS5jb20ifQ.V4WobGKx6g6eJ72aNjVM5n1AjLGb4Rn7gAlXMxG4RY4&BusinessID=');
+            }),
+      ];
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -241,22 +253,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     return HomeServiceTile(
                         width: 100,
                         height: 100,
-                        index : index,
+                        index: index,
                         title: HomePage.serviceTittle(context)[index],
-                        onTap: HomePage.serviceTittle(context, callBack: (value){
+                        onTap:
+                            HomePage.serviceTittle(context, callBack: (value) {
                           widget.callback(value);
-                        })[index].onTap
-                    );
-                  }, gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 columns
-                  crossAxisSpacing: 10.0,
-                  mainAxisSpacing: 10.0,
-                  childAspectRatio: 1.0, // Optional: Adjust height-to-width ratio
-                ),
+                        })[index]
+                                .onTap);
+                  },
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // 2 columns
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                    childAspectRatio:
+                        1.0, // Optional: Adjust height-to-width ratio
+                  ),
                 ),
               ],
             ),
-        
             const SizedBox(
               height: 10,
             ),
@@ -316,56 +330,82 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   ),
                                 )
                               : Column(
-                                children: [
-                                  SizedBox(
-                                    height: 200,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getTotalClaim, title: 'Total Claims')),
-                                            Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getPendingClaim, title: 'Pending Claims')),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getRejectedClaim, title: 'Rejected Claims')),
-                                            Expanded(child: ClaimCountTile(count: myClaimsModel.data!.getSettledClaim, title: 'Settled Claims')),
-                                          ],
-                                        ),
-                                      ],
+                                  children: [
+                                    SizedBox(
+                                      height: 200,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                  child: ClaimCountTile(
+                                                      count: myClaimsModel
+                                                          .data!.getTotalClaim,
+                                                      title: 'Total Claims')),
+                                              Expanded(
+                                                  child: ClaimCountTile(
+                                                      count: myClaimsModel.data!
+                                                          .getPendingClaim,
+                                                      title: 'Pending Claims')),
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                  child: ClaimCountTile(
+                                                      count: myClaimsModel.data!
+                                                          .getRejectedClaim,
+                                                      title:
+                                                          'Rejected Claims')),
+                                              Expanded(
+                                                  child: ClaimCountTile(
+                                                      count: myClaimsModel.data!
+                                                          .getSettledClaim,
+                                                      title: 'Settled Claims')),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  ListView.builder(
-                                      itemCount: listData.length > 3 ? 3 : listData.length,
-                                      physics: const NeverScrollableScrollPhysics(),
+                                    ListView.builder(
+                                      itemCount: listData.length > 3
+                                          ? 3
+                                          : listData.length,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       shrinkWrap: true,
                                       itemBuilder: (context, index) {
-
                                         ClaimRecords records = listData[index];
                                         ClaimStatusModel claimStatusModel =
                                             ClaimStatusModel().getClaimBuStatus(
                                                 records.status!!,
-                                                reSubmit: records.resubmission!);
+                                                reSubmit:
+                                                    records.resubmission!);
                                         ClaimStatusModel disputeClaimStatus =
-                                            ClaimStatusModel().getDisputeClaimBuStatus(records.disputeDetails!);
+                                            ClaimStatusModel()
+                                                .getDisputeClaimBuStatus(
+                                                    records.disputeDetails!);
                                         return ClaimTile(
                                             records: records,
                                             claimStatus: claimStatusModel,
-                                            disputeClaimStatus: disputeClaimStatus);
-
-
-
+                                            disputeClaimStatus:
+                                                disputeClaimStatus);
                                       },
                                     ),
-                                ],
-                              );
+                                  ],
+                                );
                         }
                       },
                     )

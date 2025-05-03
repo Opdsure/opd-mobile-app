@@ -614,7 +614,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
             textInputType: TextInputType.emailAddress,
           ),
           const SizedBox(height: 15.0),
-          compulsoryField('Doctor Clinic/Hospital Contact'),
+          compulsoryField('Doctor/Clinic/Hospital Number'),
           Obx(() {
             String countryCode = typeController.countryCode.value;
             String flagCode = typeController.flagCode.value;

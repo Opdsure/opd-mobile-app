@@ -130,11 +130,12 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
       setState(() {});
   }
 
+
   @override
   void initState() {
     super.initState();
       plansLength = widget.plans!.data!.records!.length;
-      options = widget.plans!.data!.records![0].membershipOptions![0];
+      options = widget.plans!.data!.records![0].membershipOptions![0];//issue is here
       _getTabs();
       getIndexedRecords(index: 0);
       if(widget.plans!.data!.records![0].planType == PlanType.family){

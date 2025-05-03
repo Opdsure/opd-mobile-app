@@ -244,15 +244,11 @@ class ClaimsDetailsPage extends StatelessWidget {
               if (snapshot.data == null) {
                 return Container();
               } else {
-                SingleClaimModel singleClaimModel =
-                    SingleClaimModel.fromJson(jsonDecode(snapshot.data));
-                List<String> prescriptionImageList =
-                    singleClaimModel.data!.prescription!;
-                List<String> pharmacyImageList =
-                    singleClaimModel.data!.pharmacyReceipt!;
+                SingleClaimModel singleClaimModel = SingleClaimModel.fromJson(jsonDecode(snapshot.data));
+                List<String> prescriptionImageList = singleClaimModel.data!.prescription!;
+                List<String> pharmacyImageList = singleClaimModel.data!.pharmacyReceipt!;
                 List<String> feeImageList = singleClaimModel.data!.feeReceipt!;
-                List<String> testImageList =
-                    singleClaimModel.data!.testReceipt!;
+                List<String> testImageList = singleClaimModel.data!.testReceipt!;
                 return AppCardView(
                   mChaild: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -325,7 +321,7 @@ class ClaimsDetailsPage extends StatelessWidget {
                                     onTap: () {
                                       context.push('/home/claim_details/view_image', extra: {
                                         'headerName': 'Fees Receipt',
-                                        'imageUrl' : prescriptionImageList[index]
+                                        'imageUrl' : feeImageList[index]
                                       });
                                     },
                                     child: Image.network(
@@ -364,7 +360,7 @@ class ClaimsDetailsPage extends StatelessWidget {
                                     onTap: () {
                                       context.push('/home/claim_details/view_image', extra: {
                                         'headerName': 'Pharmacy Receipt',
-                                        'imageUrl' : prescriptionImageList[index]
+                                        'imageUrl' : pharmacyImageList[index]
                                       });
                                     },
                                     child: Image.network(
@@ -403,7 +399,7 @@ class ClaimsDetailsPage extends StatelessWidget {
                                     onTap: () {
                                       context.push('/home/claim_details/view_image', extra: {
                                         'headerName': 'Test Receipt',
-                                        'imageUrl' : prescriptionImageList[index]
+                                        'imageUrl' : testImageList[index]
                                       });
                                     },
                                     child: Image.network(

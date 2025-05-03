@@ -62,6 +62,7 @@ class AppEditText extends StatelessWidget {
         AppBorderBox(
           myChild: Center(
             child: TextField(
+              textCapitalization: TextCapitalization.characters,
               controller: textEditingController,
               keyboardType: textInputType,
               readOnly: disableText,
