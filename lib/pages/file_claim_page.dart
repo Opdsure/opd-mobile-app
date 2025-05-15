@@ -925,6 +925,13 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   claimableDoctorFee: int.tryParse(docFeeClCtrl.text),
                   claimablePharmacyFee: claimCombination == '1' ? int.tryParse(billAmntPhrClCtrl.text): null,
                   claimableLabTestFee: claimCombination == '1' ? int.tryParse(billAmntDiaClCtrl.text) : null,
+
+                  approvedClaimableAmount:int.tryParse(totalClaimableAmnt),
+                  approvedClaimableDoctorFee:int.tryParse(docFeeClCtrl.text),
+                  approvedClaimablePharmacyFee: claimCombination == '1' ? int.tryParse(billAmntPhrClCtrl.text): null,
+                  approvedClaimableLabTestFee: claimCombination == '1' ? int.tryParse(billAmntDiaClCtrl.text) : null,
+
+                  approvedClaimableCombinedPharmacyTestFees: claimCombination == '1' ? int.tryParse(billAmntDiaClCtrl.text) : null,
                   docName: docNameCtrl.text,
                   docRegistration: regNumCtrl.text,
                   diagonosisDetail: diagnosisCtrl.text,
@@ -942,6 +949,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   // feeReceipt: widget.isUpdate!?singleClaimModel!.data!.feeReceipt:[],
                   // pharmacyReceipt: widget.isUpdate!?singleClaimModel!.data!.pharmacyReceipt:[],
                   // testReceipt: widget.isUpdate!?singleClaimModel!.data!.testReceipt:[],
+
                   claimCombination:
                       claimCombination.isEmpty ? '1' : claimCombination,
                   combinedPharmacyTestFees:

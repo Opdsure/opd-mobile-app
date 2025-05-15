@@ -48,13 +48,13 @@ class HomePage extends StatefulWidget {
             title: 'In-Clinic Doctor',
             image: 'assets/images/offline_doc.png',
             onTap: () {
-              CommonMethods.customAlertBox(
-                context,
-                title: 'In-Clinic Consultation',
-                message:
-                    '🏥 Freedom to visit any Clinic or Hospital\n📍  No Network Restrictions\n👨‍⚕️ Consult with Specialist Doctors Across All Major Fields\n ⏰ 24/7 Doctor Access – Anytime, Anywhere in India\n🌿 Consult Doctors from Allopathy, Homeopathy, Ayurveda & Unani Disciplines',
-              );
+              CommonMethods.customAlertBox2(context,
+                  title: 'In-Clinic Consultation',
+                  message:
+                      '🏥 Freedom to visit any Clinic or Hospital\n📍  No Network Restrictions\n👨‍⚕️ Consult with Specialist Doctors Across All Major Fields\n ⏰ 24/7 Doctor Access – Anytime, Anywhere in India\n🌿 Consult Doctors from Allopathy, Homeopathy, Ayurveda & Unani Disciplines',
+                  text2: "Term & Condition apply*");
             }),
+
         OpdService(
             title: 'Online Doctor',
             image: 'assets/images/online_doc.png',
@@ -65,8 +65,8 @@ class HomePage extends StatefulWidget {
                 try {
                   final mfine = await opd.client.mFine();
                   Navigator.of(context).pop();
-                  context.push('/home/web_view',
-                      extra: mfine.data!.redirectUrl!);
+                  context.push('/home/web_view', extra: mfine.data!.redirectUrl!);
+                  print("this is my MFine url ${mfine.data!.redirectUrl}");
                 } catch (e) {
                   Navigator.of(context).pop();
                   CommonMethods.customAlertBox(
@@ -85,6 +85,9 @@ class HomePage extends StatefulWidget {
                 );
               }
             }),
+
+
+
         OpdService(
             title: 'Pharmacy',
             image: 'assets/images/pharma.png',
@@ -359,7 +362,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                           ),
                                           Row(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.center,
+                                                CrossAxisAlignment.center,
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [

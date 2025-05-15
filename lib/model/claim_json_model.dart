@@ -30,7 +30,15 @@ class ClaimJsonModel {
       String? combinedPharmacyTestFees,
       String? claimCombination,
       String? city, 
-      String? specialization,}){
+      String? specialization,
+    dynamic? approvedClaimablePharmacyFee,
+    dynamic? approvedClaimableLabTestFee,
+    dynamic? approvedClaimableCombinedPharmacyTestFees,
+    dynamic? approvedClaimableAmount,
+    dynamic? approvedClaimableDoctorFee,
+
+
+  }){
     _memberId = memberId;
     _opdDate = opdDate;
     _docCountryCode = docCountryCode;
@@ -62,6 +70,12 @@ class ClaimJsonModel {
     _claimCombination = claimCombination;
     _city = city;
     _specialization = specialization;
+    _approvedClaimablePharmacyFee = approvedClaimablePharmacyFee;
+    _approvedClaimableLabTestFee = approvedClaimableLabTestFee;
+    _approvedClaimableCombinedPharmacyTestFees =
+        approvedClaimableCombinedPharmacyTestFees;
+    _approvedClaimableAmount = approvedClaimableAmount;
+    _approvedClaimableDoctorFee = approvedClaimableDoctorFee;
 }
 
   ClaimJsonModel.fromJson(dynamic json) {
@@ -96,6 +110,12 @@ class ClaimJsonModel {
     _claimCombination = json['claim_combination'];
     _city = json['city'];
     _specialization = json['specialization'];
+    _approvedClaimablePharmacyFee = json['approved_claimable_pharmacy_fee'];
+    _approvedClaimableLabTestFee = json['approved_claimable_lab_test_fee'];
+    _approvedClaimableCombinedPharmacyTestFees =
+    json['approved_claimable_combined_pharmacy_test_fees'];
+    _approvedClaimableAmount = json['approved_claimable_amount'];
+    _approvedClaimableDoctorFee = json['approved_claimable_doctor_fee'];
   }
   String? _memberId;
   String? _opdDate;
@@ -128,6 +148,11 @@ class ClaimJsonModel {
   String? _claimCombination;
   String? _city;
   String? _specialization;
+  int? _approvedClaimablePharmacyFee;
+  int? _approvedClaimableLabTestFee;
+  int? _approvedClaimableCombinedPharmacyTestFees;
+  int? _approvedClaimableAmount;
+  int? _approvedClaimableDoctorFee;
 
   String? get memberId => _memberId;
   String? get opdDate => _opdDate;
@@ -160,6 +185,12 @@ class ClaimJsonModel {
   String? get claimCombination => _claimCombination;
   String? get city => _city;
   String? get specialization => _specialization;
+  int? get approvedClaimablePharmacyFee => _approvedClaimablePharmacyFee;
+  int? get approvedClaimableLabTestFee => _approvedClaimableLabTestFee;
+  int? get approvedClaimableCombinedPharmacyTestFees =>
+      _approvedClaimableCombinedPharmacyTestFees;
+  int? get approvedClaimableAmount => _approvedClaimableAmount;
+  int? get approvedClaimableDoctorFee => _approvedClaimableDoctorFee;
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -194,6 +225,17 @@ class ClaimJsonModel {
     map['claim_combination'] = _claimCombination;
     map['city'] = _city;
     if(_specialization != null) map['specialization'] = _specialization;
+    if (_approvedClaimablePharmacyFee != null)
+      map['approved_claimable_pharmacy_fee'] = _approvedClaimablePharmacyFee;
+    if (_approvedClaimableLabTestFee != null)
+      map['approved_claimable_lab_test_fee'] = _approvedClaimableLabTestFee;
+    if (_approvedClaimableCombinedPharmacyTestFees != null)
+      map['approved_claimable_combined_pharmacy_test_fees'] =
+          _approvedClaimableCombinedPharmacyTestFees;
+    if (_approvedClaimableAmount != null)
+      map['approved_claimable_amount'] = _approvedClaimableAmount;
+    if (_approvedClaimableDoctorFee != null)
+      map['approved_claimable_doctor_fee'] = _approvedClaimableDoctorFee;
     return map;
   }
 

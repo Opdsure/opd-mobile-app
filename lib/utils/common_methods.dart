@@ -187,6 +187,120 @@ class CommonMethods {
         });
   }
 
+
+
+
+
+
+
+
+
+
+  static customAlertBox2(BuildContext context,
+      {String title = 'Error',
+        String message = 'message',
+        ContextCallback? okCallBack,
+        ContextCallback? cancelCallBack,
+        bool shouldDismiss = true,
+        bool isCancelButton = false,
+        String positiveButton = 'OK',
+        String negativeButton = 'CANCEL',
+        String? text2}) {
+    return showDialog(
+      context: context,
+      barrierDismissible: shouldDismiss,
+      builder: (BuildContext context1) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)),
+          child: WillPopScope(
+            onWillPop: () async => shouldDismiss,
+            child: AlertDialog(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              ),
+              contentPadding: const EdgeInsets.only(top: 10.0),
+              content: Container(
+                padding: const EdgeInsets.all(15),
+                width: 300.0,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0, bottom: 5.0),
+                      child: AppTextView(
+                        color: AppConfig.primaryColor,
+                        fontWeight: FontWeight.w700,
+                        text: title,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                      child: AppTextView(
+                        size: 14,
+                        text: message,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: isCancelButton
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.center,
+                      children: [
+                        isCancelButton
+                            ? AppButton(
+                          textSize: 13,
+                          width: 120,
+                          onClick: () {
+                            if (cancelCallBack == null) {
+                              Navigator.pop(context1);
+                            } else {
+                              cancelCallBack.call(context1);
+                            }
+                          },
+                          text: negativeButton,
+                        )
+                            : Container(),
+                        AppButton(
+                          textSize: 13,
+                          width: !isCancelButton ? 240 : 120,
+                          onClick: () {
+                            if (okCallBack == null) {
+                              Navigator.pop(context1);
+                            } else {
+                              okCallBack.call(context1);
+                            }
+                          },
+                          text: positiveButton,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    if (text2 != null && text2.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Align(
+                        alignment: Alignment.center,
+                        child: AppTextView(
+                          size: 9,
+                          text: text2,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
   static String convertToE164(String phoneNumber, String countryCode) {
     final PhoneNumberUtil phoneUtil = PhoneNumberUtil.instance;
     final PhoneNumber mPhoneNumber = phoneUtil.parse(phoneNumber, countryCode);
