@@ -41,6 +41,17 @@ class HomePage extends StatefulWidget {
     Icons.group_add
   ];
 
+  Future<void> launchDynamicUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+
+    if (!await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication, // Open in browser or external app
+    )) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   static List<OpdService> serviceTittle(BuildContext context,
           {ValueCallback? callBack}) =>
       [
@@ -59,13 +70,25 @@ class HomePage extends StatefulWidget {
             title: 'Online Doctor',
             image: 'assets/images/online_doc.png',
             onTap: () async {
+
+
               CommonMethods.showAlertDialog(context);
               final opd = OpdSure.of(context);
               if (opd.profileData!.plan!.purchased!) {
                 try {
                   final mfine = await opd.client.mFine();
                   Navigator.of(context).pop();
-                  context.push('/home/web_view', extra: mfine.data!.redirectUrl!);
+                  if(Platform.isIOS){
+                    context.push('/home/web_view', extra: mfine.data!.redirectUrl!);
+                  }else{
+                    final Uri uri = Uri.parse(mfine.data!.redirectUrl!);
+
+                    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+                      throw Exception('Could not launch the mfine URL');
+                    }
+                  }
+
+
                   print("this is my MFine url ${mfine.data!.redirectUrl}");
                 } catch (e) {
                   Navigator.of(context).pop();
