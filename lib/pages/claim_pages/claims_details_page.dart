@@ -285,8 +285,20 @@ class ClaimsDetailsPage extends StatelessWidget {
                                         'imageUrl' : prescriptionImageList[index]
                                       });
                                     },
-                                    child: Image.network(
-                                      prescriptionImageList[index],
+                                    child:
+
+                                    (prescriptionImageList[index].contains('pdf'))?Padding(
+                                      padding:  EdgeInsets.all(h*0.02),
+                                      child: Image.asset(
+                                        'assets/images/pdf_file.png',
+                                        height: 45.0,
+                                        width: 45.0,
+                                      ),
+                                    ):
+
+
+                                    Image.network(
+                                      prescriptionImageList[index].toString(),
                                       height: h * 0.1,
                                       width: h * 0.1,
                                       fit: BoxFit.fill,
@@ -324,7 +336,18 @@ class ClaimsDetailsPage extends StatelessWidget {
                                         'imageUrl' : feeImageList[index]
                                       });
                                     },
-                                    child: Image.network(
+                                    child:
+                                    (feeImageList[index].contains('pdf'))?Padding(
+                                      padding:  EdgeInsets.all(h*0.02),
+                                      child: Image.asset(
+                                        'assets/images/pdf_file.png',
+                                        height: 45.0,
+                                        width: 45.0,
+                                      ),
+                                    ):
+
+
+                                    Image.network(
                                       feeImageList[index],
                                       height: h * 0.1,
                                       width: h * 0.1,
@@ -363,7 +386,18 @@ class ClaimsDetailsPage extends StatelessWidget {
                                         'imageUrl' : pharmacyImageList[index]
                                       });
                                     },
-                                    child: Image.network(
+                                    child:
+
+
+                            (pharmacyImageList[index].contains('pdf'))?Padding(
+                              padding:  EdgeInsets.all(h*0.02),
+                              child: Image.asset(
+                                        'assets/images/pdf_file.png',
+                                        height: 45.0,
+                                        width: 45.0,
+                                      ),
+                            ):
+                                    Image.network(
                                       pharmacyImageList[index],
                                       height: h * 0.1,
                                       width: h * 0.1,
@@ -402,7 +436,17 @@ class ClaimsDetailsPage extends StatelessWidget {
                                         'imageUrl' : testImageList[index]
                                       });
                                     },
-                                    child: Image.network(
+                                    child:
+
+                                    (testImageList[index].contains('pdf'))?Padding(
+                                      padding:  EdgeInsets.all(h*0.02),
+                                      child: Image.asset(
+                                        'assets/images/pdf_file.png',
+                                        height: 45.0,
+                                        width: 45.0,
+                                      ),
+                                    ):
+                                    Image.network(
                                       testImageList[index],
                                       height: h * 0.1,
                                       width: h * 0.1,

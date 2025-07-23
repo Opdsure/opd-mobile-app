@@ -130,7 +130,17 @@ class UploadFileClaimDoc extends StatelessWidget{
                                             'imageUrl' : prescriptionImageList[index]
                                           });
                                         },
-                                        child: Image.network(
+                                        child:
+
+                                        (prescriptionImageList[index].contains('pdf'))?Padding(
+                                          padding:  EdgeInsets.all(h*0.02),
+                                          child: Image.asset(
+                                            'assets/images/pdf_file.png',
+                                            height: 45.0,
+                                            width: 45.0,
+                                          ),
+                                        ):
+                                        Image.network(
                                           prescriptionImageList[index],
                                           height: h*0.1,
                                           width: h*0.1,
@@ -164,11 +174,21 @@ class UploadFileClaimDoc extends StatelessWidget{
                                         onTap: (){
                                           context.push('/home/claim_details/view_image', extra: {
                                             'headerName': 'Fees Receipt',
-                                            'imageUrl' : prescriptionImageList[index]
+                                            'imageUrl' : feeImageList[index]
                                           });
 
                                         },
-                                        child: Image.network(
+                                        child:
+                                        (feeImageList[index].contains('pdf'))?Padding(
+                                          padding:  EdgeInsets.all(h*0.02),
+                                          child: Image.asset(
+                                            'assets/images/pdf_file.png',
+                                            height: 45.0,
+                                            width: 45.0,
+                                          ),
+                                        ):
+
+                                        Image.network(
                                           feeImageList[index],
                                           height: h*0.1,
                                           width: h*0.1,
@@ -202,10 +222,20 @@ class UploadFileClaimDoc extends StatelessWidget{
                                         onTap: (){
                                           context.push('/home/claim_details/view_image', extra: {
                                             'headerName': 'Pharmacy Receipt',
-                                            'imageUrl' : prescriptionImageList[index]
+                                            'imageUrl' : pharmacyImageList[index]
                                           });
                                         },
-                                        child: Image.network(
+                                        child:
+
+
+                                        (pharmacyImageList[index].contains('pdf'))?Padding(
+                                          padding:  EdgeInsets.all(h*0.02),
+                                          child: Image.asset(
+                                            'assets/images/pdf_file.png',
+                                            height: 45.0,
+                                            width: 45.0,
+                                          ),
+                                        ):Image.network(
                                           pharmacyImageList[index],
                                           height: h*0.1,
                                           width: h*0.1,
@@ -239,10 +269,20 @@ class UploadFileClaimDoc extends StatelessWidget{
                                         onTap: (){
                                           context.push('/home/claim_details/view_image', extra: {
                                             'headerName': 'Test Receipt',
-                                            'imageUrl' : prescriptionImageList[index]
+                                            'imageUrl' : testImageList[index]
                                           });
                                         },
-                                        child: Image.network(
+                                        child:
+
+                                        (testImageList[index].contains('pdf'))?Padding(
+                                          padding:  EdgeInsets.all(h*0.02),
+                                          child: Image.asset(
+                                            'assets/images/pdf_file.png',
+                                            height: 45.0,
+                                            width: 45.0,
+                                          ),
+                                        ):
+                                        Image.network(
                                           testImageList[index],
                                           height: h*0.1,
                                           width: h*0.1,
@@ -301,7 +341,8 @@ class UploadFileClaimDoc extends StatelessWidget{
                                       Navigator.pop(context);
                                       FilePickerResult? result = await FilePicker.platform.pickFiles(
                                         type: FileType.custom,
-                                        allowedExtensions: customSizeList,
+                                        allowedExtensions: ['pdf', 'jpg', 'jpeg'], // Lowercase, without dots
+                                        // allowedExtensions: customSizeList,
                                       );
                                       if (result != null) {
                                         File file = File(result.files.single.path!);
@@ -313,6 +354,7 @@ class UploadFileClaimDoc extends StatelessWidget{
                                           if (response != null) {
                                             prescriptionUrlList = prescriptionUrlList + response.data!;
                                             filesUrl['prescription'] = prescriptionUrlList;
+                                            print("this is the image ${filesUrl['prescription']}");
                                             Navigator.of(context).pop();
                                           } else {
                                             CommonMethods.showToast('File not upload try again');
@@ -473,8 +515,9 @@ class UploadFileClaimDoc extends StatelessWidget{
                                         Navigator.pop(context);
                                         FilePickerResult? result = await FilePicker.platform.pickFiles(
                                           type: FileType.custom,
+                                          allowedExtensions: ['pdf', 'jpg', 'jpeg'], // Lowercase, without dots
                                           allowMultiple: true,
-                                          allowedExtensions: customSizeList,
+                                          // allowedExtensions: customSizeList,
                                         );
                                         if (result != null) {
                                           File file = File(result.files.single.path!);
@@ -643,7 +686,8 @@ class UploadFileClaimDoc extends StatelessWidget{
                                         FilePickerResult? result = await FilePicker.platform.pickFiles(
                                           type: FileType.custom,
                                           allowMultiple: true,
-                                          allowedExtensions: customSizeList,
+                                          allowedExtensions: ['pdf', 'jpg', 'jpeg'], // Lowercase, without dots
+                                          // allowedExtensions: customSizeList,
                                         );
                                         if (result != null) {
                                           File file = File(result.files.single.path!);
@@ -815,8 +859,9 @@ class UploadFileClaimDoc extends StatelessWidget{
                                         Navigator.pop(context);
                                         FilePickerResult? result = await FilePicker.platform.pickFiles(
                                           type: FileType.custom,
+                                          allowedExtensions: ['pdf', 'jpg', 'jpeg'], // Lowercase, without dots
                                           allowMultiple: true,
-                                          allowedExtensions: customSizeList,
+                                          // allowedExtensions: customSizeList,
                                         );
                                         if (result != null) {
                                           File file = File(result.files.single.path!);

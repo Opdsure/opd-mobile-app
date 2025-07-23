@@ -388,26 +388,59 @@ class OpdClient extends OpdApi {
     return relations;
   }
 
+
   Future<FileUploadResponse?> uploadFiles({required FilePickerResult results}) async {
-    var files = results.files.map((file) async {
-      final mimeTypeData = lookupMimeType(file.path!, headerBytes: [0xFF, 0xD8])?.split('/');
-      return await http.MultipartFile.fromPath(
+    List<http.MultipartFile> newFiles = [];
+
+    for (var file in results.files) {
+      // Get MIME type without forcing image header
+      final mimeType = lookupMimeType(file.path ?? '') ?? 'application/octet-stream';
+      final mimeSplit = mimeType.split('/');
+
+      // Fallback if MIME type split fails
+      final mediaType = mimeSplit.length == 2
+          ? MediaType(mimeSplit[0], mimeSplit[1])
+          : MediaType('application', 'octet-stream');
+
+      final multipartFile = await http.MultipartFile.fromPath(
         'files',
         file.path!,
         filename: file.name,
-        contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
+        contentType: mediaType,
       );
-    });
-    List<http.MultipartFile> newFile = [];
-    for (var file in files.toList()) {
-      newFile.add(await file);
+
+      newFiles.add(multipartFile);
     }
+
     try {
-      return super.uploadFile(results: newFile);
+      return super.uploadFile(results: newFiles);
     } catch (e) {
+      print('Upload error: $e');
       return null;
     }
   }
+
+
+  // Future<FileUploadResponse?> uploadFiles({required FilePickerResult results}) async {
+  //   var files = results.files.map((file) async {
+  //     final mimeTypeData = lookupMimeType(file.path!, headerBytes: [0xFF, 0xD8])?.split('/');
+  //     return await http.MultipartFile.fromPath(
+  //       'files',
+  //       file.path!,
+  //       filename: file.name,
+  //       contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
+  //     );
+  //   });
+  //   List<http.MultipartFile> newFile = [];
+  //   for (var file in files.toList()) {
+  //     newFile.add(await file);
+  //   }
+  //   try {
+  //     return super.uploadFile(results: newFile);
+  //   } catch (e) {
+  //     return null;
+  //   }
+  // }
 
   Future<PlanRecords?> getPlanById(
       {required String? planId, int? memberShipId}) async {
