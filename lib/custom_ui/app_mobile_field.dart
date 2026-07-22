@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:opdsure/config/app_design_system.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 
-import '../utils/app_colors.dart';
 import '../utils/app_var.dart';
 
 class AppMobileField extends StatelessWidget {
@@ -29,6 +27,7 @@ class AppMobileField extends StatelessWidget {
   final FocusNode? focusNode;
 
   const AppMobileField({
+    super.key,
     required this.hint,
     this.textEditingController,
     this.countryCode = '+91',
@@ -36,7 +35,7 @@ class AppMobileField extends StatelessWidget {
     this.errorText,
     this.errorStyle,
     this.disableText = false,
-    this.color = backIconCl,
+    this.color = AppDesign.textPrimary,
     this.flagUri = '${mFlagUri}in.png',
     this.fontWeight = FontWeight.normal,
     this.isPasswordField = false,
@@ -57,20 +56,19 @@ class AppMobileField extends StatelessWidget {
       children: [
         Container(
           width: double.infinity,
-          height: 50,
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          height: 52,
+          padding: const EdgeInsets.symmetric(horizontal: AppDesign.spacingMd),
           decoration: BoxDecoration(
-            color: const Color(0xFFFFFFFF),
-            borderRadius: BorderRadius.circular(8),
+            color: AppDesign.inputFill,
+            borderRadius: BorderRadius.circular(AppDesign.radiusMd),
             border: Border.all(
-              width: 2,
-              color: const Color(0xFFEAECF0),
+              color: showErrorMessage ? AppDesign.error : AppDesign.inputBorder,
             ),
-            boxShadow: const [
+            boxShadow: [
               BoxShadow(
-                color: Color(0x0D101828), // spotColor and ambientColor combined
-                blurRadius: 2,
-                offset: Offset(0, 2), // assuming the shadow elevation is 2.dp
+                color: const Color(0xFF1A1D2E).withOpacity(0.03),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -80,31 +78,49 @@ class AppMobileField extends StatelessWidget {
                 onTap: countryCallback,
                 child: Row(
                   children: [
-                    Image.asset(
-                      flagUri,
-                      fit: BoxFit.fill,
-                      width: 30.0,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: Image.asset(
+                        flagUri,
+                        fit: BoxFit.fill,
+                        width: 28,
+                        height: 20,
+                      ),
                     ),
-                    const SizedBox(width: 5,),
-                    AppTextView(text: countryCode),
-                    const SizedBox(width: 5,),
+                    const SizedBox(width: AppDesign.spacingSm),
+                    Text(
+                      countryCode,
+                      style: TextStyle(
+                        fontFamily: AppDesign.fontFamily,
+                        fontSize: size,
+                        fontWeight: FontWeight.w500,
+                        color: AppDesign.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: AppDesign.spacingXs),
                     const Icon(
-                      Icons.keyboard_arrow_down_sharp,
-                      color: backIconCl,
-                    )
+                      Icons.keyboard_arrow_down_rounded,
+                      color: AppDesign.textTertiary,
+                      size: 20,
+                    ),
                   ],
                 ),
               ),
-              const VerticalDivider(
-                color: backIconCl,
-                thickness: 0.5,
+              Container(
+                height: 28,
+                width: 1,
+                margin: const EdgeInsets.symmetric(
+                  horizontal: AppDesign.spacingMd,
+                ),
+                color: AppDesign.divider,
               ),
               Flexible(
                 child: TextField(
                   controller: textEditingController,
-                  style: GoogleFonts.montserrat(
-                      fontSize: size,
-                      color: color
+                  style: TextStyle(
+                    fontFamily: AppDesign.fontFamily,
+                    fontSize: size,
+                    color: color,
                   ),
                   focusNode: focusNode,
                   obscureText: isViewPassword,
@@ -118,24 +134,28 @@ class AppMobileField extends StatelessWidget {
                     isDense: true,
                     hintText: hint,
                     border: InputBorder.none,
-                    fillColor: Colors.white,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
                     counterText: '',
-                    hintStyle: GoogleFonts.montserrat(
+                    contentPadding: EdgeInsets.zero,
+                    hintStyle: TextStyle(
+                      fontFamily: AppDesign.fontFamily,
+                      fontSize: size,
+                      color: AppDesign.textTertiary,
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),
-        Visibility(
-          visible: showErrorMessage,
-          child: AppTextView(
-            text: errorMessage,
-            color: Colors.red,
-            size: 12.0,
+        if (showErrorMessage) ...[
+          const SizedBox(height: AppDesign.spacingXs),
+          Text(
+            errorMessage,
+            style: AppDesign.bodySm.copyWith(color: AppDesign.error),
           ),
-        )
+        ],
       ],
     );
   }

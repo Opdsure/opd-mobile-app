@@ -1,56 +1,95 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opdsure/config/app_design_system.dart';
 
-class AppHomeHeader extends StatelessWidget{
+class AppHomeHeader extends StatelessWidget {
   final Widget title;
-  const AppHomeHeader({super.key,
-    required this.title
+
+  const AppHomeHeader({
+    super.key,
+    required this.title,
   });
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      child: Material(
-        color: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Padding(
-          padding: const EdgeInsets.only(left: 12.0, right: 12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              title,
-              Row(
-                children: [
-                  IconButton(onPressed: (){
-                    context.push('/home/wallet');
-                  }, icon: const ImageIcon(AssetImage('assets/images/wallet_icon.png'), size: 20,)),
-                  Stack(
-                    children: [
-                      IconButton(onPressed: (){
-                        context.push('/home/notifications');
-                      }, icon: const ImageIcon(AssetImage('assets/images/bell_icon.png'), size: 20,)),
-                      Positioned(
-                        right: 12,
-                        top: 5,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              )
-            ],
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDesign.spacingLg,
+        vertical: AppDesign.spacingSm,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDesign.spacingLg,
+          vertical: AppDesign.spacingMd,
+        ),
+        decoration: BoxDecoration(
+          color: AppDesign.card,
+          borderRadius: BorderRadius.circular(AppDesign.radiusLg),
+          boxShadow: AppDesign.shadowSm,
+        ),
+        child: Row(
+          children: [
+            Expanded(child: title),
+            const SizedBox(width: AppDesign.spacingSm),
+            _HeaderIconButton(
+              icon: Icons.account_balance_wallet_outlined,
+              onTap: () => context.push('/home/wallet'),
+            ),
+            const SizedBox(width: AppDesign.spacingSm),
+            _HeaderIconButton(
+              icon: Icons.notifications_outlined,
+              showBadge: true,
+              onTap: () => context.push('/home/notifications'),
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
+class _HeaderIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool showBadge;
+
+  const _HeaderIconButton({
+    required this.icon,
+    required this.onTap,
+    this.showBadge = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: AppDesign.surface,
+          borderRadius: BorderRadius.circular(AppDesign.radiusSm),
+        ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Icon(icon, color: AppDesign.textPrimary, size: 20),
+            if (showBadge)
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Container(
+                  width: 7,
+                  height: 7,
+                  decoration: const BoxDecoration(
+                    color: AppDesign.error,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }

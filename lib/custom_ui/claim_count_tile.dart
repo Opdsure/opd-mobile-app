@@ -1,31 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:opdsure/config/app_config.dart';
-import 'package:opdsure/custom_ui/app_text_view.dart';
-import 'package:opdsure/utils/common_methods.dart';
-
+import 'package:opdsure/config/app_design_system.dart';
 
 class ClaimCountTile extends StatelessWidget {
   final String title;
   final int count;
-  const ClaimCountTile({required this.count, required this.title, super.key});
+
+  const ClaimCountTile({
+    super.key,
+    required this.count,
+    required this.title,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(10),
-      padding: const EdgeInsets.all(10),
+      margin: const EdgeInsets.all(AppDesign.spacingSm),
+      padding: const EdgeInsets.all(AppDesign.spacingLg),
       decoration: BoxDecoration(
-        color: const Color(0xffE7EDFF),
-        border: Border.all(color: AppConfig.primaryColor, width: 1),
-        borderRadius: BorderRadius.circular(10)
+        color: AppDesign.card,
+        borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+        border: Border.all(color: AppDesign.divider),
+        boxShadow: AppDesign.shadowSm,
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppTextView(text: title, size: 14,fontWeight: FontWeight.w700,),
-
-          AppTextView(text: count.toString(), size: 16,fontWeight: FontWeight.w400,),
+          Text(
+            title,
+            style: AppDesign.labelSm,
+          ),
+          const SizedBox(height: AppDesign.spacingXs),
+          Text(
+            count.toString(),
+            style: AppDesign.headingSm.copyWith(
+              color: AppDesign.primary,
+            ),
+          ),
         ],
       ),
     );

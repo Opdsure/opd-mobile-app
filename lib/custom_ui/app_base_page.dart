@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:opdsure/config/app_config.dart';
-import 'package:opdsure/utils/app_colors.dart';
+import 'package:opdsure/config/app_design_system.dart';
 
 class AppBasePage extends StatelessWidget {
   final Widget? appHeader;
@@ -10,6 +9,7 @@ class AppBasePage extends StatelessWidget {
   final bool isBottomContent;
   final bool isAddBottomPadding;
   final Widget? floatingContent;
+  final Color? backgroundColor;
 
   const AppBasePage({
     super.key,
@@ -20,31 +20,29 @@ class AppBasePage extends StatelessWidget {
     this.isBottomContent = false,
     this.isAddBottomPadding = false,
     this.floatingContent,
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: AppConfig.primaryColorLight,
+      backgroundColor: backgroundColor ?? AppDesign.background,
       appBar: appHeader != null
           ? PreferredSize(
-        preferredSize: Size.fromHeight(AppBar().preferredSize.height + 15),
-        child: SafeArea(child: appHeader!),
-      )
+              preferredSize: const Size.fromHeight(72),
+              child: SafeArea(child: appHeader!),
+            )
           : null,
       body: GestureDetector(
-        onTap: (){
-          FocusNode().unfocus();
-        },
+        onTap: () => FocusScope.of(context).unfocus(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15.0),
+          padding: const EdgeInsets.symmetric(horizontal: AppDesign.spacingLg),
           child: Column(
             children: [
-              Expanded(
-                child: childContent,
-              ),
-              if(isAddBottomPadding)...[const SizedBox(height: 20,)]
+              Expanded(child: childContent),
+              if (isAddBottomPadding)
+                const SizedBox(height: AppDesign.spacingXl),
             ],
           ),
         ),

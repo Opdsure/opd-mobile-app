@@ -1,204 +1,11 @@
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:pinput/pinput.dart';
-// import 'package:smart_auth/smart_auth.dart';
-// import '../../../custom_ui/app_button.dart';
-// import '../../../custom_ui/app_text_view.dart';
-// import '../../../utils/app_colors.dart';
-// import '../../config/app_config.dart';
-// import '../../custom_ui/app_rich_text.dart';
-// import 'otp_page_controller.dart';
-//
-// class OtpPageView extends StatefulWidget{
-//
-//   final OtpPageController controller;
-//
-//    OtpPageView(this.controller, {super.key});
-//
-//   @override
-//   State<OtpPageView> createState() => _OtpPageViewState();
-// }
-//
-// class _OtpPageViewState extends State<OtpPageView> {
-//   TextStyle? createStyle() {
-//     return GoogleFonts.montserrat(
-//         fontSize: 20.0,
-//         fontWeight: FontWeight.w700
-//     );
-//   }
-//
-//
-//   final defaultPinTheme = PinTheme(
-//     width: 56,
-//     height: 60,
-//     textStyle: const TextStyle(
-//       fontSize: 22,
-//       color: Colors.black, fontWeight: FontWeight.w700
-//     ),
-//     decoration: BoxDecoration(
-//       borderRadius: BorderRadius.circular(8),
-//       color: Colors.white,
-//       border: Border.all(color: AppConfig.primaryColor,  width: 2),
-//     ),
-//   );
-//
-//
-//
-//   final TextEditingController pinController = TextEditingController();
-//   final FocusNode focusNode = FocusNode();
-//   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-//   final SmartAuth smartAuth = SmartAuth();
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     startSmsListener();
-//   }
-//
-//   @override
-//   void dispose() {
-//     pinController.dispose();
-//     focusNode.dispose();
-//     smartAuth.removeSmsListener();
-//     super.dispose();
-//   }
-//
-//   void startSmsListener() async {
-//     try {
-//       final appSignature = await smartAuth.getAppSignature();
-//       debugPrint('App Signature: $appSignature');
-//
-//       smartAuth.getSmsCode(useUserConsentApi: true).then((result) {
-//         if (result.succeed && result.codeFound) {
-//           pinController.text = result.code!;
-//         }
-//       });
-//     } catch (e) {
-//       debugPrint('Error in SMS listener: $e');
-//     }
-//   }
-//
-//
-//
-//
-//
-//
-//
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: AppConfig.primaryColorLight,
-//       body: Padding(
-//         padding: const EdgeInsets.symmetric(horizontal: 10.0),
-//         child: ListView(
-//           children: [
-//             const SizedBox(height: 16.0,),
-//             Row(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 InkWell(
-//                   onTap: (){
-//                     Navigator.pop(context);
-//                   },
-//                   child: const SizedBox(
-//                     height: 40,
-//                     width: 40,
-//                     child: Icon(
-//                       Icons.arrow_back_ios,
-//                       color: backIconCl,
-//                     ),
-//                   ),
-//                 ),
-//                 Image.asset(
-//                   'assets/images/app_logo.png',
-//                   height: 100.0,
-//                   width: 100.0,
-//                 ),
-//                 Container()
-//               ],
-//             ),
-//             const SizedBox(height: 24.0,),
-//             const Center(
-//               child: AppTextView(
-//                 text: 'Enter OTP',
-//                 color: Colors.black,
-//                 size: 22.0,
-//                 fontWeight: FontWeight.w600,
-//               ),
-//             ),
-//             Center(
-//               child: AppTextView(
-//                 text: 'Enter the 6-digit code that we have sent\non the +91-${widget.controller.widget.phone} ',
-//                 color: const Color(0xff475467),
-//                 size: 16.0,
-//                 mTextAlign: TextAlign.center,
-//               ),
-//             ),
-//
-//             const SizedBox(height: 24.0,),
-//
-//
-//
-//             Pinput(
-//               controller: pinController,
-//               length: 6,
-//               enableSuggestions : false,
-//               autofillHints: [],
-//               defaultPinTheme: defaultPinTheme,
-//               onSubmitted: widget.controller.onSubmit,
-//               onCompleted: widget.controller.onSubmit,
-//               onChanged: (value) {
-//                 debugPrint('onChanged: $value');
-//               },
-//             ),
-//
-//             const SizedBox(height: 24.0,),
-//             AppButton(onClick: (){
-//               widget.controller.otpVerify();
-//             },text: 'Verify OTP'),
-//
-//             const SizedBox(height: 24.0,),
-//             Center(
-//               child: AppRichText(
-//                 textSpan: TextSpan(
-//                   children: [
-//                     TextSpan(
-//                         text: "Didn't receive the OTP? ",
-//                         style: GoogleFonts.montserrat()
-//                     ),
-//                     TextSpan(
-//                       text: 'Resend',
-//                       style: GoogleFonts.montserrat(
-//                           fontWeight: FontWeight.w600,
-//                           color: AppConfig.primaryColor,
-//
-//                       ), recognizer: widget.controller.otpRecognizer
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:pinput/pinput.dart';
 import 'package:smart_auth/smart_auth.dart';
 import 'dart:async';
-import '../../../custom_ui/app_button.dart';
-import '../../../custom_ui/app_text_view.dart';
-import '../../../utils/app_colors.dart';
-import '../../config/app_config.dart';
-import '../../custom_ui/app_rich_text.dart';
+
+import 'package:opdsure/config/app_design_system.dart';
+import '../../custom_ui/app_button.dart';
 import '../../utils/common_methods.dart';
 import 'otp_page_controller.dart';
 
@@ -211,53 +18,97 @@ class OtpPageView extends StatefulWidget {
   State<OtpPageView> createState() => _OtpPageViewState();
 }
 
-class _OtpPageViewState extends State<OtpPageView> {
-  TextStyle? createStyle() {
-    return GoogleFonts.montserrat(
-      fontSize: 20.0,
-      fontWeight: FontWeight.w700,
-    );
-  }
+class _OtpPageViewState extends State<OtpPageView>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _enterController;
+  late Animation<double> _headerFade;
+  late Animation<Offset> _cardSlide;
+  late Animation<double> _cardFade;
 
   final defaultPinTheme = PinTheme(
-    width: 56,
-    height: 60,
+    width: 48,
+    height: 54,
     textStyle: const TextStyle(
+      fontFamily: AppDesign.fontFamily,
       fontSize: 22,
-      color: Colors.black,
+      color: AppDesign.textPrimary,
       fontWeight: FontWeight.w700,
     ),
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(8),
-      color: Colors.white,
-      border: Border.all(color: AppConfig.primaryColor, width: 2),
+      borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+      color: AppDesign.inputFill,
+      border: Border.all(color: AppDesign.inputBorder, width: 1.5),
     ),
   );
 
+  PinTheme get focusedPinTheme => defaultPinTheme.copyWith(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+          color: AppDesign.card,
+          border: Border.all(color: AppDesign.accent, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: AppDesign.accent.withOpacity(0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+      );
+
   final TextEditingController pinController = TextEditingController();
   final FocusNode focusNode = FocusNode();
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final SmartAuth smartAuth = SmartAuth();
 
   bool isResendEnabled = false;
   Timer? _resendTimer;
-  int _resendCountdown = 60; // 2 minutes
+  int _resendCountdown = 60;
   final TapGestureRecognizer _resendRecognizer = TapGestureRecognizer();
 
   @override
   void initState() {
     super.initState();
+
+    _enterController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+
+    _headerFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _enterController,
+        curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+      ),
+    );
+
+    _cardSlide = Tween<Offset>(
+      begin: const Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _enterController,
+      curve: const Interval(0.2, 0.7, curve: Curves.easeOutCubic),
+    ));
+
+    _cardFade = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _enterController,
+        curve: const Interval(0.2, 0.6, curve: Curves.easeOut),
+      ),
+    );
+
+    _enterController.forward();
     startSmsListener();
     startResendCooldown();
   }
 
   @override
   void dispose() {
+    _enterController.dispose();
     pinController.dispose();
     focusNode.dispose();
     smartAuth.removeSmsListener();
     _resendTimer?.cancel();
-    _resendRecognizer.dispose(); // Dispose the recognizer
+    _resendRecognizer.dispose();
     super.dispose();
   }
 
@@ -265,10 +116,10 @@ class _OtpPageViewState extends State<OtpPageView> {
     try {
       final appSignature = await smartAuth.getAppSignature();
       debugPrint('App Signature: $appSignature');
-
       smartAuth.getSmsCode(useUserConsentApi: true).then((result) {
         if (result.succeed && result.codeFound) {
-          pinController.text = result.code!;}
+          pinController.text = result.code!;
+        }
       });
     } catch (e) {
       debugPrint('Error in SMS listener: $e');
@@ -282,22 +133,17 @@ class _OtpPageViewState extends State<OtpPageView> {
     });
     _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_resendCountdown > 0) {
-        setState(() {
-          _resendCountdown--;
-        });
+        setState(() => _resendCountdown--);
       } else {
         timer.cancel();
-        setState(() {
-          isResendEnabled = true;
-        });
+        setState(() => isResendEnabled = true);
       }
     });
   }
 
   void resendOtp() {
     if (isResendEnabled) {
-      CommonMethods.showToast("resend succesfully");
-
+      CommonMethods.showToast("OTP sent successfully");
       widget.controller.login(widget.controller.widget.phone);
       startResendCooldown();
     }
@@ -308,97 +154,134 @@ class _OtpPageViewState extends State<OtpPageView> {
     _resendRecognizer.onTap = isResendEnabled ? resendOtp : null;
 
     return Scaffold(
-      backgroundColor: AppConfig.primaryColorLight,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: ListView(
-          children: [
-            const SizedBox(height: 16.0),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                  child: const SizedBox(
-                    height: 40,
-                    width: 40,
-                    child: Icon(
-                      Icons.arrow_back_ios,
-                      color: backIconCl,
+      backgroundColor: AppDesign.card,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDesign.spacing3Xl),
+          child: Column(
+            children: [
+              const SizedBox(height: AppDesign.spacingLg),
+
+              // Back button
+              FadeTransition(
+                opacity: _headerFade,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppDesign.surface,
+                        borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+                        border: Border.all(
+                          color: AppDesign.divider.withOpacity(0.5),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new_rounded,
+                        size: 18,
+                        color: AppDesign.textPrimary,
+                      ),
                     ),
                   ),
                 ),
-                Image.asset(
-                  'assets/images/app_logo.png',
-                  height: 100.0,
-                  width: 100.0,
-                ),
-                Container(),
-              ],
-            ),
-            const SizedBox(height: 24.0),
-            const Center(
-              child: AppTextView(
-                text: 'Enter OTP',
-                color: Colors.black,
-                size: 22.0,
-                fontWeight: FontWeight.w600,
               ),
-            ),
-            Center(
-              child: AppTextView(
-                text:
-                'Enter the 6-digit code that we have sent\non the +91-${widget.controller.widget.phone} ',
-                color: const Color(0xff475467),
-                size: 16.0,
-                mTextAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 24.0),
-            Pinput(
-              controller: pinController,
-              length: 6,
-              enableSuggestions: false,
-              autofillHints: [],
-              defaultPinTheme: defaultPinTheme,
-              onSubmitted: widget.controller.onSubmit,
-              onCompleted: widget.controller.onSubmit,
-              onChanged: (value) {
-                debugPrint('onChanged: $value');
-              },
-            ),
-            const SizedBox(height: 24.0),
-            AppButton(
-              onClick: widget.controller.otpVerify,
-              text: 'Verify OTP',
-            ),
-            const SizedBox(height: 24.0),
-            Center(
-              child: AppRichText(
-                textSpan: TextSpan(
+
+              const Spacer(flex: 1),
+
+              // Header
+              FadeTransition(
+                opacity: _headerFade,
+                child: Column(
                   children: [
-                    TextSpan(
-                      text: "Didn't receive the OTP? ",
-                      style: GoogleFonts.montserrat(),
-                    ),
-                    TextSpan(
-                      text: isResendEnabled
-                          ? 'Resend'
-                          : 'Resend in $_resendCountdown seconds',
-                      style: GoogleFonts.montserrat(
-                        fontWeight: FontWeight.w600,
-                        color: isResendEnabled ? AppConfig.primaryColor : Colors.grey,
+                    // Lock icon
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: AppDesign.accentLight,
+                        borderRadius: BorderRadius.circular(AppDesign.radiusXl),
                       ),
-                      recognizer: _resendRecognizer,
+                      child: const Icon(
+                        Icons.lock_outline_rounded,
+                        color: AppDesign.accent,
+                        size: 28,
+                      ),
+                    ),
+                    const SizedBox(height: AppDesign.spacingXxl),
+                    const Text('Verify OTP', style: AppDesign.headingLg),
+                    const SizedBox(height: AppDesign.spacingSm),
+                    Text(
+                      'Enter the 6-digit code sent to\n+91-${widget.controller.widget.phone}',
+                      style: AppDesign.bodyLg.copyWith(
+                        color: AppDesign.textTertiary,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+
+              const Spacer(flex: 1),
+
+              // PIN input + Button
+              SlideTransition(
+                position: _cardSlide,
+                child: FadeTransition(
+                  opacity: _cardFade,
+                  child: Column(
+                    children: [
+                      Pinput(
+                        controller: pinController,
+                        length: 6,
+                        enableSuggestions: false,
+                        autofillHints: const [],
+                        defaultPinTheme: defaultPinTheme,
+                        focusedPinTheme: focusedPinTheme,
+                        onSubmitted: widget.controller.onSubmit,
+                        onCompleted: widget.controller.onSubmit,
+                        separatorBuilder: (_) =>
+                            const SizedBox(width: AppDesign.spacingSm),
+                      ),
+                      const SizedBox(height: AppDesign.spacing3Xl),
+                      AppButton(
+                        text: 'Verify OTP',
+                        onClick: widget.controller.otpVerify,
+                      ),
+                      const SizedBox(height: AppDesign.spacingXxl),
+
+                      // Resend
+                      RichText(
+                        text: TextSpan(
+                          style: AppDesign.bodyMd.copyWith(
+                            color: AppDesign.textSecondary,
+                          ),
+                          children: [
+                            const TextSpan(text: "Didn't receive the OTP? "),
+                            TextSpan(
+                              text: isResendEnabled
+                                  ? 'Resend'
+                                  : 'Resend in ${_resendCountdown}s',
+                              style: AppDesign.titleMd.copyWith(
+                                color: isResendEnabled
+                                    ? AppDesign.accent
+                                    : AppDesign.textTertiary,
+                              ),
+                              recognizer: _resendRecognizer,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const Spacer(flex: 2),
+            ],
+          ),
         ),
       ),
     );

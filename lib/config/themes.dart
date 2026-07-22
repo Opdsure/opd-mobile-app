@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:opdsure/custom_ui/input_decoration/decoratedInputBorder.dart';
+import 'package:opdsure/config/app_design_system.dart';
 
 import 'app_config.dart';
 
 abstract class OpdThemes {
   static const double columnWidth = 360.0;
-
   static const double navRailWidth = 64.0;
 
   static bool isColumnModeByWidth(double width) =>
@@ -20,8 +18,8 @@ abstract class OpdThemes {
       MediaQuery.of(context).size.width > OpdThemes.columnWidth * 3.5;
 
   static const fallbackTextStyle = TextStyle(
-    fontFamily: 'Roboto',
-    fontFamilyFallback: ['NotoEmoji'],
+    fontFamily: AppDesign.fontFamily,
+    fontFamilyFallback: ['Roboto', 'NotoEmoji'],
   );
 
   static var fallbackTextTheme = const TextTheme(
@@ -40,24 +38,8 @@ abstract class OpdThemes {
     titleSmall: fallbackTextStyle,
   );
 
-  static LinearGradient backgroundGradient(
-    BuildContext context,
-    int alpha,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return LinearGradient(
-      begin: Alignment.topCenter,
-      colors: [
-        colorScheme.primaryContainer.withAlpha(alpha),
-        colorScheme.secondaryContainer.withAlpha(alpha),
-        colorScheme.tertiaryContainer.withAlpha(alpha),
-        colorScheme.primaryContainer.withAlpha(alpha),
-      ],
-    );
-  }
-
-  static const Duration animationDuration = Duration(milliseconds: 250);
-  static const Curve animationCurve = Curves.easeInOut;
+  static const Duration animationDuration = Duration(milliseconds: 350);
+  static const Curve animationCurve = Curves.easeOutCubic;
 
   static ThemeData buildTheme(
     BuildContext context,
@@ -66,104 +48,244 @@ abstract class OpdThemes {
   ]) {
     final colorScheme = ColorScheme.fromSeed(
       brightness: brightness,
-      seedColor: seed ?? AppConfig.colorSchemeSeed ?? AppConfig.primaryColorLight,
+      seedColor: seed ?? AppDesign.primary,
+      primary: AppDesign.primary,
+      secondary: AppDesign.accent,
+      surface: AppDesign.surface,
+      error: AppDesign.error,
     );
+
     return ThemeData(
       visualDensity: VisualDensity.standard,
       useMaterial3: true,
       brightness: brightness,
       colorScheme: colorScheme,
-      textTheme: brightness == Brightness.light
-              ? Typography.material2018().black.merge(fallbackTextTheme)
-              : Typography.material2018().white.merge(fallbackTextTheme),
-      snackBarTheme: const SnackBarThemeData(
-        behavior: SnackBarBehavior.floating,
-      ),
-      dividerColor: brightness == Brightness.light
-          ? Colors.blueGrey.shade50
-          : Colors.blueGrey.shade900,
-      popupMenuTheme: PopupMenuThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppConfig.borderRadius),
-        ),
-      ),
-      textSelectionTheme: TextSelectionThemeData(
-        selectionColor: colorScheme.onSurface.withAlpha(128),
-        selectionHandleColor: colorScheme.secondary,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        border: DecoratedInputBorder(
-            child: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(AppConfig.borderRadius / 2),
-            ), shadow: const BoxShadow(
-          color: Color(0xff101828),
-          blurRadius: 0.2,
-          offset: Offset(0, 1)
-        )
-        ),
-        filled: true,
-        fillColor: Colors.white
-      ),
+      fontFamily: AppDesign.fontFamily,
+      scaffoldBackgroundColor: AppDesign.background,
+      canvasColor: AppDesign.surface,
+
+      // Text Theme
+      textTheme: _buildTextTheme(brightness),
+
+      // AppBar
       appBarTheme: AppBarTheme(
-        toolbarHeight: OpdThemes.isColumnMode(context) ? 72 : 56,
-        shadowColor: OpdThemes.isColumnMode(context)
-            ? Colors.grey.withAlpha(64)
-            : null,
-        surfaceTintColor: AppConfig.primaryColorLight,
-        backgroundColor: AppConfig.primaryColorLight,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        toolbarHeight: 64,
+        titleTextStyle: AppDesign.titleLg.copyWith(
+          color: AppDesign.textPrimary,
+        ),
+        iconTheme: const IconThemeData(
+          color: AppDesign.textPrimary,
+          size: 22,
+        ),
         systemOverlayStyle: SystemUiOverlayStyle(
           statusBarColor: Colors.transparent,
           statusBarIconBrightness: brightness.reversed,
           statusBarBrightness: brightness,
           systemNavigationBarIconBrightness: brightness.reversed,
-          systemNavigationBarColor: colorScheme.surface,
+          systemNavigationBarColor: AppDesign.background,
         ),
       ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConfig.borderRadius / 2),
-          ),
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          side: BorderSide(
-            width: 1,
-            color: colorScheme.primary,
-          ),
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: colorScheme.primary),
-            borderRadius: BorderRadius.circular(AppConfig.borderRadius / 2),
-          ),
-        ),
-      ),
-      dialogTheme: DialogTheme(
+
+      // Cards
+      cardTheme: CardThemeData(
+        elevation: 0,
+        color: AppDesign.card,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppConfig.borderRadius / 2),
+          borderRadius: BorderRadius.circular(AppDesign.radiusLg),
         ),
+        margin: EdgeInsets.zero,
       ),
+
+      // Elevated Button
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.secondaryContainer,
-          foregroundColor: colorScheme.onSecondaryContainer,
+          backgroundColor: AppDesign.primary,
+          foregroundColor: Colors.white,
           elevation: 0,
-          padding: const EdgeInsets.all(16),
-          textStyle: const TextStyle(fontSize: 16),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDesign.spacingXxl,
+            vertical: AppDesign.spacingLg,
+          ),
+          minimumSize: const Size(double.infinity, 52),
+          textStyle: AppDesign.button,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConfig.borderRadius),
+            borderRadius: BorderRadius.circular(AppDesign.radiusMd),
           ),
         ),
       ),
-      navigationBarTheme: NavigationBarThemeData(
-        labelTextStyle: WidgetStateProperty.all(GoogleFonts.montserrat(
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
-          color: Colors.white
-        ))
+
+      // Outlined Button
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppDesign.primary,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppDesign.spacingXxl,
+            vertical: AppDesign.spacingLg,
+          ),
+          minimumSize: const Size(double.infinity, 52),
+          textStyle: AppDesign.button.copyWith(color: AppDesign.primary),
+          side: const BorderSide(color: AppDesign.primary, width: 1.5),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+          ),
+        ),
       ),
-        canvasColor: AppConfig.primaryColor
+
+      // Text Button
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppDesign.primary,
+          textStyle: AppDesign.titleMd,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppDesign.radiusSm),
+          ),
+        ),
+      ),
+
+      // Input Decoration
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppDesign.inputFill,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: AppDesign.spacingLg,
+          vertical: AppDesign.spacingLg,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+          borderSide: const BorderSide(color: AppDesign.inputBorder),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+          borderSide: const BorderSide(color: AppDesign.inputBorder),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+          borderSide: const BorderSide(color: AppDesign.primary, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+          borderSide: const BorderSide(color: AppDesign.error),
+        ),
+        hintStyle: AppDesign.bodyMd.copyWith(color: AppDesign.textTertiary),
+        labelStyle: AppDesign.labelSm,
+        errorStyle: AppDesign.bodySm.copyWith(color: AppDesign.error),
+      ),
+
+      // SnackBar
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+        ),
+        elevation: 4,
+      ),
+
+      // Dialog
+      dialogTheme: DialogThemeData(
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusXl),
+        ),
+        titleTextStyle: AppDesign.headingSm,
+        contentTextStyle: AppDesign.bodyLg,
+      ),
+
+      // Bottom Sheet
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppDesign.card,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppDesign.radiusXxl),
+          ),
+        ),
+        elevation: 8,
+      ),
+
+      // Popup Menu
+      popupMenuTheme: PopupMenuThemeData(
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+        ),
+        color: AppDesign.card,
+      ),
+
+      // Divider
+      dividerTheme: const DividerThemeData(
+        color: AppDesign.divider,
+        thickness: 1,
+        space: 1,
+      ),
+
+      // Navigation Bar
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: AppDesign.card,
+        elevation: 0,
+        indicatorColor: AppDesign.accentLight,
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppDesign.labelSm.copyWith(
+              color: AppDesign.primary,
+              fontWeight: FontWeight.w600,
+            );
+          }
+          return AppDesign.labelSm.copyWith(color: AppDesign.textTertiary);
+        }),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: AppDesign.primary, size: 24);
+          }
+          return const IconThemeData(color: AppDesign.textTertiary, size: 24);
+        }),
+      ),
+
+      // Chip
+      chipTheme: ChipThemeData(
+        backgroundColor: AppDesign.surface,
+        selectedColor: AppDesign.accentLight,
+        labelStyle: AppDesign.labelSm,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDesign.radiusFull),
+        ),
+        side: const BorderSide(color: AppDesign.divider),
+      ),
+
+      // TabBar
+      tabBarTheme: TabBarThemeData(
+        labelColor: AppDesign.primary,
+        unselectedLabelColor: AppDesign.textTertiary,
+        labelStyle: AppDesign.titleMd,
+        unselectedLabelStyle: AppDesign.bodyMd,
+        indicatorColor: AppDesign.primary,
+        indicatorSize: TabBarIndicatorSize.label,
+      ),
+    );
+  }
+
+  static TextTheme _buildTextTheme(Brightness brightness) {
+    final baseColor =
+        brightness == Brightness.light ? AppDesign.textPrimary : Colors.white;
+
+    return TextTheme(
+      displayLarge: AppDesign.headingLg.copyWith(color: baseColor),
+      displayMedium: AppDesign.headingMd.copyWith(color: baseColor),
+      displaySmall: AppDesign.headingSm.copyWith(color: baseColor),
+      headlineMedium: AppDesign.headingSm.copyWith(color: baseColor),
+      headlineSmall: AppDesign.titleLg.copyWith(color: baseColor),
+      titleLarge: AppDesign.titleLg.copyWith(color: baseColor),
+      titleMedium: AppDesign.titleMd.copyWith(color: baseColor),
+      titleSmall: AppDesign.labelLg.copyWith(color: baseColor),
+      bodyLarge: AppDesign.bodyLg.copyWith(color: baseColor),
+      bodyMedium: AppDesign.bodyMd.copyWith(color: baseColor),
+      bodySmall: AppDesign.bodySm,
+      labelLarge: AppDesign.button.copyWith(color: baseColor),
+      labelSmall: AppDesign.labelSm,
     );
   }
 }

@@ -1,9 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
-import '../utils/app_colors.dart';
-import 'app_text_view.dart';
+import 'package:opdsure/config/app_design_system.dart';
 
 class AppHeader extends StatelessWidget {
   final String headerName;
@@ -11,51 +8,68 @@ class AppHeader extends StatelessWidget {
   final bool showRightView;
   final void Function()? onBackTap;
 
-  const AppHeader(
-      {this.headerName = 'OPDSure',
-      this.rightView,
-      this.showRightView = false,
-      this.onBackTap,
-      super.key});
+  const AppHeader({
+    super.key,
+    this.headerName = 'OPDSure',
+    this.rightView,
+    this.showRightView = false,
+    this.onBackTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.all(12),
-      child: Material(
-        color: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Stack(
+      margin: const EdgeInsets.symmetric(
+        horizontal: AppDesign.spacingLg,
+        vertical: AppDesign.spacingMd,
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppDesign.spacingXs,
+          vertical: AppDesign.spacingXs,
+        ),
+        decoration: BoxDecoration(
+          color: AppDesign.card,
+          borderRadius: BorderRadius.circular(AppDesign.radiusLg),
+          boxShadow: AppDesign.shadowSm,
+        ),
+        child: Row(
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                onPressed: onBackTap ??
-                        () {
-                      context.pop();
-                    },
-                icon: const Icon(
-                  Icons.arrow_back_ios,
-                  color: backIconCl,
+            // Back button
+            Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+                onTap: onBackTap ?? () => context.pop(),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: AppDesign.surface,
+                    borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+                  ),
+                  child: const Icon(
+                    Icons.arrow_back_ios_new_rounded,
+                    color: AppDesign.textPrimary,
+                    size: 18,
+                  ),
                 ),
               ),
             ),
-            Align(
-              alignment: Alignment.center,
-              child: AppTextView(
-                text: headerName,
-                size: 16.0,
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
+            // Title
+            Expanded(
+              child: Text(
+                headerName,
+                textAlign: TextAlign.center,
+                style: AppDesign.titleLg,
               ),
             ),
-            if (showRightView) ...[
-              Align(
-                alignment: Alignment.centerRight,
-                child: rightView,
-              )
-            ],
+            // Right view or spacer
+            if (showRightView && rightView != null)
+              rightView!
+            else
+              const SizedBox(width: 40),
           ],
         ),
       ),
