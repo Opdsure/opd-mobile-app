@@ -23,12 +23,24 @@ if (flutterVersionName == null) {
     flutterVersionName = "1.0.0"
 }
 
+// Release signing comes from android/key.properties, which is gitignored and
+// written by CI from secrets (see .github/DEPLOY.md). Without it, release
+// builds fall back to the debug key so local `flutter build` still works.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withReader("UTF-8") { reader ->
+        keystoreProperties.load(reader)
+    }
+}
+
 android {
     namespace = "io.app.opdsure"
     compileSdk = 34
 //    ndkVersion = flutter.ndkVersion
     ndkVersion = "25.1.8937393"
-    buildToolsVersion "21.1.2"
+    // buildToolsVersion is deliberately unset — AGP 8.x picks a compatible one.
+    // Pinning 21.1.2 fails the build ("SDK Build Tools revision is too low").
 
 
 
@@ -51,15 +63,19 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('/Users/neha/AndroidStudioProjects/Aman/opd_sure_app/android/opdsure.jks')
-            storePassword 'Intileo@123'
-            keyAlias 'opdsure'
-            keyPassword 'Intileo@123'
+            if (keystorePropertiesFile.exists()) {
+                storeFile rootProject.file(keystoreProperties["storeFile"])
+                storePassword keystoreProperties["storePassword"]
+                keyAlias keystoreProperties["keyAlias"]
+                keyPassword keystoreProperties["keyPassword"]
+            }
         }
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig keystorePropertiesFile.exists()
+                ? signingConfigs.release
+                : signingConfigs.debug
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

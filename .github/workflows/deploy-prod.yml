@@ -1,0 +1,310 @@
+# Build a release from `master` and publish:
+#   Android → Google Play, `production` track (AAB)
+#   iOS     → TestFlight, then submitted for App Store review
+#
+# Setup + required secrets/variables: see .github/DEPLOY.md
+#
+# Secrets:
+#   RELEASE_KEYSTORE_BASE64 — base64 of android/opdsure.jks
+#   KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD — upload keystore credentials
+#   PLAY_STORE_SERVICE_ACCOUNT_JSON — Google Play service-account JSON (raw, not base64)
+#   IOS_DISTRIBUTION_CERTIFICATE_BASE64 — base64 of the Apple Distribution .p12
+#   IOS_DISTRIBUTION_CERTIFICATE_PASSWORD — password used when exporting the .p12
+#   IOS_PROVISIONING_PROFILE_BASE64 — base64 of the App Store .mobileprovision
+#   IOS_KEYCHAIN_PASSWORD — any throwaway string; unlocks the temp CI keychain
+#   APPSTORE_API_PRIVATE_KEY — contents of AuthKey_XXXX.p8 (multiline, not base64)
+#
+# Variables:
+#   APPLE_TEAM_ID — X8JCSQZDGC
+#   PROVISIONING_PROFILE_NAME — exact name of the App Store profile in the portal
+#   APPSTORE_ISSUER_ID, APPSTORE_API_KEY_ID — App Store Connect API key identifiers
+#   PLAY_STORE_PACKAGE_NAME — defaults to io.app.opdsure
+#   BUILD_NUMBER_OFFSET — added to github.run_number; must push the result above
+#     the highest versionCode/build number already on Play and TestFlight
+#   FLUTTER_VERSION — defaults to 3.29.3. `intl: ^0.19.0` in pubspec.yaml caps
+#     this at 3.29.x; Flutter 3.32+ pins intl 0.20.2 and `pub get` will fail.
+#   IOS_SUBMIT_FOR_REVIEW — set to "false" to stop at TestFlight
+
+name: Deploy Prod
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      skip_android:
+        description: Skip the Google Play upload
+        type: boolean
+        default: false
+      skip_ios:
+        description: Skip the iOS build and TestFlight upload
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-prod-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  JAVA_VERSION: "17"
+  BUNDLE_ID: io.app.opdsure
+
+jobs:
+  validate:
+    name: Validate configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: Prod
+    outputs:
+      build-number: ${{ steps.version.outputs.build-number }}
+      app-version: ${{ steps.version.outputs.app-version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      # Play rejects a versionCode that is not strictly greater than the last
+      # one, and App Store Connect rejects a duplicate build number. run_number
+      # alone restarts at 1, so BUILD_NUMBER_OFFSET lifts it past what is already
+      # published.
+      - name: Resolve version and build number
+        id: version
+        env:
+          OFFSET: ${{ vars.BUILD_NUMBER_OFFSET || '0' }}
+        run: |
+          set -euo pipefail
+          APP_VERSION="$(grep -m1 '^version:' pubspec.yaml | sed 's/^version:[[:space:]]*//' | cut -d'+' -f1)"
+          BUILD_NUMBER=$(( ${{ github.run_number }} + OFFSET ))
+          echo "app-version=$APP_VERSION" >> "$GITHUB_OUTPUT"
+          echo "build-number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "Building $APP_VERSION ($BUILD_NUMBER)"
+
+      - name: Validate secrets and variables
+        env:
+          SKIP_ANDROID: ${{ inputs.skip_android }}
+          SKIP_IOS: ${{ inputs.skip_ios }}
+          BUNDLE_ID: ${{ env.BUNDLE_ID }}
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          PLAY_STORE_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          PLAY_STORE_PACKAGE_NAME: ${{ vars.PLAY_STORE_PACKAGE_NAME }}
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+          PROVISIONING_PROFILE_NAME: ${{ vars.PROVISIONING_PROFILE_NAME }}
+          IOS_DISTRIBUTION_CERTIFICATE_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+          APPSTORE_ISSUER_ID: ${{ vars.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ vars.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+        run: bash .github/scripts/validate-deploy-config.sh
+
+  android:
+    name: Android → Google Play (production)
+    needs: validate
+    if: github.event_name != 'workflow_dispatch' || !inputs.skip_android
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: Prod
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION || '3.29.3' }}
+          channel: stable
+          cache: true
+          cache-key: flutter-${{ vars.FLUTTER_VERSION || '3.29.3' }}-${{ hashFiles('pubspec.yaml') }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Decode release keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/release.keystore
+          cat > android/key.properties <<EOF
+          storePassword=$ANDROID_STORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=release.keystore
+          EOF
+
+      - name: Print SHA fingerprints (register these in Firebase)
+        env:
+          ANDROID_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "::group::Release keystore SHA fingerprints"
+          keytool -list -v -keystore android/release.keystore \
+            -alias "$ANDROID_KEY_ALIAS" \
+            -storepass "$ANDROID_STORE_PASSWORD" \
+            -keypass "$ANDROID_KEY_PASSWORD" 2>/dev/null \
+            | grep -E "SHA1:|SHA256:" || echo "⚠️ Could not extract fingerprints"
+          echo "::endgroup::"
+
+      - name: Build release App Bundle
+        run: |
+          flutter build appbundle --release \
+            --build-name "${{ needs.validate.outputs.app-version }}" \
+            --build-number "${{ needs.validate.outputs.build-number }}"
+
+      # Only exists while minifyEnabled is true. Resolve it rather than hardcode
+      # the path, so flipping minify off doesn't fail the upload step.
+      - name: Locate ProGuard mapping
+        id: mapping
+        run: |
+          set -euo pipefail
+          MAP="build/app/outputs/mapping/release/mapping.txt"
+          if [ -f "$MAP" ]; then
+            echo "path=$MAP" >> "$GITHUB_OUTPUT"
+          else
+            echo "path=" >> "$GITHUB_OUTPUT"
+            echo "::notice::No ProGuard mapping (minifyEnabled is off); Play crash reports will not be deobfuscated."
+          fi
+
+      - name: Upload AAB to Google Play (production)
+        uses: r0adkll/upload-google-play@v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ vars.PLAY_STORE_PACKAGE_NAME || 'io.app.opdsure' }}
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          mappingFile: ${{ steps.mapping.outputs.path }}
+          track: production
+          status: completed
+          releaseName: ${{ needs.validate.outputs.app-version }} (${{ needs.validate.outputs.build-number }})
+
+  ios-build:
+    name: iOS → TestFlight
+    needs: validate
+    if: github.event_name != 'workflow_dispatch' || !inputs.skip_ios
+    runs-on: macos-15
+    timeout-minutes: 90
+    environment: Prod
+    outputs:
+      build-number: ${{ needs.validate.outputs.build-number }}
+      app-version: ${{ needs.validate.outputs.app-version }}
+    env:
+      LANG: en_US.UTF-8
+      LC_ALL: en_US.UTF-8
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ vars.FLUTTER_VERSION || '3.29.3' }}
+          channel: stable
+          cache: true
+          cache-key: flutter-${{ vars.FLUTTER_VERSION || '3.29.3' }}-${{ hashFiles('pubspec.yaml') }}
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Explicit, so a soft failure inside `flutter build` cannot leave Pods stale.
+      - name: Install CocoaPods dependencies
+        run: |
+          set -euo pipefail
+          cd ios
+          pod install --repo-update
+
+      - name: Prepare ExportOptions.plist
+        env:
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+          PROVISIONING_PROFILE_NAME: ${{ vars.PROVISIONING_PROFILE_NAME }}
+        run: |
+          set -euo pipefail
+          sed "s/TEAM_ID_PLACEHOLDER/${APPLE_TEAM_ID}/g; s/PROFILE_NAME_PLACEHOLDER/${PROVISIONING_PROFILE_NAME}/g; s/BUNDLE_ID_PLACEHOLDER/${BUNDLE_ID}/g" \
+            ios/ExportOptions-appstore.plist > ios/ExportOptions-appstore-configured.plist
+
+      - name: Build iOS IPA
+        uses: ./.github/actions/flutter-build-ios
+        with:
+          build-cmd: >-
+            flutter build ipa --release
+            --build-name ${{ needs.validate.outputs.app-version }}
+            --build-number ${{ needs.validate.outputs.build-number }}
+            --export-options-plist=ios/ExportOptions-appstore-configured.plist
+          bundle-id: ${{ env.BUNDLE_ID }}
+          certificate-base64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          certificate-password: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          provisioning-profile-base64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          keychain-password: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+          team-id: ${{ vars.APPLE_TEAM_ID }}
+          provisioning-profile-name: ${{ vars.PROVISIONING_PROFILE_NAME }}
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: opdsure-ipa
+          path: build/ios/ipa/*.ipa
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Resolve IPA path
+        id: ipa
+        run: |
+          set -euo pipefail
+          IPA_PATH="$(ls -1 build/ios/ipa/*.ipa | head -1)"
+          echo "path=$IPA_PATH" >> "$GITHUB_OUTPUT"
+          echo "Resolved IPA: $IPA_PATH"
+
+      # Processing is polled in the submit job instead — waiting here regularly
+      # fails on "Localization not ready" even though the binary uploaded fine.
+      - name: Upload IPA to TestFlight
+        uses: apple-actions/upload-testflight-build@v4
+        with:
+          app-path: ${{ steps.ipa.outputs.path }}
+          issuer-id: ${{ vars.APPSTORE_ISSUER_ID }}
+          api-key-id: ${{ vars.APPSTORE_API_KEY_ID }}
+          api-private-key: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          wait-for-processing: false
+          uses-non-exempt-encryption: false
+
+  ios-submit:
+    name: iOS → App Store review
+    needs: [validate, ios-build]
+    if: vars.IOS_SUBMIT_FOR_REVIEW != 'false'
+    runs-on: macos-15
+    timeout-minutes: 90
+    environment: Prod
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Submit build for App Store review
+        working-directory: .github
+        env:
+          APP_BUNDLE_ID: ${{ env.BUNDLE_ID }}
+          APP_VERSION: ${{ needs.validate.outputs.app-version }}
+          BUILD_NUMBER: ${{ needs.validate.outputs.build-number }}
+          APPSTORE_ISSUER_ID: ${{ vars.APPSTORE_ISSUER_ID }}
+          APPSTORE_API_KEY_ID: ${{ vars.APPSTORE_API_KEY_ID }}
+          APPSTORE_API_PRIVATE_KEY: ${{ secrets.APPSTORE_API_PRIVATE_KEY }}
+          FASTLANE_SKIP_UPDATE_CHECK: "1"
+          FASTLANE_HIDE_CHANGELOG: "1"
+        run: fastlane ios submit

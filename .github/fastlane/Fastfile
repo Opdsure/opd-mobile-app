@@ -1,0 +1,64 @@
+# Used only by the "iOS → App Store review" job in deploy-prod.yml.
+# The app's own lanes live in ios/fastlane and are untouched by CI.
+default_platform(:ios)
+
+platform :ios do
+  desc "Attach an already-uploaded TestFlight build to the App Store version and submit it for review"
+  lane :submit do
+    api_key = app_store_connect_api_key(
+      key_id: ENV.fetch("APPSTORE_API_KEY_ID"),
+      issuer_id: ENV.fetch("APPSTORE_ISSUER_ID"),
+      key_content: ENV.fetch("APPSTORE_API_PRIVATE_KEY"),
+      in_house: false,
+    )
+
+    app_identifier = ENV.fetch("APP_BUNDLE_ID")
+    app_version    = ENV.fetch("APP_VERSION")
+    build_number   = ENV.fetch("BUILD_NUMBER")
+
+    # A build cannot be attached to a version until App Store Connect finishes
+    # processing it, which routinely takes 5–30 minutes. Poll instead of
+    # failing fast.
+    UI.message("Waiting for build #{app_version} (#{build_number}) to finish processing…")
+    attempts = 60
+    attempts.times do |i|
+      latest = latest_testflight_build_number(
+        api_key: api_key,
+        app_identifier: app_identifier,
+        version: app_version,
+        initial_build_number: 0,
+      )
+      if latest.to_s == build_number.to_s
+        UI.success("Build #{build_number} is processed.")
+        break
+      end
+      UI.message("… not ready yet (latest processed = #{latest}, attempt #{i + 1}/#{attempts})")
+      UI.user_error!("Timed out waiting for build #{build_number} to process.") if i == attempts - 1
+      sleep(60)
+    end
+
+    upload_to_app_store(
+      api_key: api_key,
+      app_identifier: app_identifier,
+      app_version: app_version,
+      build_number: build_number,
+      # The binary is already in App Store Connect — this call only attaches it
+      # to the version and submits. Metadata and screenshots stay whatever you
+      # set in App Store Connect.
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      skip_metadata: true,
+      force: true,
+      # precheck needs full metadata read access and adds a failure mode we
+      # don't want between a green build and a submission.
+      run_precheck_before_submit: false,
+      submit_for_review: true,
+      automatic_release: true,
+      submission_information: {
+        # Info.plist already declares ITSAppUsesNonExemptEncryption = false.
+        export_compliance_uses_encryption: false,
+        add_id_info_uses_idfa: false,
+      },
+    )
+  end
+end

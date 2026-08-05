@@ -1,0 +1,199 @@
+name: Flutter build iOS IPA
+description: Install signing assets into a temp keychain and run a flutter build ipa command
+inputs:
+  build-cmd:
+    description: Full flutter build ipa command
+    required: true
+  bundle-id:
+    description: Bundle identifier of the app target
+    required: true
+  certificate-base64:
+    description: Base64-encoded distribution certificate (.p12)
+    required: true
+  certificate-password:
+    description: Password for the certificate
+    required: true
+  provisioning-profile-base64:
+    description: Base64-encoded provisioning profile
+    required: true
+  keychain-password:
+    description: Temporary keychain password
+    required: true
+  team-id:
+    description: Apple Developer team ID the distribution identity must belong to
+    required: true
+  provisioning-profile-name:
+    description: Exact provisioning profile Name (PROVISIONING_PROFILE_SPECIFIER)
+    required: true
+  working-directory:
+    description: Flutter app root
+    default: .
+
+runs:
+  using: composite
+  steps:
+    - name: Sign + build iOS IPA
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        IOS_BUILD_CERTIFICATE_BASE64: ${{ inputs.certificate-base64 }}
+        IOS_BUILD_CERTIFICATE_PASSWORD: ${{ inputs.certificate-password }}
+        IOS_MOBILE_PROVISIONING_PROFILE_BASE64: ${{ inputs.provisioning-profile-base64 }}
+        IOS_GITHUB_KEYCHAIN_PASSWORD: ${{ inputs.keychain-password }}
+        APPLE_TEAM_ID: ${{ inputs.team-id }}
+        PROVISIONING_PROFILE_NAME: ${{ inputs.provisioning-profile-name }}
+        BUNDLE_ID: ${{ inputs.bundle-id }}
+      run: |
+        set -euo pipefail
+
+        CERTIFICATE_PATH="$RUNNER_TEMP/build_certificate.p12"
+        KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+        PP_PATH="$RUNNER_TEMP/temp.mobileprovision"
+        PP_PLIST="$RUNNER_TEMP/temp.mobileprovision.plist"
+        SYSTEM_KEYCHAIN="/Library/Keychains/System.keychain"
+        LOGIN_KEYCHAIN="$(security login-keychain 2>/dev/null | sed -e 's/"//g' || true)"
+        if [ -z "$LOGIN_KEYCHAIN" ]; then
+          LOGIN_KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"
+        fi
+
+        # Reset the search list first: a failed earlier run can leave the temp
+        # keychain listed many times with System roots dropped, which makes
+        # `security cms -D` fail and find-identity report zero identities.
+        security list-keychains -d user -s "$LOGIN_KEYCHAIN" "$SYSTEM_KEYCHAIN"
+        security default-keychain -d user -s "$LOGIN_KEYCHAIN" 2>/dev/null || true
+        security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+        rm -f "$KEYCHAIN_PATH"
+
+        echo -n "$IOS_BUILD_CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
+        echo -n "$IOS_MOBILE_PROVISIONING_PROFILE_BASE64" | base64 --decode -o "$PP_PATH"
+        if [ ! -s "$PP_PATH" ]; then
+          echo "::error::Decoded provisioning profile is empty."
+          exit 1
+        fi
+
+        if ! /usr/bin/security cms -D -i "$PP_PATH" > "$PP_PLIST" 2>/tmp/cms-err.txt; then
+          echo "security cms -D failed; trying openssl -noverify…"
+          cat /tmp/cms-err.txt || true
+          if ! openssl smime -inform der -verify -noverify -in "$PP_PATH" -out "$PP_PLIST" 2>/tmp/openssl-err.txt; then
+            echo "::error::Could not decode provisioning profile."
+            cat /tmp/openssl-err.txt || true
+            exit 1
+          fi
+        fi
+        UUID="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$PP_PLIST" 2>/dev/null || true)"
+        if [ -z "${UUID}" ]; then
+          echo "::error::Provisioning profile plist has no UUID."
+          exit 1
+        fi
+        echo "Provisioning profile UUID: $UUID"
+
+        # Fresh temp keychain — the login keychain is locked on a headless runner.
+        security create-keychain -p "$IOS_GITHUB_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+        # Timeout only — never pass -l (lock on sleep); headless runners "sleep".
+        security set-keychain-settings -t 21600 "$KEYCHAIN_PATH"
+        security unlock-keychain -p "$IOS_GITHUB_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+        security list-keychains -d user -s "$KEYCHAIN_PATH" "$LOGIN_KEYCHAIN" "$SYSTEM_KEYCHAIN"
+        security default-keychain -d user -s "$KEYCHAIN_PATH"
+
+        cleanup_keychain() {
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$LOGIN_KEYCHAIN" "$SYSTEM_KEYCHAIN" 2>/dev/null || true
+          security default-keychain -d user -s "$LOGIN_KEYCHAIN" 2>/dev/null || true
+        }
+        trap cleanup_keychain EXIT
+
+        security import "$CERTIFICATE_PATH" \
+          -k "$KEYCHAIN_PATH" \
+          -P "${IOS_BUILD_CERTIFICATE_PASSWORD}" \
+          -A \
+          -f pkcs12 \
+          -T /usr/bin/codesign \
+          -T /usr/bin/security \
+          -T /usr/bin/productbuild
+
+        security set-key-partition-list -S apple-tool:,apple:,codesign: \
+          -s -k "$IOS_GITHUB_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+        security unlock-keychain -p "$IOS_GITHUB_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+        echo "::group::Keychain state"
+        security list-keychains -d user
+        security default-keychain -d user
+        security find-identity -v -p codesigning "$KEYCHAIN_PATH" || true
+        security find-identity -v -p codesigning || true
+        echo "::endgroup::"
+
+        IDENTITIES="$(security find-identity -v -p codesigning)"
+        if ! grep -qE '"(Apple|iPhone|iOS) Distribution' <<<"$IDENTITIES"; then
+          TEMP_IDS="$(security find-identity -v -p codesigning "$KEYCHAIN_PATH")"
+          if ! grep -qE '"(Apple|iPhone|iOS) Distribution' <<<"$TEMP_IDS"; then
+            echo "::error::No distribution identity after import. Check IOS_DISTRIBUTION_CERTIFICATE_BASE64 / _PASSWORD."
+            exit 1
+          fi
+          echo "::warning::Identity is in the temp keychain but not on the search list; relying on OTHER_CODE_SIGN_FLAGS=--keychain."
+          IDENTITIES="$TEMP_IDS"
+        fi
+
+        IDENTITY_HASH="$(
+          printf '%s\n' "$IDENTITIES" \
+            | sed -n 's/^[[:space:]]*[0-9]*) \([0-9A-Fa-f][0-9A-Fa-f]*\) ".*/\1/p' \
+            | head -1
+        )"
+        FULL_IDENTITY="$(
+          printf '%s\n' "$IDENTITIES" \
+            | sed -n 's/^[[:space:]]*[0-9]*) [0-9A-Fa-f]* "\([^"]*\)".*/\1/p' \
+            | head -1
+        )"
+        case "$FULL_IDENTITY" in
+          "Apple Distribution"*) CODE_SIGN_IDENTITY_TYPE="Apple Distribution" ;;
+          "iPhone Distribution"*) CODE_SIGN_IDENTITY_TYPE="iPhone Distribution" ;;
+          "iOS Distribution"*) CODE_SIGN_IDENTITY_TYPE="iOS Distribution" ;;
+          *)
+            echo "::error::Could not map identity: ${FULL_IDENTITY:-<empty>}"
+            exit 1
+            ;;
+        esac
+        SIGN_IDENTITY_VALUE="${IDENTITY_HASH:-$FULL_IDENTITY}"
+        echo "Using signing identity value=$SIGN_IDENTITY_VALUE"
+        echo "  (type=$CODE_SIGN_IDENTITY_TYPE full='$FULL_IDENTITY')"
+
+        for dir in ~/Library/MobileDevice/Provisioning\ Profiles \
+                   ~/Library/Developer/Xcode/UserData/Provisioning\ Profiles; do
+          mkdir -p "$dir"
+          cp "$PP_PATH" "$dir/$UUID.mobileprovision"
+        done
+
+        export CODE_SIGN_IDENTITY="$CODE_SIGN_IDENTITY_TYPE"
+        chmod +x .github/scripts/configure-manual-signing.sh
+        .github/scripts/configure-manual-signing.sh
+
+        {
+          echo ""
+          echo "// CI signing overrides ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
+          echo "CODE_SIGN_STYLE=Manual"
+          echo "CODE_SIGN_IDENTITY=$SIGN_IDENTITY_VALUE"
+          echo "CODE_SIGN_IDENTITY[sdk=iphoneos*]=$SIGN_IDENTITY_VALUE"
+          echo "DEVELOPMENT_TEAM=$APPLE_TEAM_ID"
+          echo "PROVISIONING_PROFILE_SPECIFIER=$PROVISIONING_PROFILE_NAME"
+          echo "PROVISIONING_PROFILE=$UUID"
+          echo "OTHER_CODE_SIGN_FLAGS=--keychain $KEYCHAIN_PATH"
+        } >> ios/Flutter/Release.xcconfig
+
+        for plist in ios/ExportOptions-*-configured.plist; do
+          [ -f "$plist" ] || continue
+          /usr/libexec/PlistBuddy -c "Delete :signingCertificate" "$plist" 2>/dev/null || true
+          /usr/libexec/PlistBuddy -c "Add :signingCertificate string $CODE_SIGN_IDENTITY_TYPE" "$plist"
+          echo "Updated signingCertificate in $plist → $CODE_SIGN_IDENTITY_TYPE"
+        done
+
+        echo "::group::CODE_SIGN (pbxproj + Release.xcconfig)"
+        grep -nE 'CODE_SIGN_IDENTITY|CODE_SIGN_STYLE|PROVISIONING_PROFILE|DEVELOPMENT_TEAM|OTHER_CODE_SIGN' \
+          ios/Runner.xcodeproj/project.pbxproj ios/Flutter/Release.xcconfig | head -100 || true
+        echo "::endgroup::"
+
+        # Re-unlock immediately before the archive (long prep can re-lock).
+        security unlock-keychain -p "$IOS_GITHUB_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+        ${{ inputs.build-cmd }}
