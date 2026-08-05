@@ -118,7 +118,26 @@ The run summary lists exactly what will and will not happen.
 
 ## Current state
 
-- ✅ Pipeline live on `master`; `validate` green; version resolves as `1.21.0 (52+)`
-- ✅ Android signing configured — CI builds a signed AAB
-- ⛔ Play upload — blocked on a new service-account JSON
+- ✅ Pipeline live on `master`; `validate` green
+- ✅ **Android build verified end to end** — CI produced a signed
+  `opdsure-1.21.0-55-aab` artifact (49 MB), and the same build reproduces
+  locally on Flutter 3.29.3 with Android Studio's bundled JDK 21
+- ⛔ Play upload — blocked on a new service-account JSON; everything up to the
+  upload step already works
 - ⛔ iOS entirely — blocked on the Apple agreement, then `.p12` + profile
+
+## Local development
+
+Flutter **3.29.3** is required (see the version cap above); the build will not
+resolve on 3.32+. `android/key.properties` is gitignored — create it to build a
+signed release locally:
+
+```properties
+storePassword=…
+keyPassword=…
+keyAlias=opdsure
+storeFile=opdsure.jks   # relative to android/
+```
+
+Without it, release builds fall back to the debug key. The keystore is no longer
+in the repo, so you need your own copy.
