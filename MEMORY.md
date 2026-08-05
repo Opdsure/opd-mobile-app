@@ -34,12 +34,27 @@ from 3.32.0 onward, so anything newer fails `pub get` with a version-solving
 error. CI pins 3.29.3 via the `FLUTTER_VERSION` repo variable. Confirmed working
 in CI on 2026-08-06.
 
-**`pubspec.lock` is gitignored, and it has already bitten us.** Combined with
-`permission_handler: any`, CI resolved `permission_handler_android 14.0.0`,
-which requires Kotlin 2.x — the build failed even though nothing in the app had
-changed. Fixed by bumping the Kotlin Gradle plugin to 2.1.0. **Commit
+**`pubspec.lock` is gitignored, and it has already bitten us.** `permission_handler`
+was declared as `any`, so CI resolved `permission_handler 13.0.0` →
+`permission_handler_android 14.0.0`, published 2026-07-31. That version's
+`android/build.gradle.kts` declares `classpath("com.android.tools.build:gradle:9.0.1")`
+and calls `kotlin { compilerOptions { jvmTarget } }` *without applying the Kotlin
+plugin* — it assumes AGP 9. The build failed with `Unresolved reference:
+compilerOptions` even though nothing in the app had changed.
+
+Bumping the Kotlin Gradle plugin does **not** fix this, and it is a trap worth
+knowing about: the `buildscript { classpath ... }` block in `android/build.gradle`
+is dead config. `android/settings.gradle`'s `plugins { }` block is what actually
+resolves plugin versions (AGP 8.8.1, Kotlin 1.9.23), and the two disagree.
+
+The fix was pinning `permission_handler: ^12.0.1`, which resolves
+`permission_handler_android` to 13.0.1 (Mar 2025, pre-AGP-9). **Commit
 `pubspec.lock`.** Until then, every production build re-resolves every
 dependency and can break with no code change.
+
+**Two toolchains cannot move independently.** `intl: ^0.19.0` caps Flutter at
+3.29.x, which caps AGP at 8.x, which caps how new any plugin's Android module can
+be. Unblocking newer plugins means dropping the `intl` constraint first.
 
 **Build numbers come from CI, not `pubspec.yaml`.** The version *name* is read
 from `pubspec.yaml`; the build number is `github.run_number +

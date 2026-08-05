@@ -32,7 +32,9 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-/pubspec.lock
+# pubspec.lock is committed on purpose. It was ignored, and the result was a
+# production build breaking with no code change: `permission_handler: any`
+# silently resolved to a major version targeting AGP 9.
 /lib/test.json
 /lib/test.dart
 # Symbolication related
