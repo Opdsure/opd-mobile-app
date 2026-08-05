@@ -13,6 +13,7 @@ import 'package:opdsure/pages/claim_pages/dispute_page.dart';
 import 'package:opdsure/pages/view_image_page.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
+import '../../model/my_claim/my_claims_list_model.dart';
 import '../../model/single_claim_model.dart';
 import '../../utils/app_var.dart';
 import '../../utils/common_methods.dart';
@@ -47,7 +48,7 @@ class ClaimsDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     double w = CommonMethods.deviceWidth(context);
     double h = CommonMethods.deviceHeight(context);
-    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(oneClaim.status!, reSubmit: oneClaim.subscriberReaction!);
+    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(oneClaim.status!!!, reSubmit: oneClaim.subscriberReaction!);
     ClaimStatusModel disputeClaimStatusModel = ClaimStatusModel().getDisputeClaimBuStatus(oneClaim.disputeDetails!);
     return AppBasePage(
       appHeader: AppHeader(
@@ -105,10 +106,10 @@ class ClaimsDetailsPage extends StatelessWidget {
                 const SizedBox(
                   height: 7.0,
                 ),
-                commonRow(
-                    'OPD date',
-                    CommonMethods.changeDateFormat(oneClaim.opdDate!,
-                        from: 'yyyy-MM-dd', to: 'dd/MM/yyyy')),
+                // commonRow(
+                //     'OPD date',
+                //     CommonMethods.changeDateFormat(oneClaim.opdDate!,
+                //         from: 'yyyy-MM-dd', to: 'dd/MM/yyyy')),
                 const SizedBox(
                   height: 7.0,
                 ),
@@ -120,7 +121,7 @@ class ClaimsDetailsPage extends StatelessWidget {
                 const SizedBox(
                   height: 7.0,
                 ),
-                commonRow('Pin Code', oneClaim.pincode!),
+                commonRow('Pin Code', oneClaim.pincode!.toString()),
                 const SizedBox(
                   height: 7.0,
                 ),
@@ -243,15 +244,11 @@ class ClaimsDetailsPage extends StatelessWidget {
               if (snapshot.data == null) {
                 return Container();
               } else {
-                SingleClaimModel singleClaimModel =
-                    SingleClaimModel.fromJson(jsonDecode(snapshot.data));
-                List<String> prescriptionImageList =
-                    singleClaimModel.data!.prescription!;
-                List<String> pharmacyImageList =
-                    singleClaimModel.data!.pharmacyReceipt!;
+                SingleClaimModel singleClaimModel = SingleClaimModel.fromJson(jsonDecode(snapshot.data));
+                List<String> prescriptionImageList = singleClaimModel.data!.prescription!;
+                List<String> pharmacyImageList = singleClaimModel.data!.pharmacyReceipt!;
                 List<String> feeImageList = singleClaimModel.data!.feeReceipt!;
-                List<String> testImageList =
-                    singleClaimModel.data!.testReceipt!;
+                List<String> testImageList = singleClaimModel.data!.testReceipt!;
                 return AppCardView(
                   mChaild: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,8 +285,20 @@ class ClaimsDetailsPage extends StatelessWidget {
                                         'imageUrl' : prescriptionImageList[index]
                                       });
                                     },
-                                    child: Image.network(
-                                      prescriptionImageList[index],
+                                    child:
+
+                                    (prescriptionImageList[index].contains('pdf'))?Padding(
+                                      padding:  EdgeInsets.all(h*0.02),
+                                      child: Image.asset(
+                                        'assets/images/pdf_file.png',
+                                        height: 45.0,
+                                        width: 45.0,
+                                      ),
+                                    ):
+
+
+                                    Image.network(
+                                      prescriptionImageList[index].toString(),
                                       height: h * 0.1,
                                       width: h * 0.1,
                                       fit: BoxFit.fill,
@@ -324,10 +333,21 @@ class ClaimsDetailsPage extends StatelessWidget {
                                     onTap: () {
                                       context.push('/home/claim_details/view_image', extra: {
                                         'headerName': 'Fees Receipt',
-                                        'imageUrl' : prescriptionImageList[index]
+                                        'imageUrl' : feeImageList[index]
                                       });
                                     },
-                                    child: Image.network(
+                                    child:
+                                    (feeImageList[index].contains('pdf'))?Padding(
+                                      padding:  EdgeInsets.all(h*0.02),
+                                      child: Image.asset(
+                                        'assets/images/pdf_file.png',
+                                        height: 45.0,
+                                        width: 45.0,
+                                      ),
+                                    ):
+
+
+                                    Image.network(
                                       feeImageList[index],
                                       height: h * 0.1,
                                       width: h * 0.1,
@@ -363,10 +383,21 @@ class ClaimsDetailsPage extends StatelessWidget {
                                     onTap: () {
                                       context.push('/home/claim_details/view_image', extra: {
                                         'headerName': 'Pharmacy Receipt',
-                                        'imageUrl' : prescriptionImageList[index]
+                                        'imageUrl' : pharmacyImageList[index]
                                       });
                                     },
-                                    child: Image.network(
+                                    child:
+
+
+                            (pharmacyImageList[index].contains('pdf'))?Padding(
+                              padding:  EdgeInsets.all(h*0.02),
+                              child: Image.asset(
+                                        'assets/images/pdf_file.png',
+                                        height: 45.0,
+                                        width: 45.0,
+                                      ),
+                            ):
+                                    Image.network(
                                       pharmacyImageList[index],
                                       height: h * 0.1,
                                       width: h * 0.1,
@@ -402,10 +433,20 @@ class ClaimsDetailsPage extends StatelessWidget {
                                     onTap: () {
                                       context.push('/home/claim_details/view_image', extra: {
                                         'headerName': 'Test Receipt',
-                                        'imageUrl' : prescriptionImageList[index]
+                                        'imageUrl' : testImageList[index]
                                       });
                                     },
-                                    child: Image.network(
+                                    child:
+
+                                    (testImageList[index].contains('pdf'))?Padding(
+                                      padding:  EdgeInsets.all(h*0.02),
+                                      child: Image.asset(
+                                        'assets/images/pdf_file.png',
+                                        height: 45.0,
+                                        width: 45.0,
+                                      ),
+                                    ):
+                                    Image.network(
                                       testImageList[index],
                                       height: h * 0.1,
                                       width: h * 0.1,

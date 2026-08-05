@@ -8,6 +8,7 @@ import 'package:opdsure/model/my_claim/my_claims_model.dart';
 import '../../custom_ui/app_button.dart';
 import '../../custom_ui/app_card_view.dart';
 import '../../custom_ui/app_text_view.dart';
+import '../../model/my_claim/my_claims_list_model.dart';
 import '../../utils/app_var.dart';
 import '../../utils/common_methods.dart';
 import '../file_claim_page.dart';
@@ -110,6 +111,48 @@ class ClaimTile extends StatelessWidget {
                   ],
                 ),
               ),
+
+
+              (records.approvedClaimableAmount != null &&
+                  records.approvedClaimableAmount.toString().isNotEmpty)?
+              RichText(
+                textScaler: const TextScaler.linear(1),
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                        text:
+                        'Approved Amount: ',
+                        style: GoogleFonts
+                            .montserrat(
+                          fontSize: 12.0,
+                          fontWeight:
+                          FontWeight.w500,
+                          color: const Color(
+                              0xFF667085),
+                        )),
+                    TextSpan(
+                      // text: "vghjk",
+                      text:records.approvedClaimableAmount != null &&
+                          records.approvedClaimableAmount.toString().isNotEmpty
+                          ? '$rupeeSymbol ${records.approvedClaimableAmount}'
+                          : '',
+
+
+
+                      // '$rupeeSymbol ${records.approvedClaimableAmount}',
+                      style: GoogleFonts
+                          .montserrat(
+                          fontSize: 12.0,
+                          fontWeight:
+                          FontWeight
+                              .w500,
+                          color: const Color(
+                              0xFF027A48)),
+                    ),
+                  ],
+                ),
+              ):SizedBox(),
+                  // SizedBox(),
               AppTextView(
                 text:
                 'Claim Date: ${CommonMethods.formatIsoDateString(records.createdAt!)}',
@@ -208,8 +251,7 @@ class ClaimTile extends StatelessWidget {
                       width: 5,
                     ),
                     AppTextView(
-                      text:
-                      disputeClaimStatus.statusName!,
+                      text: disputeClaimStatus.statusName!,
                       size: 12.0,
                       color: disputeClaimStatus.statusColor!,
                     ),

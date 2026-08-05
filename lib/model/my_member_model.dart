@@ -104,7 +104,7 @@ class MemberList {
   @HiveField(1)
   String? _name;
   @HiveField(2)
-  int? _phone;
+  dynamic _phone;
   @HiveField(3)
   String? _countryCode;
   @HiveField(4)
@@ -130,7 +130,7 @@ class MemberList {
 
   String? get id => _id ?? '';
   String? get name => _name ?? '';
-  int? get phone => _phone ?? 0;
+  dynamic get phone => _phone ?? 0;
   String? get countryCode => _countryCode ?? '';
   int? get gender => _gender;
   String? get dob => _dob ?? '';

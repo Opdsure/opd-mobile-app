@@ -1,0 +1,11 @@
+app_identifier("io.app.opdsure")
+apple_id("opdsure3@gmail.com")
+team_id("X8JCSQZDGC")
+api_key_path("../fastlane/AuthKey_R8DWU66GG9.p8")
+
+# App Store Connect API Key
+api_key(
+  key_id: "R8DWU66GG9",
+  issuer_id: "a0bf4e3c-a1ed-4325-8f16-25317a6d2727",
+  key_filepath: "./fastlane/AuthKey_R8DWU66GG9.p8"
+)

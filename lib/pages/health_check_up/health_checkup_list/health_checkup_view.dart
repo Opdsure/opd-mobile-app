@@ -23,7 +23,7 @@ class HealthCheckupView extends StatelessWidget {
     return AppBasePage(
       appHeader: const AppHomeHeader(
         title: AppTextView(
-            text: 'Health Checkup',
+            text: 'Health Checkup Plan',
             size: 16.0,
             fontWeight: FontWeight.w600,
             color: Colors.black),

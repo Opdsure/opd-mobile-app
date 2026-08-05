@@ -92,7 +92,7 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
     plansTab = widget.plans!.data!.records!.map((records) => Tab(text: records.name!,)).toList();
   }
 
-  goToCheckout() async {
+     goToCheckout() async {
     if (record != null) {
       /*final result = await */context.push(widget.type == PaymentType.buyPlan ? '/view_plans/plans_payment' : '/home/view_plans/plans_payment', extra: {"records": record, "options": options, "type" : widget.type});
       // if(result != null && result == true){
@@ -104,44 +104,108 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
   }
 
 
+  // void getIndexedRecords({required int index}) async {
+  //
+  //     record = widget.plans!.data!.records![index];
+  //     options = widget.plans!.data!.records![index].membershipOptions![0];
+  //     if(record!.planType == PlanType.family){
+  //       planType = 'Family';
+  //       isIndividual = false;
+  //       familyOptions = options;
+  //     }else{
+  //       planType = 'Individual';
+  //       isIndividual = true;
+  //       familyOptions = null;
+  //     }
+  //
+  //     if(!await isAbleToBuy(options!)){
+  //       buttonColors = const Color(0xFFD9D7D7);
+  //       textColors = Colors.black;
+  //       borderColors = const Color(0xFFD9D7D7);
+  //     }else{
+  //       buttonColors = AppConfig.primaryColor;
+  //       textColors = Colors.white;
+  //       borderColors = AppConfig.primaryColor;
+  //     }
+  //     setState(() {});
+  // }
+
+
+
   void getIndexedRecords({required int index}) async {
+    // First check if the index is valid
+    if (index < 0 || index >= widget.plans!.data!.records!.length) {
+      return; // or handle the error appropriately
+    }
 
-      record = widget.plans!.data!.records![index];
-      options = widget.plans!.data!.records![index].membershipOptions![0];
-      if(record!.planType == PlanType.family){
-        planType = 'Family';
-        isIndividual = false;
-        familyOptions = options;
-      }else{
-        planType = 'Individual';
-        isIndividual = true;
-        familyOptions = null;
-      }
+    record = widget.plans!.data!.records![index];
 
-      if(!await isAbleToBuy(options!)){
-        buttonColors = const Color(0xFFD9D7D7);
-        textColors = Colors.black;
-        borderColors = const Color(0xFFD9D7D7);
-      }else{
-        buttonColors = AppConfig.primaryColor;
-        textColors = Colors.white;
-        borderColors = AppConfig.primaryColor;
-      }
-      setState(() {});
+    // Check if membershipOptions exists and is not empty
+    if (record!.membershipOptions == null || record!.membershipOptions!.isEmpty) {
+      // Handle the case where there are no membership options
+      CommonMethods.showToast('No membership options available for this plan');
+      return;
+    }
+
+    options = record!.membershipOptions![0];
+
+    if(record!.planType == PlanType.family){
+      planType = 'Family';
+      isIndividual = false;
+      familyOptions = options;
+    } else {
+      planType = 'Individual';
+      isIndividual = true;
+      familyOptions = null;
+    }
+
+    if(!await isAbleToBuy(options!)){
+      buttonColors = const Color(0xFFD9D7D7);
+      textColors = Colors.black;
+      borderColors = const Color(0xFFD9D7D7);
+    } else {
+      buttonColors = AppConfig.primaryColor;
+      textColors = Colors.white;
+      borderColors = AppConfig.primaryColor;
+    }
+    setState(() {});
   }
+  //
+  // @override
+  // void initState() {
+  //   super.initState();
+  //     plansLength = widget.plans!.data!.records!.length;
+  //     options = widget.plans!.data!.records![0].membershipOptions![0];//issue is here
+  //     _getTabs();
+  //     getIndexedRecords(index: 0);
+  //     if(widget.plans!.data!.records![0].planType == PlanType.family){
+  //       planType = 'Family';
+  //       isIndividual = false;
+  //       familyOptions = options;
+  //     }
+  // }
 
   @override
   void initState() {
     super.initState();
-      plansLength = widget.plans!.data!.records!.length;
+    plansLength = widget.plans!.data!.records!.length;
+
+    // Add check here
+    if (widget.plans!.data!.records!.isNotEmpty &&
+        widget.plans!.data!.records![0].membershipOptions != null &&
+        widget.plans!.data!.records![0].membershipOptions!.isNotEmpty) {
       options = widget.plans!.data!.records![0].membershipOptions![0];
-      _getTabs();
-      getIndexedRecords(index: 0);
-      if(widget.plans!.data!.records![0].planType == PlanType.family){
-        planType = 'Family';
-        isIndividual = false;
-        familyOptions = options;
-      }
+    }
+
+    _getTabs();
+    getIndexedRecords(index: 0);
+
+    if(widget.plans!.data!.records!.isNotEmpty &&
+        widget.plans!.data!.records![0].planType == PlanType.family){
+      planType = 'Family';
+      isIndividual = false;
+      familyOptions = options;
+    }
   }
 
   @override
@@ -158,3 +222,10 @@ class PlansPageController extends State<PlansPage>  with SingleTickerProviderSta
 
 
 }
+
+
+
+
+
+
+

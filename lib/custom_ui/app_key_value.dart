@@ -25,9 +25,15 @@ class AppKeyValue extends StatelessWidget {
           fontWeight: FontWeight.w600,
           color: keyColor!,
         ),
+
+        SizedBox(width:14.0 ,),
+
         AppTextView(
           text: value,
           size: 14.0,
+
+          // maxLines: 2,
+          textOverflow: TextOverflow.ellipsis,
           fontWeight: FontWeight.w500,
           color: valueColor!,
         ),

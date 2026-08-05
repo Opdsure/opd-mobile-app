@@ -36,27 +36,29 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "io.app.opdsure"
-    compileSdk = 34
-//    ndkVersion = flutter.ndkVersion
-    ndkVersion = "25.1.8937393"
+    compileSdk = 35
+    ndkVersion = "27.0.12077973"
     // buildToolsVersion is deliberately unset — AGP 8.x picks a compatible one.
-    // Pinning 21.1.2 fails the build ("SDK Build Tools revision is too low").
 
 
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    sourceSets{
+        main.java.srcDirs+='src/main/kotlin'
     }
 
     defaultConfig {
         multiDexEnabled true
         applicationId = "io.app.opdsure"
-        minSdk = 23
+        minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()  /// TODO: Current Version Code is 5
         versionName = flutterVersionName  /// TODO: Current Version Name is 1.0.0
@@ -76,7 +78,8 @@ android {
             signingConfig keystorePropertiesFile.exists()
                 ? signingConfigs.release
                 : signingConfigs.debug
-            minifyEnabled true
+            minifyEnabled false  // Change this to false
+            shrinkResources false // Change this to false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -87,4 +90,5 @@ flutter {
 }
 
 dependencies {
+    implementation 'com.android.support:multidex:2.0.1'
 }

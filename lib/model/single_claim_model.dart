@@ -161,7 +161,7 @@ class SingleClaimData {
   String? _id;
   String? _opdDate;
   String? _docName;
-  String? _docCountryCode;
+  dynamic _docCountryCode;
   int? _docPhone;
   String? _claimId;
   String? _docRegistration;

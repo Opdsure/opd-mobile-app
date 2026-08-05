@@ -62,7 +62,7 @@ class DecoratedInputBorder extends InputBorder {
   }
 
   @override
-  int get hashCode => hashValues(borderSide, child, shadow);
+  // int get hashCode => hashValues(borderSide, child, shadow);
 
   @override
   String toString() {

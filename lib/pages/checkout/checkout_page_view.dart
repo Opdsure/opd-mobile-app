@@ -10,11 +10,16 @@ import '../../custom_ui/app_text_view.dart';
 import '../../utils/app_var.dart';
 import 'checkout_controller.dart';
 
-class CheckoutPageView extends StatelessWidget {
+class CheckoutPageView extends StatefulWidget {
   final CheckoutController controller;
 
   const CheckoutPageView(this.controller, {super.key});
 
+  @override
+  State<CheckoutPageView> createState() => _CheckoutPageViewState();
+}
+
+class _CheckoutPageViewState extends State<CheckoutPageView> {
   @override
   Widget build(BuildContext context) {
     return AppBasePage(
@@ -41,7 +46,7 @@ class CheckoutPageView extends StatelessWidget {
                   children: [
                     Expanded(
                       child: AppTextView(
-                        text: controller.name,
+                        text: widget.controller.name,
                         color: Colors.black,
                         size: 16.0,
                         fontWeight: FontWeight.w500,
@@ -56,8 +61,8 @@ class CheckoutPageView extends StatelessWidget {
                               border: Border.all(
                                 color: const Color(0xFF8A48B3),
                               ),
-                              borderRadius: const BorderRadius.all(
-                                  Radius.circular(20))),
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(20))),
                           child: const Center(
                             child: Padding(
                               padding: EdgeInsets.all(5.0),
@@ -72,11 +77,11 @@ class CheckoutPageView extends StatelessWidget {
                     )
                   ],
                 ),
-                if (controller.widget.paymentType !=
+                if (widget.controller.widget.paymentType !=
                     PaymentType.buyHealthCheckup) ...[
                   AppTextView(
                     text:
-                        '$rupeeSymbol ${CommonMethods.amountFormater(controller.options!.charges!.toString())}/${CommonMethods.getPlanFrequency(controller.records!.frequency!, isBilled: false)}',
+                        '$rupeeSymbol ${CommonMethods.amountFormater(widget.controller.options!.charges!.toStringAsFixed(0))}/${CommonMethods.getPlanFrequency(widget.controller.records!.frequency!, isBilled: false)}',
                     color: const Color(0xFF667085),
                   ),
                   const SizedBox(
@@ -89,7 +94,7 @@ class CheckoutPageView extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                   AppTextView(
-                    text: controller.options!.membershipLabel!,
+                    text: widget.controller.options!.membershipLabel!,
                     color: const Color(0xFF667085),
                   ),
                 ],
@@ -128,14 +133,14 @@ class CheckoutPageView extends StatelessWidget {
                     ),
                     AppTextView(
                       text:
-                          '$rupeeSymbol ${CommonMethods.amountFormater(controller.planCharge.toStringAsFixed(2), isDouble: true)}',
+                          '$rupeeSymbol ${CommonMethods.amountFormater(widget.controller.planCharge.toStringAsFixed(2), isDouble: true)}',
                       color: Colors.black,
                       size: 16.0,
                     ),
                   ],
                 ),
                 // Coupon discount
-                if (controller.couponDiscount != 0.0) ...[
+                if (widget.controller.couponDiscount != 0.0) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -146,7 +151,7 @@ class CheckoutPageView extends StatelessWidget {
                       ),
                       AppTextView(
                         text:
-                            '-$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true,controller.couponDiscount.toStringAsFixed(2))}',
+                            '-$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, widget.controller.couponDiscount.toStringAsFixed(2))}',
                         color: Colors.green,
                         size: 16.0,
                       ),
@@ -154,7 +159,7 @@ class CheckoutPageView extends StatelessWidget {
                   ),
                 ],
                 // Previous discount
-                if (controller.previousDiscount != 0.0) ...[
+                if (widget.controller.previousDiscount != 0.0) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -165,7 +170,7 @@ class CheckoutPageView extends StatelessWidget {
                       ),
                       AppTextView(
                         text:
-                            '-$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.previousDiscount.toStringAsFixed(2))}',
+                            '-$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, widget.controller.previousDiscount.toStringAsFixed(2))}',
                         color: Colors.green,
                         size: 16.0,
                       ),
@@ -173,7 +178,7 @@ class CheckoutPageView extends StatelessWidget {
                   ),
                 ],
                 //Net Amount
-                if (controller.previousDiscount != 0.0) ...[
+                if (widget.controller.previousDiscount != 0.0) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -184,7 +189,7 @@ class CheckoutPageView extends StatelessWidget {
                       ),
                       AppTextView(
                         text:
-                            '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, controller.netAmount.toStringAsFixed(2))}',
+                            '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, widget.controller.netAmount.toStringAsFixed(2))}',
                         color: Colors.black,
                         size: 16.0,
                       ),
@@ -202,7 +207,7 @@ class CheckoutPageView extends StatelessWidget {
                     ),
                     AppTextView(
                       text:
-                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, roundOff: true, controller.gst.toStringAsFixed(2))}',
+                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, roundOff: true, widget.controller.gst.toStringAsFixed(2))}',
                       color: Colors.black,
                       size: 16.0,
                     ),
@@ -226,7 +231,7 @@ class CheckoutPageView extends StatelessWidget {
                     ),
                     AppTextView(
                       text:
-                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, roundOff: true, controller.netAmountWithGst.toStringAsFixed(2))}',
+                          '$rupeeSymbol ${CommonMethods.amountFormater(isDouble: true, roundOff: true, widget.controller.netAmountWithGst.toStringAsFixed(2))}',
                       color: Colors.black,
                       size: 16.0,
                       fontWeight: FontWeight.w500,
@@ -269,7 +274,7 @@ class CheckoutPageView extends StatelessWidget {
                       flex: 4,
                       child: AppEditText(
                         hint: 'Enter Code',
-                        textEditingController: controller.couponCtrl,
+                        textEditingController: widget.controller.couponCtrl,
                       ),
                     ),
                     const SizedBox(
@@ -280,7 +285,7 @@ class CheckoutPageView extends StatelessWidget {
                       child: AppButton(
                         text: 'Apply',
                         onClick: () async {
-                          controller.dataAfterApplyCoupon();
+                          widget.controller.dataAfterApplyCoupon();
                         },
                       ),
                     )
@@ -294,7 +299,7 @@ class CheckoutPageView extends StatelessWidget {
           ),
           AppButton(
             text: 'Pay Now',
-            onClick: controller.openPaymentGateway,
+            onClick: widget.controller.openPaymentGateway,
           )
         ],
       ),

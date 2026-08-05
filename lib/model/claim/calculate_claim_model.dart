@@ -1,8 +1,5 @@
 class CalculateClaimModel {
-  CalculateClaimModel({
-      Data? data, 
-      bool? success, 
-      String? message,}){
+  CalculateClaimModel({Data? data, bool? success, String? message,}){
     _data = data;
     _success = success;
     _message = message;
@@ -30,7 +27,6 @@ class CalculateClaimModel {
     map['message'] = _message;
     return map;
   }
-
 }
 
 class Data {

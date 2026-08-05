@@ -20,7 +20,6 @@ class PlansPageView extends StatelessWidget {
   final PlansPageController controller;
 
   const PlansPageView(this.controller, {super.key});
-  
 
   Widget commonRow(BuildContext context, String imgUri, String desc) {
     double w = CommonMethods.deviceWidth(context);
@@ -59,11 +58,12 @@ class PlansPageView extends StatelessWidget {
               ),
               borderColor: AppConfig.primaryColor,
               height: 40.0,
-              width: 100.0,
+              // width: 100.0,
               contentCenter: true,
               unselectedLabelStyle: GoogleFonts.montserrat(
                 color: Colors.black,
               ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
               borderWidth: 1,
               unselectedBorderColor: const Color(0xFFEAECF0),
               radius: 15,
@@ -86,7 +86,11 @@ class PlansPageView extends StatelessWidget {
                       text: (!controller.isIndividual &&
                               controller.familyOptions == null)
                           ? 'Select Member'
-                          : '₹ ${CommonMethods.amountFormater((controller.options!.charges! + ((controller.options!.charges!) * 18) / 100).toStringAsFixed(0))}',
+                          :
+                      // '₹ ${CommonMethods.amountFormater((controller.options!.charges! + ((controller.options!.charges!) * 18) / 100).toStringAsFixed(0))}',
+
+                      '₹ ${CommonMethods.amountFormater((controller.options?.charges ?? 0 + ((controller.options?.charges ?? 0) * 18) / 100).toStringAsFixed(0))}',
+
                       color: AppConfig.primaryColor,
                       size: (!controller.isIndividual &&
                               controller.familyOptions == null)
@@ -120,7 +124,8 @@ class PlansPageView extends StatelessWidget {
                             inactiveTrackColor: AppConfig.primaryColor,
                             trackOutlineColor: controller.isIndividual
                                 ? null
-                                : WidgetStatePropertyAll<Color>(AppConfig.primaryColor),
+                                : WidgetStatePropertyAll<Color>(
+                                    AppConfig.primaryColor),
                             inactiveThumbColor: Colors.white,
                             thumbIcon: WidgetStatePropertyAll<Icon>(
                               Icon(
@@ -134,8 +139,9 @@ class PlansPageView extends StatelessWidget {
                         ],
                       ),
                       AppTextView(
-                        text:
-                        controller.isIndividual ? 'Add family member' : 'Back to individual',
+                        text: controller.isIndividual
+                            ? 'Add family member'
+                            : 'Back to individual',
                         size: 12,
                         color: AppConfig.primaryColor,
                       ),
@@ -194,7 +200,6 @@ class PlansPageView extends StatelessWidget {
               color: Colors.black,
               fontWeight: FontWeight.w600,
             ),
-
             if ((controller.record!.planType! == PlanType.family ||
                     controller.record!.planType! == PlanType.both) &&
                 !controller.isIndividual) ...[
@@ -214,7 +219,7 @@ class PlansPageView extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: controller.record!.planBenefits!.length,
+                  itemCount: controller.record!.planBenefits!.length ?? 0,
                   physics: const BouncingScrollPhysics(
                     decelerationRate: ScrollDecelerationRate.fast,
                   ),

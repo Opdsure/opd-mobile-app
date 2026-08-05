@@ -17,6 +17,8 @@ import '../custom_ui/app_home_header.dart';
 import '../custom_ui/app_mobile_field.dart';
 
 class ReferralPage extends StatefulWidget{
+  const ReferralPage({super.key});
+
   @override
   State<ReferralPage> createState() => _ReferralPageState();
 }
@@ -29,7 +31,6 @@ class _ReferralPageState extends State<ReferralPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return AppBasePage(
       appHeader: const AppHomeHeader(
         title: AppTextView(

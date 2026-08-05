@@ -14,110 +14,102 @@ import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../custom_ui/web_view/open_chrome_sfari.dart';
 typedef ContextCallback = void Function(BuildContext context);
-class CommonMethods{
 
+class CommonMethods {
   static double deviceHeight(BuildContext context) {
-    return MediaQuery
-        .of(context)
-        .size
-        .height;
+    return MediaQuery.of(context).size.height;
   }
+
   static double deviceWidth(BuildContext context) {
-    return MediaQuery
-        .of(context)
-        .size
-        .width;
+    return MediaQuery.of(context).size.width;
   }
 
-
-  static String getPlanFrequency(int frequency,{bool isBilled = true}) {
+  static String getPlanFrequency(int frequency, {bool isBilled = true}) {
     switch (frequency) {
       case 1:
-        return '${isBilled ? "Billed " : ""}yearly';
+        return '${isBilled ? "Billed " : ""} yearly';
       case 2:
-        return '${isBilled ? "Billed " : ""}Billed half yearly';
+        return '${isBilled ? "Billed " : ""} Billed half yearly';
       case 3:
-        return '${isBilled ? "Billed " : ""}Billed quarterly';
+        return '${isBilled ? "Billed " : ""} Billed quarterly';
       case 4:
-        return '${isBilled ? "Billed " : ""}Billed monthly';
+        return '${isBilled ? "Billed " : ""} Billed monthly';
       default:
         return '';
     }
   }
 
-  static void showToast(String toastMessage){
+  static void showToast(String toastMessage) {
     Fluttertoast.showToast(
       msg: toastMessage,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
-      timeInSecForIosWeb: 1,
+      // timeInSecForIosWeb: 2,
       backgroundColor: Colors.black.withOpacity(0.50),
       textColor: Colors.white,
       fontSize: 16.0,
     );
   }
 
-
-  static Future<bool> showExitDialog(BuildContext context, {String? message}) async {
+  static Future<bool> showExitDialog(BuildContext context,
+      {String? message}) async {
     OpdSureState opd = OpdSure.of(context);
-    if(opd.isExitDialogShowing) return false;
+    if (opd.isExitDialogShowing) return false;
     opd.isExitDialogShowing = true;
     return await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return PopScope(
-          onPopInvoked: (_){
-            opd.isExitDialogShowing = false;
+          context: context,
+          builder: (BuildContext context) {
+            return PopScope(
+              onPopInvoked: (_) {
+                opd.isExitDialogShowing = false;
+              },
+              child: AlertDialog(
+                title: const AppTextView(
+                  text: 'Exit Confirmation',
+                  size: 18.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                content:
+                    AppTextView(text: message ?? 'Do you really want to exit?'),
+                actions: [
+                  MaterialButton(
+                    child: const AppTextView(text: 'Cancel'),
+                    onPressed: () {
+                      opd.isExitDialogShowing = false;
+                      Navigator.of(context).pop(false);
+                    },
+                  ),
+                  MaterialButton(
+                    child: const AppTextView(text: 'Yes'),
+                    onPressed: () {
+                      Navigator.of(context).pop(true);
+                    },
+                  ),
+                ],
+              ),
+            );
           },
-          child: AlertDialog(
-            title: const AppTextView(
-              text: 'Exit Confirmation',
-              size: 18.0,
-              fontWeight: FontWeight.w600,
-            ),
-            content: AppTextView(text: message?? 'Do you really want to exit?'),
-            actions: [
-              MaterialButton(
-                child: const AppTextView(text: 'Cancel'),
-                onPressed: () {
-                  opd.isExitDialogShowing = false;
-                  Navigator.of(context).pop(false);
-                },
-              ),
-              MaterialButton(
-                child: const AppTextView(text: 'Yes'),
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    ) ??
+        ) ??
         false;
   }
 
-
   static customAlertBox(BuildContext context,
       {String title = 'Error',
-        String message = 'message',
-        ContextCallback? okCallBack,
-        ContextCallback? cancelCallBack,
-        bool shouldDismiss = true,
-        bool isCancelButton = false,
-        String positiveButton = 'OK',
-        String negativeButton = 'CANCEL'}) {
+      String message = 'message',
+      ContextCallback? okCallBack,
+      ContextCallback? cancelCallBack,
+      bool shouldDismiss = true,
+      bool isCancelButton = false,
+      String positiveButton = 'OK',
+      String negativeButton = 'CANCEL'}) {
     return showDialog(
         context: context,
         barrierDismissible: shouldDismiss,
         builder: (BuildContext context1) {
           return MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-                textScaler:
-               const TextScaler.linear(1)),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(1)),
             child: WillPopScope(
               onWillPop: () async {
                 return shouldDismiss;
@@ -150,31 +142,35 @@ class CommonMethods{
                           text: message,
                         ),
                       ),
-                      const SizedBox(height: 20,),
+                      const SizedBox(
+                        height: 20,
+                      ),
                       Row(
-                        mainAxisAlignment: isCancelButton ?  MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                        mainAxisAlignment: isCancelButton
+                            ? MainAxisAlignment.spaceBetween
+                            : MainAxisAlignment.center,
                         children: [
                           isCancelButton
                               ? AppButton(
-                            textSize: 13,
-                            width: 120,
-                            onClick: () {
-                              if(cancelCallBack == null){
-                                Navigator.pop(context1);
-                              }else{
-                                cancelCallBack.call(context1);
-                              }
-                            },
-                            text: negativeButton,
-                          )
+                                  textSize: 13,
+                                  width: 120,
+                                  onClick: () {
+                                    if (cancelCallBack == null) {
+                                      Navigator.pop(context1);
+                                    } else {
+                                      cancelCallBack.call(context1);
+                                    }
+                                  },
+                                  text: negativeButton,
+                                )
                               : Container(),
                           AppButton(
                             textSize: 13,
                             width: !isCancelButton ? 240 : 120,
                             onClick: () {
-                              if(okCallBack == null){
+                              if (okCallBack == null) {
                                 Navigator.pop(context1);
-                              }else{
+                              } else {
                                 okCallBack.call(context1);
                               }
                             },
@@ -191,20 +187,135 @@ class CommonMethods{
         });
   }
 
+
+
+
+
+
+
+
+
+
+  static customAlertBox2(BuildContext context,
+      {String title = 'Error',
+        String message = 'message',
+        ContextCallback? okCallBack,
+        ContextCallback? cancelCallBack,
+        bool shouldDismiss = true,
+        bool isCancelButton = false,
+        String positiveButton = 'OK',
+        String negativeButton = 'CANCEL',
+        String? text2}) {
+    return showDialog(
+      context: context,
+      barrierDismissible: shouldDismiss,
+      builder: (BuildContext context1) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1)),
+          child: WillPopScope(
+            onWillPop: () async => shouldDismiss,
+            child: AlertDialog(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              ),
+              contentPadding: const EdgeInsets.only(top: 10.0),
+              content: Container(
+                padding: const EdgeInsets.all(15),
+                width: 300.0,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10.0, bottom: 5.0),
+                      child: AppTextView(
+                        color: AppConfig.primaryColor,
+                        fontWeight: FontWeight.w700,
+                        text: title,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+                      child: AppTextView(
+                        size: 14,
+                        text: message,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: isCancelButton
+                          ? MainAxisAlignment.spaceBetween
+                          : MainAxisAlignment.center,
+                      children: [
+                        isCancelButton
+                            ? AppButton(
+                          textSize: 13,
+                          width: 120,
+                          onClick: () {
+                            if (cancelCallBack == null) {
+                              Navigator.pop(context1);
+                            } else {
+                              cancelCallBack.call(context1);
+                            }
+                          },
+                          text: negativeButton,
+                        )
+                            : Container(),
+                        AppButton(
+                          textSize: 13,
+                          width: !isCancelButton ? 240 : 120,
+                          onClick: () {
+                            if (okCallBack == null) {
+                              Navigator.pop(context1);
+                            } else {
+                              okCallBack.call(context1);
+                            }
+                          },
+                          text: positiveButton,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+
+                    if (text2 != null && text2.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Align(
+                        alignment: Alignment.center,
+                        child: AppTextView(
+                          size: 9,
+                          text: text2,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
+
   static String convertToE164(String phoneNumber, String countryCode) {
     final PhoneNumberUtil phoneUtil = PhoneNumberUtil.instance;
     final PhoneNumber mPhoneNumber = phoneUtil.parse(phoneNumber, countryCode);
     return phoneUtil.format(mPhoneNumber, PhoneNumberFormat.international);
   }
 
-  static String changeDateFormat(String dateStr,{from = 'dd/MM/yyyy',to = 'yyyy-MM-dd'}){
-    if(dateStr == '') return "";
+  static String changeDateFormat(String dateStr,
+      {from = 'dd/MM/yyyy', to = 'yyyy-MM-dd'}) {
+    if (dateStr == '') return "";
     DateTime tempDate = DateFormat(from).parse(dateStr);
     return DateFormat(to).format(tempDate);
   }
 
-  static String genderKey(String gender){
-    switch(gender){
+  static String genderKey(String gender) {
+    switch (gender) {
       case 'Male':
         return '1';
       case 'Female':
@@ -216,8 +327,8 @@ class CommonMethods{
     }
   }
 
-  static String getGenderByKey(int gender){
-    switch(gender){
+  static String getGenderByKey(int gender) {
+    switch (gender) {
       case 1:
         return 'Male';
       case 2:
@@ -229,28 +340,27 @@ class CommonMethods{
     }
   }
 
-  static void showAlertDialog(BuildContext context){
-    AlertDialog alert=AlertDialog(
+  static void showAlertDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
       content: Row(
         children: [
           CircularProgressIndicator(),
-          Container(margin: EdgeInsets.only(left: 5),child:Text("Loading" )),
-        ],),
+          Container(margin: EdgeInsets.only(left: 5), child: Text("Loading")),
+        ],
+      ),
     );
-    showDialog(barrierDismissible: false,
-      context:context,
+    showDialog(
+      barrierDismissible: false,
+      context: context,
       useRootNavigator: false,
-      builder:(BuildContext context){
+      builder: (BuildContext context) {
         return alert;
       },
     );
   }
 
-
-
-
-  static String getClaimNameById(String id){
-    switch(id){
+  static String getClaimNameById(String id) {
+    switch (id) {
       case '0':
         return 'OPD';
       case '1':
@@ -262,13 +372,10 @@ class CommonMethods{
     }
   }
 
-  static showOneButtonDialog(BuildContext context,String message,VoidCallback mCallback) {
-
+  static showOneButtonDialog(
+      BuildContext context, String message, VoidCallback mCallback) {
     // set up the button
-    Widget okButton = AppButton(
-      onClick: mCallback,
-      text: 'OK'
-    );
+    Widget okButton = AppButton(onClick: mCallback, text: 'OK');
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       actionsAlignment: MainAxisAlignment.center,
@@ -288,8 +395,8 @@ class CommonMethods{
     );
   }
 
-  static String getClaimStatus(String id){
-    switch(id){
+  static String getClaimStatus(String id) {
+    switch (id) {
       case '0':
         return 'PENDING';
       case '1':
@@ -309,8 +416,8 @@ class CommonMethods{
     }
   }
 
-  static String getCheckupStatus(String id){
-    switch(id){
+  static String getCheckupStatus(String id) {
+    switch (id) {
       case '0':
         return 'PENDING';
       case '1':
@@ -322,42 +429,62 @@ class CommonMethods{
     }
   }
 
-  static setStringPref(String key, String value)async{
+  static setStringPref(String key, String value) async {
     SharedPreferences mPref = await SharedPreferences.getInstance();
     mPref.setString(key, value);
   }
 
-  static setBoolPref(String key, bool value)async{
+  static setBoolPref(String key, bool value) async {
     SharedPreferences mPref = await SharedPreferences.getInstance();
     mPref.setBool(key, value);
   }
 
-  static Future<String> getStringPref(String key)async{
+  static Future<String> getStringPref(String key) async {
     SharedPreferences mPref = await SharedPreferences.getInstance();
     String data = mPref.getString(key) ?? '';
     return data;
   }
 
-  static Future<bool> getBoolPref(String key)async{
+  static Future<bool> getBoolPref(String key) async {
     SharedPreferences mPref = await SharedPreferences.getInstance();
     bool? data = mPref.getBool(key);
     return data ?? false;
   }
 
-  static String formatIsoDateString(String isoString,{bool isTime = false, bool isAddTime = false}) {
-    if(isoString == '') return '';
-    DateTime dateTime = DateTime.parse(isoString);
-    if(isAddTime) {
-      dateTime = dateTime.add(const Duration(hours: 5, minutes: 30));
+  // static String formatIsoDateString(String isoString,{bool isTime = false, bool isAddTime = false}) {
+  //   if(isoString == '') return '';
+  //   DateTime dateTime = DateTime.parse(isoString);
+  //   if(isAddTime) {
+  //     dateTime = dateTime.add(const Duration(hours: 5, minutes: 30));
+  //   }
+  //   String formattedDate = '';
+  //   if(isTime){
+  //     formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(dateTime);
+  //   }
+  //   else{
+  //     formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+  //   }
+  //   return formattedDate;
+  // }
+
+  static String formatIsoDateString(String isoString,
+      {bool isTime = false, bool isAddTime = false}) {
+    if (isoString.isEmpty) return '';
+
+    try {
+      DateTime dateTime = DateTime.parse(isoString);
+      dateTime = dateTime.toLocal(); // Convert to user's local time
+
+      String formattedDate = isTime
+          ? DateFormat('dd/MM/yyyy hh:mm a').format(dateTime)
+          : DateFormat('dd/MM/yyyy').format(dateTime);
+
+      return formattedDate;
+    } catch (e) {
+      // Handle invalid input string
+      print('Error parsing ISO date string: $e');
+      return '';
     }
-    String formattedDate = '';
-    if(isTime){
-      formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(dateTime);
-    }
-    else{
-      formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
-    }
-    return formattedDate;
   }
 
   static String calculateAge(DateTime birthDate) {
@@ -375,14 +502,15 @@ class CommonMethods{
     // Calculate the month difference
     int months = today.month - birthDate.month;
     if (months < 0) {
-      months += 12;  // Adjust for negative months
+      months += 12; // Adjust for negative months
     }
 
     // Calculate the day difference
     int days = today.day - birthDate.day;
     if (days < 0) {
       // If days are negative, adjust by subtracting 1 month
-      final previousMonth = DateTime(today.year, today.month, 0); // last day of the previous month
+      final previousMonth = DateTime(
+          today.year, today.month, 0); // last day of the previous month
       days += previousMonth.day;
       months--;
 
@@ -405,13 +533,13 @@ class CommonMethods{
       result += ' $days d';
     }
 
-    return result.isEmpty ? '0 Days' :  result.trim(); // Trim to remove any trailing spaces
+    return result.isEmpty
+        ? '0 Days'
+        : result.trim(); // Trim to remove any trailing spaces
   }
 
-
-
-  static showLogoutAlertDialog(BuildContext context, String message, String heading,
-      String buttonAcceptTitle, String buttonCancelTitle) {
+  static showLogoutAlertDialog(BuildContext context, String message,
+      String heading, String buttonAcceptTitle, String buttonCancelTitle) {
     Widget cancelButton = MaterialButton(
       child: Text(buttonCancelTitle),
       onPressed: () {
@@ -457,23 +585,21 @@ class CommonMethods{
     return FilePickerResult([platformFile]);
   }
 
-  static String amountFormater(String amount, {bool isDouble = false, bool roundOff = false}){
+  static String amountFormater(String amount,
+      {bool isDouble = false, bool roundOff = false}) {
     final formatter = NumberFormat('#,##,###');
     dynamic newAmount;
-    if(isDouble){
+    if (isDouble) {
       newAmount = double.parse(amount);
       newAmount = formatter.format(newAmount);
-      if(amount.contains('.') && !roundOff){
+      if (amount.contains('.') && !roundOff) {
         return '$newAmount.${amount.split('.')[1]}';
-      }else{
+      } else {
         return newAmount;
       }
-
-    }else{
-      newAmount = int.parse(amount);
+    } else {
+      newAmount = int.parse(amount.toString().trim());
       return formatter.format(newAmount);
     }
-
   }
-
 }

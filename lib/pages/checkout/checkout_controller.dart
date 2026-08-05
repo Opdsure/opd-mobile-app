@@ -6,13 +6,15 @@ import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/plans/plans_response.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/checkout/checkout_page_view.dart';
-import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 import 'package:opdsure/utils/common_methods.dart';
-import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_sure_app.dart';
 import 'package:opdsure/widget/opd_widget.dart';
-import 'package:razorpay_flutter/razorpay_flutter.dart';
-
+import 'package:razorpay_flutter/razorpay_flutter.dart'
+    show
+        ExternalWalletResponse,
+        PaymentFailureResponse,
+        PaymentSuccessResponse,
+        Razorpay;
 import '../../model/coupon_model.dart';
 
 enum PaymentType { buyPlan, buyHealthCheckup, planUpgrade, planRenew }
@@ -35,6 +37,8 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class CheckoutController extends State<CheckoutPage> {
+  // late Razorpay razorpay;
+
   PlanRecords? records;
   MembershipOptions? options;
   HealthCheckupRecords? healthCheckupRecords;
@@ -82,7 +86,8 @@ class CheckoutController extends State<CheckoutPage> {
   }
 
   dataAfterApplyCoupon() async {
-    var response = await OpdSure.of(context).client.applyCoupon(couponCtrl.text,
+    var response = await OpdSure.of(context).client.applyCoupon(
+        couponCtrl.text,
         widget.paymentType != PaymentType.buyHealthCheckup
             ? records!.id!
             : healthCheckupRecords!.id!,
@@ -92,7 +97,8 @@ class CheckoutController extends State<CheckoutPage> {
     setState(() {
       gst = double.parse('${couponModel.data!.gst!}');
       couponDiscount = double.parse('${couponModel.data!.couponDiscount!}');
-      previousDiscount = double.parse(couponModel.data!.preDiscount!.toString());
+      previousDiscount =
+          double.parse(couponModel.data!.preDiscount!.toString());
       planCharge = double.parse('${couponModel.data!.planPrice!}');
       netAmount = planCharge - couponDiscount - previousDiscount;
       netAmountWithGst = netAmount + gst;
@@ -127,22 +133,29 @@ class CheckoutController extends State<CheckoutPage> {
                 : 'Health checkup purchased successfully!');
         await opd.client.getProfile(update: true);
         if (widget.paymentType == PaymentType.buyPlan) {
-          final member = await OpdSure.of(context).client.getFamilyMember(update: true);
-          if(member!.data!.length > 0){
-            context.go('/home/add-members', extra: {"isUpdate" : true,  "isAddingFirstMember" : true, "member" : member.data![0]});
+          final member =
+              await OpdSure.of(context).client.getFamilyMember(update: true);
+          if (member!.data!.length > 0) {
+            context.go('/home/add-members', extra: {
+              "isUpdate": true,
+              "isAddingFirstMember": true,
+              "member": member.data![0]
+            });
             await OpdSure.of(context).client.getProfile(update: true);
-          }else{
-            context.go('/home/add-members', extra: {"isUpdate" : false,  "isAddingFirstMember" : true});
+          } else {
+            context.go('/home/add-members',
+                extra: {"isUpdate": false, "isAddingFirstMember": true});
           }
-        } else if(widget.paymentType == PaymentType.buyHealthCheckup){
+        } else if (widget.paymentType == PaymentType.buyHealthCheckup) {
           context.go('/home/add-patient-details');
-        }else{
+        } else {
           context.go('/home');
         }
       } else {
         Razorpay razorpay = Razorpay();
+
         var paymentOptions = {
-          'key': 'rzp_live_VhALW56rJ4qcov',
+          'key': 'rzp_live_UQg94dcpMdmq0k',
           'amount': createPaymentResponse.data!.amount!,
           'currency': createPaymentResponse.data!.currency!,
           'name': 'OPD Sure',
@@ -165,13 +178,13 @@ class CheckoutController extends State<CheckoutPage> {
           }
         };
         razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentErrorResponse);
-        razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
-        razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
+        razorpay.on(
+            Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccessResponse);
+        razorpay.on(
+            Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWalletSelected);
         razorpay.open(paymentOptions);
       }
-
-    }
-    else {
+    } else {
       context.pop();
     }
   }
@@ -194,15 +207,20 @@ class CheckoutController extends State<CheckoutPage> {
           : 'Health checkup purchased successfully!');
       await opd.client.getProfile(update: true);
       if (widget.paymentType == PaymentType.buyPlan) {
-       final member = await OpdSure.of(context).client.getFamilyMember(update: true);
-       if(member!.data!.length > 0){
-         context.go('/home/add-members', extra: {"isUpdate" : true, "isAddingFirstMember" : true, "member" : member.data![0]});
-         await OpdSure.of(context).client.getProfile(update: true);
-       }else{
-         context.go('/home/add-members', extra: {"isUpdate" : false, "isAddingFirstMember" : true});
-       }
-
-      } else if(widget.paymentType == PaymentType.buyHealthCheckup){
+        final member =
+            await OpdSure.of(context).client.getFamilyMember(update: true);
+        if (member!.data!.length > 0) {
+          context.go('/home/add-members', extra: {
+            "isUpdate": true,
+            "isAddingFirstMember": true,
+            "member": member.data![0]
+          });
+          await OpdSure.of(context).client.getProfile(update: true);
+        } else {
+          context.go('/home/add-members',
+              extra: {"isUpdate": false, "isAddingFirstMember": true});
+        }
+      } else if (widget.paymentType == PaymentType.buyHealthCheckup) {
         context.go('/home/add-patient-details');
       } else {
         context.pop();

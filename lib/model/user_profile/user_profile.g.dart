@@ -139,10 +139,10 @@ class PlanAdapter extends TypeAdapter<Plan> {
     return Plan()
       .._purchased = fields[0] as bool?
       .._id = fields[1] as String?
-      .._membershipId = fields[2] as int?
+      .._membershipId = fields[2] as dynamic?
       .._startDate = fields[3] as String?
       .._endDate = fields[4] as String?
-      .._pricePaid = fields[5] as int?;
+      .._pricePaid = fields[5] as dynamic?;
   }
 
   @override

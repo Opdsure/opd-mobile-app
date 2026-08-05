@@ -29,6 +29,8 @@ class AppEditText extends StatelessWidget {
   final int? maxLines;
   final int? minLines;
   final List<TextInputFormatter>? inputFormatters;
+  final TextCapitalization textCapitalization;
+
 
   const AppEditText({
     required this.hint,
@@ -52,6 +54,8 @@ class AppEditText extends StatelessWidget {
     this.maxLines = 1,
     this.minLines,
     this.inputFormatters,
+    this.textCapitalization = TextCapitalization.none, // 👈 default value
+
   });
 
   @override
@@ -62,6 +66,7 @@ class AppEditText extends StatelessWidget {
         AppBorderBox(
           myChild: Center(
             child: TextField(
+              textCapitalization: TextCapitalization.sentences,
               controller: textEditingController,
               keyboardType: textInputType,
               readOnly: disableText,
@@ -73,6 +78,7 @@ class AppEditText extends StatelessWidget {
               expands: expands,
               textAlignVertical: TextAlignVertical.center,
               onChanged: mOnChanged,
+
               inputFormatters: inputFormatters,
               decoration: InputDecoration(
                 isDense: true,

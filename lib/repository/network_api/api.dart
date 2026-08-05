@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:typed_data';
 import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
@@ -54,8 +53,7 @@ class Api {
     throw Exception('body size $actual exceeded $expected');
   }
 
-  Uri _getCouponUri(PaymentType type,
-      {String? planId, String? memberId, String? couponCode}) {
+  Uri _getCouponUri(PaymentType type, {String? planId, String? memberId, String? couponCode}) {
     switch (type) {
       case PaymentType.buyPlan:
         return Uri.parse(
@@ -238,6 +236,7 @@ class Api {
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
+    print("token $bearerToken");
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
     if (response.statusCode != 200) unexpectedResponse(response, responseBody);
@@ -485,8 +484,7 @@ class Api {
   Future<FileUploadResponse?> uploadFile(
       {required List<http.MultipartFile> results}) async {
     final requestUri = Uri(path: 'api/v1/user/upload-file');
-    final request =
-        http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
+    final request = http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.files.addAll(results);
     final response = await request.send();

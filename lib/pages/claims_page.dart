@@ -1,30 +1,20 @@
-import 'dart:convert';
 import 'dart:ui';
-import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/custom_ui/app_home_header.dart';
-import 'package:opdsure/custom_ui/app_round_view.dart';
 import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/claim_status_model.dart';
-import 'package:opdsure/model/my_claim/my_claims_model.dart';
 import 'package:opdsure/pages/checkout/checkout_controller.dart';
-import 'package:opdsure/pages/claim_pages/claims_details_page.dart';
-import 'package:opdsure/pages/file_claim_page.dart';
-import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
-import 'package:opdsure/pages/upload_file_claim_doc.dart';
-import 'package:opdsure/utils/app_var.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
-import '../model/claim_json_model.dart';
-import '../utils/app_colors.dart';
+import '../model/my_claim/my_claims_list_model.dart';
+import '../model/my_claim/my_claims_model.dart';
 import 'claim_pages/claim_tile.dart';
 
 class ClaimsPage extends StatelessWidget {
@@ -105,50 +95,11 @@ class ClaimsPage extends StatelessWidget {
             const SizedBox(
               height: 20.0,
             ),
-            // Center(
-            //   child: AppRoundView(
-            //     mChild: Padding(
-            //       padding: const EdgeInsets.symmetric(
-            //           vertical: 2.0, horizontal: 5.0),
-            //       child: ButtonsTabBar(
-            //         backgroundColor: buttonColor,
-            //         unselectedBackgroundColor: Colors.transparent,
-            //         labelStyle: GoogleFonts.montserrat(
-            //             color: Colors.white,
-            //             fontSize: 14.0,
-            //             fontWeight: FontWeight.w500),
-            //         borderColor: buttonColor,
-            //         height: 45.0,
-            //         width: w * 0.45,
-            //         contentCenter: true,
-            //         unselectedLabelStyle: GoogleFonts.montserrat(
-            //             color: Colors.black,
-            //             fontSize: 14.0,
-            //             fontWeight: FontWeight.w500),
-            //         borderWidth: 1,
-            //         unselectedBorderColor: Colors.transparent,
-            //         radius: 5,
-            //         tabs: const [
-            //           Tab(
-            //             text: "Active Claims",
-            //           ),
-            //           Tab(
-            //             text: "Past Claims",
-            //           )
-            //         ],
-            //       ),
-            //     ),
-            //     color: const Color(0xFFEAECF0),
-            //     corner: 5.0,
-            //   ),
-            // ),
-            // const SizedBox(
-            //   height: 10.0,
-            // ),
+
             Obx(() {
               bool refresh = typeController.refreshClaimList.value;
               return SizedBox(
-                height: h * 0.6,
+                height: h * 0.55,
                 child: refresh
                     ? FutureBuilder<MyClaimsModel?>(
                         future: OpdSure.of(context).client.getAllClaims(),
@@ -161,13 +112,10 @@ class ClaimsPage extends StatelessWidget {
                             );
                           } else {
                             MyClaimsModel? myClaimsModel = snapshot.data;
-                            List<ClaimRecords> listData =
-                                myClaimsModel!.data!.records!;
+                            List<ClaimRecords> listData = myClaimsModel!.data!.records!;
                             return listData.isEmpty
                                 ? const Center(
-                                    child: AppTextView(
-                                      text: 'No Claim Found',
-                                    ),
+                                    child: AppTextView(text: 'No Claim Found',),
                                   )
                                 : RefreshIndicator(
                                     onRefresh: () async {
