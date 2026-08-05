@@ -59,6 +59,10 @@ jobs:
     outputs:
       build-number: ${{ steps.version.outputs.build-number }}
       app-version: ${{ steps.version.outputs.app-version }}
+      android-build: ${{ steps.check.outputs.android-build }}
+      android-upload: ${{ steps.check.outputs.android-upload }}
+      ios-build: ${{ steps.check.outputs.ios-build }}
+      ios-upload: ${{ steps.check.outputs.ios-upload }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -86,6 +90,7 @@ jobs:
           echo "Building $APP_VERSION ($BUILD_NUMBER)"
 
       - name: Validate secrets and variables
+        id: check
         env:
           SKIP_ANDROID: ${{ inputs.skip_android }}
           SKIP_IOS: ${{ inputs.skip_ios }}
@@ -110,7 +115,9 @@ jobs:
   android:
     name: Android → Google Play (production)
     needs: validate
-    if: github.event_name != 'workflow_dispatch' || !inputs.skip_android
+    if: >-
+      needs.validate.outputs.android-build == 'true' &&
+      (github.event_name != 'workflow_dispatch' || !inputs.skip_android)
     runs-on: ubuntu-latest
     timeout-minutes: 60
     environment: Prod
@@ -186,7 +193,18 @@ jobs:
             echo "::notice::No ProGuard mapping (minifyEnabled is off); Play crash reports will not be deobfuscated."
           fi
 
+      # Always keep the artifact, so a build is verifiable even when the store
+      # credentials are not in place yet.
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: opdsure-${{ needs.validate.outputs.app-version }}-${{ needs.validate.outputs.build-number }}-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Upload AAB to Google Play (production)
+        if: needs.validate.outputs.android-upload == 'true'
         uses: r0adkll/upload-google-play@v1.1.5
         with:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
@@ -200,7 +218,9 @@ jobs:
   ios-build:
     name: iOS → TestFlight
     needs: validate
-    if: github.event_name != 'workflow_dispatch' || !inputs.skip_ios
+    if: >-
+      needs.validate.outputs.ios-build == 'true' &&
+      (github.event_name != 'workflow_dispatch' || !inputs.skip_ios)
     runs-on: macos-15
     timeout-minutes: 90
     environment: Prod
@@ -276,6 +296,7 @@ jobs:
       # Processing is polled in the submit job instead — waiting here regularly
       # fails on "Localization not ready" even though the binary uploaded fine.
       - name: Upload IPA to TestFlight
+        if: needs.validate.outputs.ios-upload == 'true'
         uses: apple-actions/upload-testflight-build@v4
         with:
           app-path: ${{ steps.ipa.outputs.path }}
@@ -288,7 +309,9 @@ jobs:
   ios-submit:
     name: iOS → App Store review
     needs: [validate, ios-build]
-    if: vars.IOS_SUBMIT_FOR_REVIEW != 'false'
+    if: >-
+      needs.validate.outputs.ios-upload == 'true' &&
+      vars.IOS_SUBMIT_FOR_REVIEW != 'false'
     runs-on: macos-15
     timeout-minutes: 90
     environment: Prod
