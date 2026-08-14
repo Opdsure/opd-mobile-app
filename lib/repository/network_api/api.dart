@@ -7,6 +7,8 @@ import 'package:opdsure/model/buy_health_plan/buy_health_plan.dart';
 import 'package:opdsure/model/fileUpload/file_upload_response.dart';
 import 'package:opdsure/model/forget_password/forget_password_response.dart';
 import 'package:opdsure/model/free_health_test_model/free_health_test_model.dart';
+import 'package:opdsure/model/hospital/hospital_model.dart';
+import 'package:opdsure/model/partnership/partnership_model.dart';
 import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/login/login_response.dart';
 import 'package:opdsure/model/mFine/m_fine.dart';
@@ -53,7 +55,8 @@ class Api {
     throw Exception('body size $actual exceeded $expected');
   }
 
-  Uri _getCouponUri(PaymentType type, {String? planId, String? memberId, String? couponCode}) {
+  Uri _getCouponUri(PaymentType type,
+      {String? planId, String? memberId, String? couponCode}) {
     switch (type) {
       case PaymentType.buyPlan:
         return Uri.parse(
@@ -83,10 +86,10 @@ class Api {
     }
   }
 
-  Uri _getCollectionApi({String? healthPlanId}){
-    if(healthPlanId != null){
+  Uri _getCollectionApi({String? healthPlanId}) {
+    if (healthPlanId != null) {
       return Uri(path: 'api/v1/user/collection-details/$healthPlanId');
-    }else{
+    } else {
       return Uri(path: 'api/v1/user/collection-details');
     }
   }
@@ -127,10 +130,8 @@ class Api {
     return RegisterResponse.fromJson(json);
   }
 
-  Future<LoginResponse> login({int? otp,
-      String? phone,
-      String? countryCode,
-      int loginType = 1}) async {
+  Future<LoginResponse> login(
+      {int? otp, String? phone, String? countryCode, int loginType = 1}) async {
     final requestUri = Uri(path: 'api/v1/user/login');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -166,9 +167,7 @@ class Api {
   }
 
   Future<RegisterOtpVerify?> registerVerifyOtp(
-      {String? phone,
-      String? countryCode,
-      int? otp}) async {
+      {String? phone, String? countryCode, int? otp}) async {
     final requestUri = Uri(path: 'api/v1/user/verify-signup-otp');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -185,9 +184,7 @@ class Api {
     return RegisterOtpVerify.fromJson(json);
   }
 
-  Future<LoginResponse> loginOtp(
-      {String? phone,
-      String? countryCode}) async {
+  Future<LoginResponse> loginOtp({String? phone, String? countryCode}) async {
     final requestUri = Uri(path: 'api/v1/user/login-otp');
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
@@ -484,7 +481,8 @@ class Api {
   Future<FileUploadResponse?> uploadFile(
       {required List<http.MultipartFile> results}) async {
     final requestUri = Uri(path: 'api/v1/user/upload-file');
-    final request = http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
+    final request =
+        http.MultipartRequest('POST', baseUri!.resolveUri(requestUri));
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.files.addAll(results);
     final response = await request.send();
@@ -644,7 +642,7 @@ class Api {
       "member_id": memberId,
       "checkup_for": checkupFor,
       "message": message,
-      "appointment" : appointmentDataTime
+      "appointment": appointmentDataTime
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -682,18 +680,25 @@ class Api {
     return responseString;
   }
 
-  Future<QueuedPlans?> collectSampleCollectionData({required String patientName, required int age, required int gender, required String address, required int pinCode, required String appointment, String? healthPlanId}) async {
+  Future<QueuedPlans?> collectSampleCollectionData(
+      {required String patientName,
+      required int age,
+      required int gender,
+      required String address,
+      required int pinCode,
+      required String appointment,
+      String? healthPlanId}) async {
     final requestUri = _getCollectionApi(healthPlanId: healthPlanId);
     final request = Request('POST', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';
     request.bodyBytes = utf8.encode(jsonEncode({
-      "patient_name" : patientName,
-      "age" : age,
-      "gender" : gender,
-      "address" : address,
-      "pincode" : pinCode,
-      "appointment" : pinCode
+      "patient_name": patientName,
+      "age": age,
+      "gender": gender,
+      "address": address,
+      "pincode": pinCode,
+      "appointment": pinCode
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
@@ -818,5 +823,71 @@ class Api {
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return MFine.fromJson(json);
+  }
+
+  /// Fetches partnership data (carousel + icons) from the public endpoint.
+  /// This is a public API - no authentication required.
+  Future<PartnershipResponse> getPartnerships() async {
+    final requestUri = Uri(path: 'api/v1/public/partnerships');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return PartnershipResponse.fromJson(json);
+  }
+
+  /// Fetches user's hospitals list with pagination.
+  /// GET /api/v1/user/hospitals?page=1&pageSize=100&sortBy=createdAt&sortOrder=1
+  Future<HospitalListResponse> getHospitals(
+      {int page = 1, int pageSize = 100}) async {
+    final requestUri = Uri(
+      path: 'api/v1/user/hospitals',
+      queryParameters: {
+        'page': page.toString(),
+        'pageSize': pageSize.toString(),
+        'sortBy': 'createdAt',
+        'sortOrder': '1',
+      },
+    );
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return HospitalListResponse.fromJson(json);
+  }
+
+  /// Adds a new hospital for the user.
+  /// POST /api/v1/user/hospital
+  Future<AddHospitalResponse> addHospital({
+    required String name,
+    required String address,
+    String? email,
+    String? phone,
+  }) async {
+    final requestUri = Uri(path: 'api/v1/user/hospital');
+    final request = Request('POST', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    request.bodyBytes = utf8.encode(jsonEncode({
+      'name': name,
+      'address': address,
+      if (email != null && email.isNotEmpty) 'email': email,
+      if (phone != null && phone.isNotEmpty) 'phone': phone,
+    }));
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      unexpectedResponse(response, responseBody);
+    }
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return AddHospitalResponse.fromJson(json);
   }
 }

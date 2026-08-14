@@ -41,6 +41,8 @@ import '../pages/checkout/checkout_controller.dart';
 import '../pages/claim_pages/claims_details_page.dart';
 import '../pages/health_check_up_page.dart';
 import '../pages/health_plans/health_plans.dart';
+import '../pages/hospital/add_hospital_page.dart';
+import '../pages/hospital/hospital_list_page.dart';
 import '../pages/otp_page/otp_page_controller.dart';
 import '../pages/plan/plans_page/plans_page_controller.dart';
 import '../pages/upload_file_claim_doc.dart';
@@ -312,10 +314,11 @@ abstract class AppRoutes {
                   pageBuilder: (context, state) {
                     bool activate = true;
                     bool isSub = false;
-                    Map<String, dynamic> data = state.extra! as Map<String, dynamic>;
+                    Map<String, dynamic> data =
+                        state.extra! as Map<String, dynamic>;
                     PlanRecords record = data['records'] as PlanRecords;
                     MembershipOptions options =
-                    data['option'] as MembershipOptions;
+                        data['option'] as MembershipOptions;
                     if (data['active'] != null) {
                       activate = data['active'] as bool;
                     }
@@ -642,6 +645,16 @@ abstract class AppRoutes {
                       ),
                     );
                   }),
+              GoRoute(
+                  path: 'hospitals',
+                  pageBuilder: (context, state) => defaultPageBuilder(
+                      context, state, const HospitalListPage()),
+                  routes: [
+                    GoRoute(
+                        path: 'add',
+                        pageBuilder: (context, state) => defaultPageBuilder(
+                            context, state, const AddHospitalPage())),
+                  ]),
             ]),
       ],
     ),

@@ -30,7 +30,7 @@ class AppBasePage extends StatelessWidget {
       backgroundColor: backgroundColor ?? AppDesign.background,
       appBar: appHeader != null
           ? PreferredSize(
-              preferredSize: const Size.fromHeight(72),
+              preferredSize: const Size.fromHeight(82),
               child: SafeArea(child: appHeader!),
             )
           : null,
