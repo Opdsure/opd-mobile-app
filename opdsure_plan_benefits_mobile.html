@@ -1,0 +1,246 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.phone-frame {
+  width: 360px;
+  margin: 0 auto;
+  background: var(--surface-0);
+  border-radius: 32px;
+  border: 1.5px solid var(--border-strong);
+  overflow: hidden;
+  min-height: 700px;
+}
+.status-bar {
+  background: #1e3a6e;
+  padding: 10px 20px 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.status-bar span { color: #fff; font-size: 12px; font-weight: 500; }
+.header {
+  background: #1e3a6e;
+  padding: 10px 18px 18px;
+  color: #fff;
+}
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.header-top .greeting { font-size: 13px; color: rgba(255,255,255,0.75); }
+.header-top .plan-label { font-size: 11px; background: rgba(255,255,255,0.15); padding: 3px 9px; border-radius: 20px; color: #fff; }
+.plan-card {
+  background: rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 0.5px solid rgba(255,255,255,0.2);
+}
+.plan-card .plan-name { font-size: 11px; color: rgba(255,255,255,0.65); margin-bottom: 2px; }
+.plan-card .plan-title { font-size: 17px; font-weight: 500; color: #fff; margin-bottom: 10px; }
+.plan-meta { display: flex; gap: 16px; }
+.plan-meta-item { display: flex; flex-direction: column; }
+.plan-meta-item .label { font-size: 10px; color: rgba(255,255,255,0.55); }
+.plan-meta-item .value { font-size: 13px; color: #fff; font-weight: 500; }
+.divider { width: 1px; background: rgba(255,255,255,0.2); }
+.section {
+  padding: 18px 16px 6px;
+}
+.section-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.service-tile {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  cursor: default;
+}
+.service-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+.service-tile span.label {
+  font-size: 10px;
+  color: var(--text-primary);
+  text-align: center;
+  line-height: 1.3;
+  font-weight: 500;
+}
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 10px;
+  padding: 6px 16px 16px;
+}
+.stat-card {
+  background: var(--surface-1);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.stat-card .s-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 3px; }
+.stat-card .s-value { font-size: 20px; font-weight: 500; color: var(--text-primary); }
+.how-section { padding: 4px 16px 20px; }
+.how-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+.how-step.active { background: #1e3a6e; }
+.how-step.inactive { background: var(--surface-2); border: 0.5px solid var(--border); }
+.how-step .step-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.how-step.active .step-icon { background: rgba(255,255,255,0.15); }
+.how-step.inactive .step-icon { background: var(--bg-accent); }
+.how-step .step-text { font-size: 13px; font-weight: 500; }
+.how-step.active .step-text { color: #fff; }
+.how-step.inactive .step-text { color: var(--text-primary); }
+</style>
+
+<h2 class="sr-only">OPDSure plan benefits mobile UI showing services grid, stats, and how it works steps</h2>
+
+<div class="phone-frame">
+  <div class="status-bar">
+    <span>12:49</span>
+    <span>▲ ◆ ▬▬</span>
+  </div>
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="greeting">Welcome, Rakesh 👋</div>
+        <div style="font-size:15px; font-weight:500; color:#fff; margin-top:1px;">Your Plan Benefits</div>
+      </div>
+      <div class="plan-label">Active</div>
+    </div>
+    <div class="plan-card">
+      <div class="plan-name">Your current plan</div>
+      <div class="plan-title">Family OPD Shield</div>
+      <div class="plan-meta">
+        <div class="plan-meta-item">
+          <span class="label">Members covered</span>
+          <span class="value">4</span>
+        </div>
+        <div class="divider"></div>
+        <div class="plan-meta-item">
+          <span class="label">OPD limit</span>
+          <span class="value">₹15,000 / yr</span>
+        </div>
+        <div class="divider"></div>
+        <div class="plan-meta-item">
+          <span class="label">Valid till</span>
+          <span class="value">Mar 2027</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Included services</div>
+    <div class="services-grid">
+      <div class="service-tile">
+        <div class="service-icon" style="background:#e8f0fe;">🏥</div>
+        <span class="label">In-clinic consultations</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#e8f7ef;">📱</div>
+        <span class="label">Online consultations</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#fef3e2;">🔬</div>
+        <span class="label">Diagnostics</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#fde8f0;">💊</div>
+        <span class="label">Pharmacy</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#e8f0fe;">🪪</div>
+        <span class="label">Health card</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#e8f7ef;">🩺</div>
+        <span class="label">Health checkups</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#fde8f0;">🚑</div>
+        <span class="label">Ambulance</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#fef3e2;">🏋️</div>
+        <span class="label">Gym &amp; fitness</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#ede8fe;">🧠</div>
+        <span class="label">Mental wellness</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#e8f0fe;">🎓</div>
+        <span class="label">Special education</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#e8f7ef;">💉</div>
+        <span class="label">Vaccination</span>
+      </div>
+      <div class="service-tile">
+        <div class="service-icon" style="background:#fde8f0;">🧘</div>
+        <span class="label">Yoga</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="s-label">Specialities</div>
+      <div class="s-value">30+</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">Specialized doctors</div>
+      <div class="s-value">10,000+</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">Years of experience</div>
+      <div class="s-value">10+</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label">Online appointments</div>
+      <div class="s-value">10,000+</div>
+    </div>
+  </div>
+
+  <div class="section" style="padding-bottom:10px;">
+    <div class="section-title">How it works</div>
+  </div>
+  <div class="how-section">
+    <div class="how-step active">
+      <div class="step-icon"><i class="ti ti-circle-plus" style="font-size:18px; color:#fff;" aria-hidden="true"></i></div>
+      <span class="step-text">Subscribe to a plan</span>
+    </div>
+    <div class="how-step inactive">
+      <div class="step-icon"><i class="ti ti-file-invoice" style="font-size:18px; color:var(--text-accent);" aria-hidden="true"></i></div>
+      <span class="step-text">Claim your OPD bills</span>
+    </div>
+    <div class="how-step inactive">
+      <div class="step-icon"><i class="ti ti-wallet" style="font-size:18px; color:var(--text-accent);" aria-hidden="true"></i></div>
+      <span class="step-text">Get reimbursed</span>
+    </div>
+  </div>
+</div>

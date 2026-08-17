@@ -1,8 +1,4 @@
-import 'dart:convert';
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/custom_ui/app_header.dart';
@@ -10,11 +6,7 @@ import 'package:opdsure/custom_ui/app_text_view.dart';
 import 'package:opdsure/model/claim_status_model.dart';
 import 'package:opdsure/model/my_claim/my_claims_model.dart';
 import 'package:opdsure/pages/claim_pages/dispute_page.dart';
-import 'package:opdsure/pages/view_image_page.dart';
-import 'package:opdsure/widget/opd_widget.dart';
 
-import '../../model/my_claim/my_claims_list_model.dart';
-import '../../model/single_claim_model.dart';
 import '../../utils/app_var.dart';
 import '../../utils/common_methods.dart';
 
@@ -22,7 +14,8 @@ class ClaimsDetailsPage extends StatelessWidget {
   final ClaimRecords oneClaim;
   final bool isDispute;
 
-  const ClaimsDetailsPage({required this.oneClaim, this.isDispute = false, super.key});
+  const ClaimsDetailsPage(
+      {required this.oneClaim, this.isDispute = false, super.key});
 
   Widget commonRow(String key, String value) {
     return Row(
@@ -46,10 +39,11 @@ class ClaimsDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double w = CommonMethods.deviceWidth(context);
-    double h = CommonMethods.deviceHeight(context);
-    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(oneClaim.status!!!, reSubmit: oneClaim.subscriberReaction!);
-    ClaimStatusModel disputeClaimStatusModel = ClaimStatusModel().getDisputeClaimBuStatus(oneClaim.disputeDetails!);
+    ClaimStatusModel claimStatusModel = ClaimStatusModel().getClaimBuStatus(
+        oneClaim.status!!!,
+        reSubmit: oneClaim.subscriberReaction!);
+    ClaimStatusModel disputeClaimStatusModel =
+        ClaimStatusModel().getDisputeClaimBuStatus(oneClaim.disputeDetails!);
     return AppBasePage(
       appHeader: AppHeader(
         headerName: 'Claim Details',
@@ -59,7 +53,8 @@ class ClaimsDetailsPage extends StatelessWidget {
           if ((oneClaim.status! == 2 ||
                   oneClaim.status! == 7 ||
                   oneClaim.status! == 12) &&
-              !oneClaim.dispute! && isDispute) ...[DisputePage(oneClaim.id)],
+              !oneClaim.dispute! &&
+              isDispute) ...[DisputePage(oneClaim.id)],
           AppCardView(
             mChaild: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,37 +160,38 @@ class ClaimsDetailsPage extends StatelessWidget {
                   ],
                 ),
                 if ((oneClaim.status! == 2 ||
-                    oneClaim.status! == 7 ||
-                    oneClaim.status! == 12) &&
-                    oneClaim.dispute!)...[Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const AppTextView(
-                      text: 'Dispute status',
-                      size: 14.0,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF344054),
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          disputeClaimStatusModel.iconData,
-                          color: disputeClaimStatusModel.statusColor,
-                          size: 15.0,
-                        ),
-                        const SizedBox(
-                          width: 5.0,
-                        ),
-                        AppTextView(
-                          text: disputeClaimStatusModel.statusName!,
-                          size: 14.0,
-                          fontWeight: FontWeight.w500,
-                          color: disputeClaimStatusModel.statusColor!,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                        oneClaim.status! == 7 ||
+                        oneClaim.status! == 12) &&
+                    oneClaim.dispute!) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const AppTextView(
+                        text: 'Dispute status',
+                        size: 14.0,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF344054),
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            disputeClaimStatusModel.iconData,
+                            color: disputeClaimStatusModel.statusColor,
+                            size: 15.0,
+                          ),
+                          const SizedBox(
+                            width: 5.0,
+                          ),
+                          AppTextView(
+                            text: disputeClaimStatusModel.statusName!,
+                            size: 14.0,
+                            fontWeight: FontWeight.w500,
+                            color: disputeClaimStatusModel.statusColor!,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ],
               ],
             ),
@@ -203,7 +199,7 @@ class ClaimsDetailsPage extends StatelessWidget {
           const SizedBox(
             height: 15.0,
           ),
-          if (oneClaim.subscriberRemark!.isNotEmpty)...[
+          if (oneClaim.subscriberRemark!.isNotEmpty) ...[
             AppCardView(
               mChaild: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,8 +219,7 @@ class ClaimsDetailsPage extends StatelessWidget {
                         itemCount: oneClaim.subscriberRemark!.length,
                         itemBuilder: (context, index) {
                           return commonRow(
-                              oneClaim.subscriberRemark![index]
-                                          .designation! ==
+                              oneClaim.subscriberRemark![index].designation! ==
                                       -1
                                   ? 'Subscriber'
                                   : 'Support',
@@ -237,233 +232,6 @@ class ClaimsDetailsPage extends StatelessWidget {
           ],
           const SizedBox(
             height: 15.0,
-          ),
-          FutureBuilder(
-            future: OpdSure.of(context).client.getSingleClaims(oneClaim.id!),
-            builder: (context, snapshot) {
-              if (snapshot.data == null) {
-                return Container();
-              } else {
-                SingleClaimModel singleClaimModel = SingleClaimModel.fromJson(jsonDecode(snapshot.data));
-                List<String> prescriptionImageList = singleClaimModel.data!.prescription!;
-                List<String> pharmacyImageList = singleClaimModel.data!.pharmacyReceipt!;
-                List<String> feeImageList = singleClaimModel.data!.feeReceipt!;
-                List<String> testImageList = singleClaimModel.data!.testReceipt!;
-                return AppCardView(
-                  mChaild: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const AppTextView(
-                        text: 'Uploaded Documents',
-                        size: 16.0,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      const AppTextView(
-                        text: 'Prescription',
-                        color: Colors.black,
-                      ),
-                      SizedBox(
-                        height: h * 0.1,
-                        child: ListView.builder(
-                          itemCount: prescriptionImageList.length,
-                          scrollDirection: Axis.horizontal,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: InkWell(
-                                    onTap: () {
-                                      context.push('/home/claim_details/view_image', extra: {
-                                        'headerName': 'Prescription',
-                                        'imageUrl' : prescriptionImageList[index]
-                                      });
-                                    },
-                                    child:
-
-                                    (prescriptionImageList[index].contains('pdf'))?Padding(
-                                      padding:  EdgeInsets.all(h*0.02),
-                                      child: Image.asset(
-                                        'assets/images/pdf_file.png',
-                                        height: 45.0,
-                                        width: 45.0,
-                                      ),
-                                    ):
-
-
-                                    Image.network(
-                                      prescriptionImageList[index].toString(),
-                                      height: h * 0.1,
-                                      width: h * 0.1,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      const AppTextView(
-                        text: 'Fees Receipt',
-                        color: Colors.black,
-                      ),
-                      SizedBox(
-                        height: h * 0.1,
-                        child: ListView.builder(
-                          itemCount: oneClaim.feeReceipt!.length,
-                          scrollDirection: Axis.horizontal,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: InkWell(
-                                    onTap: () {
-                                      context.push('/home/claim_details/view_image', extra: {
-                                        'headerName': 'Fees Receipt',
-                                        'imageUrl' : feeImageList[index]
-                                      });
-                                    },
-                                    child:
-                                    (feeImageList[index].contains('pdf'))?Padding(
-                                      padding:  EdgeInsets.all(h*0.02),
-                                      child: Image.asset(
-                                        'assets/images/pdf_file.png',
-                                        height: 45.0,
-                                        width: 45.0,
-                                      ),
-                                    ):
-
-
-                                    Image.network(
-                                      feeImageList[index],
-                                      height: h * 0.1,
-                                      width: h * 0.1,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      const AppTextView(
-                        text: 'Pharmacy Receipt',
-                        color: Colors.black,
-                      ),
-                      SizedBox(
-                        height: h * 0.1,
-                        child: ListView.builder(
-                          itemCount: oneClaim.pharmacyReceipt!.length,
-                          scrollDirection: Axis.horizontal,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: InkWell(
-                                    onTap: () {
-                                      context.push('/home/claim_details/view_image', extra: {
-                                        'headerName': 'Pharmacy Receipt',
-                                        'imageUrl' : pharmacyImageList[index]
-                                      });
-                                    },
-                                    child:
-
-
-                            (pharmacyImageList[index].contains('pdf'))?Padding(
-                              padding:  EdgeInsets.all(h*0.02),
-                              child: Image.asset(
-                                        'assets/images/pdf_file.png',
-                                        height: 45.0,
-                                        width: 45.0,
-                                      ),
-                            ):
-                                    Image.network(
-                                      pharmacyImageList[index],
-                                      height: h * 0.1,
-                                      width: h * 0.1,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      const AppTextView(
-                        text: 'Test Receipt',
-                        color: Colors.black,
-                      ),
-                      SizedBox(
-                        height: h * 0.1,
-                        child: ListView.builder(
-                          itemCount: oneClaim.testReceipt!.length,
-                          scrollDirection: Axis.horizontal,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 8.0),
-                                  child: InkWell(
-                                    onTap: () {
-                                      context.push('/home/claim_details/view_image', extra: {
-                                        'headerName': 'Test Receipt',
-                                        'imageUrl' : testImageList[index]
-                                      });
-                                    },
-                                    child:
-
-                                    (testImageList[index].contains('pdf'))?Padding(
-                                      padding:  EdgeInsets.all(h*0.02),
-                                      child: Image.asset(
-                                        'assets/images/pdf_file.png',
-                                        height: 45.0,
-                                        width: 45.0,
-                                      ),
-                                    ):
-                                    Image.network(
-                                      testImageList[index],
-                                      height: h * 0.1,
-                                      width: h * 0.1,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
           ),
           const SizedBox(height: 70.0),
         ],

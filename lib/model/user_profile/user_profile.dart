@@ -7,13 +7,14 @@ part 'user_profile.g.dart';
 @HiveType(typeId: DatabaseTypeKey.userBox)
 class UserProfile {
   UserProfile({
-      ProfileData? data, 
-      bool? success, 
-      String? message,}){
+    ProfileData? data,
+    bool? success,
+    String? message,
+  }) {
     _data = data;
     _success = success;
     _message = message;
-}
+  }
 
   UserProfile.fromJson(dynamic json) {
     _data = json['data'] != null ? ProfileData.fromJson(json['data']) : null;
@@ -27,7 +28,6 @@ class UserProfile {
   bool? _success;
   @HiveField(2)
   String? _message;
-
 
   ProfileData? get data => _data ?? ProfileData();
   bool? get success => _success ?? false;
@@ -46,24 +46,24 @@ class UserProfile {
 
 @HiveType(typeId: DatabaseTypeKey.userData)
 class ProfileData {
-  ProfileData({
-      Verified? verified, 
-      Plan? plan, 
-      String? id, 
+  ProfileData(
+      {Verified? verified,
+      Plan? plan,
+      String? id,
       String? phone,
-      String? email, 
-      dynamic state, 
-      String? city, 
-      dynamic pinCode, 
-      String? address, 
-      String? countryCode, 
-      dynamic gender, 
-      String? dob, 
-      String? organizationId, 
-      String? profileImage, 
+      String? email,
+      dynamic state,
+      String? city,
+      dynamic pinCode,
+      String? address,
+      String? countryCode,
+      dynamic gender,
+      String? dob,
+      String? organizationId,
+      String? profileImage,
       String? name,
-  dynamic walletBalance,
-  dynamic firstPlanPurchase}){
+      dynamic walletBalance,
+      dynamic firstPlanPurchase}) {
     _verified = verified;
     _plan = plan;
     _id = id;
@@ -81,19 +81,20 @@ class ProfileData {
     _name = name;
     _walletBalance = walletBalance;
     _firstPlanPurchase = firstPlanPurchase;
-}
+  }
 
   ProfileData.fromJson(dynamic json) {
-    _verified = json['verified'] != null ? Verified.fromJson(json['verified']) : null;
+    _verified =
+        json['verified'] != null ? Verified.fromJson(json['verified']) : null;
     _plan = json['plan'] != null ? Plan.fromJson(json['plan']) : null;
     _id = json['_id'];
-    if(json['phone'] != null){
-      if(json['phone'].runtimeType is String){
+    if (json['phone'] != null) {
+      if (json['phone'].runtimeType is String) {
         _phone = json['phone'];
-      }else{
+      } else {
         _phone = json['phone'].toString();
       }
-    }else{
+    } else {
       _phone = json['phone'];
     }
 
@@ -164,7 +165,6 @@ class ProfileData {
   String? get name => _name ?? "";
   dynamic get walletBalance => _walletBalance ?? 0;
   dynamic get firstPlanPurchase => _firstPlanPurchase ?? 0;
-
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -252,34 +252,39 @@ class ProfileData {
     _name = value;
   }
 
-  set walletBalance(dynamic value){
+  set walletBalance(dynamic value) {
     _walletBalance = value;
   }
 }
+
 @HiveType(typeId: DatabaseTypeKey.userPlan)
 class Plan {
-  Plan({
-      bool? purchased, 
-      String? id, 
+  Plan(
+      {bool? purchased,
+      String? id,
       dynamic membershipId,
-  String? startDate,
-  String? endDate,
-  dynamic pricePaid}){
+      String? startDate,
+      String? endDate,
+      dynamic pricePaid}) {
     _purchased = purchased;
     _id = id;
     _membershipId = membershipId;
     _pricePaid = pricePaid;
     _startDate = startDate;
     _endDate = endDate;
-
-}
+  }
 
   Plan.fromJson(dynamic json) {
     _purchased = json['purchased'];
-    _id = json['id'];
+    // Backend may return 'id' as a populated object (Map) or a plain string ID
+    if (json['id'] is Map<String, dynamic>) {
+      _id = json['id']['_id']?.toString();
+    } else {
+      _id = json['id']?.toString();
+    }
     _membershipId = json['membership_id'];
-    _endDate = json['end_date'];
-    _startDate = json['start_date'];
+    _endDate = json['end_date']?.toString();
+    _startDate = json['start_date']?.toString();
     _pricePaid = json['paid_price'];
   }
   @HiveField(0)
@@ -302,8 +307,6 @@ class Plan {
   String? get startDate => _startDate ?? '';
   String? get endDate => _endDate ?? '';
 
-
-
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['purchased'] = _purchased;
@@ -316,15 +319,15 @@ class Plan {
   }
 }
 
-
 @HiveType(typeId: DatabaseTypeKey.userVerified)
 class Verified {
   Verified({
-      bool? email, 
-      bool? phone,}){
+    bool? email,
+    bool? phone,
+  }) {
     _email = email;
     _phone = phone;
-}
+  }
 
   Verified.fromJson(dynamic json) {
     _email = json['email'];
@@ -344,5 +347,4 @@ class Verified {
     map['phone'] = _phone;
     return map;
   }
-
 }

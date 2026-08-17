@@ -34,11 +34,17 @@ class ViewPlansPageController extends State<ViewPlansPage> {
 
   void selectPlans(BuildContext context) async {
     if (plansResponse != null) {
-      context.pushReplacement(widget.type == PaymentType.buyPlan ? '/view_plans/select_plans' : '/home/view_plans/select_plans',
+      context.pushReplacement(
+          widget.type == PaymentType.buyPlan
+              ? '/view_plans/select_plans'
+              : '/home/view_plans/select_plans',
           extra: {"plans": plansResponse, "type": widget.type});
-    }else{
+    } else {
       await getAllPlans();
-      context.pushReplacement(widget.type == PaymentType.buyPlan ? '/view_plans/select_plans' : '/home/view_plans/select_plans',
+      context.pushReplacement(
+          widget.type == PaymentType.buyPlan
+              ? '/view_plans/select_plans'
+              : '/home/view_plans/select_plans',
           extra: {"plans": plansResponse, "type": widget.type});
     }
   }

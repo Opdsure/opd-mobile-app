@@ -397,7 +397,7 @@ class Api {
 
   Future<Relations?> getRelation() async {
     final requestUri = Uri(path: 'api/v1/public/get-relations');
-    baseUri ??= Uri.parse('https://dev.opdsure.net');
+    baseUri ??= Uri.https(AppConfig.defaultBaseUrl);
     final request = Request('GET', baseUri!.resolveUri(requestUri));
     request.headers['content-type'] = 'application/json';
     request.headers['Authorization'] = 'Bearer $bearerToken';

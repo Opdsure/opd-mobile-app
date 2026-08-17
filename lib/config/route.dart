@@ -45,6 +45,7 @@ import '../pages/hospital/add_hospital_page.dart';
 import '../pages/hospital/hospital_list_page.dart';
 import '../pages/otp_page/otp_page_controller.dart';
 import '../pages/plan/plans_page/plans_page_controller.dart';
+import '../pages/plan_benefits/plan_benefits_page.dart';
 import '../pages/upload_file_claim_doc.dart';
 import '../pages/view_image_page.dart';
 
@@ -68,11 +69,7 @@ abstract class AppRoutes {
       if (opd.profileData!.email!.isEmpty) {
         return '/home/name_email_number';
       }
-      if (opd.client.isPlanPurchased) {
-        return null;
-      } else {
-        return '/view_plans';
-      }
+      return null;
     } else {
       return '/login';
     }
@@ -645,6 +642,10 @@ abstract class AppRoutes {
                       ),
                     );
                   }),
+              GoRoute(
+                  path: 'plan-benefits',
+                  pageBuilder: (context, state) => defaultPageBuilder(
+                      context, state, const PlanBenefitsPage())),
               GoRoute(
                   path: 'hospitals',
                   pageBuilder: (context, state) => defaultPageBuilder(

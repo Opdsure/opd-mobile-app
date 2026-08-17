@@ -5,120 +5,170 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:intl/intl.dart';
 
+import '../model/hospital/hospital_model.dart';
 import '../model/my_member_model.dart';
 import '../model/specialization_model.dart';
 import '../model/state_model.dart';
 
-class TypeController extends GetxController{
+class TypeController extends GetxController {
   RxString countryFlag = ''.obs;
-  void countryFlagChange(String type){
+  void countryFlagChange(String type) {
     countryFlag.value = type;
   }
 
   RxString signUpBy = 'email'.obs;
-  void signUpByChange(String type){
+  void signUpByChange(String type) {
     signUpBy.value = type;
   }
 
   RxString loginBy = 'email'.obs;
-  void loginByChange(String type){
+  void loginByChange(String type) {
     loginBy.value = type;
   }
 
   RxBool signPass = false.obs;
-  void signPassChange(bool type){
+  void signPassChange(bool type) {
     signPass.value = type;
   }
 
   RxBool signRePass = false.obs;
-  void signRePassChange(bool type){
+  void signRePassChange(bool type) {
     signRePass.value = type;
   }
 
   RxInt previewCount = 0.obs;
-  void previewCountChange(int type){
+  void previewCountChange(int type) {
     previewCount.value = type;
   }
 
   RxString familyMemDOB = ''.obs;
-  void familyMemDOBChange(String type){
+  void familyMemDOBChange(String type) {
     familyMemDOB.value = type;
   }
 
   RxString myDOB = ''.obs;
-  void myDOBChange(String type){
+  void myDOBChange(String type) {
     myDOB.value = type;
   }
 
   RxString opdVisitDate = ''.obs;
-  void opdVisitDateChange(String type){
+  void opdVisitDateChange(String type) {
     opdVisitDate.value = type;
   }
 
   RxString selectState = ''.obs;
-  void selectStateChange(String type){
+  void selectStateChange(String type) {
     selectState.value = type;
   }
 
   RxString selectGender = ''.obs;
-  void selectGenderChange(String type){
+  void selectGenderChange(String type) {
     selectGender.value = type;
   }
 
   RxString selectRelation = ''.obs;
-  void selectRelationChange(String type){
+  void selectRelationChange(String type) {
     selectRelation.value = type;
   }
 
   RxInt selectRelationKey = 100.obs;
-  void selectRelationKeyChange(int type){
+  void selectRelationKeyChange(int type) {
     selectRelationKey.value = type;
   }
 
   RxString selectClaim = ''.obs;
-  void selectClaimChange(String type){
+  void selectClaimChange(String type) {
     selectClaim.value = type;
   }
 
   RxList prescriptionList = <File>[].obs;
-  void prescriptionListChange(File type){
+  void prescriptionListChange(File type) {
     prescriptionList.add(type);
   }
+
   void removePrescription(File prescription) {
     prescriptionList.remove(prescription);
   }
 
   RxList docFeeRcpt = <File>[].obs;
-  void docFeeRcptChange(File type){
+  void docFeeRcptChange(File type) {
     docFeeRcpt.add(type);
   }
+
   void removeDocFeeRcpt(File file) {
     docFeeRcpt.remove(file);
   }
 
   RxList pharmacyRcpt = <File>[].obs;
-  void pharmacyRcptChange(File type){
+  void pharmacyRcptChange(File type) {
     pharmacyRcpt.add(type);
   }
+
   void removePharmacyRcpt(File file) {
     pharmacyRcpt.remove(file);
   }
 
   RxList labTestRcpt = <File>[].obs;
-  void labTestRcptChange(File type){
+  void labTestRcptChange(File type) {
     labTestRcpt.add(type);
   }
+
   void removeLabTestRcpt(File file) {
     labTestRcpt.remove(file);
   }
 
+  RxList testReportRcpt = <File>[].obs;
+  void testReportRcptChange(File type) {
+    testReportRcpt.add(type);
+  }
+
+  void removeTestReportRcpt(File file) {
+    testReportRcpt.remove(file);
+  }
+
+  RxList visionRcpt = <File>[].obs;
+  void visionRcptChange(File type) {
+    visionRcpt.add(type);
+  }
+
+  void removeVisionRcpt(File file) {
+    visionRcpt.remove(file);
+  }
+
+  RxList dentalRcpt = <File>[].obs;
+  void dentalRcptChange(File type) {
+    dentalRcpt.add(type);
+  }
+
+  void removeDentalRcpt(File file) {
+    dentalRcpt.remove(file);
+  }
+
+  RxList vaccinationRcpt = <File>[].obs;
+  void vaccinationRcptChange(File type) {
+    vaccinationRcpt.add(type);
+  }
+
+  void removeVaccinationRcpt(File file) {
+    vaccinationRcpt.remove(file);
+  }
+
+  RxList physioRcpt = <File>[].obs;
+  void physioRcptChange(File type) {
+    physioRcpt.add(type);
+  }
+
+  void removePhysioRcpt(File file) {
+    physioRcpt.remove(file);
+  }
+
   RxString countryCode = '+91'.obs;
-  void countryCodeChange(String type){
+  void countryCodeChange(String type) {
     countryCode.value = type;
   }
 
   RxString flagCode = ''.obs;
-  void flagCodeChange(String type){
+  void flagCodeChange(String type) {
     flagCode.value = type;
   }
 
@@ -138,28 +188,32 @@ class TypeController extends GetxController{
   }
 
   RxDouble totalBill = 0.0.obs;
-  void totalBillChange(double type){
+  void totalBillChange(double type) {
     totalBill.value = type;
   }
 
   RxBool refreshClaimList = true.obs;
-  void refreshClaimListChange(bool type){
+  void refreshClaimListChange(bool type) {
     refreshClaimList.value = type;
   }
 
   RxBool refreshProfile = true.obs;
-  void refreshProfileChange(bool type){
+  void refreshProfileChange(bool type) {
     refreshProfile.value = type;
   }
 
   RxBool refreshMemberList = true.obs;
-  void refreshMemberListChange(bool type){
+  void refreshMemberListChange(bool type) {
     refreshMemberList.value = type;
   }
 
   RxInt pageIndex = 0.obs;
-  void pageIndexChange(int type){
+  void pageIndexChange(int type) {
     pageIndex.value = type;
   }
 
+  var selectedHospital = Rxn<HospitalRecord>();
+  void selectedHospitalChange(HospitalRecord? hospital) {
+    selectedHospital.value = hospital;
+  }
 }

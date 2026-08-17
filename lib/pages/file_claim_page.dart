@@ -26,6 +26,7 @@ import '../config/app_config.dart';
 import '../custom_ui/app_bottom_sheet.dart';
 import '../custom_ui/app_edit_text.dart';
 import '../custom_ui/app_mobile_field.dart';
+import '../model/hospital/hospital_model.dart';
 import '../model/my_claim/my_claims_model.dart';
 import '../model/plans/plans_response.dart';
 import '../model/specialization_model.dart';
@@ -45,9 +46,6 @@ class _FileClaimPageState extends State<FileClaimPage> {
   TextEditingController phoneCtrl = TextEditingController();
   TextEditingController docNameCtrl = TextEditingController();
   TextEditingController regNumCtrl = TextEditingController();
-  TextEditingController specialCtrl = TextEditingController();
-  TextEditingController hsptlNameCtrl = TextEditingController();
-  TextEditingController cityCtrl = TextEditingController();
   TextEditingController emailCtrl = TextEditingController();
   TextEditingController diagnosisCtrl = TextEditingController();
   TextEditingController remarkCtrl = TextEditingController();
@@ -57,15 +55,42 @@ class _FileClaimPageState extends State<FileClaimPage> {
   TextEditingController billAmntPhrClCtrl = TextEditingController();
   TextEditingController billAmntDiaCtrl = TextEditingController();
   TextEditingController billAmntDiaClCtrl = TextEditingController();
-  TextEditingController pinCodeCtrl = TextEditingController();
-  TextEditingController addressCtrl = TextEditingController();
+  TextEditingController billAmntVisionCtrl = TextEditingController();
+  TextEditingController billAmntVisionClCtrl = TextEditingController();
+  TextEditingController billAmntDentalCtrl = TextEditingController();
+  TextEditingController billAmntDentalClCtrl = TextEditingController();
+  TextEditingController billAmntVaccinationCtrl = TextEditingController();
+  TextEditingController billAmntVaccinationClCtrl = TextEditingController();
+  TextEditingController billAmntPhysioCtrl = TextEditingController();
+  TextEditingController billAmntPhysioClCtrl = TextEditingController();
 
-  double _value1 = 0.0;
-  double _value2 = 0.0;
-  double _value3 = 0.0;
-  double _value11 = 0.0;
-  double _value12 = 0.0;
-  double _value13 = 0.0;
+  // Bill amounts
+  double _value1 = 0.0; // doctor
+  double _value2 = 0.0; // pharmacy
+  double _value3 = 0.0; // diagnostics
+  double _value4 = 0.0; // vision
+  double _value5 = 0.0; // dental
+  double _value6 = 0.0; // vaccination
+  double _value7 = 0.0; // physiotherapy
+
+  // Claimable amounts
+  double _value11 = 0.0; // doctor
+  double _value12 = 0.0; // pharmacy
+  double _value13 = 0.0; // diagnostics
+  double _value14 = 0.0; // vision
+  double _value15 = 0.0; // dental
+  double _value16 = 0.0; // vaccination
+  double _value17 = 0.0; // physiotherapy
+
+  // Applied rule labels per category
+  String? _docFeeRuleLabel;
+  String? _pharmacyRuleLabel;
+  String? _diagnosticsRuleLabel;
+  String? _visionRuleLabel;
+  String? _dentalRuleLabel;
+  String? _vaccinationRuleLabel;
+  String? _physioRuleLabel;
+
   String totalBillAmnt = '';
   String totalClaimableAmnt = '';
   String claimId = '';
@@ -77,56 +102,136 @@ class _FileClaimPageState extends State<FileClaimPage> {
 
   void _calculateSum() {
     setState(() {
-      totalClaimableAmnt =
-          double.parse((_value11 + _value12 + _value13).toString())
-              .toStringAsFixed(0);
-      totalBillAmnt = double.parse((_value1 + _value2 + _value3).toString())
-          .toStringAsFixed(0);
+      totalClaimableAmnt = (_value11 +
+              _value12 +
+              _value13 +
+              _value14 +
+              _value15 +
+              _value16 +
+              _value17)
+          .toStringAsFixed(2);
+      totalBillAmnt =
+          (_value1 + _value2 + _value3 + _value4 + _value5 + _value6 + _value7)
+              .toStringAsFixed(2);
     });
   }
 
   void docFee({String? value = '0'}) async {
+    if (value == null || value.isEmpty) value = '0';
     var data = await OpdSure.of(context)
         .client
-        .calculateClaimPrice('0', double.parse(value!));
+        .calculateClaimPrice('0', double.parse(value));
     CalculateClaimModel calculateClaimModel =
         CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
       _value11 =
           double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
       _value1 = double.tryParse(value.toString()) ?? 0.0;
-      docFeeClCtrl.text = _value11.toStringAsFixed(0);
+      docFeeClCtrl.text = _value11.toStringAsFixed(2);
+      _docFeeRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
       _calculateSum();
     });
   }
 
   void pharmaBill({String? value = '0'}) async {
+    if (value == null || value.isEmpty) value = '0';
     String calculator = claimCombination == '1' ? '1' : '3';
     var data = await OpdSure.of(context)
         .client
-        .calculateClaimPrice(calculator, double.parse(value!));
+        .calculateClaimPrice(calculator, double.parse(value));
     CalculateClaimModel calculateClaimModel =
         CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
       _value12 =
           double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
       _value2 = double.tryParse(value.toString()) ?? 0.0;
-      billAmntPhrClCtrl.text = _value12.toStringAsFixed(0);
+      billAmntPhrClCtrl.text = _value12.toStringAsFixed(2);
+      _pharmacyRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
       _calculateSum();
     });
   }
 
   void labBill({String? value = '0'}) async {
+    if (value == null || value.isEmpty) value = '0';
     var data = await OpdSure.of(context)
         .client
-        .calculateClaimPrice('2', double.parse(value!));
+        .calculateClaimPrice('2', double.parse(value));
     CalculateClaimModel calculateClaimModel =
         CalculateClaimModel.fromJson(jsonDecode(data));
     setState(() {
       _value13 =
           double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
       _value3 = double.tryParse(value.toString()) ?? 0.0;
-      billAmntDiaClCtrl.text = _value13.toStringAsFixed(0);
+      billAmntDiaClCtrl.text = _value13.toStringAsFixed(2);
+      _diagnosticsRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+      _calculateSum();
+    });
+  }
+
+  void visionBill({String? value = '0'}) async {
+    if (value == null || value.isEmpty) value = '0';
+    var data = await OpdSure.of(context)
+        .client
+        .calculateClaimPrice('4', double.parse(value));
+    CalculateClaimModel calculateClaimModel =
+        CalculateClaimModel.fromJson(jsonDecode(data));
+    setState(() {
+      _value14 =
+          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+      _value4 = double.tryParse(value.toString()) ?? 0.0;
+      billAmntVisionClCtrl.text = _value14.toStringAsFixed(2);
+      _visionRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+      _calculateSum();
+    });
+  }
+
+  void dentalBill({String? value = '0'}) async {
+    if (value == null || value.isEmpty) value = '0';
+    var data = await OpdSure.of(context)
+        .client
+        .calculateClaimPrice('5', double.parse(value));
+    CalculateClaimModel calculateClaimModel =
+        CalculateClaimModel.fromJson(jsonDecode(data));
+    setState(() {
+      _value15 =
+          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+      _value5 = double.tryParse(value.toString()) ?? 0.0;
+      billAmntDentalClCtrl.text = _value15.toStringAsFixed(2);
+      _dentalRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+      _calculateSum();
+    });
+  }
+
+  void vaccinationBill({String? value = '0'}) async {
+    if (value == null || value.isEmpty) value = '0';
+    var data = await OpdSure.of(context)
+        .client
+        .calculateClaimPrice('6', double.parse(value));
+    CalculateClaimModel calculateClaimModel =
+        CalculateClaimModel.fromJson(jsonDecode(data));
+    setState(() {
+      _value16 =
+          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+      _value6 = double.tryParse(value.toString()) ?? 0.0;
+      billAmntVaccinationClCtrl.text = _value16.toStringAsFixed(2);
+      _vaccinationRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+      _calculateSum();
+    });
+  }
+
+  void physioBill({String? value = '0'}) async {
+    if (value == null || value.isEmpty) value = '0';
+    var data = await OpdSure.of(context)
+        .client
+        .calculateClaimPrice('7', double.parse(value));
+    CalculateClaimModel calculateClaimModel =
+        CalculateClaimModel.fromJson(jsonDecode(data));
+    setState(() {
+      _value17 =
+          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+      _value7 = double.tryParse(value.toString()) ?? 0.0;
+      billAmntPhysioClCtrl.text = _value17.toStringAsFixed(2);
+      _physioRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
       _calculateSum();
     });
   }
@@ -152,15 +257,11 @@ class _FileClaimPageState extends State<FileClaimPage> {
       phoneCtrl.text = '${cRecords!.docPhone!}';
       docNameCtrl.text = cRecords!.docName!;
       regNumCtrl.text = cRecords!.docRegistration!;
-      hsptlNameCtrl.text = cRecords!.hospital!;
-      addressCtrl.text = cRecords!.docAddress!;
-      cityCtrl.text = cRecords!.city!;
       emailCtrl.text = cRecords!.docEmail!;
       diagnosisCtrl.text = cRecords!.diagonosisDetail!;
       remarkCtrl.text = cRecords!.userRemark!;
       docFeeCtrl.text = '${cRecords!.doctorFee!}';
       docFeeClCtrl.text = '${cRecords!.claimableDoctorFee!}';
-      pinCodeCtrl.text = cRecords!.pincode.toString();
       OpdSure.of(context).client.getSingleClaims(cRecords!.id!).then((value) {
         singleClaimModel = SingleClaimModel.fromJson(jsonDecode(value));
       });
@@ -338,37 +439,10 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 _buildSpecializationSelector(typeController),
                 const SizedBox(height: AppDesign.spacingXl),
 
-                // Hospital Name
-                _buildLabel('Hospital/Clinic Name', isRequired: true),
+                // Approved Hospital
+                _buildLabel('Approved Hospital', isRequired: true),
                 const SizedBox(height: AppDesign.spacingSm),
-                AppEditText(
-                    hint: 'Enter hospital Name',
-                    textEditingController: hsptlNameCtrl,
-                    textInputType: TextInputType.name),
-                const SizedBox(height: AppDesign.spacingXl),
-
-                // City
-                _buildLabel('City', isRequired: true),
-                const SizedBox(height: AppDesign.spacingSm),
-                AppEditText(
-                    hint: 'Enter the city', textEditingController: cityCtrl),
-                const SizedBox(height: AppDesign.spacingXl),
-
-                // Pin Code
-                _buildLabel('Pin Code', isRequired: true),
-                const SizedBox(height: AppDesign.spacingSm),
-                AppEditText(
-                    hint: 'Enter Pin Code',
-                    textEditingController: pinCodeCtrl,
-                    textInputType: TextInputType.number,
-                    maxLength: 6),
-                const SizedBox(height: AppDesign.spacingXl),
-
-                // Address
-                _buildLabel('Address', isRequired: true),
-                const SizedBox(height: AppDesign.spacingSm),
-                AppEditText(
-                    hint: 'Enter Address', textEditingController: addressCtrl),
+                _buildApprovedHospitalSelector(typeController),
                 const SizedBox(height: AppDesign.spacingXl),
 
                 // Email
@@ -381,7 +455,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 const SizedBox(height: AppDesign.spacingXl),
 
                 // Doctor Phone
-                _buildLabel('Doctor/Clinic/Hospital Number', isRequired: true),
+                _buildLabel('Mobile', isRequired: true),
                 const SizedBox(height: AppDesign.spacingSm),
                 _buildPhoneField(typeController),
                 const SizedBox(height: AppDesign.spacingXl),
@@ -390,7 +464,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 _buildLabel('Reason for Doctor Consultation', isRequired: true),
                 const SizedBox(height: AppDesign.spacingSm),
                 AppEditText(
-                    hint: 'Enter Reason',
+                    hint: 'Enter Diagnosis Details',
                     textEditingController: diagnosisCtrl,
                     textInputType: TextInputType.name),
                 const SizedBox(height: AppDesign.spacingXl),
@@ -399,7 +473,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                 _buildLabel('Additional Information (if any)'),
                 const SizedBox(height: AppDesign.spacingSm),
                 AppEditText(
-                    hint: 'Enter Additional Information',
+                    hint: 'Add Remarks',
                     textEditingController: remarkCtrl,
                     textInputType: TextInputType.name),
               ],
@@ -419,86 +493,174 @@ class _FileClaimPageState extends State<FileClaimPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Section title
+                Text('Fee Details',
+                    style: AppDesign.titleLg
+                        .copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 4),
+                Text('Enter your bill amounts to see claimable coverage',
+                    style: AppDesign.bodySm
+                        .copyWith(color: AppDesign.textSecondary)),
+                const SizedBox(height: AppDesign.spacingXl),
+
+                // Column headers
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Fee Details', style: AppDesign.headingSm),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppDesign.spacingSm,
-                          vertical: AppDesign.spacingXs),
-                      decoration: BoxDecoration(
-                        color: AppDesign.accentLight,
-                        borderRadius:
-                            BorderRadius.circular(AppDesign.radiusFull),
-                      ),
-                      child: Text('Claimable',
+                    Expanded(
+                      child: Text('Actual Bill Amounts',
                           style: AppDesign.caption.copyWith(
-                              color: AppDesign.accent,
-                              fontWeight: FontWeight.w600)),
+                              fontWeight: FontWeight.w600,
+                              color: AppDesign.textSecondary,
+                              letterSpacing: 0.3)),
+                    ),
+                    const SizedBox(width: AppDesign.spacingMd),
+                    Expanded(
+                      child: Text('Claimable Amounts',
+                          style: AppDesign.caption.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: AppDesign.textSecondary,
+                              letterSpacing: 0.3)),
                     ),
                   ],
                 ),
-                const SizedBox(height: AppDesign.spacingXl),
+                const SizedBox(height: AppDesign.spacingLg),
 
                 // Doctor Fees
-                _buildFeeRow('Doctor Fees', docFeeCtrl, docFeeClCtrl,
-                    (v) => docFee(value: v)),
-                const SizedBox(height: AppDesign.spacingMd),
+                _buildFeeRowWithRule("Doctor's Fees", docFeeCtrl, docFeeClCtrl,
+                    (v) => docFee(value: v), _docFeeRuleLabel),
+                const SizedBox(height: AppDesign.spacingLg),
 
                 // Pharmacy
-                _buildFeeRow(
-                  claimCombination == '2'
-                      ? 'Pharma + Diagnostics'
-                      : 'Bill Amt. for Pharmacy',
+                _buildFeeRowWithRule(
+                  'Bill Amt. For Pharmacy',
                   billAmntPhrCtrl,
                   billAmntPhrClCtrl,
                   (v) => pharmaBill(value: v),
+                  _pharmacyRuleLabel,
                 ),
-
-                if (claimCombination != '2') ...[
-                  const SizedBox(height: AppDesign.spacingMd),
-                  _buildFeeRow('Bill Amt. for Diagnostics', billAmntDiaCtrl,
-                      billAmntDiaClCtrl, (v) => labBill(value: v)),
-                ],
-
                 const SizedBox(height: AppDesign.spacingLg),
-                Divider(height: 1, color: AppDesign.divider.withOpacity(0.5)),
+
+                // Diagnostics
+                _buildFeeRowWithRule(
+                    'Bill Amt. For Diagnostics',
+                    billAmntDiaCtrl,
+                    billAmntDiaClCtrl,
+                    (v) => labBill(value: v),
+                    _diagnosticsRuleLabel),
+                const SizedBox(height: AppDesign.spacingLg),
+
+                // Vision
+                _buildFeeRowWithRule(
+                    'Bill Amt. For Vision',
+                    billAmntVisionCtrl,
+                    billAmntVisionClCtrl,
+                    (v) => visionBill(value: v),
+                    _visionRuleLabel),
+                const SizedBox(height: AppDesign.spacingLg),
+
+                // Dental
+                _buildFeeRowWithRule(
+                    'Bill Amt. For Dental',
+                    billAmntDentalCtrl,
+                    billAmntDentalClCtrl,
+                    (v) => dentalBill(value: v),
+                    _dentalRuleLabel),
+                const SizedBox(height: AppDesign.spacingLg),
+
+                // Vaccination
+                _buildFeeRowWithRule(
+                    'Bill Amt. For Vaccination',
+                    billAmntVaccinationCtrl,
+                    billAmntVaccinationClCtrl,
+                    (v) => vaccinationBill(value: v),
+                    _vaccinationRuleLabel),
+                const SizedBox(height: AppDesign.spacingLg),
+
+                // Physiotherapy
+                _buildFeeRowWithRule(
+                    'Bill Amt. For Physiotherapy',
+                    billAmntPhysioCtrl,
+                    billAmntPhysioClCtrl,
+                    (v) => physioBill(value: v),
+                    _physioRuleLabel),
+
+                const SizedBox(height: AppDesign.spacingXl),
+                // Grand Total separator
+                Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppDesign.divider.withOpacity(0),
+                        AppDesign.divider,
+                        AppDesign.divider.withOpacity(0),
+                      ],
+                    ),
+                  ),
+                ),
                 const SizedBox(height: AppDesign.spacingLg),
 
                 // Grand Total
+                Text('Grand Total',
+                    style: AppDesign.titleMd
+                        .copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: AppDesign.spacingSm),
                 Row(
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Total Bill', style: AppDesign.labelSm),
-                          const SizedBox(height: AppDesign.spacingXs),
-                          Text(
-                            totalBillAmnt.isEmpty
-                                ? '$rupeeSymbol 0'
-                                : '$rupeeSymbol $totalBillAmnt',
-                            style: AppDesign.titleLg,
-                          ),
-                        ],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8F9FA),
+                          borderRadius:
+                              BorderRadius.circular(AppDesign.radiusMd),
+                          border: Border.all(
+                              color: AppDesign.divider.withOpacity(0.7),
+                              width: 1),
+                        ),
+                        child: Text(
+                          totalBillAmnt.isEmpty ? '0.00' : totalBillAmnt,
+                          style: AppDesign.titleMd
+                              .copyWith(fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ),
+                    const SizedBox(width: AppDesign.spacingMd),
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text('Claimable', style: AppDesign.labelSm),
-                          const SizedBox(height: AppDesign.spacingXs),
-                          Text(
-                            totalClaimableAmnt.isEmpty
-                                ? '$rupeeSymbol 0'
-                                : '$rupeeSymbol $totalClaimableAmnt',
-                            style: AppDesign.titleLg
-                                .copyWith(color: AppDesign.success),
-                          ),
-                        ],
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8F9FA),
+                          borderRadius:
+                              BorderRadius.circular(AppDesign.radiusMd),
+                          border: Border.all(
+                              color: AppDesign.divider.withOpacity(0.7),
+                              width: 1),
+                        ),
+                        child: Text(
+                          totalClaimableAmnt.isEmpty
+                              ? '0.00'
+                              : totalClaimableAmnt,
+                          style: AppDesign.titleMd
+                              .copyWith(fontWeight: FontWeight.w600),
+                        ),
                       ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: AppDesign.spacingMd),
+                // Note about mandatory fields
+                Row(
+                  children: [
+                    Icon(Icons.info_outline_rounded,
+                        size: 14, color: Colors.red.shade400),
+                    const SizedBox(width: 6),
+                    Text(
+                      'All * marked fields are mandatory',
+                      style: AppDesign.caption.copyWith(color: Colors.red),
                     ),
                   ],
                 ),
@@ -741,6 +903,205 @@ class _FileClaimPageState extends State<FileClaimPage> {
     );
   }
 
+  Widget _buildApprovedHospitalSelector(TypeController typeController) {
+    return FutureBuilder<HospitalListResponse>(
+      future: OpdSure.of(context).client.getHospitals(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildDropdownField(
+            child: Text('Loading hospitals...',
+                style:
+                    AppDesign.bodyMd.copyWith(color: AppDesign.textTertiary)),
+          );
+        }
+
+        List<HospitalRecord> approvedHospitals = [];
+        if (snapshot.data != null &&
+            snapshot.data!.success &&
+            snapshot.data!.data != null) {
+          approvedHospitals =
+              snapshot.data!.data!.records.where((h) => h.isApproved).toList();
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GestureDetector(
+              onTap: () {
+                if (approvedHospitals.isEmpty) return;
+                _showHospitalSearchSheet(approvedHospitals, typeController);
+              },
+              child: _buildDropdownField(
+                child: Obx(() {
+                  final selected = typeController.selectedHospital.value;
+                  return Text(
+                    selected != null
+                        ? selected.name
+                        : 'Select approved hospital',
+                    style: AppDesign.bodyMd.copyWith(
+                      color: selected != null
+                          ? AppDesign.textPrimary
+                          : AppDesign.textTertiary,
+                    ),
+                  );
+                }),
+              ),
+            ),
+            if (approvedHospitals.isEmpty) ...[
+              const SizedBox(height: AppDesign.spacingSm),
+              GestureDetector(
+                onTap: () => context.push('/home/hospitals/add'),
+                child: RichText(
+                  text: TextSpan(
+                    style: AppDesign.bodySm
+                        .copyWith(color: AppDesign.textTertiary),
+                    children: [
+                      const TextSpan(text: 'No approved hospitals yet. '),
+                      TextSpan(
+                        text: 'Add a hospital',
+                        style: AppDesign.bodySm.copyWith(
+                          color: AppDesign.primary,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                      const TextSpan(text: ' and wait for admin approval.'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
+    );
+  }
+
+  void _showHospitalSearchSheet(
+      List<HospitalRecord> hospitals, TypeController typeController) {
+    final searchCtrl = TextEditingController();
+    List<HospitalRecord> filtered = List.from(hospitals);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              decoration: const BoxDecoration(
+                color: AppDesign.card,
+                borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(AppDesign.radiusXl)),
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: AppDesign.spacingMd),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppDesign.divider,
+                      borderRadius: BorderRadius.circular(AppDesign.radiusFull),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(AppDesign.spacingLg),
+                    child: TextField(
+                      controller: searchCtrl,
+                      decoration: InputDecoration(
+                        hintText: 'Search hospital...',
+                        hintStyle: AppDesign.bodyMd
+                            .copyWith(color: AppDesign.textTertiary),
+                        prefixIcon: const Icon(Icons.search,
+                            color: AppDesign.textTertiary, size: 20),
+                        filled: true,
+                        fillColor: AppDesign.inputFill,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: AppDesign.spacingLg,
+                            vertical: AppDesign.spacingMd),
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppDesign.radiusMd),
+                          borderSide:
+                              const BorderSide(color: AppDesign.inputBorder),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppDesign.radiusMd),
+                          borderSide:
+                              const BorderSide(color: AppDesign.inputBorder),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppDesign.radiusMd),
+                          borderSide:
+                              const BorderSide(color: AppDesign.primary),
+                        ),
+                      ),
+                      onChanged: (query) {
+                        setSheetState(() {
+                          filtered = hospitals
+                              .where((h) => h.name
+                                  .toLowerCase()
+                                  .contains(query.toLowerCase()))
+                              .toList();
+                        });
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: filtered.isEmpty
+                        ? Center(
+                            child: Text(
+                              'No approved hospitals',
+                              style: AppDesign.bodyMd
+                                  .copyWith(color: AppDesign.textTertiary),
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: AppDesign.spacingLg),
+                            itemCount: filtered.length,
+                            itemBuilder: (context, index) {
+                              final hospital = filtered[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  typeController
+                                      .selectedHospitalChange(hospital);
+                                  Navigator.pop(context);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: AppDesign.spacingMd),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                          color: AppDesign.divider
+                                              .withOpacity(0.5)),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    hospital.name,
+                                    style: AppDesign.bodyMd.copyWith(
+                                        color: AppDesign.textPrimary,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildPhoneField(TypeController typeController) {
     return Obx(() {
       String countryCode = typeController.countryCode.value;
@@ -759,30 +1120,63 @@ class _FileClaimPageState extends State<FileClaimPage> {
 
   Widget _buildFeeRow(String label, TextEditingController amountCtrl,
       TextEditingController claimableCtrl, ValueChanged<String> onChanged) {
+    return _buildFeeRowWithRule(
+        label, amountCtrl, claimableCtrl, onChanged, null);
+  }
+
+  Widget _buildFeeRowWithRule(
+      String label,
+      TextEditingController amountCtrl,
+      TextEditingController claimableCtrl,
+      ValueChanged<String> onChanged,
+      String? appliedRuleLabel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppDesign.labelSm),
-        const SizedBox(height: AppDesign.spacingSm),
+        Text(label,
+            style: AppDesign.bodyMd.copyWith(
+                fontWeight: FontWeight.w600, color: AppDesign.textPrimary)),
+        const SizedBox(height: 8),
         Row(
           children: [
             Expanded(
               child: AppEditText(
-                  hint: 'Amount',
+                  hint: '0.00',
                   textEditingController: amountCtrl,
                   textInputType: TextInputType.number,
                   mOnChanged: onChanged),
             ),
-            const SizedBox(width: AppDesign.spacingMd),
+            const SizedBox(width: 12),
             Expanded(
               child: AppEditText(
-                  hint: '-',
+                  hint: '0.00',
                   textEditingController: claimableCtrl,
                   textInputType: TextInputType.number,
                   disableText: true),
             ),
           ],
         ),
+        if (appliedRuleLabel != null && appliedRuleLabel.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFF8E1),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFFFE082), width: 0.5),
+            ),
+            child: Text(
+              appliedRuleLabel,
+              style: const TextStyle(
+                fontSize: 11,
+                color: Color(0xFF8D6E00),
+                fontWeight: FontWeight.w500,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -808,24 +1202,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
       CommonMethods.showToast('Doctor Regs No Should Be 4 Digit');
       return;
     }
-    if (hsptlNameCtrl.text.isEmpty) {
-      CommonMethods.showToast('Enter Hospital Name');
-      return;
-    }
-    if (cityCtrl.text.isEmpty) {
-      CommonMethods.showToast('Enter City');
-      return;
-    }
-    if (pinCodeCtrl.text.isEmpty) {
-      CommonMethods.showToast('Enter Pincode');
-      return;
-    }
-    if (pinCodeCtrl.text.length < 6) {
-      CommonMethods.showToast('Pincode Should Be 6 Digit');
-      return;
-    }
-    if (addressCtrl.text.isEmpty) {
-      CommonMethods.showToast('Enter Address');
+    if (typeController.selectedHospital.value == null) {
+      CommonMethods.showToast('Select Approved Hospital');
       return;
     }
     if (phoneCtrl.text.isEmpty) {
@@ -845,6 +1223,18 @@ class _FileClaimPageState extends State<FileClaimPage> {
     if (billAmntDiaCtrl.text.isEmpty) {
       billAmntDiaCtrl.text = '0';
     }
+    if (billAmntVisionCtrl.text.isEmpty) {
+      billAmntVisionCtrl.text = '0';
+    }
+    if (billAmntDentalCtrl.text.isEmpty) {
+      billAmntDentalCtrl.text = '0';
+    }
+    if (billAmntVaccinationCtrl.text.isEmpty) {
+      billAmntVaccinationCtrl.text = '0';
+    }
+    if (billAmntPhysioCtrl.text.isEmpty) {
+      billAmntPhysioCtrl.text = '0';
+    }
     if (docFeeClCtrl.text.isEmpty) {
       docFeeClCtrl.text = '0';
     }
@@ -853,6 +1243,18 @@ class _FileClaimPageState extends State<FileClaimPage> {
     }
     if (billAmntDiaClCtrl.text.isEmpty) {
       billAmntDiaClCtrl.text = '0';
+    }
+    if (billAmntVisionClCtrl.text.isEmpty) {
+      billAmntVisionClCtrl.text = '0';
+    }
+    if (billAmntDentalClCtrl.text.isEmpty) {
+      billAmntDentalClCtrl.text = '0';
+    }
+    if (billAmntVaccinationClCtrl.text.isEmpty) {
+      billAmntVaccinationClCtrl.text = '0';
+    }
+    if (billAmntPhysioClCtrl.text.isEmpty) {
+      billAmntPhysioClCtrl.text = '0';
     }
 
     ClaimJsonModel claimJsonModel = ClaimJsonModel(
@@ -864,43 +1266,68 @@ class _FileClaimPageState extends State<FileClaimPage> {
       userRemark: remarkCtrl.text.isEmpty ? null : remarkCtrl.text,
       id: widget.isUpdate! ? singleClaimModel!.data!.id : null,
       docEmail: emailCtrl.text.isEmpty ? null : emailCtrl.text,
-      pharmacyFee: claimCombination == '1' ? billAmntPhrCtrl.text : null,
-      labTestFee: claimCombination == '1' ? billAmntDiaCtrl.text : null,
-      claimableDoctorFee: int.tryParse(docFeeClCtrl.text),
+      pharmacyFee: billAmntPhrCtrl.text,
+      labTestFee: billAmntDiaCtrl.text,
+      visionFee: billAmntVisionCtrl.text,
+      dentalFee: billAmntDentalCtrl.text,
+      vaccinationFee: billAmntVaccinationCtrl.text,
+      physioFee: billAmntPhysioCtrl.text,
+      claimableDoctorFee: double.tryParse(docFeeClCtrl.text)?.toInt() ?? 0,
       claimablePharmacyFee:
-          claimCombination == '1' ? int.tryParse(billAmntPhrClCtrl.text) : null,
+          double.tryParse(billAmntPhrClCtrl.text)?.toInt() ?? 0,
       claimableLabTestFee:
-          claimCombination == '1' ? int.tryParse(billAmntDiaClCtrl.text) : null,
-      approvedClaimableAmount: int.tryParse(totalClaimableAmnt),
-      approvedClaimableDoctorFee: int.tryParse(docFeeClCtrl.text),
+          double.tryParse(billAmntDiaClCtrl.text)?.toInt() ?? 0,
+      claimableVisionFee:
+          double.tryParse(billAmntVisionClCtrl.text)?.toInt() ?? 0,
+      claimableDentalFee:
+          double.tryParse(billAmntDentalClCtrl.text)?.toInt() ?? 0,
+      claimableVaccinationFee:
+          double.tryParse(billAmntVaccinationClCtrl.text)?.toInt() ?? 0,
+      claimablePhysioFee:
+          double.tryParse(billAmntPhysioClCtrl.text)?.toInt() ?? 0,
+      approvedClaimableAmount:
+          double.tryParse(totalClaimableAmnt)?.toInt() ?? 0,
+      approvedClaimableDoctorFee:
+          double.tryParse(docFeeClCtrl.text)?.toInt() ?? 0,
       approvedClaimablePharmacyFee:
-          claimCombination == '1' ? int.tryParse(billAmntPhrClCtrl.text) : null,
+          double.tryParse(billAmntPhrClCtrl.text)?.toInt() ?? 0,
       approvedClaimableLabTestFee:
-          claimCombination == '1' ? int.tryParse(billAmntDiaClCtrl.text) : null,
-      approvedClaimableCombinedPharmacyTestFees:
-          claimCombination == '1' ? int.tryParse(billAmntDiaClCtrl.text) : null,
+          double.tryParse(billAmntDiaClCtrl.text)?.toInt() ?? 0,
+      approvedClaimableCombinedPharmacyTestFees: 0,
+      approvedClaimableVisionFee:
+          double.tryParse(billAmntVisionClCtrl.text)?.toInt() ?? 0,
+      approvedClaimableDentalFee:
+          double.tryParse(billAmntDentalClCtrl.text)?.toInt() ?? 0,
+      approvedClaimableVaccinationFee:
+          double.tryParse(billAmntVaccinationClCtrl.text)?.toInt() ?? 0,
+      approvedClaimablePhysioFee:
+          double.tryParse(billAmntPhysioClCtrl.text)?.toInt() ?? 0,
       docName: docNameCtrl.text,
       docRegistration: regNumCtrl.text,
       diagonosisDetail: diagnosisCtrl.text,
-      hospital: hsptlNameCtrl.text,
-      pinCode: pinCodeCtrl.text,
-      docAddress: addressCtrl.text,
-      city: cityCtrl.text,
-      specialization: specialCtrl.text.isEmpty ? null : specialCtrl.text,
+      hospital: typeController.selectedHospital.value!.name,
+      hospitalId: typeController.selectedHospital.value!.id,
+      pinCode: '',
+      docAddress: typeController.selectedHospital.value!.address,
+      city: '',
+      specialization: typeController.spclModel.value.isEmpty
+          ? null
+          : typeController.spclModel.value.first.name,
       billAmount: totalBillAmnt,
       claimableAmount: totalClaimableAmnt,
       prescription:
           widget.isUpdate! ? singleClaimModel!.data!.prescription : [],
-      claimCombination: claimCombination.isEmpty ? '1' : claimCombination,
-      combinedPharmacyTestFees:
-          claimCombination == '2' ? billAmntPhrCtrl.text : null,
-      claimableCombinedPharmacyTestFees:
-          claimCombination == '2' ? billAmntPhrClCtrl.text : null,
+      claimCombination: '1',
     );
     typeController.prescriptionList.clear();
     typeController.docFeeRcpt.clear();
     typeController.pharmacyRcpt.clear();
     typeController.labTestRcpt.clear();
+    typeController.visionRcpt.clear();
+    typeController.dentalRcpt.clear();
+    typeController.vaccinationRcpt.clear();
+    typeController.physioRcpt.clear();
+    typeController.testReportRcpt.clear();
     Map<String, dynamic>? docMap;
     if (widget.isUpdate!) {
       docMap = {

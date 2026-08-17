@@ -7,7 +7,6 @@ import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_home_header.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/claim_status_model.dart';
-import 'package:opdsure/pages/checkout/checkout_controller.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import '../model/my_claim/my_claims_model.dart';
 import 'claim_pages/claim_tile.dart';
@@ -135,11 +134,11 @@ class ClaimsPage extends StatelessWidget {
                   },
                 )
               : AppButton(
-                  text: 'Select Plan',
+                  text: 'View Plan Benefits',
                   color: Colors.white,
                   textColor: AppDesign.accent,
                   onClick: () {
-                    context.go('/view_plans', extra: PaymentType.buyPlan);
+                    context.push('/home/plan-benefits');
                   },
                 ),
         ],
