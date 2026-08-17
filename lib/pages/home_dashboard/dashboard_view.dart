@@ -27,7 +27,7 @@ class DashboardPageView extends StatelessWidget {
         ),
         _NavItem(
           icon: 'assets/images/bottom_appointment.png',
-          label: 'CheckUp',
+          label: 'Plan Usage',
         ),
         _NavItem(
           icon: 'assets/images/bottom_profile.png',

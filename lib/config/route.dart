@@ -46,6 +46,7 @@ import '../pages/hospital/hospital_list_page.dart';
 import '../pages/otp_page/otp_page_controller.dart';
 import '../pages/plan/plans_page/plans_page_controller.dart';
 import '../pages/plan_benefits/plan_benefits_page.dart';
+import '../pages/plan_usage/plan_usage_page.dart';
 import '../pages/upload_file_claim_doc.dart';
 import '../pages/view_image_page.dart';
 
@@ -646,6 +647,10 @@ abstract class AppRoutes {
                   path: 'plan-benefits',
                   pageBuilder: (context, state) => defaultPageBuilder(
                       context, state, const PlanBenefitsPage())),
+              GoRoute(
+                  path: 'plan-usage',
+                  pageBuilder: (context, state) => defaultPageBuilder(
+                      context, state, const PlanUsagePage())),
               GoRoute(
                   path: 'hospitals',
                   pageBuilder: (context, state) => defaultPageBuilder(

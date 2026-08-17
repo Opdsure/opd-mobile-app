@@ -28,6 +28,7 @@ import '../../config/app_config.dart';
 import '../../model/free_health_checkups/free_health_checkups_model.dart';
 import '../../model/my_claim/my_claims_model.dart';
 import '../../model/my_member_model.dart';
+import '../../model/plan_usage/plan_usage_model.dart';
 import '../../model/plans/plans_response.dart';
 import '../../model/register_otp_verify.dart';
 import '../../model/subscribed_plan_model.dart';
@@ -889,5 +890,20 @@ class Api {
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return AddHospitalResponse.fromJson(json);
+  }
+
+  /// Fetches plan usage data for subscribed users.
+  /// GET /api/v1/user/get-plan-usage
+  Future<PlanUsageResponse> getPlanUsage() async {
+    final requestUri = Uri(path: 'api/v1/user/get-plan-usage');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return PlanUsageResponse.fromJson(json);
   }
 }
