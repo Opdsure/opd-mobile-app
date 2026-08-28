@@ -23,6 +23,7 @@ import 'package:opdsure/pages/notification/notification_page.dart';
 import 'package:opdsure/pages/opd_plan/opd_plan_view.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
+import 'package:opdsure/pages/splash/splash_page.dart';
 import 'package:opdsure/pages/referral_member_page/referral_member_page.dart';
 import 'package:opdsure/pages/renew_plans/renew_plans.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
@@ -31,7 +32,6 @@ import 'package:opdsure/pages/terms_condition_page.dart';
 import 'package:opdsure/pages/update_profile_page.dart';
 import 'package:opdsure/pages/wallet_page.dart';
 import 'package:opdsure/utils/common_methods.dart';
-import 'package:opdsure/utils/platform_infos.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
 import '../model/claim_json_model.dart';
@@ -79,12 +79,15 @@ abstract class AppRoutes {
   AppRoutes();
 
   static final List<RouteBase> routes = [
+    GoRoute(path: '/', redirect: (context, state) => '/splash'),
     GoRoute(
-        path: '/',
-        redirect: (context, state) =>
-            !OpdSure.of(context).isOnboardScreenActive && !PlatformInfos.isWeb
-                ? "/on_board_screen"
-                : '/login'),
+      path: '/splash',
+      pageBuilder: (context, state) => defaultPageBuilder(
+        context,
+        state,
+        const SplashPage(),
+      ),
+    ),
     GoRoute(
       path: '/on_board_screen',
       pageBuilder: (context, state) => defaultPageBuilder(

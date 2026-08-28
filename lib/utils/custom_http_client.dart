@@ -5,13 +5,12 @@ import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart';
 import 'package:opdsure/config/isrg_x1.dart';
 
-
 class CustomHttpClient {
   static HttpClient customHttpClient(String? cert) {
     final context = SecurityContext.defaultContext;
 
     try {
-      if (cert != null) {
+      if (cert != null && cert.isNotEmpty) {
         final bytes = utf8.encode(cert);
         context.setTrustedCertificatesBytes(bytes);
       }

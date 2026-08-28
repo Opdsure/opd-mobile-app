@@ -6,7 +6,7 @@ import 'package:opdsure/config/app_design_system.dart';
 class PlanBenefitsPage extends StatelessWidget {
   const PlanBenefitsPage({super.key});
 
-  static const Color _headerColor = Color(0xFF1E3A6E);
+  static const Color _headerColor = Color(0xFF486AB3);
 
   @override
   Widget build(BuildContext context) {

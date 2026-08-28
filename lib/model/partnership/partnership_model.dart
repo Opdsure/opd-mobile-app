@@ -1,3 +1,5 @@
+import 'package:opdsure/config/app_config.dart';
+
 // Partnership API response model
 // GET /api/v1/public/partnerships
 //
@@ -136,7 +138,13 @@ class PartnershipItem {
   String get subtitle => _subtitle ?? '';
   String get redirectUrl => _redirectUrl ?? '';
   String get assetType => _assetType ?? '';
-  String get assetUrl => _assetUrl ?? '';
+  String get assetUrl {
+    final url = _assetUrl ?? '';
+    if (url.isEmpty) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return 'https://${AppConfig.defaultBaseUrl}/$url';
+  }
+
   String get displayType => _displayType ?? '';
   int get sortOrder => _sortOrder ?? 0;
 

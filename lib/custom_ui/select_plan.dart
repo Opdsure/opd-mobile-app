@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'app_round_view.dart';
 import 'app_text_view.dart';
 
-class SelectPlan extends StatelessWidget{
+class SelectPlan extends StatelessWidget {
   final String imgUri;
   final String planName;
   final bool isPopular;
@@ -30,7 +30,7 @@ class SelectPlan extends StatelessWidget{
       onTap: onClick,
       child: AppRoundView(
         mChild: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 15.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
           child: Column(
             children: [
               Row(
@@ -45,7 +45,9 @@ class SelectPlan extends StatelessWidget{
                         height: 40.0,
                         width: 40.0,
                       ),
-                      const SizedBox(width: 10.0,),
+                      const SizedBox(
+                        width: 10.0,
+                      ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -57,28 +59,37 @@ class SelectPlan extends StatelessWidget{
                                 fontWeight: FontWeight.w600,
                                 color: Color(0xFF039855),
                               ),
-                              const SizedBox(width: 10.0,),
-                              isPopular?const AppRoundView(
-                                mChild: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10.0,vertical: 5),
-                                  child: AppTextView(
-                                    text: 'Most Popular',
-                                    size: 10.0,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                color: Color(0xFF8A48B3),
-                              ):Container()
+                              const SizedBox(
+                                width: 10.0,
+                              ),
+                              isPopular
+                                  ? const AppRoundView(
+                                      mChild: Padding(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10.0, vertical: 5),
+                                        child: AppTextView(
+                                          text: 'Most Popular',
+                                          size: 10.0,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      color: Color(0xFF486AB3),
+                                    )
+                                  : Container()
                             ],
                           ),
-                          const SizedBox(height: 5,),
+                          const SizedBox(
+                            height: 5,
+                          ),
                           AppTextView(
                             text: forWhat,
                             size: 16.0,
                             fontWeight: FontWeight.w500,
                             color: Colors.black,
                           ),
-                          const SizedBox(height: 2,),
+                          const SizedBox(
+                            height: 2,
+                          ),
                           AppTextView(
                             text: memberCount,
                             size: 12.0,
@@ -90,8 +101,12 @@ class SelectPlan extends StatelessWidget{
                     ],
                   ),
                   Icon(
-                    isSelected?Icons.radio_button_checked:Icons.radio_button_off,
-                    color: isSelected?const Color(0xFF486AB3):const Color(0xFFB6C2E2),
+                    isSelected
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_off,
+                    color: isSelected
+                        ? const Color(0xFF486AB3)
+                        : const Color(0xFFB6C2E2),
                   )
                 ],
               ),
@@ -101,5 +116,4 @@ class SelectPlan extends StatelessWidget{
       ),
     );
   }
-
 }

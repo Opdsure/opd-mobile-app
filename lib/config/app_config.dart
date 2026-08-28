@@ -8,8 +8,8 @@ abstract class AppConfig {
   static String get defaultBaseUrl => _defaultBaseUrl;
   static double fontSizeFactor = 01;
   static Color? colorSchemeSeed = primaryColor;
-  static const Color primaryColor = Color(0xff233672);
-  static const Color primaryColorLight = Color(0xFFebf3ff);
+  static const Color primaryColor = Color(0xFF486AB3);
+  static const Color primaryColorLight = Color(0xFFe8f0fc);
   static const Color secondaryColor = Color(0xFF41a2bc);
   static const Color roundedViewColor = Color(0xffffffff);
   static const double borderRadius = 18.0;

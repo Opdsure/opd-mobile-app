@@ -5,13 +5,13 @@ import 'package:flutter/material.dart';
 /// Clean, minimal, spacious, elegant healthcare UI.
 abstract class AppDesign {
   // ─── COLORS ──────────────────────────────────────────────────────────────────
-  static const Color primary = Color(0xFF5B6CFF);
-  static const Color primaryDark = Color(0xFF4A58E0);
-  static const Color primaryLight = Color(0xFF8B97FF);
-  static const Color secondary = Color(0xFF7F56D9);
-  static const Color accent = Color(0xFF5B6CFF);
-  static const Color accentLight = Color(0xFFEEF0FF);
-  static const Color accentSoft = Color(0xFFF5F6FF);
+  static const Color primary = Color(0xFF486AB3);
+  static const Color primaryDark = Color(0xFF3A5694);
+  static const Color primaryLight = Color(0xFF7A9AD4);
+  static const Color secondary = Color(0xFF486AB3);
+  static const Color accent = Color(0xFF486AB3);
+  static const Color accentLight = Color(0xFFE8F0FC);
+  static const Color accentSoft = Color(0xFFF2F6FB);
 
   static const Color background = Color(0xFFF8FAFC);
   static const Color surface = Color(0xFFFFFFFF);
@@ -38,32 +38,32 @@ abstract class AppDesign {
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF5B6CFF), Color(0xFF7F56D9)],
+    colors: [Color(0xFF486AB3), Color(0xFF3A5694)],
   );
 
   static const LinearGradient heroGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF4A58E0), Color(0xFF7F56D9), Color(0xFF9B6EFF)],
+    colors: [Color(0xFF3A5694), Color(0xFF486AB3), Color(0xFF7A9AD4)],
     stops: [0.0, 0.5, 1.0],
   );
 
   static const LinearGradient cardGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF5B6CFF), Color(0xFF7F56D9)],
+    colors: [Color(0xFF486AB3), Color(0xFF3A5694)],
   );
 
   static const LinearGradient accentGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF7F56D9), Color(0xFF5B6CFF)],
+    colors: [Color(0xFF3A5694), Color(0xFF486AB3)],
   );
 
   static const LinearGradient subtleGradient = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFFF8FAFC), Color(0xFFEEF0FF)],
+    colors: [Color(0xFFF8FAFC), Color(0xFFE8F0FC)],
   );
 
   // ─── SPACING (8-point grid) ──────────────────────────────────────────────────
@@ -117,7 +117,7 @@ abstract class AppDesign {
 
   static List<BoxShadow> get shadowXl => [
         BoxShadow(
-          color: const Color(0xFF5B6CFF).withOpacity(0.15),
+          color: const Color(0xFF486AB3).withOpacity(0.15),
           blurRadius: 32,
           offset: const Offset(0, 12),
           spreadRadius: -8,
