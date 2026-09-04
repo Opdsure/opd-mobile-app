@@ -24,6 +24,8 @@ import 'package:opdsure/pages/opd_plan/opd_plan_view.dart';
 import 'package:opdsure/pages/plan/view_plan_page/view_plans_controller.dart';
 import 'package:opdsure/pages/preview/preview_page.dart';
 import 'package:opdsure/pages/splash/splash_page.dart';
+import 'package:opdsure/pages/marketplace/marketplace_page.dart';
+import 'package:opdsure/pages/marketplace/marketplace_items_page.dart';
 import 'package:opdsure/pages/referral_member_page/referral_member_page.dart';
 import 'package:opdsure/pages/renew_plans/renew_plans.dart';
 import 'package:opdsure/pages/signup/signup_controller.dart';
@@ -310,6 +312,29 @@ abstract class AppRoutes {
                   pageBuilder: (context, state) {
                     return defaultPageBuilder(context, state, WalletPage());
                   }),
+              GoRoute(
+                  path: 'marketplace',
+                  pageBuilder: (context, state) {
+                    return defaultPageBuilder(
+                        context, state, const MarketplacePage());
+                  },
+                  routes: [
+                    GoRoute(
+                        path: 'items',
+                        pageBuilder: (context, state) {
+                          final data =
+                              state.extra as Map<String, dynamic>? ?? {};
+                          return defaultPageBuilder(
+                            context,
+                            state,
+                            MarketplaceItemsPage(
+                              subcategoryId: (data['id'] ?? '').toString(),
+                              subcategoryName:
+                                  (data['name'] ?? 'Items').toString(),
+                            ),
+                          );
+                        }),
+                  ]),
               GoRoute(
                   path: 'opd-plan',
                   pageBuilder: (context, state) {

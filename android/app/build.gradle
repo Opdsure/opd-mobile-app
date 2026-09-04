@@ -23,6 +23,13 @@ if (flutterVersionName == null) {
     flutterVersionName = "1.0.0"
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "io.app.opdsure"
     compileSdk = flutter.compileSdkVersion
@@ -51,9 +58,19 @@ android {
         versionCode = flutterVersionCode.toInteger()  /// TODO: Current Version Code is 5
         versionName = flutterVersionName  /// TODO: Current Version Name is 1.0.0
     }
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties["keyAlias"]
+            keyPassword keystoreProperties["keyPassword"]
+            storePassword keystoreProperties["storePassword"]
+            storeFile keystoreProperties["storeFile"] ?
+                    file(keystoreProperties["storeFile"]) : null
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

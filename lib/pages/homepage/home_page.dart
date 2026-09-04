@@ -10,6 +10,7 @@ import 'package:opdsure/custom_ui/app_home_header.dart';
 import 'package:opdsure/custom_ui/claim_count_tile.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
 import 'package:opdsure/model/partnership/partnership_model.dart';
+import 'package:opdsure/model/marketplace/marketplace_model.dart';
 import 'package:opdsure/pages/claim_pages/claim_tile.dart';
 import 'package:opdsure/pages/homepage/partnership_carousel.dart';
 import 'package:opdsure/pages/homepage/partnership_icons.dart';
@@ -25,11 +26,17 @@ import '../../model/my_claim/my_claims_model.dart';
 typedef ValueCallback = void Function(int value);
 
 class OpdService {
-  String image;
   String title;
   VoidCallback onTap;
+  IconData icon;
+  Color color;
 
-  OpdService({required this.title, required this.onTap, required this.image});
+  OpdService({
+    required this.title,
+    required this.onTap,
+    required this.icon,
+    required this.color,
+  });
 }
 
 class HomePage extends StatefulWidget {
@@ -55,7 +62,8 @@ class HomePage extends StatefulWidget {
       [
         OpdService(
             title: 'In-Clinic Doctor',
-            image: 'assets/images/offline_doc.png',
+            icon: Icons.medical_services_rounded,
+            color: const Color(0xFF486AB3),
             onTap: () {
               CommonMethods.customAlertBox2(context,
                   title: 'In-Clinic Consultation',
@@ -65,7 +73,8 @@ class HomePage extends StatefulWidget {
             }),
         OpdService(
             title: 'Online Doctor',
-            image: 'assets/images/online_doc.png',
+            icon: Icons.video_camera_front_rounded,
+            color: const Color(0xFF12B76A),
             onTap: () async {
               CommonMethods.showAlertDialog(context);
               final opd = OpdSure.of(context);
@@ -103,7 +112,8 @@ class HomePage extends StatefulWidget {
             }),
         OpdService(
             title: 'Pharmacy',
-            image: 'assets/images/pharma.png',
+            icon: Icons.medication_rounded,
+            color: const Color(0xFFEC4899),
             onTap: () async {
               CommonMethods.customAlertBox(
                 context,
@@ -127,13 +137,15 @@ class HomePage extends StatefulWidget {
             }),
         OpdService(
             title: 'Diagnostic',
-            image: 'assets/images/diag.png',
+            icon: Icons.biotech_rounded,
+            color: const Color(0xFFF59E0B),
             onTap: () {
               context.push('/home/web_view', extra: AppConfig.apolloPharmaUrl);
             }),
         OpdService(
             title: 'Free Health Checkups',
-            image: 'assets/images/health.png',
+            icon: Icons.health_and_safety_rounded,
+            color: const Color(0xFF06B6D4),
             onTap: () {
               final opd = OpdSure.of(context);
               if (opd.profileData!.plan!.purchased!) {
@@ -150,13 +162,15 @@ class HomePage extends StatefulWidget {
             }),
         OpdService(
             title: 'Ambulance',
-            image: 'assets/images/ambu.png',
+            icon: Icons.emergency_rounded,
+            color: const Color(0xFFEF4444),
             onTap: () {
               launchUrl(Uri(scheme: 'tel', path: '102'));
             }),
         OpdService(
             title: 'Simplify Insurance',
-            image: 'assets/images/insurance.png',
+            icon: Icons.shield_rounded,
+            color: const Color(0xFF8B5CF6),
             onTap: () {
               context.push('/home/web_view',
                   extra: AppConfig.simplyfiyInsurenceUrl);
@@ -176,6 +190,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<PartnershipItem> _carouselItems = [];
   List<PartnershipItem> _iconItems = [];
 
+  // Marketplace state
+  bool _isMarketplaceLoading = true;
+  List<MarketplaceCategory> _marketplaceCategories = [];
+
   @override
   void initState() {
     super.initState();
@@ -190,6 +208,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _fadeController.forward();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchPartnerships();
+      _fetchMarketplace();
     });
   }
 
@@ -221,6 +240,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           _isPartnershipLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _fetchMarketplace() async {
+    if (!mounted) return;
+    try {
+      final opd = OpdSure.of(context);
+      final response = await opd.client.getMarketplace();
+      if (!mounted) return;
+      if (response.success && response.data != null) {
+        final cats = List<MarketplaceCategory>.from(response.data!.categories)
+          ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+        setState(() {
+          _marketplaceCategories = cats;
+          _isMarketplaceLoading = false;
+        });
+      } else {
+        setState(() => _isMarketplaceLoading = false);
+      }
+    } catch (e) {
+      Logs().w('HomePage: Failed to fetch marketplace: $e');
+      if (mounted) setState(() => _isMarketplaceLoading = false);
     }
   }
 
@@ -291,72 +332,75 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               // Partnership Carousel
               _buildPartnershipCarousel(),
 
-              // Services Section (horizontal scroll for compact height)
+              // Services Section (fixed grid, wraps to rows)
               const Text('Services', style: AppDesign.headingSm),
               const SizedBox(height: AppDesign.spacingMd),
 
-              SizedBox(
-                height: 110,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: HomePage.serviceTittle(context).length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(width: AppDesign.spacingMd),
-                  itemBuilder: (context, index) {
-                    final service =
-                        HomePage.serviceTittle(context, callBack: (value) {
-                      widget.callback(value);
-                    })[index];
-                    return GestureDetector(
-                      onTap: service.onTap,
-                      child: SizedBox(
-                        width: 80,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                color: AppDesign.accentLight,
-                                borderRadius:
-                                    BorderRadius.circular(AppDesign.radiusMd),
-                              ),
-                              child: ClipRRect(
-                                borderRadius:
-                                    BorderRadius.circular(AppDesign.radiusMd),
-                                child: Image.asset(
-                                  service.image,
-                                  fit: BoxFit.contain,
-                                  width: 36,
-                                  height: 36,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: AppDesign.spacingXs),
-                            Text(
-                              service.title,
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppDesign.caption.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppDesign.textPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: HomePage.serviceTittle(context).length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: AppDesign.spacingMd,
+                  mainAxisSpacing: AppDesign.spacingLg,
+                  childAspectRatio: 0.78,
                 ),
+                itemBuilder: (context, index) {
+                  final service =
+                      HomePage.serviceTittle(context, callBack: (value) {
+                    widget.callback(value);
+                  })[index];
+                  return GestureDetector(
+                    onTap: service.onTap,
+                    behavior: HitTestBehavior.opaque,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: service.color.withOpacity(0.12),
+                            borderRadius:
+                                BorderRadius.circular(AppDesign.radiusMd),
+                            border: Border.all(
+                              color: service.color.withOpacity(0.18),
+                              width: 1,
+                            ),
+                          ),
+                          child: Icon(
+                            service.icon,
+                            color: service.color,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(height: AppDesign.spacingXs),
+                        Text(
+                          service.title,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppDesign.caption.copyWith(
+                            fontWeight: FontWeight.w600,
+                            color: AppDesign.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
 
               const SizedBox(height: AppDesign.spacingXxl),
 
               // Partnership Icons
               _buildPartnershipIcons(),
+
+              const SizedBox(height: AppDesign.spacingXxl),
+
+              // Marketplace Section
+              _buildMarketplaceSection(),
 
               const SizedBox(height: AppDesign.spacingXxl),
 
@@ -398,6 +442,199 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       return _buildIconsPlaceholder();
     }
     return PartnershipIcons(items: _iconItems);
+  }
+
+  static const List<Color> _marketplaceAccents = [
+    AppDesign.primary,
+    Color(0xFF12B76A),
+    Color(0xFFF59E0B),
+    Color(0xFF8B5CF6),
+    Color(0xFF06B6D4),
+    Color(0xFFEC4899),
+  ];
+
+  Widget _buildMarketplaceSection() {
+    if (_isMarketplaceLoading) {
+      return const SizedBox.shrink();
+    }
+    if (_marketplaceCategories.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    // Collect first 8 subcategories across all categories for the preview row.
+    final previewItems = <MarketplaceSubcategory>[];
+    for (final cat in _marketplaceCategories) {
+      for (final sub in cat.subcategories) {
+        previewItems.add(sub);
+        if (previewItems.length >= 8) break;
+      }
+      if (previewItems.length >= 8) break;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text('Marketplace', style: AppDesign.headingSm),
+            GestureDetector(
+              onTap: () => context.push('/home/marketplace'),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDesign.spacingMd,
+                  vertical: AppDesign.spacingSm,
+                ),
+                decoration: BoxDecoration(
+                  color: AppDesign.accentLight,
+                  borderRadius: BorderRadius.circular(AppDesign.radiusFull),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'View All',
+                      style: AppDesign.labelSm.copyWith(
+                        color: AppDesign.primary,
+                      ),
+                    ),
+                    const SizedBox(width: AppDesign.spacingXs),
+                    const Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 12,
+                      color: AppDesign.primary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppDesign.spacingMd),
+        // Gradient promo card with a horizontal icon strip
+        GestureDetector(
+          onTap: () => context.push('/home/marketplace'),
+          child: Container(
+            padding: const EdgeInsets.all(AppDesign.spacingLg),
+            decoration: BoxDecoration(
+              gradient: AppDesign.subtleGradient,
+              borderRadius: BorderRadius.circular(AppDesign.radiusLg),
+              border: Border.all(
+                color: AppDesign.primary.withValues(alpha: 0.10),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(AppDesign.spacingSm),
+                      decoration: BoxDecoration(
+                        gradient: AppDesign.primaryGradient,
+                        borderRadius: BorderRadius.circular(AppDesign.radiusSm),
+                      ),
+                      child: const Icon(
+                        Icons.storefront_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: AppDesign.spacingMd),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'One Marketplace. Complete Health.',
+                            style: AppDesign.titleMd.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: AppDesign.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            'Products & services in one place',
+                            style: AppDesign.bodySm.copyWith(
+                              color: AppDesign.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppDesign.spacingLg),
+                SizedBox(
+                  height: 84,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: previewItems.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(width: AppDesign.spacingMd),
+                    itemBuilder: (context, index) {
+                      final sub = previewItems[index];
+                      final accent = _marketplaceAccents[
+                          index % _marketplaceAccents.length];
+                      return SizedBox(
+                        width: 62,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppDesign.card,
+                                borderRadius:
+                                    BorderRadius.circular(AppDesign.radiusMd),
+                                boxShadow: AppDesign.shadowSm,
+                              ),
+                              child: sub.hasIcon
+                                  ? Image.network(
+                                      sub.iconUrl,
+                                      fit: BoxFit.contain,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Icon(
+                                          Icons.category_rounded,
+                                          color: accent,
+                                          size: 22,
+                                        );
+                                      },
+                                    )
+                                  : Icon(
+                                      Icons.category_rounded,
+                                      color: accent,
+                                      size: 22,
+                                    ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              sub.name,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppDesign.caption.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppDesign.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildCarouselPlaceholder() {

@@ -148,11 +148,42 @@ class PartnershipItem {
   String get displayType => _displayType ?? '';
   int get sortOrder => _sortOrder ?? 0;
 
-  /// Whether this item has a valid image asset
-  bool get isImage => assetType == 'image' && assetUrl.isNotEmpty;
+  /// Infers whether the asset URL points to a video by its file extension.
+  /// Used as a fallback when the API omits [assetType].
+  bool get _urlLooksLikeVideo {
+    final url = assetUrl.toLowerCase();
+    if (url.isEmpty) return false;
+    const videoExtensions = [
+      '.mp4',
+      '.mov',
+      '.webm',
+      '.m4v',
+      '.avi',
+      '.mkv',
+      '.3gp',
+    ];
+    return videoExtensions.any((ext) => url.contains(ext));
+  }
 
-  /// Whether this item has a valid video asset
-  bool get isVideo => assetType == 'video' && assetUrl.isNotEmpty;
+  /// Whether this item has a valid image asset.
+  /// Falls back to inferring from the asset URL when [assetType] is missing,
+  /// since the API may omit `asset_type`.
+  bool get isImage {
+    if (assetUrl.isEmpty) return false;
+    if (assetType == 'image') return true;
+    if (assetType == 'video') return false;
+    // asset_type missing/unknown: treat as image unless the URL is a video.
+    return !_urlLooksLikeVideo;
+  }
+
+  /// Whether this item has a valid video asset.
+  /// Falls back to inferring from the asset URL when [assetType] is missing.
+  bool get isVideo {
+    if (assetUrl.isEmpty) return false;
+    if (assetType == 'video') return true;
+    if (assetType == 'image') return false;
+    return _urlLooksLikeVideo;
+  }
 
   /// Whether this item has a valid redirect URL
   bool get hasValidRedirectUrl {

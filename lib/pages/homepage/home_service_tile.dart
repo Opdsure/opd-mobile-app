@@ -76,17 +76,17 @@ class _HomeServiceTileState extends State<HomeServiceTile>
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: AppDesign.accentLight,
+                  color: widget.title.color.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(AppDesign.radiusMd),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(AppDesign.radiusMd),
-                  child: Image.asset(
-                    HomePage.serviceTittle(context)[widget.index].image,
-                    fit: BoxFit.contain,
-                    width: 36,
-                    height: 36,
+                  border: Border.all(
+                    color: widget.title.color.withOpacity(0.18),
+                    width: 1,
                   ),
+                ),
+                child: Icon(
+                  widget.title.icon,
+                  color: widget.title.color,
+                  size: 28,
                 ),
               ),
               const SizedBox(height: AppDesign.spacingSm),

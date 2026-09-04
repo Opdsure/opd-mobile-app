@@ -9,6 +9,8 @@ import 'package:opdsure/model/forget_password/forget_password_response.dart';
 import 'package:opdsure/model/free_health_test_model/free_health_test_model.dart';
 import 'package:opdsure/model/hospital/hospital_model.dart';
 import 'package:opdsure/model/partnership/partnership_model.dart';
+import 'package:opdsure/model/marketplace/marketplace_model.dart';
+import 'package:opdsure/model/marketplace/marketplace_items_model.dart';
 import 'package:opdsure/model/health_checkup/health_checkup.dart';
 import 'package:opdsure/model/login/login_response.dart';
 import 'package:opdsure/model/mFine/m_fine.dart';
@@ -838,6 +840,39 @@ class Api {
     final responseString = utf8.decode(responseBody);
     final json = jsonDecode(responseString);
     return PartnershipResponse.fromJson(json);
+  }
+
+  /// Fetches marketplace categories and subcategories.
+  /// GET /api/v1/user/marketplace/dashboard — requires authentication.
+  Future<MarketplaceResponse> getMarketplace() async {
+    final requestUri = Uri(path: 'api/v1/user/marketplace/dashboard');
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return MarketplaceResponse.fromJson(json);
+  }
+
+  /// Fetches the items for a marketplace subcategory.
+  /// GET /api/v1/user/marketplace/subcategories/{subcategoryId}/items
+  Future<MarketplaceItemsResponse> getMarketplaceItems(
+      String subcategoryId) async {
+    final requestUri = Uri(
+      path: 'api/v1/user/marketplace/subcategories/$subcategoryId/items',
+    );
+    final request = Request('GET', baseUri!.resolveUri(requestUri));
+    request.headers['content-type'] = 'application/json';
+    request.headers['Authorization'] = 'Bearer $bearerToken';
+    final response = await httpClient.send(request);
+    final responseBody = await response.stream.toBytes();
+    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
+    final responseString = utf8.decode(responseBody);
+    final json = jsonDecode(responseString);
+    return MarketplaceItemsResponse.fromJson(json);
   }
 
   /// Fetches user's hospitals list with pagination.

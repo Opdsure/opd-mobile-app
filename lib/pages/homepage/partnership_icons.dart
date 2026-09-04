@@ -61,7 +61,7 @@ class _PartnershipIconCard extends StatelessWidget {
           ),
           const SizedBox(height: AppDesign.spacingXs),
           Text(
-            item.title,
+            item.title.isNotEmpty ? item.title : 'Partner',
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
