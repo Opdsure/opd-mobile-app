@@ -57,6 +57,16 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()  /// TODO: Current Version Code is 5
         versionName = flutterVersionName  /// TODO: Current Version Name is 1.0.0
+
+        // Ship only 64-bit ABIs. Android's 16 KB page-size mode runs on
+        // 64-bit devices only, and Google Play's 16 KB requirement applies to
+        // 64-bit ABIs. Dropping the legacy 32-bit armeabi-v7a ABI removes the
+        // only remaining 4 KB-aligned native libraries (pdfium's 32-bit .so),
+        // guaranteeing a fully 16 KB-compatible bundle. 64-bit is also already
+        // mandatory on Google Play.
+        ndk {
+            abiFilters 'arm64-v8a', 'x86_64'
+        }
     }
     signingConfigs {
         release {
@@ -74,6 +84,18 @@ android {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    // Exclude the legacy 32-bit armeabi-v7a native libraries from the bundle.
+    // The pdfium dependency ships 4 KB-aligned .so files for armeabi-v7a that
+    // cannot be 16 KB aligned. Since Android's 16 KB page-size mode is 64-bit
+    // only, dropping armeabi-v7a leaves just the fully 16 KB-aligned 64-bit
+    // ABIs (arm64-v8a, x86_64). This is applied at packaging level so it is
+    // honored regardless of Flutter's default abiFilters injection.
+    packagingOptions {
+        jniLibs {
+            excludes += ["lib/armeabi-v7a/**"]
         }
     }
 }

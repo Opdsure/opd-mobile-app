@@ -252,6 +252,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       if (response.success && response.data != null) {
         final cats = List<MarketplaceCategory>.from(response.data!.categories)
           ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+        for (final cat in cats) {
+          cat.subcategories.sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
+        }
         setState(() {
           _marketplaceCategories = cats;
           _isMarketplaceLoading = false;
@@ -453,6 +456,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     Color(0xFFEC4899),
   ];
 
+  void _onMarketplaceSubcategoryTap(MarketplaceSubcategory sub) {
+    context.push(
+      '/home/marketplace/items',
+      extra: {'id': sub.id, 'name': sub.name},
+    );
+  }
+
   Widget _buildMarketplaceSection() {
     if (_isMarketplaceLoading) {
       return const SizedBox.shrink();
@@ -461,177 +471,104 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       return const SizedBox.shrink();
     }
 
-    // Collect first 8 subcategories across all categories for the preview row.
-    final previewItems = <MarketplaceSubcategory>[];
-    for (final cat in _marketplaceCategories) {
-      for (final sub in cat.subcategories) {
-        previewItems.add(sub);
-        if (previewItems.length >= 8) break;
-      }
-      if (previewItems.length >= 8) break;
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Marketplace', style: AppDesign.headingSm),
-            GestureDetector(
-              onTap: () => context.push('/home/marketplace'),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppDesign.spacingMd,
-                  vertical: AppDesign.spacingSm,
-                ),
-                decoration: BoxDecoration(
-                  color: AppDesign.accentLight,
-                  borderRadius: BorderRadius.circular(AppDesign.radiusFull),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'View All',
-                      style: AppDesign.labelSm.copyWith(
-                        color: AppDesign.primary,
-                      ),
-                    ),
-                    const SizedBox(width: AppDesign.spacingXs),
-                    const Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      size: 12,
-                      color: AppDesign.primary,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+        const Text('Marketplace', style: AppDesign.headingSm),
+        const SizedBox(height: AppDesign.spacingXs),
+        Text(
+          'One Marketplace. Complete Health.',
+          style: AppDesign.bodySm.copyWith(color: AppDesign.textSecondary),
+        ),
+        const SizedBox(height: AppDesign.spacingLg),
+        // All categories, each with its full grid of subcategory icons.
+        for (int c = 0; c < _marketplaceCategories.length; c++) ...[
+          _buildMarketplaceCategory(_marketplaceCategories[c], c),
+          if (c < _marketplaceCategories.length - 1)
+            const SizedBox(height: AppDesign.spacingXl),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildMarketplaceCategory(MarketplaceCategory category, int index) {
+    final accent = _marketplaceAccents[index % _marketplaceAccents.length];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Category heading with accent underline
+        Text(
+          category.name,
+          style: AppDesign.titleMd.copyWith(
+            fontWeight: FontWeight.w700,
+            color: AppDesign.textPrimary,
+          ),
+        ),
+        const SizedBox(height: 5),
+        Container(
+          height: 2.5,
+          width: 40,
+          decoration: BoxDecoration(
+            color: accent,
+            borderRadius: BorderRadius.circular(2),
+          ),
         ),
         const SizedBox(height: AppDesign.spacingMd),
-        // Gradient promo card with a horizontal icon strip
-        GestureDetector(
-          onTap: () => context.push('/home/marketplace'),
-          child: Container(
-            padding: const EdgeInsets.all(AppDesign.spacingLg),
-            decoration: BoxDecoration(
-              gradient: AppDesign.subtleGradient,
-              borderRadius: BorderRadius.circular(AppDesign.radiusLg),
-              border: Border.all(
-                color: AppDesign.primary.withValues(alpha: 0.10),
-                width: 1,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(AppDesign.spacingSm),
-                      decoration: BoxDecoration(
-                        gradient: AppDesign.primaryGradient,
-                        borderRadius: BorderRadius.circular(AppDesign.radiusSm),
-                      ),
-                      child: const Icon(
-                        Icons.storefront_rounded,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
-                    const SizedBox(width: AppDesign.spacingMd),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'One Marketplace. Complete Health.',
-                            style: AppDesign.titleMd.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: AppDesign.textPrimary,
-                            ),
-                          ),
-                          Text(
-                            'Products & services in one place',
-                            style: AppDesign.bodySm.copyWith(
-                              color: AppDesign.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppDesign.spacingLg),
-                SizedBox(
-                  height: 84,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: previewItems.length,
-                    separatorBuilder: (_, __) =>
-                        const SizedBox(width: AppDesign.spacingMd),
-                    itemBuilder: (context, index) {
-                      final sub = previewItems[index];
-                      final accent = _marketplaceAccents[
-                          index % _marketplaceAccents.length];
-                      return SizedBox(
-                        width: 62,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 52,
-                              height: 52,
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: AppDesign.card,
-                                borderRadius:
-                                    BorderRadius.circular(AppDesign.radiusMd),
-                                boxShadow: AppDesign.shadowSm,
-                              ),
-                              child: sub.hasIcon
-                                  ? Image.network(
-                                      sub.iconUrl,
-                                      fit: BoxFit.contain,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Icon(
-                                          Icons.category_rounded,
-                                          color: accent,
-                                          size: 22,
-                                        );
-                                      },
-                                    )
-                                  : Icon(
-                                      Icons.category_rounded,
-                                      color: accent,
-                                      size: 22,
-                                    ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              sub.name,
-                              textAlign: TextAlign.center,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppDesign.caption.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppDesign.textPrimary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+        // Full 4-column grid of all subcategory icons
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: category.subcategories.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            crossAxisSpacing: AppDesign.spacingSm,
+            mainAxisSpacing: AppDesign.spacingLg,
+            childAspectRatio: 0.74,
           ),
+          itemBuilder: (context, i) {
+            final sub = category.subcategories[i];
+            return GestureDetector(
+              onTap: () => _onMarketplaceSubcategoryTap(sub),
+              behavior: HitTestBehavior.opaque,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 54,
+                    height: 54,
+                    padding: const EdgeInsets.all(11),
+                    decoration: BoxDecoration(
+                      color: AppDesign.card,
+                      borderRadius: BorderRadius.circular(AppDesign.radiusMd),
+                      boxShadow: AppDesign.shadowSm,
+                    ),
+                    child: sub.hasIcon
+                        ? Image.network(
+                            sub.iconUrl,
+                            fit: BoxFit.contain,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.category_rounded,
+                                  color: accent, size: 22);
+                            },
+                          )
+                        : Icon(Icons.category_rounded, color: accent, size: 22),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    sub.name,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppDesign.caption.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppDesign.textPrimary,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         ),
       ],
     );

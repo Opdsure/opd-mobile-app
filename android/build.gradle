@@ -1,16 +1,10 @@
 
-buildscript {
-    ext.kotlin_version = '2.1.0'
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.2' // Check for the latest version
-        classpath 'com.google.gms:google-services:4.4.2' // Check for the latest version
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0"
-    }
-}
+// Plugin versions (Android Gradle Plugin, Kotlin, Google Services) are
+// declared in settings.gradle via the pluginManagement/plugins blocks.
+// The legacy buildscript classpath entries were removed because they pinned a
+// stale AGP (8.1.2) that conflicted with the AGP 8.9.1 declared in
+// settings.gradle. AGP >= 8.5.1 is required so bundled native libraries are
+// packaged with 16 KB page alignment for Google Play compatibility.
 
 allprojects {
     repositories {
