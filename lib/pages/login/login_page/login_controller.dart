@@ -47,7 +47,6 @@ class LoginPageController extends State<LoginPage> {
     context.push('/signup');
   }
 
-
   getCountryCode() async {
     final picked = await countryPicker.showPicker(context: context);
     if (picked != null) {
@@ -59,47 +58,44 @@ class LoginPageController extends State<LoginPage> {
   }
 
   void login(LoginPageController? controller) async {
-
-
     print("this is controller $controller");
     final opdSure = OpdSure.of(context);
-      if (phoneTextController.text.isEmpty) {
-        setState(() {
-          phoneError = 'Enter a valid phone no';
-          isMobileError = true;
-        });
-         return;
-      } else if (!phoneTextController.text.isValidPhoneNumber) {
-        setState(() {
-          phoneError = 'Enter a valid phone no';
-          isMobileError = true;
-        });
-         return;
-      } else {
-        setState(() {
-          isMobileError = false;
-        });
-      }
-
-
+    if (phoneTextController.text.isEmpty) {
+      setState(() {
+        phoneError = 'Enter a valid phone no';
+        isMobileError = true;
+      });
+      return;
+    } else if (!phoneTextController.text.isValidPhoneNumber) {
+      setState(() {
+        phoneError = 'Enter a valid phone no';
+        isMobileError = true;
+      });
+      return;
+    } else {
+      setState(() {
+        isMobileError = false;
+      });
+    }
 
     setState(() => loading = true);
 
     try {
-      CommonMethods.showAlertDialog(context);
       focusNode.unfocus();
-      final response = await opdSure.client.loginOtp(
-          countryCode: countryCode,
-          phone: phoneTextController.text);
-      if(response.success!){
-        context.push('/login/otp', extra: {'otp_type' : 2, 'phone' : phoneTextController.text, 'country_code' : countryCode});
-      }else{
+      final response = await opdSure.client
+          .loginOtp(countryCode: countryCode, phone: phoneTextController.text);
+      if (!mounted) return;
+      if (response.success!) {
+        context.push('/login/otp', extra: {
+          'otp_type': 2,
+          'phone': phoneTextController.text,
+          'country_code': countryCode
+        });
+      } else {
         CommonMethods.showToast(response.message!);
       }
-      Navigator.of(context, rootNavigator: false).pop();
     } catch (e) {
-      Navigator.of(context, rootNavigator: false).pop();
-      return setState(() => loading = false);
+      CommonMethods.showToast('Something went wrong. Please try again.');
     }
 
     if (mounted) setState(() => loading = false);

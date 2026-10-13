@@ -7,7 +7,6 @@ import 'package:opdsure/custom_ui/app_key_value.dart';
 import 'package:opdsure/custom_ui/app_shimmer.dart';
 import 'package:opdsure/pages/profile_page/profile_page.dart';
 import 'package:opdsure/utils/common_methods.dart';
-import 'package:opdsure/widget/opd_widget.dart';
 import '../checkout/checkout_controller.dart';
 
 class Profile extends StatelessWidget {
@@ -116,19 +115,10 @@ class Profile extends StatelessWidget {
               _buildActionTile(
                 icon: Icons.verified_outlined,
                 title: 'Subscribed Plan',
-                onTap: () async {
-                  final plan = await OpdSure.of(context).client.getPlanById(
-                        planId: controller.userProfile!.data!.plan!.id,
-                        memberShipId:
-                            controller.userProfile!.data!.plan!.membershipId,
-                      );
-                  context.push('/home/opd-plan', extra: {
-                    'records': plan,
-                    'option': plan!.membershipOptions![0],
-                    'buyDate': controller.userProfile!.data!,
-                    'isSub': true,
-                    'active': true
-                  });
+                onTap: () {
+                  // Open the same plans page as the "View Plans" flow.
+                  context.push('/home/view_plans',
+                      extra: PaymentType.planRenew);
                 },
               ),
               _buildActionTile(

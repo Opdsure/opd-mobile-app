@@ -83,8 +83,7 @@ class SignUpController extends State<SignUpPage> {
         isShowErrorMobile = true;
       });
       return;
-    }
-    else {
+    } else {
       setState(() {
         isShowErrorMobile = false;
       });
@@ -94,7 +93,7 @@ class SignUpController extends State<SignUpPage> {
       return;
     }
 
-    CommonMethods.showAlertDialog(context);
+    setState(() => loading = true);
 
     try {
       focusNode.unfocus();
@@ -103,35 +102,28 @@ class SignUpController extends State<SignUpPage> {
         countryCode: countryCode,
       );
 
+      if (!mounted) return;
       if (response.success!) {
-        context.push('/signup/otp',
-            extra: {
+        context.push('/signup/otp', extra: {
           'otp_type': 1,
           'phone': phoneTextController.text.toString(),
           'country_code': countryCode
         });
       } else {
-        Navigator.of(context, rootNavigator: false).pop();
         CommonMethods.showToast(response.message!);
       }
-
-      Navigator.of(context, rootNavigator: false).pop();
     } catch (e) {
-      setState(() => confirmPasswordError = e.toString());
-      Navigator.of(context, rootNavigator: false).pop();
-      return setState(() => loading = false);
+      CommonMethods.showToast('Something went wrong. Please try again.');
     }
 
     if (mounted) setState(() => loading = false);
   }
 
-
   getCountryCode() async {
     final picked = await countryPicker.showPicker(context: context);
     if (picked != null) {
       flagUri =
-      'packages/fl_country_code_picker/assets/flags/${picked.code
-          .toLowerCase()}.png';
+          'packages/fl_country_code_picker/assets/flags/${picked.code.toLowerCase()}.png';
       isoCode = picked.code;
       countryCode = picked.dialCode;
       setState(() {});

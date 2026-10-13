@@ -248,7 +248,10 @@ class _OtpPageViewState extends State<OtpPageView>
                       const SizedBox(height: AppDesign.spacing3Xl),
                       AppButton(
                         text: 'Verify OTP',
-                        onClick: widget.controller.otpVerify,
+                        isLoading: widget.controller.loading,
+                        onClick: widget.controller.loading
+                            ? null
+                            : widget.controller.otpVerify,
                       ),
                       const SizedBox(height: AppDesign.spacingXxl),
 

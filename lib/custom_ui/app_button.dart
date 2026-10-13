@@ -133,7 +133,9 @@ class _AppButtonState extends State<AppButton>
 
   @override
   Widget build(BuildContext context) {
-    final isDisabled = widget.onClick == null;
+    // Treat a loading button as disabled so it can't be tapped again while an
+    // API call is in flight (prevents duplicate submissions).
+    final isDisabled = widget.onClick == null || widget.isLoading;
 
     return AnimatedBuilder(
       animation: _scaleAnimation,

@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opdsure/pages/home_dashboard/dash_board.dart';
 import 'package:opdsure/utils/common_methods.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
@@ -23,10 +24,9 @@ class OtpPage extends StatefulWidget {
 }
 
 class OtpPageController extends State<OtpPage> {
-  bool? loading;
+  bool loading = false;
   String otp = '';
   late TapGestureRecognizer otpRecognizer;
-
 
   @override
   void initState() {
@@ -55,23 +55,40 @@ class OtpPageController extends State<OtpPage> {
   }
 
   void otpVerify() async {
+    if (loading) return;
     if (otp.length != 6) {
+      CommonMethods.showToast('Please enter the 6-digit OTP');
       return;
     }
-    {
+
+    setState(() => loading = true);
+    final opd = OpdSure.of(context);
+    try {
+      bool success = false;
       switch (widget.otpType) {
         case 1:
-          await _register(OpdSure.of(context));
+          success = await _register(opd);
           break;
         case 2:
-          await _login(OpdSure.of(context));
+          success = await _login(opd);
           break;
       }
+
+      if (!mounted) return;
+      if (success && opd.client.isLogged) {
+        // Session established -> go to the dashboard.
+        context.go('/home', extra: ActiveDestination.home);
+        return;
+      }
+    } catch (e) {
+      CommonMethods.showToast('Something went wrong. Please try again.');
     }
+
     if (mounted) setState(() => loading = false);
   }
 
-  Future<void> _login(OpdSureState opd) async {
+  /// Returns true when login + session init succeeded.
+  Future<bool> _login(OpdSureState opd) async {
     final loginResponse = await opd.client.login(
         otp: int.parse(otp),
         countryCode: widget.countryCode,
@@ -79,13 +96,18 @@ class OtpPageController extends State<OtpPage> {
         loginType: 1);
 
     if (loginResponse.data != null) {
-      opd.client.init(newUserId: loginResponse.data!.userId!, newAccessToken: loginResponse.data!.token!);
+      await opd.client.init(
+          newUserId: loginResponse.data!.userId!,
+          newAccessToken: loginResponse.data!.token!);
+      return opd.client.isLogged;
     } else {
-      CommonMethods.showToast(loginResponse.message!);
+      CommonMethods.showToast(loginResponse.message ?? 'Login failed');
+      return false;
     }
   }
 
-  Future<void> _register(OpdSureState opd) async {
+  /// Returns true when registration + session init succeeded.
+  Future<bool> _register(OpdSureState opd) async {
     RegisterOtpVerify? isOtpVerify = await opd.client.registerVerifyOtp(
         phone: widget.phone,
         countryCode: widget.countryCode,
@@ -98,15 +120,21 @@ class OtpPageController extends State<OtpPage> {
             loginType: 1,
             termAndCondition: true);
         if (response.success!) {
-          opd.client.init(newUserId: response.data!.userId!, newAccessToken: response.data!.token!);
+          await opd.client.init(
+              newUserId: response.data!.userId!,
+              newAccessToken: response.data!.token!);
+          return opd.client.isLogged;
         } else {
-          CommonMethods.showToast(response.message!);
+          CommonMethods.showToast(response.message ?? 'Registration failed');
+          return false;
         }
       } else {
-        CommonMethods.showToast(isOtpVerify.message!);
+        CommonMethods.showToast(isOtpVerify.message ?? 'OTP not verified');
+        return false;
       }
     } else {
       CommonMethods.showToast('Try again');
+      return false;
     }
   }
 
@@ -114,8 +142,7 @@ class OtpPageController extends State<OtpPage> {
 
   FocusNode focusNode = FocusNode();
 
-
-  Future<void>  login(String phoneNo) async {
+  Future<void> login(String phoneNo) async {
     final opdSure = OpdSure.of(context);
 
     setState(() => loading = true);
@@ -123,12 +150,15 @@ class OtpPageController extends State<OtpPage> {
     try {
       CommonMethods.showAlertDialog(context);
       focusNode.unfocus();
-      final response = await opdSure.client.loginOtp(
-          countryCode: countryCode,
-          phone: phoneNo);
-      if(response.success!){
-        context.push('/login/otp', extra: {'otp_type' : 2, 'phone' : phoneNo, 'country_code' : countryCode});
-      }else{
+      final response = await opdSure.client
+          .loginOtp(countryCode: countryCode, phone: phoneNo);
+      if (response.success!) {
+        context.push('/login/otp', extra: {
+          'otp_type': 2,
+          'phone': phoneNo,
+          'country_code': countryCode
+        });
+      } else {
         CommonMethods.showToast(response.message!);
       }
       Navigator.of(context, rootNavigator: false).pop();
@@ -140,9 +170,6 @@ class OtpPageController extends State<OtpPage> {
     if (mounted) setState(() => loading = false);
   }
 
-
   @override
   Widget build(BuildContext context) => OtpPageView(this);
 }
-
-

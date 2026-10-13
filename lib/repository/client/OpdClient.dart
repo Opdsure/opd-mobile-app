@@ -25,7 +25,6 @@ import '../database_api/database_api.dart';
 
 enum LoginState { loggedIn, loggedOut }
 
-
 typedef PhoneCodeAutoRetrievalTimeout = void Function(String verificationId);
 
 class OpdClient extends OpdApi {
@@ -123,35 +122,77 @@ class OpdClient extends OpdApi {
         _initLock = false;
         return;
       }
-      await getProfile(update: true);
-      await getAllPlans(update: true, isUpgrade: false);
-      isPlanPurchased = isPlanBuy = profileData!.firstPlanPurchase! == 1;
+
+      // A token exists (fresh login or restored from local storage). Persist it
+      // right away and mark the session as logged in. This keeps the user
+      // signed in across app restarts and does not depend on a successful
+      // network call below.
       final database = this.database;
       if (database != null) {
-        if (id != null) {
+        final existing = await database.getClient(clientName);
+        if (existing != null) {
           await database.updateClient(
-              userId: userId,
-              accessToken: accessToken,
-              baseUri: baseServerUri.toString(),
-              isPlanPurchased: isPlanPurchased);
+            userId: userId,
+            accessToken: accessToken,
+            baseUri: baseServerUri.toString(),
+            isPlanPurchased: isPlanPurchased,
+          );
         } else {
           _id = await database.insertClient(
-              baseUri: baseServerUri.toString(),
-              accessToken: accessToken,
-              userId: userId,
-              isPlanPurchased: isPlanPurchased);
+            baseUri: baseServerUri.toString(),
+            accessToken: accessToken,
+            userId: userId,
+            isPlanPurchased: isPlanPurchased,
+          );
         }
       }
 
       _initLock = false;
-
       onLoginStateChanged.add(LoginState.loggedIn);
-      Logs().i('Successfully connected as $userId with ${baseServerUri.toString()}',
+
+      // Seed profileData from the local cache first so the app has data to
+      // render immediately, even if the network refresh below fails.
+      if (database != null && profileData == null) {
+        final cachedProfile = await database.getUserProfile();
+        if (cachedProfile != null) {
+          profileData = cachedProfile.data;
+        }
+      }
+
+      // Refresh profile/plans from the network. Only a genuine auth rejection
+      // (HTTP 401/403) logs the user out. Any other error (404, timeout,
+      // offline, cold server, 5xx) is treated as transient: keep the user
+      // logged in and fall back to cached data.
+      try {
+        await getProfile(update: true);
+        await getAllPlans(update: true, isUpgrade: false);
+        isPlanPurchased = isPlanBuy = profileData?.firstPlanPurchase == 1;
+        if (database != null) {
+          await database.updateClient(
+            userId: userId,
+            accessToken: accessToken,
+            baseUri: baseServerUri.toString(),
+            isPlanPurchased: isPlanPurchased,
+          );
+        }
+      } on OpdUnauthorizedException catch (e) {
+        // Stored token rejected by the server -> force re-login.
+        Logs().w('Stored session is no longer valid: $e');
+        await logout();
+        return;
+      } catch (e, s) {
+        // Transient failure (timeout, offline, cold server, 5xx): preserve the
+        // session and keep using the cached profile seeded above.
+        Logs().w('Profile/plans refresh failed; keeping cached session', e, s);
+      }
+
+      Logs().i(
+        'Successfully connected as $userId with ${baseServerUri.toString()}',
       );
     } on OpdClientInitException {
       rethrow;
     } catch (e, s) {
-      await clear();
+      // Setup failure (e.g. database) -> do not destroy a stored token.
       _initLock = false;
       Logs().e('OpdClient initialization failed', e, s);
     }
@@ -194,7 +235,8 @@ class OpdClient extends OpdApi {
       throw Exception("No baseServerUri set");
     }
 
-    final response = await super.registerOtp(phone: phone, countryCode: countryCode);
+    final response =
+        await super.registerOtp(phone: phone, countryCode: countryCode);
 
     if (response.data == null) {
       throw Exception(response.toString());
@@ -220,11 +262,13 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<LoginResponse> login({String? phone, String? countryCode, int? loginType, int? otp}) async {
+  Future<LoginResponse> login(
+      {String? phone, String? countryCode, int? loginType, int? otp}) async {
     if (baseServerUri == null) {
       throw Exception("No baseServerUri set");
     }
-    final response = await super.login(otp: otp, phone: phone, countryCode: countryCode, loginType: 1);
+    final response = await super
+        .login(otp: otp, phone: phone, countryCode: countryCode, loginType: 1);
 
     if (response.data == null) {
       throw Exception(response.toJson());
@@ -238,7 +282,8 @@ class OpdClient extends OpdApi {
     if (baseServerUri == null) {
       throw Exception("No baseServerUri set");
     }
-    final response = await super.loginOtp(phone: phone, countryCode: countryCode);
+    final response =
+        await super.loginOtp(phone: phone, countryCode: countryCode);
     if (response.data == null) {
       throw Exception(response.toJson());
     }
@@ -307,7 +352,8 @@ class OpdClient extends OpdApi {
       if (update) {
         userProfile = await super.getProfile();
         await database.updateUserProfile(userProfile: userProfile);
-        await updatePlanPurchasedStatus(userProfile.data!.firstPlanPurchase! == 1);
+        await updatePlanPurchasedStatus(
+            userProfile.data!.firstPlanPurchase! == 1);
         profileData = userProfile.data!;
         return userProfile;
       }
@@ -318,7 +364,6 @@ class OpdClient extends OpdApi {
     profileData = userProfile!.data!;
     return userProfile;
   }
-
 
   Future updatePlanPurchasedStatus(bool value) async {
     final database = this.database;
@@ -388,13 +433,14 @@ class OpdClient extends OpdApi {
     return relations;
   }
 
-
-  Future<FileUploadResponse?> uploadFiles({required FilePickerResult results}) async {
+  Future<FileUploadResponse?> uploadFiles(
+      {required FilePickerResult results}) async {
     List<http.MultipartFile> newFiles = [];
 
     for (var file in results.files) {
       // Get MIME type without forcing image header
-      final mimeType = lookupMimeType(file.path ?? '') ?? 'application/octet-stream';
+      final mimeType =
+          lookupMimeType(file.path ?? '') ?? 'application/octet-stream';
       final mimeSplit = mimeType.split('/');
 
       // Fallback if MIME type split fails
@@ -419,7 +465,6 @@ class OpdClient extends OpdApi {
       return null;
     }
   }
-
 
   // Future<FileUploadResponse?> uploadFiles({required FilePickerResult results}) async {
   //   var files = results.files.map((file) async {
@@ -492,8 +537,7 @@ class OpdClient extends OpdApi {
   }
 
   @override
-  Future<MFine> mFine() async  {
-
+  Future<MFine> mFine() async {
     if (baseServerUri == null) {
       throw Exception("No baseServerUri set");
     }
@@ -504,7 +548,7 @@ class OpdClient extends OpdApi {
         throw Exception(response.toString());
       }
       return response;
-    }catch(e){
+    } catch (e) {
       throw Exception("Something went wrong");
     }
   }

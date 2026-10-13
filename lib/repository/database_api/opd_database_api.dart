@@ -81,10 +81,10 @@ class OpdDatabaseApi extends DatabaseApi {
         clientBox.userId = userId;
       }
       if (accessToken != null) {
-        clientBox.accessToken = userId;
+        clientBox.accessToken = accessToken;
       }
       if (baseUri != null) {
-        clientBox.baseServerUrl = userId;
+        clientBox.baseServerUrl = baseUri;
       }
       if (isPlanPurchased != null) {
         clientBox.isPlanPurchased = isPlanPurchased;
@@ -216,31 +216,35 @@ class OpdDatabaseApi extends DatabaseApi {
   }
 
   @override
-  Future<PlanRecords?> getPlanById({required String? planId, int? memberShipId}) async {
+  Future<PlanRecords?> getPlanById(
+      {required String? planId, int? memberShipId}) async {
     PlansResponse? plans = await getPlans();
     PlanRecords plan = PlanRecords();
     List<MembershipOptions> option = [];
     if (plans != null) {
-      plan = plans.data!.records!.where((records) => records.id == planId!).toList()[0];
-      option = plan.membershipOptions!.where((options) => options.membershipId == memberShipId).toList();
+      plan = plans.data!.records!
+          .where((records) => records.id == planId!)
+          .toList()[0];
+      option = plan.membershipOptions!
+          .where((options) => options.membershipId == memberShipId)
+          .toList();
       return PlanRecords(
-        createdAt: plan.createdAt,
-        files: plan.files,
-        frequency: plan.frequency,
-        id: plan.id,
-        labMaxDiscount: plan.labMaxDiscount,
-        labPrecentDiscount: plan.labPrecentDiscount,
-        membershipOptions: option,
-        name: plan.name,
-        opdMaxDiscount: plan.opdMaxDiscount,
-        opdPrecentDiscount: plan.opdPrecentDiscount,
-        pharmacyMaxDiscount: plan.pharmacyMaxDiscount,
-        pharmacyPrecentDiscount: plan.pharmacyPrecentDiscount,
-        planBenefits: plan.planBenefits,
-        subscriberType: plan.subscriberType,
-        updatedAt: plan.updatedAt,
-        v: plan.v
-      );
+          createdAt: plan.createdAt,
+          files: plan.files,
+          frequency: plan.frequency,
+          id: plan.id,
+          labMaxDiscount: plan.labMaxDiscount,
+          labPrecentDiscount: plan.labPrecentDiscount,
+          membershipOptions: option,
+          name: plan.name,
+          opdMaxDiscount: plan.opdMaxDiscount,
+          opdPrecentDiscount: plan.opdPrecentDiscount,
+          pharmacyMaxDiscount: plan.pharmacyMaxDiscount,
+          pharmacyPrecentDiscount: plan.pharmacyPrecentDiscount,
+          planBenefits: plan.planBenefits,
+          subscriberType: plan.subscriberType,
+          updatedAt: plan.updatedAt,
+          v: plan.v);
     }
     return null;
   }
@@ -249,30 +253,28 @@ class OpdDatabaseApi extends DatabaseApi {
   Future<PlansResponse?> getPlansForUpgrade() async {
     final userProfile = await getUserProfile();
     final currentPlan = userProfile!.data!.plan!;
-    PlanRecords? plan = await getPlanById(planId: currentPlan.id!, memberShipId: currentPlan.membershipId);
+    PlanRecords? plan = await getPlanById(
+        planId: currentPlan.id!, memberShipId: currentPlan.membershipId);
     PlansResponse? opdPlans = await getPlans();
-    List<PlanRecords>  planRecords = [];
+    List<PlanRecords> planRecords = [];
     if (opdPlans != null && plan != null) {
-      if (plan.membershipOptions != null && plan.membershipOptions!.isNotEmpty) {
+      if (plan.membershipOptions != null &&
+          plan.membershipOptions!.isNotEmpty) {
         for (var records in opdPlans.data!.records!) {
           if (records.membershipOptions != null) {
             records.membershipOptions!.removeWhere((option) {
-                return option.charges! <= plan.membershipOptions![0].charges! || option.membershipLabel! == 'Individual';
+              return option.charges! <= plan.membershipOptions![0].charges! ||
+                  option.membershipLabel! == 'Individual';
             });
           }
-          if(records.membershipOptions!.isNotEmpty){
+          if (records.membershipOptions!.isNotEmpty) {
             planRecords.add(records);
           }
-
         }
       }
     }
     return PlansResponse(
-      data: PlansData(
-        pagination: null,
-        records: planRecords
-      ),
+      data: PlansData(pagination: null, records: planRecords),
     );
   }
-
 }

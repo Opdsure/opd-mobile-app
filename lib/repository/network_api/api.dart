@@ -25,6 +25,7 @@ import 'package:opdsure/model/update_member/update_member.dart';
 import 'package:opdsure/model/user_profile/user_profile.dart';
 import 'package:opdsure/pages/checkout/checkout_controller.dart';
 import 'package:opdsure/utils/common_methods.dart';
+import 'package:opdsure/utils/exception/exception.dart';
 
 import '../../config/app_config.dart';
 import '../../model/free_health_checkups/free_health_checkups_model.dart';
@@ -45,6 +46,14 @@ class Api {
       : httpClient = httpClient ?? Client();
 
   Never unexpectedResponse(BaseResponse response, Uint8List body) {
+    // ONLY 401 (and 403) means the stored token is actually rejected -> drop
+    // the session and route to login. Everything else, including 404
+    // (resource/endpoint not found) and 5xx/timeouts, is NOT an auth failure
+    // and must NEVER log the user out, otherwise a single unrelated error
+    // would sign the user out on every launch.
+    if (response.statusCode == 401 || response.statusCode == 403) {
+      throw OpdUnauthorizedException(response.statusCode);
+    }
     try {
       Map<String, dynamic> resMap = jsonDecode(utf8.decode(body));
       CommonMethods.showToast(resMap['message']);
