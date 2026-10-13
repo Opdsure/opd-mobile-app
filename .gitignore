@@ -45,3 +45,25 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ─── Signing & credentials (NEVER COMMIT) ──────────────────────────────────
+# Android signing keystores and key configuration
+**/*.jks
+**/*.keystore
+**/key.properties
+android/key.properties
+
+# Google Play service-account credentials (Play Developer API)
+**/playstore-credentials.json
+**/play-store-*.json
+**/play_store_*.json
+android/fastlane/*.json
+# Generic service-account / Google credentials
+**/service-account*.json
+**/gcp-*.json
+google-services-account*.json
+
+# Fastlane runtime/report output
+android/fastlane/report.xml
+android/fastlane/README.md
+**/fastlane/*.log

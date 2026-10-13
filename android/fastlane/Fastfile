@@ -1,12 +1,104 @@
 default_platform(:android)
 
-platform :android do
-  desc "Upload AAB to Google Play"
-  lane :deploy do
-    upload_to_play_store(
-      track: "production",  # Change to 'internal', 'beta' or 'alpha' if needed
-      aab: "../build/app/outputs/bundle/release/app-release.aab", 
-      json_key: "/Users/intileotechnologies/Documents/Aman/opd_sure_app/android/playstore-credentials.json" # Path to your Play Store JSON key
+# ─────────────────────────────────────────────────────────────────────────────
+# OPDSure Android deployment (Google Play Developer API)
+#
+# Credentials: the Google Play service-account JSON is passed as RAW JSON via
+# the PLAY_STORE_JSON environment variable (NOT a file on disk), so no secret
+# is ever written to the workspace. Locally you may instead export
+# PLAY_STORE_JSON="$(cat path/to/service-account.json)".
+#
+# Package name and AAB path are verified before any upload.
+# Target track is INTERNAL testing only. Production is intentionally disabled.
+# ─────────────────────────────────────────────────────────────────────────────
+
+PACKAGE_NAME = "io.app.opdsure".freeze
+# AAB path is relative to the android/ directory (where fastlane runs).
+AAB_PATH = "../build/app/outputs/bundle/release/app-release.aab".freeze
+
+def play_store_json_key_data
+  data = ENV["PLAY_STORE_JSON"]
+  if data.nil? || data.strip.empty?
+    UI.user_error!(
+      "PLAY_STORE_JSON env var is empty. Provide the Google Play " \
+      "service-account JSON content via the PLAY_STORE_JSON environment " \
+      "variable (CI secret) before running this lane."
     )
+  end
+  # Fail fast if the JSON is malformed, without printing its contents.
+  begin
+    require "json"
+    JSON.parse(data)
+  rescue JSON::ParserError
+    UI.user_error!("PLAY_STORE_JSON does not contain valid JSON.")
+  end
+  data
+end
+
+platform :android do
+  # ───────────────────────────────────────────────────────────────────────────
+  # Prints the next safe Android versionCode: (max across all Play tracks) + 1.
+  # Used by CI to assign a monotonically increasing, collision-free versionCode.
+  # Output marker line (parsed by CI): "NEXT_VERSION_CODE=<n>"
+  # ───────────────────────────────────────────────────────────────────────────
+  desc "Print the next safe Play Console versionCode (max across tracks + 1)"
+  lane :next_version_code do
+    codes = google_play_track_version_codes(
+      package_name: PACKAGE_NAME,
+      track: "internal",
+      json_key_data: play_store_json_key_data
+    )
+
+    # Also consider other tracks so we never collide with a higher release.
+    %w[alpha beta production].each do |t|
+      begin
+        more = google_play_track_version_codes(
+          package_name: PACKAGE_NAME,
+          track: t,
+          json_key_data: play_store_json_key_data
+        )
+        codes += more if more
+      rescue => e
+        UI.message("Track '#{t}' not queryable (#{e.class}); skipping.")
+      end
+    end
+
+    current_max = (codes || []).map(&:to_i).max || 0
+    next_code = current_max + 1
+    UI.success("Current max Play versionCode: #{current_max}")
+    UI.success("NEXT_VERSION_CODE=#{next_code}")
+    next_code
+  end
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Uploads the release AAB to the INTERNAL testing track.
+  # Verifies the AAB exists and the package identity before uploading.
+  # Does NOT upload metadata, images or screenshots.
+  # ───────────────────────────────────────────────────────────────────────────
+  desc "Upload AAB to Google Play (internal testing track)"
+  lane :deploy do
+    aab = File.expand_path(AAB_PATH)
+    unless File.exist?(aab) && File.size(aab) > 0
+      UI.user_error!("AAB not found or empty at #{aab}. Build it first with " \
+                     "`flutter build appbundle --release`.")
+    end
+    UI.message("Uploading AAB: #{aab} (#{File.size(aab)} bytes)")
+    UI.message("Package: #{PACKAGE_NAME} | Track: internal")
+
+    upload_to_play_store(
+      package_name: PACKAGE_NAME,
+      track: "internal",
+      release_status: "completed",
+      aab: aab,
+      json_key_data: play_store_json_key_data,
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: true,
+      validate_only: false
+    )
+
+    UI.success("Uploaded #{PACKAGE_NAME} to the internal testing track.")
   end
 end

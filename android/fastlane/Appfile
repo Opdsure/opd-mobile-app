@@ -1,2 +1,5 @@
-json_key_file("/Users/intileotechnologies/Documents/Aman/opd_sure_app/android/playstore-credentials.json") # Path to the json secret file - Follow https://docs.fastlane.tools/actions/supply/#setup to get one
-package_name("io.app.opdsure") # e.g. com.krausefx.app
+# The Google Play service-account credential is provided at runtime via the
+# PLAY_STORE_JSON environment variable (passed as json_key_data in the Fastfile),
+# so no json_key_file path is configured here. This avoids writing the
+# service-account key to disk.
+package_name("io.app.opdsure")

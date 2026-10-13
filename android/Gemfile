@@ -1,3 +1,4 @@
 source "https://rubygems.org"
 
-gem "fastlane"
+# Pinned to match Gemfile.lock for reproducible CI builds.
+gem "fastlane", "2.226.0"

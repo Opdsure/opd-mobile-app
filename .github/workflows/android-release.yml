@@ -1,0 +1,267 @@
+name: Android Release (Internal Testing)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Flow: Push/Dispatch -> Validate -> Test -> Sign -> Build AAB -> Verify
+#        -> Upload Artifact -> Publish to Google Play INTERNAL testing track
+#
+# Secrets required (configured in GitHub repo settings):
+#   ANDROID_KEYSTORE_BASE64   base64 of android/upload-keystore.jks
+#   ANDROID_KEYSTORE_PASSWORD store password
+#   ANDROID_KEY_ALIAS         key alias (e.g. "upload")
+#   ANDROID_KEY_PASSWORD      key password
+#   PLAY_STORE_JSON           full Google Play service-account JSON (raw content)
+#
+# Production publishing is intentionally NOT configured here.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_code:
+        description: >-
+          Optional explicit Android versionCode. Leave blank to auto-derive
+          from Google Play (max existing versionCode across tracks + 1).
+        required: false
+        type: string
+  push:
+    branches:
+      # NOTE: adjust to your actual release branch. Both are listed because the
+      # repository default could not be confirmed from the local checkout.
+      - master
+      - Aman--Dev
+
+# Least-privilege: the workflow only reads repo contents. No write access to the
+# repository is needed (no version bump is committed back).
+permissions:
+  contents: read
+
+# Prevent overlapping releases from racing on version-code assignment.
+concurrency:
+  group: android-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build & publish (internal)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    env:
+      # Application identity (must match android/app/build.gradle namespace).
+      PACKAGE_NAME: io.app.opdsure
+      # Runtime paths for signing material (outside the repo tree where possible).
+      KEYSTORE_PATH: ${{ github.workspace }}/android/upload-keystore.jks
+      KEY_PROPERTIES_PATH: ${{ github.workspace }}/android/key.properties
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────
+      # actions/checkout v4.2.2
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # ── Toolchain: Java 17 (matches AGP 8.9.1 / Gradle 8.11.1) ─────────────
+      # actions/setup-java v4.7.1
+      - name: Set up JDK 17
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # ── Toolchain: Flutter 3.44.6 (stable, matches pubspec/engine) ─────────
+      # subosito/flutter-action v2.19.0
+      - name: Set up Flutter
+        uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
+        with:
+          flutter-version: "3.44.6"
+          channel: stable
+          cache: true
+
+      # ── Android SDK Platform 36 (highest compileSdk required by plugins) ──
+      # The app compiles against SDK 36 (flutter_pdfview is the highest plugin
+      # requirement). ubuntu-24.04 runners ship cmdline-tools + sdkmanager with
+      # ANDROID_SDK_ROOT preset; ensure Platform 36 and matching build-tools
+      # are present so `compileSdk = 36` resolves. Licenses accepted
+      # non-interactively. (Note: platforms;android-37 is NOT a published SDK
+      # package — only android-37.x revisions exist — so 36 is used.)
+      - name: Install Android SDK Platform 36
+        run: |
+          set -euo pipefail
+          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(command -v sdkmanager)"
+          fi
+          echo "Using sdkmanager: $SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
+          echo "Installed Android SDK Platform 36 and build-tools 36.0.0."
+
+      # ── Toolchain: Ruby + Bundler (for Fastlane) ──────────────────────────
+      # ruby/setup-ruby v1.229.0 — installs gems from android/Gemfile and caches
+      - name: Set up Ruby & Bundler
+        uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+          working-directory: android
+
+      # ── Dart/Flutter dependencies ─────────────────────────────────────────
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      # ── Validation ────────────────────────────────────────────────────────
+      # Formatting is reported but NON-BLOCKING: the existing codebase has many
+      # unformatted files, so enforcing it strictly would block every release
+      # until a one-time `dart format .` commit is made. Once the repo is fully
+      # formatted, flip `continue-on-error` to false to make it a hard gate.
+      - name: Verify Dart formatting (report only)
+        continue-on-error: true
+        run: dart format --output=none --set-exit-if-changed .
+
+      # Static analysis — MANDATORY gate for genuine ERRORS. The existing
+      # codebase currently reports many pre-existing warnings/infos (0 errors),
+      # so warnings/infos are non-fatal here to avoid blocking releases on
+      # unrelated technical debt. Any real analyzer ERROR still stops the build.
+      # Tighten to `--fatal-warnings` once the warning backlog is cleared.
+      - name: Static analysis (errors are fatal)
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
+
+      # Tests are a MANDATORY gate when present under test/.
+      - name: Run tests
+        run: |
+          if grep -rqs --include='*.dart' 'void main' test 2>/dev/null; then
+            flutter test
+          else
+            echo "No tests found under test/ — skipping flutter test."
+          fi
+
+      # ── Signing: decode keystore + generate key.properties at runtime ─────
+      # Values come only from secrets; nothing is printed. The release signing
+      # block in android/app/build.gradle reads android/key.properties.
+      - name: Configure Android signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ANDROID_KEYSTORE_BASE64:-}" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 secret is empty."
+            exit 1
+          fi
+          # Decode keystore (base64 content never echoed).
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$KEYSTORE_PATH"
+          if [ ! -s "$KEYSTORE_PATH" ]; then
+            echo "::error::Decoded keystore is empty — check ANDROID_KEYSTORE_BASE64."
+            exit 1
+          fi
+          # Generate key.properties pointing at the decoded keystore.
+          # storeFile is relative to android/app (Gradle rootProject = android/).
+          umask 077
+          {
+            echo "storePassword=${ANDROID_KEYSTORE_PASSWORD}"
+            echo "keyPassword=${ANDROID_KEY_PASSWORD}"
+            echo "keyAlias=${ANDROID_KEY_ALIAS}"
+            echo "storeFile=../upload-keystore.jks"
+          } > "$KEY_PROPERTIES_PATH"
+          echo "Signing configured (keystore + key.properties generated)."
+
+      # ── Determine versionCode (collision-free) ────────────────────────────
+      # If a manual input was given, use it. Otherwise ask Play (via Fastlane)
+      # for max(existing versionCode across tracks) + 1. Fail clearly if neither
+      # is available.
+      - name: Resolve versionCode
+        id: vc
+        env:
+          PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_JSON }}
+          INPUT_VERSION_CODE: ${{ github.event.inputs.version_code }}
+        working-directory: android
+        run: |
+          set -euo pipefail
+          if [ -n "${INPUT_VERSION_CODE:-}" ]; then
+            echo "Using manually provided versionCode: ${INPUT_VERSION_CODE}"
+            echo "version_code=${INPUT_VERSION_CODE}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "${PLAY_STORE_JSON:-}" ]; then
+            echo "::error::No version_code input and PLAY_STORE_JSON is empty. Cannot derive a safe versionCode."
+            exit 1
+          fi
+          # Capture the Fastlane NEXT_VERSION_CODE marker without leaking creds.
+          set +e
+          OUT="$(bundle exec fastlane next_version_code 2>&1)"
+          STATUS=$?
+          set -e
+          # Print Fastlane output but never the credential.
+          echo "$OUT"
+          if [ $STATUS -ne 0 ]; then
+            echo "::error::Failed to query Play Console for the next versionCode. Provide 'version_code' manually or check service-account permissions."
+            exit 1
+          fi
+          NEXT="$(echo "$OUT" | grep -oE 'NEXT_VERSION_CODE=[0-9]+' | tail -n1 | cut -d= -f2)"
+          if [ -z "${NEXT:-}" ]; then
+            echo "::error::Could not parse NEXT_VERSION_CODE from Fastlane output."
+            exit 1
+          fi
+          echo "Resolved next versionCode: ${NEXT}"
+          echo "version_code=${NEXT}" >> "$GITHUB_OUTPUT"
+
+      # ── Resolve versionName from pubspec.yaml ─────────────────────────────
+      - name: Resolve versionName
+        id: vn
+        run: |
+          set -euo pipefail
+          RAW="$(grep -E '^version:' pubspec.yaml | head -n1 | sed -E 's/version:\s*//')"
+          NAME="${RAW%%+*}"
+          echo "Version name: ${NAME}"
+          echo "version_name=${NAME}" >> "$GITHUB_OUTPUT"
+
+      # ── Build the signed release AAB ──────────────────────────────────────
+      - name: Build release AAB
+        run: >-
+          flutter build appbundle --release
+          --build-name=${{ steps.vn.outputs.version_name }}
+          --build-number=${{ steps.vc.outputs.version_code }}
+
+      # ── Verify the AAB exists and is non-empty ────────────────────────────
+      - name: Verify AAB
+        id: aab
+        run: |
+          set -euo pipefail
+          AAB="build/app/outputs/bundle/release/app-release.aab"
+          if [ ! -s "$AAB" ]; then
+            echo "::error::Expected AAB missing or empty at $AAB"
+            exit 1
+          fi
+          echo "AAB OK: $AAB ($(stat -c%s "$AAB") bytes)"
+          echo "path=$AAB" >> "$GITHUB_OUTPUT"
+
+      # ── Upload the AAB as a workflow artifact ─────────────────────────────
+      # actions/upload-artifact v4.6.2
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: app-release-${{ steps.vc.outputs.version_code }}.aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 14
+
+      # ── Publish to Google Play internal testing track ────────────────────
+      - name: Publish to Google Play (internal)
+        env:
+          PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_JSON }}
+        working-directory: android
+        run: |
+          set -euo pipefail
+          if [ -z "${PLAY_STORE_JSON:-}" ]; then
+            echo "::error::PLAY_STORE_JSON secret is empty — cannot publish."
+            exit 1
+          fi
+          bundle exec fastlane deploy
+
+      # ── Always clean up signing material (success or failure) ─────────────
+      - name: Clean up signing material
+        if: ${{ always() }}
+        run: |
+          rm -f "$KEYSTORE_PATH" "$KEY_PROPERTIES_PATH" || true
+          echo "Removed keystore and key.properties."

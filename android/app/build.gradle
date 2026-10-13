@@ -32,7 +32,12 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "io.app.opdsure"
-    compileSdk = flutter.compileSdkVersion
+    // Pinned to 36 — the highest compileSdk required by any plugin in the
+    // dependency tree (flutter_pdfview). SDK Platform 37 is not a published,
+    // installable package (only android-37.x revisions exist), so building
+    // against 36 is both sufficient and reliably available on CI runners.
+    // targetSdk is intentionally left on flutter.targetSdkVersion.
+    compileSdk = 36
     ndkVersion = "28.2.13676358"
 
 

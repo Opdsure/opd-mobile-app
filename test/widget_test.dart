@@ -1,31 +1,78 @@
-// // This is a basic Flutter widget test.
-// //
-// // To perform an interaction with a widget in your test, use the WidgetTester
-// // utility in the flutter_test package. For example, you can send tap and scroll
-// // gestures. You can also use WidgetTester to find child widgets in the widget
-// // tree, read text, and verify that the values of widget properties are correct.
+// Unit tests for OPDSure.
 //
-// import 'package:flutter/material.dart';
-// import 'package:flutter_test/flutter_test.dart';
+// The previous template test (a counter-app smoke test) was fully commented
+// out, so the file had no `main()` entry point and failed to load in CI
+// ("0 tests passed, 1 failed"). It also referenced `OpdSureApp()` with no
+// arguments, which does not match the current app — `OpdSureApp` requires
+// `clients` and `store` and bootstraps SharedPreferences, Hive, network
+// clients, Provider and GoRouter, which cannot be constructed in a plain test
+// without heavy mocking and real I/O.
 //
-// import 'package:opdsure/main.dart';
-// import 'package:opdsure/widget/opd_sure_app.dart';
-//
-// void main() {
-//   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-//     // Build our app and trigger a frame.
-//     await tester.pumpWidget(const OpdSureApp());
-//
-//     // Verify that our counter starts at 0.
-//     expect(find.text('0'), findsOneWidget);
-//     expect(find.text('1'), findsNothing);
-//
-//     // Tap the '+' icon and trigger a frame.
-//     await tester.tap(find.byIcon(Icons.add));
-//     await tester.pump();
-//
-//     // Verify that our counter has incremented.
-//     expect(find.text('0'), findsNothing);
-//     expect(find.text('1'), findsOneWidget);
-//   });
-// }
+// Instead, these tests exercise the app's own pure, deterministic logic
+// (AppConfig constants and CommonMethods helpers). They run with no external
+// dependencies and give the CI `flutter test` step real, meaningful coverage.
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:opdsure/config/app_config.dart';
+import 'package:opdsure/utils/common_methods.dart';
+
+void main() {
+  group('AppConfig', () {
+    test('application name is OPD Sure', () {
+      expect(AppConfig.applicationName, 'OPD Sure');
+    });
+
+    test('default base URL points to the OPDSure API host', () {
+      expect(AppConfig.defaultBaseUrl, 'api.opdsure.net');
+    });
+  });
+
+  group('CommonMethods.genderKey', () {
+    test('maps gender labels to their keys', () {
+      expect(CommonMethods.genderKey('Male'), '1');
+      expect(CommonMethods.genderKey('Female'), '2');
+      expect(CommonMethods.genderKey('Other'), '3');
+    });
+
+    test('returns empty string for unknown labels', () {
+      expect(CommonMethods.genderKey('Unknown'), '');
+    });
+  });
+
+  group('CommonMethods.getGenderByKey', () {
+    test('maps keys back to gender labels', () {
+      expect(CommonMethods.getGenderByKey(1), 'Male');
+      expect(CommonMethods.getGenderByKey(2), 'Female');
+      expect(CommonMethods.getGenderByKey(3), 'Other');
+    });
+
+    test('returns empty string for unknown keys', () {
+      expect(CommonMethods.getGenderByKey(99), '');
+    });
+
+    test('round-trips with genderKey', () {
+      for (final label in ['Male', 'Female', 'Other']) {
+        final key = int.parse(CommonMethods.genderKey(label));
+        expect(CommonMethods.getGenderByKey(key), label);
+      }
+    });
+  });
+
+  group('CommonMethods.getClaimNameById', () {
+    test('maps claim ids to names', () {
+      expect(CommonMethods.getClaimNameById('0'), 'OPD');
+      expect(CommonMethods.getClaimNameById('1'), 'PHARMACY');
+      expect(CommonMethods.getClaimNameById('2'), 'LAB TEST');
+    });
+
+    test('defaults to OPD for unknown ids', () {
+      expect(CommonMethods.getClaimNameById('999'), 'OPD');
+    });
+  });
+
+  group('CommonMethods.amountFormater', () {
+    test('formats integer amounts with Indian grouping', () {
+      expect(CommonMethods.amountFormater('100000'), '1,00,000');
+    });
+  });
+}
