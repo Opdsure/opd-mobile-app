@@ -76,24 +76,46 @@ jobs:
           channel: stable
           cache: true
 
-      # ── Android SDK Platform 36 (highest compileSdk required by plugins) ──
-      # The app compiles against SDK 36 (flutter_pdfview is the highest plugin
-      # requirement). ubuntu-24.04 runners ship cmdline-tools + sdkmanager with
-      # ANDROID_SDK_ROOT preset; ensure Platform 36 and matching build-tools
-      # are present so `compileSdk = 36` resolves. Licenses accepted
-      # non-interactively. (Note: platforms;android-37 is NOT a published SDK
-      # package — only android-37.x revisions exist — so 36 is used.)
-      - name: Install Android SDK Platform 36
+      # ── Android SDK Platform (must match compileSdk in app/build.gradle) ──
+      # The app compiles against compileSdk = 36 (the highest compileSdk any
+      # plugin in the committed pubspec.lock requires — flutter_pdfview).
+      # IMPORTANT: a bare `platforms;android-37` package does NOT exist in the
+      # Android SDK repository (only revisioned android-37.0/37.1/37.2 do), so
+      # it cannot be installed and AGP cannot compile against a bare SDK 37.
+      # Keep COMPILE_SDK in sync with android/app/build.gradle.
+      - name: Install Android SDK Platform
+        env:
+          COMPILE_SDK: "36"
+          BUILD_TOOLS: "36.0.0"
         run: |
           set -euo pipefail
-          SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          SDKMANAGER="${SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
           if [ ! -x "$SDKMANAGER" ]; then
             SDKMANAGER="$(command -v sdkmanager)"
           fi
           echo "Using sdkmanager: $SDKMANAGER"
+          echo "Target: platforms;android-${COMPILE_SDK}, build-tools;${BUILD_TOOLS}"
           yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
-          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
-          echo "Installed Android SDK Platform 36 and build-tools 36.0.0."
+          "$SDKMANAGER" "platforms;android-${COMPILE_SDK}" "build-tools;${BUILD_TOOLS}"
+
+      # Verify the platform directory actually exists BEFORE Gradle runs, so a
+      # missing/mis-named SDK platform fails here with a clear message instead
+      # of deep inside the Gradle resource task.
+      - name: Verify Android SDK Platform is present
+        env:
+          COMPILE_SDK: "36"
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          PLATFORM_DIR="${SDK_ROOT}/platforms/android-${COMPILE_SDK}"
+          if [ ! -d "$PLATFORM_DIR" ]; then
+            echo "::error::Android SDK Platform ${COMPILE_SDK} not found at ${PLATFORM_DIR}. The build cannot compile against compileSdk ${COMPILE_SDK}."
+            echo "Installed platforms:"
+            ls -1 "${SDK_ROOT}/platforms" 2>/dev/null || echo "(none)"
+            exit 1
+          fi
+          echo "Verified: ${PLATFORM_DIR} exists."
 
       # ── Toolchain: Ruby + Bundler (for Fastlane) ──────────────────────────
       # ruby/setup-ruby v1.229.0 — installs gems from android/Gemfile and caches
@@ -105,8 +127,13 @@ jobs:
           working-directory: android
 
       # ── Dart/Flutter dependencies ─────────────────────────────────────────
-      - name: Install Flutter dependencies
-        run: flutter pub get
+      # --enforce-lockfile makes pub FAIL instead of silently resolving newer
+      # versions when the committed pubspec.lock cannot be satisfied exactly.
+      # This is what guarantees CI uses the pinned permission_handler_android
+      # 13.0.1 (compileSdk 35) rather than drifting up to 14.0.0 (compileSdk 37,
+      # which no SDK platform / AGP can build). The lockfile MUST be committed.
+      - name: Install Flutter dependencies (locked)
+        run: flutter pub get --enforce-lockfile
 
       # ── Validation ────────────────────────────────────────────────────────
       # Formatting is reported but NON-BLOCKING: the existing codebase has many
@@ -215,6 +242,37 @@ jobs:
           NAME="${RAW%%+*}"
           echo "Version name: ${NAME}"
           echo "version_name=${NAME}" >> "$GITHUB_OUTPUT"
+
+      # ── Diagnostics: resolved plugin version + installed SDK platforms ────
+      # Prints the EXACT permission_handler_android version pub resolved from
+      # the committed lockfile, plus the Android SDK platforms actually present
+      # on the runner. This makes the "requires platforms;android-37" failure
+      # self-explanatory in the log (expected: android-plugin 13.0.1, and an
+      # installed android-36 platform). No secrets are read or printed.
+      - name: Diagnostics (plugin version + SDK platforms)
+        run: |
+          set -euo pipefail
+          echo "── Resolved permission_handler_android (from pubspec.lock) ──"
+          # Grab the version line that immediately follows the plugin's name
+          # entry in the lockfile. Fails loudly if the plugin is missing.
+          PHA_VERSION="$(awk '
+            /^  permission_handler_android:/ {inblk=1}
+            inblk && /^    version:/ {gsub(/[" ]/,"",$2); print $2; exit}
+          ' pubspec.lock)"
+          if [ -z "${PHA_VERSION:-}" ]; then
+            echo "::error::permission_handler_android not found in pubspec.lock."
+            exit 1
+          fi
+          echo "permission_handler_android = ${PHA_VERSION}"
+          case "$PHA_VERSION" in
+            14.*|15.*|16.*|17.*|18.*|19.*)
+              echo "::error::permission_handler_android ${PHA_VERSION} requires compileSdk 37, which has no installable SDK platform and no AGP support. Pin permission_handler to the 12.x line."
+              exit 1
+              ;;
+          esac
+          echo "── Installed Android SDK platforms ──"
+          SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          ls -1 "${SDK_ROOT}/platforms" 2>/dev/null || echo "(none found at ${SDK_ROOT}/platforms)"
 
       # ── Build the signed release AAB ──────────────────────────────────────
       - name: Build release AAB

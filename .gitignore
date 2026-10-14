@@ -32,7 +32,12 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-/pubspec.lock
+# pubspec.lock IS committed on purpose: this is an application (not a library),
+# so the lockfile must be tracked to give CI reproducible dependency versions.
+# Without it, CI resolves newer plugins from pub.dev that can require an
+# Android SDK platform the runner cannot install (e.g. a non-existent
+# platforms;android-37), breaking the release build unexpectedly.
+# /pubspec.lock
 /lib/test.json
 /lib/test.dart
 # Symbolication related
