@@ -13,8 +13,35 @@ default_platform(:android)
 # ─────────────────────────────────────────────────────────────────────────────
 
 PACKAGE_NAME = "io.app.opdsure".freeze
-# AAB path is relative to the android/ directory (where fastlane runs).
-AAB_PATH = "../build/app/outputs/bundle/release/app-release.aab".freeze
+
+# The release AAB is produced by `flutter build appbundle --release` at
+# <flutter-project-root>/build/app/outputs/bundle/release/app-release.aab.
+# For this repo the Flutter project root is the REPOSITORY root (one level
+# above android/), NOT android/. A previous hard-coded relative path broke
+# because its correctness depended on Fastlane's current working directory
+# (Dir.pwd), which is not guaranteed — that produced the bogus lookup under
+# android/build/... and the "AAB not found" failure.
+#
+# resolve_aab_path finds the AAB without relying on Dir.pwd:
+#   1. If AAB_PATH env var is set (CI passes the absolute, already-verified
+#      path), use it verbatim.
+#   2. Otherwise search known locations anchored to this Fastfile's own
+#      directory (android/fastlane), so resolution is identical no matter
+#      where fastlane is invoked from.
+def resolve_aab_path
+  explicit = ENV["AAB_PATH"]
+  return File.expand_path(explicit) if explicit && !explicit.strip.empty?
+
+  # android/fastlane -> android -> repo root
+  repo_root = File.expand_path("../..", __dir__)
+  android_dir = File.expand_path("..", __dir__)
+  relative = "build/app/outputs/bundle/release/app-release.aab"
+
+  [
+    File.join(repo_root, relative),   # Flutter default (repo root) — expected
+    File.join(android_dir, relative), # defensive: if ever built under android/
+  ]
+end
 
 def play_store_json_key_data
   data = ENV["PLAY_STORE_JSON"]
@@ -77,10 +104,16 @@ platform :android do
   # ───────────────────────────────────────────────────────────────────────────
   desc "Upload AAB to Google Play (internal testing track)"
   lane :deploy do
-    aab = File.expand_path(AAB_PATH)
-    unless File.exist?(aab) && File.size(aab) > 0
-      UI.user_error!("AAB not found or empty at #{aab}. Build it first with " \
-                     "`flutter build appbundle --release`.")
+    resolved = resolve_aab_path
+    candidates = resolved.is_a?(Array) ? resolved : [resolved]
+    aab = candidates.find { |p| File.exist?(p) && File.size(p) > 0 }
+
+    if aab.nil?
+      UI.user_error!(
+        "AAB not found or empty. Build it first with " \
+        "`flutter build appbundle --release`. Searched:\n  - " \
+        "#{candidates.join("\n  - ")}"
+      )
     end
     UI.message("Uploading AAB: #{aab} (#{File.size(aab)} bytes)")
     UI.message("Package: #{PACKAGE_NAME} | Track: internal")

@@ -282,17 +282,30 @@ jobs:
           --build-number=${{ steps.vc.outputs.version_code }}
 
       # ── Verify the AAB exists and is non-empty ────────────────────────────
+      # Flutter writes the AAB relative to the Flutter project root, which for
+      # this repo is the REPOSITORY ROOT (this step runs with no
+      # working-directory, i.e. at ${{ github.workspace }}), NOT android/.
+      # We resolve to an ABSOLUTE path and hand it to Fastlane via AAB_PATH so
+      # the deploy step reads the exact file verified here, independent of
+      # Fastlane's current working directory.
       - name: Verify AAB
         id: aab
         run: |
           set -euo pipefail
-          AAB="build/app/outputs/bundle/release/app-release.aab"
-          if [ ! -s "$AAB" ]; then
-            echo "::error::Expected AAB missing or empty at $AAB"
+          REL="build/app/outputs/bundle/release/app-release.aab"
+          echo "Listing AAB output directory:"
+          ls -l "build/app/outputs/bundle/release/" || {
+            echo "::error::AAB output directory does not exist. The build did not produce an app bundle."
+            exit 1
+          }
+          if [ ! -s "$REL" ]; then
+            echo "::error::Expected AAB missing or empty at $REL"
             exit 1
           fi
-          echo "AAB OK: $AAB ($(stat -c%s "$AAB") bytes)"
-          echo "path=$AAB" >> "$GITHUB_OUTPUT"
+          ABS="$(readlink -f "$REL")"
+          echo "AAB OK: $ABS ($(stat -c%s "$ABS") bytes)"
+          echo "path=$REL" >> "$GITHUB_OUTPUT"
+          echo "abs_path=$ABS" >> "$GITHUB_OUTPUT"
 
       # ── Upload the AAB as a workflow artifact ─────────────────────────────
       # actions/upload-artifact v4.6.2
@@ -308,11 +321,19 @@ jobs:
       - name: Publish to Google Play (internal)
         env:
           PLAY_STORE_JSON: ${{ secrets.PLAY_STORE_JSON }}
+          # Absolute, already-verified AAB path from the Verify AAB step.
+          # The Fastfile reads this verbatim, so deploy never depends on
+          # Fastlane's working directory to locate the bundle.
+          AAB_PATH: ${{ steps.aab.outputs.abs_path }}
         working-directory: android
         run: |
           set -euo pipefail
           if [ -z "${PLAY_STORE_JSON:-}" ]; then
             echo "::error::PLAY_STORE_JSON secret is empty — cannot publish."
+            exit 1
+          fi
+          if [ ! -s "${AAB_PATH:-}" ]; then
+            echo "::error::AAB_PATH (${AAB_PATH:-<empty>}) is missing or empty right before deploy."
             exit 1
           fi
           bundle exec fastlane deploy
