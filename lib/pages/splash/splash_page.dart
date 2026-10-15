@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:opdsure/config/app_config.dart';
 import 'package:opdsure/utils/app_keys/app_key.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 
@@ -71,25 +70,13 @@ class _SplashPageState extends State<SplashPage>
           opacity: _fadeAnimation,
           child: ScaleTransition(
             scale: _scaleAnimation,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/app_logo.png',
-                  height: 140,
-                  width: 140,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  AppConfig.applicationName,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: AppConfig.primaryColor,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Image.asset(
+                'assets/images/app_logo.png',
+                width: 260,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
         ),

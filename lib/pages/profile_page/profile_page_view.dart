@@ -3,6 +3,7 @@ import 'package:opdsure/config/app_design_system.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_home_header.dart';
 import 'package:opdsure/pages/profile_page/family_member.dart';
+import 'package:opdsure/pages/profile_page/hospitals_tab.dart';
 import 'package:opdsure/pages/profile_page/pending_member.dart';
 import 'package:opdsure/pages/profile_page/profile.dart';
 import 'package:opdsure/pages/profile_page/profile_page.dart';
@@ -15,7 +16,7 @@ class ProfilePageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: AppBasePage(
         appHeader: AppHomeHeader(
           title: Text('Profile', style: AppDesign.titleLg),
@@ -55,6 +56,7 @@ class ProfilePageView extends StatelessWidget {
                   Tab(text: 'Personal'),
                   Tab(text: 'Family'),
                   Tab(text: 'Pending'),
+                  Tab(text: 'Hospitals'),
                 ],
               ),
             ),
@@ -65,6 +67,7 @@ class ProfilePageView extends StatelessWidget {
                   Profile(controller),
                   FamilyMember(controller),
                   PendingFamilyMember(controller),
+                  HospitalsTab(controller),
                 ],
               ),
             ),

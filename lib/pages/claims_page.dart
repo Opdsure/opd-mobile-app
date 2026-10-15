@@ -5,11 +5,10 @@ import 'package:opdsure/config/app_design_system.dart';
 import 'package:opdsure/custom_ui/app_base_page.dart';
 import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_home_header.dart';
+import 'package:opdsure/custom_ui/claim_count_tile.dart';
 import 'package:opdsure/get_controllers/type_controller.dart';
-import 'package:opdsure/model/claim_status_model.dart';
 import 'package:opdsure/widget/opd_widget.dart';
 import '../model/my_claim/my_claims_model.dart';
-import 'claim_pages/claim_tile.dart';
 
 class ClaimsPage extends StatelessWidget {
   const ClaimsPage({super.key});
@@ -23,127 +22,86 @@ class ClaimsPage extends StatelessWidget {
         appHeader: AppHomeHeader(
           title: Text('Claims', style: AppDesign.titleLg),
         ),
-        childContent: Column(
-          children: [
-            _buildFileClaimBanner(context),
-            const SizedBox(height: AppDesign.spacingXl),
-            Expanded(
-              child: Obx(() {
-                bool refresh = typeController.refreshClaimList.value;
-                return refresh
-                    ? FutureBuilder<MyClaimsModel?>(
-                        future: OpdSure.of(context).client.getAllClaims(),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return _buildLoadingState();
-                          }
-                          if (snapshot.data == null) {
-                            return _buildLoadingState();
-                          }
-                          MyClaimsModel? myClaimsModel = snapshot.data;
-                          List<ClaimRecords> listData =
-                              myClaimsModel!.data!.records!;
-                          if (listData.isEmpty) {
-                            return _buildEmptyState();
-                          }
-                          return RefreshIndicator(
-                            color: AppDesign.primary,
-                            onRefresh: () async {
-                              typeController.refreshClaimListChange(false);
-                              typeController.refreshClaimListChange(true);
-                            },
-                            child: ListView.builder(
-                              itemCount: listData.length,
-                              itemBuilder: (context, index) {
-                                ClaimRecords records = listData[index];
-                                ClaimStatusModel claimStatusModel =
-                                    ClaimStatusModel().getClaimBuStatus(
-                                        records.status!,
-                                        reSubmit: records.resubmission!);
-                                ClaimStatusModel disputeClaimStatus =
-                                    ClaimStatusModel().getDisputeClaimBuStatus(
-                                        records.disputeDetails!);
-                                return ClaimTile(
-                                  records: records,
-                                  claimStatus: claimStatusModel,
-                                  disputeClaimStatus: disputeClaimStatus,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      )
-                    : const SizedBox.shrink();
-              }),
-            ),
-          ],
-        ),
+        childContent: Obx(() {
+          bool refresh = typeController.refreshClaimList.value;
+          return refresh
+              ? FutureBuilder<MyClaimsModel?>(
+                  future: OpdSure.of(context).client.getAllClaims(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting ||
+                        snapshot.data == null) {
+                      return _buildLoadingState();
+                    }
+                    MyClaimsModel myClaimsModel = snapshot.data!;
+                    return RefreshIndicator(
+                      color: AppDesign.primary,
+                      onRefresh: () async {
+                        typeController.refreshClaimListChange(false);
+                        typeController.refreshClaimListChange(true);
+                      },
+                      child: ListView(
+                        children: [
+                          // Claims dashboard (Total / Pending / Settled)
+                          _buildClaimsDashboard(myClaimsModel),
+                          const SizedBox(height: AppDesign.spacingXl),
+                          // Single action button
+                          _buildActionButton(context),
+                        ],
+                      ),
+                    );
+                  },
+                )
+              : _buildLoadingState();
+        }),
       ),
     );
   }
 
-  Widget _buildFileClaimBanner(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: AppDesign.accentGradient,
-        borderRadius: BorderRadius.circular(AppDesign.radiusLg),
-        boxShadow: AppDesign.shadowMd,
-      ),
-      padding: const EdgeInsets.all(AppDesign.spacingLg),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(AppDesign.radiusMd),
-                ),
-                child: const Icon(
-                  Icons.description_outlined,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: AppDesign.spacingMd),
-              Text(
-                'File a new claim',
-                style: AppDesign.titleLg.copyWith(color: Colors.white),
-              ),
-            ],
+  // Total / Pending / Settled count tiles shown at the top of the Claims page.
+  Widget _buildClaimsDashboard(MyClaimsModel myClaimsModel) {
+    return Row(
+      children: [
+        Expanded(
+          child: ClaimCountTile(
+            count: myClaimsModel.data!.getTotalClaim,
+            title: 'Total',
           ),
-          const SizedBox(height: AppDesign.spacingLg),
-          Divider(
-            color: Colors.white.withOpacity(0.2),
-            height: 1,
+        ),
+        Expanded(
+          child: ClaimCountTile(
+            count: myClaimsModel.data!.getPendingClaim,
+            title: 'Pending',
           ),
-          const SizedBox(height: AppDesign.spacingLg),
-          OpdSure.of(context).client.isPlanPurchased
-              ? AppButton(
-                  text: 'File a claim',
-                  color: Colors.white,
-                  textColor: AppDesign.accent,
-                  onClick: () {
-                    context.push('/home/file_claim', extra: {
-                      'isUpdate': false,
-                      'records': null,
-                    });
-                  },
-                )
-              : AppButton(
-                  text: 'View Plan Benefits',
-                  color: Colors.white,
-                  textColor: AppDesign.accent,
-                  onClick: () {
-                    context.push('/home/plan-benefits');
-                  },
-                ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: ClaimCountTile(
+            count: myClaimsModel.data!.getSettledClaim,
+            title: 'Settled',
+          ),
+        ),
+      ],
     );
+  }
+
+  // One blue button below the dashboard. Plan holders file a claim; others are
+  // routed to plan benefits (behaviour preserved from the previous banner).
+  Widget _buildActionButton(BuildContext context) {
+    return OpdSure.of(context).client.isPlanPurchased
+        ? AppButton(
+            text: 'File a claim',
+            onClick: () {
+              context.push('/home/file_claim', extra: {
+                'isUpdate': false,
+                'records': null,
+              });
+            },
+          )
+        : AppButton(
+            text: 'View Plan Benefits',
+            onClick: () {
+              context.push('/home/plan-benefits');
+            },
+          );
   }
 
   Widget _buildLoadingState() {
@@ -164,39 +122,6 @@ class ClaimsPage extends StatelessWidget {
           Text(
             'Loading claims...',
             style: AppDesign.bodyMd.copyWith(color: AppDesign.textTertiary),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: AppDesign.accentLight,
-              borderRadius: BorderRadius.circular(AppDesign.radiusFull),
-            ),
-            child: const Icon(
-              Icons.receipt_long_outlined,
-              size: 32,
-              color: AppDesign.accent,
-            ),
-          ),
-          const SizedBox(height: AppDesign.spacingLg),
-          Text(
-            'No Claims Found',
-            style: AppDesign.titleLg.copyWith(color: AppDesign.textSecondary),
-          ),
-          const SizedBox(height: AppDesign.spacingSm),
-          const Text(
-            'Your filed claims will appear here',
-            style: AppDesign.bodySm,
           ),
         ],
       ),

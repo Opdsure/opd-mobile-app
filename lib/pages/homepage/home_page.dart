@@ -474,13 +474,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Marketplace', style: AppDesign.headingSm),
-        const SizedBox(height: AppDesign.spacingXs),
-        Text(
-          'One Marketplace. Complete Health.',
-          style: AppDesign.bodySm.copyWith(color: AppDesign.textSecondary),
-        ),
-        const SizedBox(height: AppDesign.spacingLg),
         // All categories, each with its full grid of subcategory icons.
         for (int c = 0; c < _marketplaceCategories.length; c++) ...[
           _buildMarketplaceCategory(_marketplaceCategories[c], c),
