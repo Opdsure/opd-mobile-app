@@ -100,6 +100,25 @@ class _FileClaimPageState extends State<FileClaimPage> {
   ClaimRecords? cRecords;
   SingleClaimModel? singleClaimModel;
 
+  // Cached reference data, fetched ONCE in initState. Previously the hospital
+  // list was fetched inside build() via a FutureBuilder, so every setState
+  // (e.g. typing a bill amount) re-fired getHospitals() and caused the field
+  // to "reload then select again". Specialization is cached the same way.
+  List<HospitalRecord> _approvedHospitals = [];
+  bool _hospitalsLoading = true;
+  List<SpclRecords> _specializations = [];
+  bool _specializationsLoading = true;
+
+  // Per-category "calculating claimable amount" flags, so each amount row can
+  // show an inline spinner while its calculate-claim API call is in flight.
+  bool _calcDocFee = false;
+  bool _calcPharmacy = false;
+  bool _calcDiagnostics = false;
+  bool _calcVision = false;
+  bool _calcDental = false;
+  bool _calcVaccination = false;
+  bool _calcPhysio = false;
+
   void _calculateSum() {
     setState(() {
       totalClaimableAmnt = (_value11 +
@@ -118,122 +137,186 @@ class _FileClaimPageState extends State<FileClaimPage> {
 
   void docFee({String? value = '0'}) async {
     if (value == null || value.isEmpty) value = '0';
-    var data = await OpdSure.of(context)
-        .client
-        .calculateClaimPrice('0', double.parse(value));
-    CalculateClaimModel calculateClaimModel =
-        CalculateClaimModel.fromJson(jsonDecode(data));
-    setState(() {
-      _value11 =
-          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
-      _value1 = double.tryParse(value.toString()) ?? 0.0;
-      docFeeClCtrl.text = _value11.toStringAsFixed(2);
-      _docFeeRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
-      _calculateSum();
-    });
+    final input = value;
+    setState(() => _calcDocFee = true);
+    try {
+      var data = await OpdSure.of(context)
+          .client
+          .calculateClaimPrice('0', double.parse(input));
+      CalculateClaimModel calculateClaimModel =
+          CalculateClaimModel.fromJson(jsonDecode(data));
+      setState(() {
+        _value11 =
+            double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+        _value1 = double.tryParse(input) ?? 0.0;
+        docFeeClCtrl.text = _value11.toStringAsFixed(2);
+        _docFeeRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+        _calculateSum();
+      });
+    } catch (_) {
+      _onCalcFailed("Doctor's Fees", () => docFee(value: input));
+    } finally {
+      if (mounted) setState(() => _calcDocFee = false);
+    }
   }
 
   void pharmaBill({String? value = '0'}) async {
     if (value == null || value.isEmpty) value = '0';
+    final input = value;
     String calculator = claimCombination == '1' ? '1' : '3';
-    var data = await OpdSure.of(context)
-        .client
-        .calculateClaimPrice(calculator, double.parse(value));
-    CalculateClaimModel calculateClaimModel =
-        CalculateClaimModel.fromJson(jsonDecode(data));
-    setState(() {
-      _value12 =
-          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
-      _value2 = double.tryParse(value.toString()) ?? 0.0;
-      billAmntPhrClCtrl.text = _value12.toStringAsFixed(2);
-      _pharmacyRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
-      _calculateSum();
-    });
+    setState(() => _calcPharmacy = true);
+    try {
+      var data = await OpdSure.of(context)
+          .client
+          .calculateClaimPrice(calculator, double.parse(input));
+      CalculateClaimModel calculateClaimModel =
+          CalculateClaimModel.fromJson(jsonDecode(data));
+      setState(() {
+        _value12 =
+            double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+        _value2 = double.tryParse(input) ?? 0.0;
+        billAmntPhrClCtrl.text = _value12.toStringAsFixed(2);
+        _pharmacyRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+        _calculateSum();
+      });
+    } catch (_) {
+      _onCalcFailed('Pharmacy', () => pharmaBill(value: input));
+    } finally {
+      if (mounted) setState(() => _calcPharmacy = false);
+    }
   }
 
   void labBill({String? value = '0'}) async {
     if (value == null || value.isEmpty) value = '0';
-    var data = await OpdSure.of(context)
-        .client
-        .calculateClaimPrice('2', double.parse(value));
-    CalculateClaimModel calculateClaimModel =
-        CalculateClaimModel.fromJson(jsonDecode(data));
-    setState(() {
-      _value13 =
-          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
-      _value3 = double.tryParse(value.toString()) ?? 0.0;
-      billAmntDiaClCtrl.text = _value13.toStringAsFixed(2);
-      _diagnosticsRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
-      _calculateSum();
-    });
+    final input = value;
+    setState(() => _calcDiagnostics = true);
+    try {
+      var data = await OpdSure.of(context)
+          .client
+          .calculateClaimPrice('2', double.parse(input));
+      CalculateClaimModel calculateClaimModel =
+          CalculateClaimModel.fromJson(jsonDecode(data));
+      setState(() {
+        _value13 =
+            double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+        _value3 = double.tryParse(input) ?? 0.0;
+        billAmntDiaClCtrl.text = _value13.toStringAsFixed(2);
+        _diagnosticsRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+        _calculateSum();
+      });
+    } catch (_) {
+      _onCalcFailed('Diagnostics', () => labBill(value: input));
+    } finally {
+      if (mounted) setState(() => _calcDiagnostics = false);
+    }
   }
 
   void visionBill({String? value = '0'}) async {
     if (value == null || value.isEmpty) value = '0';
-    var data = await OpdSure.of(context)
-        .client
-        .calculateClaimPrice('4', double.parse(value));
-    CalculateClaimModel calculateClaimModel =
-        CalculateClaimModel.fromJson(jsonDecode(data));
-    setState(() {
-      _value14 =
-          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
-      _value4 = double.tryParse(value.toString()) ?? 0.0;
-      billAmntVisionClCtrl.text = _value14.toStringAsFixed(2);
-      _visionRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
-      _calculateSum();
-    });
+    final input = value;
+    setState(() => _calcVision = true);
+    try {
+      var data = await OpdSure.of(context)
+          .client
+          .calculateClaimPrice('4', double.parse(input));
+      CalculateClaimModel calculateClaimModel =
+          CalculateClaimModel.fromJson(jsonDecode(data));
+      setState(() {
+        _value14 =
+            double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+        _value4 = double.tryParse(input) ?? 0.0;
+        billAmntVisionClCtrl.text = _value14.toStringAsFixed(2);
+        _visionRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+        _calculateSum();
+      });
+    } catch (_) {
+      _onCalcFailed('Vision', () => visionBill(value: input));
+    } finally {
+      if (mounted) setState(() => _calcVision = false);
+    }
   }
 
   void dentalBill({String? value = '0'}) async {
     if (value == null || value.isEmpty) value = '0';
-    var data = await OpdSure.of(context)
-        .client
-        .calculateClaimPrice('5', double.parse(value));
-    CalculateClaimModel calculateClaimModel =
-        CalculateClaimModel.fromJson(jsonDecode(data));
-    setState(() {
-      _value15 =
-          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
-      _value5 = double.tryParse(value.toString()) ?? 0.0;
-      billAmntDentalClCtrl.text = _value15.toStringAsFixed(2);
-      _dentalRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
-      _calculateSum();
-    });
+    final input = value;
+    setState(() => _calcDental = true);
+    try {
+      var data = await OpdSure.of(context)
+          .client
+          .calculateClaimPrice('5', double.parse(input));
+      CalculateClaimModel calculateClaimModel =
+          CalculateClaimModel.fromJson(jsonDecode(data));
+      setState(() {
+        _value15 =
+            double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+        _value5 = double.tryParse(input) ?? 0.0;
+        billAmntDentalClCtrl.text = _value15.toStringAsFixed(2);
+        _dentalRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+        _calculateSum();
+      });
+    } catch (_) {
+      _onCalcFailed('Dental', () => dentalBill(value: input));
+    } finally {
+      if (mounted) setState(() => _calcDental = false);
+    }
   }
 
   void vaccinationBill({String? value = '0'}) async {
     if (value == null || value.isEmpty) value = '0';
-    var data = await OpdSure.of(context)
-        .client
-        .calculateClaimPrice('6', double.parse(value));
-    CalculateClaimModel calculateClaimModel =
-        CalculateClaimModel.fromJson(jsonDecode(data));
-    setState(() {
-      _value16 =
-          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
-      _value6 = double.tryParse(value.toString()) ?? 0.0;
-      billAmntVaccinationClCtrl.text = _value16.toStringAsFixed(2);
-      _vaccinationRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
-      _calculateSum();
-    });
+    final input = value;
+    setState(() => _calcVaccination = true);
+    try {
+      var data = await OpdSure.of(context)
+          .client
+          .calculateClaimPrice('6', double.parse(input));
+      CalculateClaimModel calculateClaimModel =
+          CalculateClaimModel.fromJson(jsonDecode(data));
+      setState(() {
+        _value16 =
+            double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+        _value6 = double.tryParse(input) ?? 0.0;
+        billAmntVaccinationClCtrl.text = _value16.toStringAsFixed(2);
+        _vaccinationRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+        _calculateSum();
+      });
+    } catch (_) {
+      _onCalcFailed('Vaccination', () => vaccinationBill(value: input));
+    } finally {
+      if (mounted) setState(() => _calcVaccination = false);
+    }
   }
 
   void physioBill({String? value = '0'}) async {
     if (value == null || value.isEmpty) value = '0';
-    var data = await OpdSure.of(context)
-        .client
-        .calculateClaimPrice('7', double.parse(value));
-    CalculateClaimModel calculateClaimModel =
-        CalculateClaimModel.fromJson(jsonDecode(data));
-    setState(() {
-      _value17 =
-          double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
-      _value7 = double.tryParse(value.toString()) ?? 0.0;
-      billAmntPhysioClCtrl.text = _value17.toStringAsFixed(2);
-      _physioRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
-      _calculateSum();
-    });
+    final input = value;
+    setState(() => _calcPhysio = true);
+    try {
+      var data = await OpdSure.of(context)
+          .client
+          .calculateClaimPrice('7', double.parse(input));
+      CalculateClaimModel calculateClaimModel =
+          CalculateClaimModel.fromJson(jsonDecode(data));
+      setState(() {
+        _value17 =
+            double.parse('${calculateClaimModel.data!.finalPrice ?? '0.0'}');
+        _value7 = double.tryParse(input) ?? 0.0;
+        billAmntPhysioClCtrl.text = _value17.toStringAsFixed(2);
+        _physioRuleLabel = calculateClaimModel.data!.appliedRuleLabel;
+        _calculateSum();
+      });
+    } catch (_) {
+      _onCalcFailed('Physiotherapy', () => physioBill(value: input));
+    } finally {
+      if (mounted) setState(() => _calcPhysio = false);
+    }
+  }
+
+  // Shared failure handler for the per-category claimable calculation. Shows a
+  // clear, retry-friendly message (the user can simply re-type/blur the field
+  // to retry); [retry] is provided for a future inline retry affordance.
+  void _onCalcFailed(String label, VoidCallback retry) {
+    CommonMethods.showToast(
+        'Could not calculate the claimable amount for $label. Please check your connection and try again.');
   }
 
   @override
@@ -308,6 +391,42 @@ class _FileClaimPageState extends State<FileClaimPage> {
     records = await opd.client.getPlanById(
         planId: profile.data!.plan!.id!,
         memberShipId: profile.data!.plan!.membershipId!);
+    // Load reference data once (not on every rebuild).
+    _loadApprovedHospitals();
+    _loadSpecializations();
+  }
+
+  Future<void> _loadApprovedHospitals() async {
+    try {
+      final resp = await OpdSure.of(context).client.getHospitals();
+      final list = (resp.success && resp.data != null)
+          ? resp.data!.records.where((h) => h.isApproved).toList()
+          : <HospitalRecord>[];
+      if (mounted) {
+        setState(() {
+          _approvedHospitals = list;
+          _hospitalsLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _hospitalsLoading = false);
+    }
+  }
+
+  Future<void> _loadSpecializations() async {
+    try {
+      final SpecializationModel? sModel =
+          await OpdSure.of(context).client.getSpecialization();
+      final list = sModel?.data?.records ?? <SpclRecords>[];
+      if (mounted) {
+        setState(() {
+          _specializations = list;
+          _specializationsLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _specializationsLoading = false);
+    }
   }
 
   final countryPicker = const FlCountryCodePicker();
@@ -527,7 +646,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
 
                 // Doctor Fees
                 _buildFeeRowWithRule("Doctor's Fees", docFeeCtrl, docFeeClCtrl,
-                    (v) => docFee(value: v), _docFeeRuleLabel),
+                    (v) => docFee(value: v), _docFeeRuleLabel,
+                    isCalculating: _calcDocFee),
                 const SizedBox(height: AppDesign.spacingLg),
 
                 // Pharmacy
@@ -537,6 +657,7 @@ class _FileClaimPageState extends State<FileClaimPage> {
                   billAmntPhrClCtrl,
                   (v) => pharmaBill(value: v),
                   _pharmacyRuleLabel,
+                  isCalculating: _calcPharmacy,
                 ),
                 const SizedBox(height: AppDesign.spacingLg),
 
@@ -546,7 +667,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
                     billAmntDiaCtrl,
                     billAmntDiaClCtrl,
                     (v) => labBill(value: v),
-                    _diagnosticsRuleLabel),
+                    _diagnosticsRuleLabel,
+                    isCalculating: _calcDiagnostics),
                 const SizedBox(height: AppDesign.spacingLg),
 
                 // Vision
@@ -555,7 +677,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
                     billAmntVisionCtrl,
                     billAmntVisionClCtrl,
                     (v) => visionBill(value: v),
-                    _visionRuleLabel),
+                    _visionRuleLabel,
+                    isCalculating: _calcVision),
                 const SizedBox(height: AppDesign.spacingLg),
 
                 // Dental
@@ -564,7 +687,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
                     billAmntDentalCtrl,
                     billAmntDentalClCtrl,
                     (v) => dentalBill(value: v),
-                    _dentalRuleLabel),
+                    _dentalRuleLabel,
+                    isCalculating: _calcDental),
                 const SizedBox(height: AppDesign.spacingLg),
 
                 // Vaccination
@@ -573,7 +697,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
                     billAmntVaccinationCtrl,
                     billAmntVaccinationClCtrl,
                     (v) => vaccinationBill(value: v),
-                    _vaccinationRuleLabel),
+                    _vaccinationRuleLabel,
+                    isCalculating: _calcVaccination),
                 const SizedBox(height: AppDesign.spacingLg),
 
                 // Physiotherapy
@@ -582,7 +707,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
                     billAmntPhysioCtrl,
                     billAmntPhysioClCtrl,
                     (v) => physioBill(value: v),
-                    _physioRuleLabel),
+                    _physioRuleLabel,
+                    isCalculating: _calcPhysio),
 
                 const SizedBox(height: AppDesign.spacingXl),
                 // Grand Total separator
@@ -852,127 +978,267 @@ class _FileClaimPageState extends State<FileClaimPage> {
 
   Widget _buildSpecializationSelector(TypeController typeController) {
     return GestureDetector(
-      onTap: () async {
-        var data = await OpdSure.of(context).client.getSpecialization();
-        SpecializationModel? sModel = data;
-        List<SpclRecords> records = sModel!.data!.records!;
-        AppBottomSheet(
-          height: 300,
-          mChild: ListView.builder(
-            itemCount: records.length,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  if (typeController.spclModel.value.isNotEmpty) {
-                    typeController.spclModel.value.clear();
-                  }
-                  typeController.spclModelChange(records[index]);
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppDesign.spacingMd),
-                  decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(
-                              color: AppDesign.divider.withOpacity(0.5)))),
-                  child: Text(records[index].name!,
-                      style: AppDesign.bodyMd.copyWith(
-                          color: AppDesign.textPrimary,
-                          fontWeight: FontWeight.w500)),
-                ),
-              );
-            },
-          ),
-        ).modalBottomSheetMenu(context);
+      onTap: () {
+        if (_specializationsLoading || _specializations.isEmpty) return;
+        _showSpecializationSearchSheet(_specializations, typeController);
       },
       child: _buildDropdownField(
-        child: Obx(() {
-          return Text(
-            typeController.spclModel.value.isEmpty
-                ? 'Select Specialization'
-                : typeController.spclModel.value.first.name!,
-            style: AppDesign.bodyMd.copyWith(
-              color: typeController.spclModel.value.isEmpty
-                  ? AppDesign.textTertiary
-                  : AppDesign.textPrimary,
-            ),
-          );
-        }),
+        child: _specializationsLoading
+            ? Text('Loading specializations...',
+                style: AppDesign.bodyMd.copyWith(color: AppDesign.textTertiary))
+            : Obx(() {
+                return Text(
+                  typeController.spclModel.value.isEmpty
+                      ? 'Select Specialization'
+                      : typeController.spclModel.value.first.name!,
+                  style: AppDesign.bodyMd.copyWith(
+                    color: typeController.spclModel.value.isEmpty
+                        ? AppDesign.textTertiary
+                        : AppDesign.textPrimary,
+                  ),
+                );
+              }),
       ),
     );
   }
 
-  Widget _buildApprovedHospitalSelector(TypeController typeController) {
-    return FutureBuilder<HospitalListResponse>(
-      future: OpdSure.of(context).client.getHospitals(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return _buildDropdownField(
-            child: Text('Loading hospitals...',
-                style:
-                    AppDesign.bodyMd.copyWith(color: AppDesign.textTertiary)),
-          );
-        }
+  // Searchable specialization picker — mirrors the hospital search sheet so the
+  // user can type to filter a long specialization list (client-side search).
+  void _showSpecializationSearchSheet(
+      List<SpclRecords> specializations, TypeController typeController) {
+    final searchCtrl = TextEditingController();
+    List<SpclRecords> filtered = List.from(specializations);
+    // Client-side pagination within the sheet: reveal [visibleCount] of the
+    // filtered results and grow in pages as the user scrolls. Keeps a large
+    // specialization list fast to render without any API change.
+    const int pageSize = 20;
+    int visibleCount = pageSize;
 
-        List<HospitalRecord> approvedHospitals = [];
-        if (snapshot.data != null &&
-            snapshot.data!.success &&
-            snapshot.data!.data != null) {
-          approvedHospitals =
-              snapshot.data!.data!.records.where((h) => h.isApproved).toList();
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () {
-                if (approvedHospitals.isEmpty) return;
-                _showHospitalSearchSheet(approvedHospitals, typeController);
-              },
-              child: _buildDropdownField(
-                child: Obx(() {
-                  final selected = typeController.selectedHospital.value;
-                  return Text(
-                    selected != null
-                        ? selected.name
-                        : 'Select approved hospital',
-                    style: AppDesign.bodyMd.copyWith(
-                      color: selected != null
-                          ? AppDesign.textPrimary
-                          : AppDesign.textTertiary,
-                    ),
-                  );
-                }),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Container(
+              height: MediaQuery.of(context).size.height * 0.5,
+              decoration: const BoxDecoration(
+                color: AppDesign.card,
+                borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(AppDesign.radiusXl)),
               ),
-            ),
-            if (approvedHospitals.isEmpty) ...[
-              const SizedBox(height: AppDesign.spacingSm),
-              GestureDetector(
-                onTap: () => context.push('/home/hospitals/add'),
-                child: RichText(
-                  text: TextSpan(
-                    style: AppDesign.bodySm
-                        .copyWith(color: AppDesign.textTertiary),
-                    children: [
-                      const TextSpan(text: 'No approved hospitals yet. '),
-                      TextSpan(
-                        text: 'Add a hospital',
-                        style: AppDesign.bodySm.copyWith(
-                          color: AppDesign.primary,
-                          decoration: TextDecoration.underline,
+              child: Column(
+                children: [
+                  const SizedBox(height: AppDesign.spacingMd),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppDesign.divider,
+                      borderRadius: BorderRadius.circular(AppDesign.radiusFull),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(AppDesign.spacingLg),
+                    child: TextField(
+                      controller: searchCtrl,
+                      decoration: InputDecoration(
+                        hintText: 'Search specialization...',
+                        hintStyle: AppDesign.bodyMd
+                            .copyWith(color: AppDesign.textTertiary),
+                        prefixIcon: const Icon(Icons.search,
+                            color: AppDesign.textTertiary, size: 20),
+                        filled: true,
+                        fillColor: AppDesign.inputFill,
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: AppDesign.spacingLg,
+                            vertical: AppDesign.spacingMd),
+                        border: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppDesign.radiusMd),
+                          borderSide:
+                              const BorderSide(color: AppDesign.inputBorder),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppDesign.radiusMd),
+                          borderSide:
+                              const BorderSide(color: AppDesign.inputBorder),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppDesign.radiusMd),
+                          borderSide:
+                              const BorderSide(color: AppDesign.primary),
                         ),
                       ),
-                      const TextSpan(text: ' and wait for admin approval.'),
-                    ],
+                      onChanged: (query) {
+                        setSheetState(() {
+                          filtered = specializations
+                              .where((s) => (s.name ?? '')
+                                  .toLowerCase()
+                                  .contains(query.toLowerCase()))
+                              .toList();
+                          // Reset pagination whenever the filter changes.
+                          visibleCount = pageSize;
+                        });
+                      },
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: Builder(builder: (context) {
+                      if (filtered.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No specializations found',
+                            style: AppDesign.bodyMd
+                                .copyWith(color: AppDesign.textTertiary),
+                          ),
+                        );
+                      }
+                      final int visible =
+                          visibleCount.clamp(0, filtered.length);
+                      final bool hasMore = visible < filtered.length;
+                      return NotificationListener<ScrollNotification>(
+                        onNotification: (notification) {
+                          if (notification.metrics.pixels >=
+                                  notification.metrics.maxScrollExtent - 120 &&
+                              hasMore) {
+                            setSheetState(() {
+                              visibleCount = (visibleCount + pageSize)
+                                  .clamp(0, filtered.length);
+                            });
+                          }
+                          return false;
+                        },
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: AppDesign.spacingLg),
+                          // +1 for the trailing "load more" row when applicable.
+                          itemCount: visible + (hasMore ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (index >= visible) {
+                              // Load-more footer.
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: AppDesign.spacingMd),
+                                child: Center(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setSheetState(() {
+                                        visibleCount = (visibleCount + pageSize)
+                                            .clamp(0, filtered.length);
+                                      });
+                                    },
+                                    child: Text(
+                                      'Load more (${filtered.length - visible} remaining)',
+                                      style: AppDesign.bodySm.copyWith(
+                                          color: AppDesign.primary,
+                                          fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                            final spcl = filtered[index];
+                            return GestureDetector(
+                              onTap: () {
+                                if (typeController.spclModel.value.isNotEmpty) {
+                                  typeController.spclModel.value.clear();
+                                }
+                                typeController.spclModelChange(spcl);
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: AppDesign.spacingMd),
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                        color:
+                                            AppDesign.divider.withOpacity(0.5)),
+                                  ),
+                                ),
+                                child: Text(
+                                  spcl.name ?? '',
+                                  style: AppDesign.bodyMd.copyWith(
+                                      color: AppDesign.textPrimary,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    }),
+                  ),
+                ],
               ),
-            ],
-          ],
+            );
+          },
         );
       },
+    );
+  }
+
+  Widget _buildApprovedHospitalSelector(TypeController typeController) {
+    // Uses the cached _approvedHospitals (loaded once in initState). No network
+    // call happens here, so typing in another field no longer reloads this
+    // selector or causes a reselect flicker.
+    if (_hospitalsLoading) {
+      return _buildDropdownField(
+        child: Text('Loading hospitals...',
+            style: AppDesign.bodyMd.copyWith(color: AppDesign.textTertiary)),
+      );
+    }
+
+    final approvedHospitals = _approvedHospitals;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            if (approvedHospitals.isEmpty) return;
+            _showHospitalSearchSheet(approvedHospitals, typeController);
+          },
+          child: _buildDropdownField(
+            child: Obx(() {
+              final selected = typeController.selectedHospital.value;
+              return Text(
+                selected != null ? selected.name : 'Select approved hospital',
+                style: AppDesign.bodyMd.copyWith(
+                  color: selected != null
+                      ? AppDesign.textPrimary
+                      : AppDesign.textTertiary,
+                ),
+              );
+            }),
+          ),
+        ),
+        if (approvedHospitals.isEmpty) ...[
+          const SizedBox(height: AppDesign.spacingSm),
+          GestureDetector(
+            onTap: () => context.push('/home/hospitals/add'),
+            child: RichText(
+              text: TextSpan(
+                style: AppDesign.bodySm.copyWith(color: AppDesign.textTertiary),
+                children: [
+                  const TextSpan(text: 'No approved hospitals yet. '),
+                  TextSpan(
+                    text: 'Add a hospital',
+                    style: AppDesign.bodySm.copyWith(
+                      color: AppDesign.primary,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                  const TextSpan(text: ' and wait for admin approval.'),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -1129,7 +1395,8 @@ class _FileClaimPageState extends State<FileClaimPage> {
       TextEditingController amountCtrl,
       TextEditingController claimableCtrl,
       ValueChanged<String> onChanged,
-      String? appliedRuleLabel) {
+      String? appliedRuleLabel,
+      {bool isCalculating = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1148,11 +1415,31 @@ class _FileClaimPageState extends State<FileClaimPage> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: AppEditText(
-                  hint: '0.00',
-                  textEditingController: claimableCtrl,
-                  textInputType: TextInputType.number,
-                  disableText: true),
+              // Overlay an inline spinner on the (read-only) claimable field
+              // while its calculate-claim API call is in flight.
+              child: Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  AppEditText(
+                      hint: '0.00',
+                      textEditingController: claimableCtrl,
+                      textInputType: TextInputType.number,
+                      disableText: true),
+                  if (isCalculating)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 12),
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(AppDesign.primary),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),

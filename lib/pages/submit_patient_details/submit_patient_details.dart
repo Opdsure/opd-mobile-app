@@ -60,28 +60,24 @@ class SubmitPatientDetailsController extends State<SubmitPatientDetails> {
     }
   }
 
-  void onPop(){
-      CommonMethods.customAlertBox(context,
-          title: 'Exit',
-          message:
-              "Are you sure you want to exit without filling out the patient's details? You can also fill it in later from the Profile -> Health Checkup Plans section.",
-          isCancelButton: true,
-          negativeButton: 'Fill',
-          positiveButton: 'Exit',
-          okCallBack: (context1) async {
-        if (widget.healthCheckupId == null) {
-          context.go('/home');
-          Navigator.of(context1, rootNavigator: false).pop();
-        } else {
-          context.pop();
-          Navigator.of(context1, rootNavigator: false).pop();
-        }
-      },
-        cancelCallBack: (context1){
-          Navigator.of(context1, rootNavigator: false).pop();
-        },
-        shouldDismiss: true
-      );
+  void onPop() {
+    CommonMethods.customAlertBox(context,
+        title: 'Exit',
+        message:
+            "Are you sure you want to exit without filling out the patient's details? You can also fill it in later from the Profile -> Health Checkup Plans section.",
+        isCancelButton: true,
+        negativeButton: 'Fill',
+        positiveButton: 'Exit', okCallBack: (context1) async {
+      if (widget.healthCheckupId == null) {
+        context.go('/home');
+        Navigator.of(context1, rootNavigator: false).pop();
+      } else {
+        context.pop();
+        Navigator.of(context1, rootNavigator: false).pop();
+      }
+    }, cancelCallBack: (context1) {
+      Navigator.of(context1, rootNavigator: false).pop();
+    }, shouldDismiss: true);
   }
 
   bool canPop() {
@@ -129,18 +125,17 @@ class SubmitPatientDetailsController extends State<SubmitPatientDetails> {
                 address: patientAddressCtrl.text,
                 appointment: appointmentISODataTime);
         Navigator.of(context).pop();
-        if(response != null) {
+        if (response != null) {
           if (response.success!) {
-            CommonMethods.showToast(response.message!);
+            CommonMethods.showToast(
+                'Your request has been noted. A team member will reach out to you shortly.');
             context.go('/home');
-          }else{
+          } else {
             CommonMethods.showToast(response.message!);
           }
-
-        }else{
+        } else {
           CommonMethods.showToast('Something went wrong');
         }
-
       } catch (e) {
         Navigator.of(context).pop();
       }

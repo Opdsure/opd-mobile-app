@@ -72,3 +72,21 @@ google-services-account*.json
 android/fastlane/report.xml
 android/fastlane/README.md
 **/fastlane/*.log
+
+# ─── iOS signing & App Store Connect credentials (NEVER COMMIT) ─────────────
+# App Store Connect API private keys (.p8) and any decoded copies.
+**/AuthKey_*.p8
+**/*.p8
+ios/fastlane/api_key.json
+# Fastlane environment file (contains Apple ID / app-specific password / ids).
+ios/fastlane/.env
+# Apple distribution certificates / private keys and provisioning profiles.
+**/*.p12
+**/*.cer
+**/*.certSigningRequest
+**/*.mobileprovision
+**/*.provisionprofile
+# Temporary keychains / decoded credentials created on CI runners.
+**/*.keychain-db
+ios/fastlane/report.xml
+ios/fastlane/README.md

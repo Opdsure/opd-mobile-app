@@ -238,7 +238,13 @@ class OpdClient extends OpdApi {
     final response =
         await super.registerOtp(phone: phone, countryCode: countryCode);
 
-    if (response.data == null) {
+    // A failed signup (e.g. the phone already belongs to an existing user)
+    // legitimately has no `data` but DOES carry success=false + a message.
+    // Only throw when the response is genuinely unusable (no data AND no
+    // message); otherwise return it so the caller can show the real message
+    // and redirect to Login instead of a generic "something went wrong".
+    final hasMessage = (response.message ?? '').isNotEmpty;
+    if (response.data == null && response.success != true && !hasMessage) {
       throw Exception(response.toString());
     }
 
@@ -284,7 +290,12 @@ class OpdClient extends OpdApi {
     }
     final response =
         await super.loginOtp(phone: phone, countryCode: countryCode);
-    if (response.data == null) {
+    // A failed login-otp (e.g. the phone is not a registered user) legitimately
+    // has no token data but DOES carry success=false + a message. Only throw
+    // when the response is genuinely unusable; otherwise return it so the caller
+    // can show the real message and redirect to signup.
+    final hasMessage = (response.message ?? '').isNotEmpty;
+    if (response.data == null && response.success != true && !hasMessage) {
       throw Exception(response.toJson());
     }
 

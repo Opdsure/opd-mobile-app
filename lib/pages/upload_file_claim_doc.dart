@@ -59,6 +59,26 @@ class UploadFileClaimDoc extends StatefulWidget {
 class _UploadFileClaimDocState extends State<UploadFileClaimDoc> {
   final ImagePicker _picker = ImagePicker();
   final Map<String, dynamic> filesUrl = {};
+
+  // Max allowed size per uploaded document. Raised to 20 MB so modern phone
+  // camera photos (which can exceed the old 4 MB limit) are accepted. The
+  // backend/proxy upload limit must be raised to match (>= 20 MB) — that is a
+  // server-side change outside this app.
+  static const int _maxUploadBytes = 20 * 1024 * 1024; // 20 MB
+
+  // Returns true if the file is within the allowed size; otherwise shows a
+  // clear message and returns false so the upload is skipped.
+  bool _isWithinSizeLimit(File file) {
+    final int bytes = file.lengthSync();
+    if (bytes > _maxUploadBytes) {
+      final mb = (bytes / (1024 * 1024)).toStringAsFixed(1);
+      CommonMethods.showToast(
+          'This file is ${mb} MB. Please upload a document under 20 MB.');
+      return false;
+    }
+    return true;
+  }
+
   final Map<String, List<String>> _uploadedUrls = {};
 
   // Track upload status per document key
@@ -226,6 +246,7 @@ class _UploadFileClaimDocState extends State<UploadFileClaimDoc> {
               );
               if (result != null) {
                 File file = File(result.files.single.path!);
+                if (!_isWithinSizeLimit(file)) return;
                 item.addFile(file);
                 _uploadFile(item, result);
               }
@@ -236,12 +257,20 @@ class _UploadFileClaimDocState extends State<UploadFileClaimDoc> {
             title: const Text('Camera'),
             onTap: () async {
               Navigator.pop(context);
+              // Constrain camera captures so high-resolution phone photos
+              // (especially iPhone) stay well within the upload size limit,
+              // while remaining legible for claim review.
               var pickedFile = await _picker.pickImage(
-                  source: ImageSource.camera, imageQuality: 80);
+                source: ImageSource.camera,
+                imageQuality: 80,
+                maxWidth: 2000,
+                maxHeight: 2000,
+              );
               if (pickedFile != null) {
                 FilePickerResult pf =
                     CommonMethods.xFileToFilePickerResult(pickedFile);
                 File file = File(pickedFile.path);
+                if (!_isWithinSizeLimit(file)) return;
                 item.addFile(file);
                 _uploadFile(item, pf);
               }

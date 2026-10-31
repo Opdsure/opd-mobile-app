@@ -425,11 +425,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         child: _buildCarouselSkeleton(),
       );
     }
+    // When the API returns no carousel items, keep it HIDDEN rather than
+    // showing a "Coming soon" placeholder.
     if (_carouselItems.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: AppDesign.spacingLg),
-        child: _buildCarouselPlaceholder(),
-      );
+      return const SizedBox.shrink();
     }
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDesign.spacingLg),
@@ -441,8 +440,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     if (_isPartnershipLoading) {
       return const SizedBox.shrink();
     }
+    // When the API returns no partner icons, keep the section HIDDEN (same as
+    // the carousel). Previously a fake "Partner 1..4" placeholder grid was
+    // shown, which looked like real partners with missing icons.
     if (_iconItems.isEmpty) {
-      return _buildIconsPlaceholder();
+      return const SizedBox.shrink();
     }
     return PartnershipIcons(items: _iconItems);
   }
@@ -567,93 +569,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildCarouselPlaceholder() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = screenWidth * 0.92;
-
-    return Container(
-      width: cardWidth,
-      height: 150,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        gradient: AppDesign.heroGradient,
-        borderRadius: BorderRadius.circular(AppDesign.radiusLg),
-        boxShadow: AppDesign.shadowMd,
-      ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: -20,
-            right: -20,
-            child: Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.1),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -30,
-            left: -10,
-            child: Container(
-              width: 100,
-              height: 100,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.06),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppDesign.spacingXl,
-              vertical: AppDesign.spacingLg,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDesign.spacingSm,
-                    vertical: 3,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(AppDesign.radiusFull),
-                  ),
-                  child: Text(
-                    'Partnerships',
-                    style: AppDesign.caption.copyWith(color: Colors.white),
-                  ),
-                ),
-                const SizedBox(height: AppDesign.spacingSm),
-                Text(
-                  'Exclusive Partner Offers',
-                  style: AppDesign.titleLg.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Coming soon \u2014 health & wellness deals from our partners',
-                  style: AppDesign.bodySm.copyWith(
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildCarouselSkeleton() {
     final screenWidth = MediaQuery.of(context).size.width;
     final cardWidth = screenWidth * 0.75;
@@ -673,73 +588,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       ),
     );
   }
-
-  Widget _buildIconsPlaceholder() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text('Partnerships', style: AppDesign.headingSm),
-        const SizedBox(height: AppDesign.spacingMd),
-        GridView.builder(
-          itemCount: 4,
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            crossAxisSpacing: AppDesign.spacingMd,
-            mainAxisSpacing: AppDesign.spacingMd,
-            childAspectRatio: 0.85,
-          ),
-          itemBuilder: (context, index) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppDesign.accentLight,
-                      borderRadius: BorderRadius.circular(AppDesign.radiusMd),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        _placeholderIcons[index % _placeholderIcons.length],
-                        color: AppDesign.primary.withValues(alpha: 0.4),
-                        size: 28,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppDesign.spacingXs),
-                Text(
-                  _placeholderLabels[index % _placeholderLabels.length],
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppDesign.labelSm.copyWith(
-                    color: AppDesign.textTertiary,
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  static const List<IconData> _placeholderIcons = [
-    Icons.handshake_outlined,
-    Icons.local_offer_outlined,
-    Icons.health_and_safety_outlined,
-    Icons.card_giftcard_outlined,
-  ];
-
-  static const List<String> _placeholderLabels = [
-    'Partner 1',
-    'Partner 2',
-    'Partner 3',
-    'Partner 4',
-  ];
 
   String _getTimeGreeting() {
     final hour = DateTime.now().hour;

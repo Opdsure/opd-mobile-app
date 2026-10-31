@@ -161,6 +161,37 @@ class Api {
     return LoginResponse.fromJson(json);
   }
 
+  // Some backend responses nest the real payload inside the `message` value as
+  // a JSON string (e.g. '{"data":[],"success":false,"message":"User already
+  // exists"}'). This returns the innermost human-readable text; if [raw] isn't
+  // nested JSON, it's returned unchanged.
+  String _unwrapNestedMessage(String raw) {
+    var current = raw.trim();
+    // Guard against pathological inputs with a small iteration cap.
+    for (var i = 0; i < 3; i++) {
+      if (!(current.startsWith('{') || current.startsWith('"'))) break;
+      try {
+        final decoded = jsonDecode(current);
+        if (decoded is String) {
+          current = decoded;
+          continue;
+        }
+        if (decoded is Map) {
+          final inner =
+              (decoded['message'] ?? decoded['error'] ?? decoded['msg'] ?? '')
+                  .toString();
+          if (inner.isEmpty) break;
+          current = inner;
+          continue;
+        }
+        break;
+      } catch (_) {
+        break;
+      }
+    }
+    return current;
+  }
+
   Future<LoginResponse> registerOtp(
       {String? phone, String? countryCode}) async {
     final requestUri = Uri(path: 'api/v1/user/signup-otp');
@@ -172,10 +203,58 @@ class Api {
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
-    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
-    final responseString = utf8.decode(responseBody);
-    final json = jsonDecode(responseString);
-    return LoginResponse.fromJson(json);
+    final rawBody = utf8.decode(responseBody);
+    // signup-otp is an UNAUTHENTICATED endpoint: a non-200 here (including the
+    // backend returning 401/403 when the phone already belongs to an existing
+    // user) is a BUSINESS rejection, NOT a session failure. So we must NOT
+    // route it through the shared `unexpectedResponse` (which toasts the raw
+    // body and throws). Instead parse the body ourselves and return a
+    // LoginResponse so the caller shows the clean message (e.g. "User already
+    // exists") and redirects to Login.
+    final responseString = rawBody;
+    // Parse defensively: a rejected signup may return a non-200 body that is
+    // not valid JSON. In that case, surface it as a failure response with the
+    // raw text instead of throwing, so the caller shows a real message rather
+    // than a generic "something went wrong".
+    try {
+      var decoded = jsonDecode(responseString);
+      // The signup-otp endpoint can return DOUBLE-ENCODED JSON: the HTTP body
+      // is a JSON string whose value is itself a JSON object, e.g.
+      //   "{\"data\":[],\"success\":false,\"message\":\"User already exists\"}"
+      // The first decode then yields a String; decode once more to reach the
+      // real {success, message} map.
+      if (decoded is String) {
+        try {
+          decoded = jsonDecode(decoded);
+        } catch (_) {
+          return LoginResponse(success: false, message: decoded);
+        }
+      }
+      final parsed = LoginResponse.fromJson(decoded);
+      // Resolve the human-readable text. Backend may use a different key
+      // (message / error / msg); normalise so the caller always gets it.
+      var msg = parsed.message ?? '';
+      if (msg.isEmpty && decoded is Map) {
+        msg = (decoded['message'] ?? decoded['error'] ?? decoded['msg'] ?? '')
+            .toString();
+      }
+      // Some responses nest the real payload INSIDE the message value as a
+      // JSON string, e.g. message = '{"data":[],"success":false,"message":
+      // "User already exists"}'. Unwrap it to the inner human text.
+      msg = _unwrapNestedMessage(msg);
+      return LoginResponse(
+        data: parsed.data,
+        success: parsed.success,
+        message: msg,
+      );
+    } catch (_) {
+      return LoginResponse(
+        success: false,
+        message: responseString.isNotEmpty
+            ? responseString
+            : 'Request failed (status ${response.statusCode}).',
+      );
+    }
   }
 
   Future<RegisterOtpVerify?> registerVerifyOtp(
@@ -206,10 +285,41 @@ class Api {
     }));
     final response = await httpClient.send(request);
     final responseBody = await response.stream.toBytes();
-    if (response.statusCode != 200) unexpectedResponse(response, responseBody);
     final responseString = utf8.decode(responseBody);
-    final json = jsonDecode(responseString);
-    return LoginResponse.fromJson(json);
+    // login-otp is UNAUTHENTICATED: a non-200 here (including the backend
+    // returning 401/403 when the phone is NOT a registered user) is a BUSINESS
+    // response, NOT a session failure. Parse it ourselves and return a clean
+    // LoginResponse so the caller can show "You are not a user" and redirect to
+    // signup — instead of toasting a raw body / generic error.
+    try {
+      var decoded = jsonDecode(responseString);
+      if (decoded is String) {
+        try {
+          decoded = jsonDecode(decoded);
+        } catch (_) {
+          return LoginResponse(success: false, message: decoded);
+        }
+      }
+      final parsed = LoginResponse.fromJson(decoded);
+      var msg = parsed.message ?? '';
+      if (msg.isEmpty && decoded is Map) {
+        msg = (decoded['message'] ?? decoded['error'] ?? decoded['msg'] ?? '')
+            .toString();
+      }
+      msg = _unwrapNestedMessage(msg);
+      return LoginResponse(
+        data: parsed.data,
+        success: parsed.success,
+        message: msg,
+      );
+    } catch (_) {
+      return LoginResponse(
+        success: false,
+        message: responseString.isNotEmpty
+            ? responseString
+            : 'Request failed (status ${response.statusCode}).',
+      );
+    }
   }
 
   Future<ForgetPasswordResponse> forgetPassword({String? email}) async {

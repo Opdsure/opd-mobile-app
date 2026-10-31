@@ -1,4 +1,6 @@
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -68,6 +70,47 @@ class SignUpController extends State<SignUpPage> {
     context.go('/login');
   }
 
+  // Detects the backend's "this phone already belongs to a user" rejection so
+  // signup can redirect to Login. Kept tolerant to wording variations.
+  bool _isAlreadyRegistered(String message) {
+    final m = message.toLowerCase();
+    return m.contains('already') &&
+        (m.contains('user') ||
+            m.contains('registered') ||
+            m.contains('exist') ||
+            m.contains('account'));
+  }
+
+  // The backend sometimes returns the error as (nested) JSON instead of plain
+  // text, e.g. '{"data":[],"success":false,"message":"User already exists"}'.
+  // This extracts the human-readable message so a raw JSON blob is never shown
+  // to the user. Returns the input unchanged when it isn't JSON.
+  String _cleanMessage(String raw) {
+    var current = raw.trim();
+    for (var i = 0; i < 3; i++) {
+      if (!(current.startsWith('{') || current.startsWith('"'))) break;
+      try {
+        final decoded = jsonDecode(current);
+        if (decoded is String) {
+          current = decoded;
+          continue;
+        }
+        if (decoded is Map) {
+          final inner =
+              (decoded['message'] ?? decoded['error'] ?? decoded['msg'] ?? '')
+                  .toString();
+          if (inner.isEmpty) break;
+          current = inner;
+          continue;
+        }
+        break;
+      } catch (_) {
+        break;
+      }
+    }
+    return current;
+  }
+
   void register() async {
     final opdSure = OpdSure.of(context);
     if (phoneTextController.text.isEmpty) {
@@ -110,7 +153,21 @@ class SignUpController extends State<SignUpPage> {
           'country_code': countryCode
         });
       } else {
-        CommonMethods.showToast(response.message!);
+        // Clean any (nested) JSON so a raw blob is never shown in the toast.
+        final message = _cleanMessage(response.message ?? '');
+        if (_isAlreadyRegistered(message)) {
+          // Existing user tried to sign up: match the web behaviour — show a
+          // clear, fixed message and send them to the Login page.
+          CommonMethods.showToast(
+              'You are already a user, please go to Login.');
+          context.go('/login');
+        } else {
+          CommonMethods.showToast(
+            message.isNotEmpty
+                ? message
+                : 'Something went wrong. Please try again.',
+          );
+        }
       }
     } catch (e) {
       CommonMethods.showToast('Something went wrong. Please try again.');

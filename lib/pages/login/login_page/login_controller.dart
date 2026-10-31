@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:fl_country_code_picker/fl_country_code_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +49,50 @@ class LoginPageController extends State<LoginPage> {
     context.push('/signup');
   }
 
+  // Detects the backend's "this phone is not a registered user" response so
+  // login can redirect to signup. Tolerant to wording variations.
+  bool _isNotRegistered(String message) {
+    final m = message.toLowerCase();
+    return (m.contains('not') &&
+            (m.contains('user') ||
+                m.contains('registered') ||
+                m.contains('exist') ||
+                m.contains('found') ||
+                m.contains('account'))) ||
+        m.contains('no user') ||
+        m.contains("doesn't exist") ||
+        m.contains('does not exist');
+  }
+
+  // The backend sometimes returns the error as (nested) JSON instead of plain
+  // text. This extracts the human-readable message so a raw JSON blob is never
+  // shown. Returns the input unchanged when it isn't JSON.
+  String _cleanMessage(String raw) {
+    var current = raw.trim();
+    for (var i = 0; i < 3; i++) {
+      if (!(current.startsWith('{') || current.startsWith('"'))) break;
+      try {
+        final decoded = jsonDecode(current);
+        if (decoded is String) {
+          current = decoded;
+          continue;
+        }
+        if (decoded is Map) {
+          final inner =
+              (decoded['message'] ?? decoded['error'] ?? decoded['msg'] ?? '')
+                  .toString();
+          if (inner.isEmpty) break;
+          current = inner;
+          continue;
+        }
+        break;
+      } catch (_) {
+        break;
+      }
+    }
+    return current;
+  }
+
   getCountryCode() async {
     final picked = await countryPicker.showPicker(context: context);
     if (picked != null) {
@@ -92,7 +138,20 @@ class LoginPageController extends State<LoginPage> {
           'country_code': countryCode
         });
       } else {
-        CommonMethods.showToast(response.message!);
+        final message = _cleanMessage(response.message ?? '');
+        if (_isNotRegistered(message)) {
+          // Non-registered number: tell the user they don't have an account yet
+          // and send them to the Create User (signup) page.
+          CommonMethods.showToast(
+              'You are not a user. Please create an account.');
+          context.go('/signup');
+        } else {
+          CommonMethods.showToast(
+            message.isNotEmpty
+                ? message
+                : 'Something went wrong. Please try again.',
+          );
+        }
       }
     } catch (e) {
       CommonMethods.showToast('Something went wrong. Please try again.');

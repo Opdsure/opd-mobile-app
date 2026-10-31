@@ -1,11 +1,11 @@
-app_identifier("io.app.opdsure")
-apple_id("opdsure3@gmail.com")
-team_id("X8JCSQZDGC")
-api_key_path("../fastlane/AuthKey_R8DWU66GG9.p8")
+# App identity for Fastlane.
+#
+# Identifiers are read from environment variables in CI (set from GitHub
+# secrets / workflow env) and fall back to the project's known values for
+# local runs. NO API key id/issuer/path is stored here anymore — the App Store
+# Connect API key is loaded at runtime in the Fastfile from a decoded,
+# temporary .p8 file (see the `beta` lane). Never commit credentials.
 
-# App Store Connect API Key
-api_key(
-  key_id: "R8DWU66GG9",
-  issuer_id: "a0bf4e3c-a1ed-4325-8f16-25317a6d2727",
-  key_filepath: "./fastlane/AuthKey_R8DWU66GG9.p8"
-)
+app_identifier(ENV["IOS_BUNDLE_ID"] || "io.app.opdsure")
+apple_id(ENV["APPLE_ID"])            # optional; not required for API-key auth
+team_id(ENV["APPLE_TEAM_ID"] || "X8JCSQZDGC")

@@ -408,7 +408,7 @@ class _HealthCheckUpPageState extends State<HealthCheckUpPage> {
                         Navigator.pop(context);
                       });
                       CommonMethods.showToast(
-                          'Your request added successfully!');
+                          'Your request has been noted. A team member will reach out to you shortly.');
                     }
                   } catch (e) {
                     Navigator.of(context).pop();

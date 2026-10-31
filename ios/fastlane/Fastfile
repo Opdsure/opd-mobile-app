@@ -1,72 +1,113 @@
 default_platform(:ios)
 
-platform :ios do
+# ─────────────────────────────────────────────────────────────────────────────
+# OPDSure iOS deployment to TestFlight (App Store Connect).
+#
+# Authentication: App Store Connect API key (.p8) loaded at RUNTIME from a
+# decoded temporary file. No credentials are committed. The workflow decodes
+# APP_STORE_CONNECT_API_KEY_BASE64 to a temp .p8 and exports:
+#   ASC_KEY_ID        -> App Store Connect API Key ID
+#   ASC_ISSUER_ID     -> App Store Connect Issuer ID
+#   ASC_KEY_PATH      -> absolute path to the decoded .p8 file (temp)
+#
+# Signing: the IPA is built and signed in the GitHub Actions workflow using an
+# Apple Distribution certificate + App Store provisioning profile (manual
+# signing). This lane only UPLOADS an already-built, signed IPA. The API key
+# authenticates the App Store Connect upload; it does NOT sign the app.
+#
+# This lane targets TestFlight ONLY. It never submits for App Review and never
+# releases to the public App Store.
+# ─────────────────────────────────────────────────────────────────────────────
 
-   desc "Build and upload iOS app to TestFlight"
-   lane :beta do
-     sync_code_signing(type: "appstore") # see code signing guide for more information
-     build_app(scheme: "Runner")
+APP_IDENTIFIER = (ENV["IOS_BUNDLE_ID"] || "io.app.opdsure").freeze
 
-     api_key = app_store_connect_api_key(
-       key_id: "R8DWU66GG9",
-       issuer_id: "a0bf4e3c-a1ed-4325-8f16-25317a6d2727",
-       key_content: File.read("/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_R8DWU66GG9.p8"),
-       in_house: false
-     )
+# Build an App Store Connect API token from the runtime-decoded .p8 file.
+# Fails fast (without printing the key) if anything required is missing.
+def asc_api_token
+  key_id    = ENV["ASC_KEY_ID"]
+  issuer_id = ENV["ASC_ISSUER_ID"]
+  key_path  = ENV["ASC_KEY_PATH"]
 
-     upload_to_testflight(api_key: api_key)
-
-     slack(message: "Successfully distributed a new beta build")
-
-
-
-
-   end
-
-
-  desc "Build and upload iOS app to TestFlight and App Store"
-  lane :release do
-
-    build_app(
-      scheme: "Runner",
-      export_method: "app-store",
-      output_directory: "./build",
-      output_name: "Runner.ipa"
+  if key_id.to_s.strip.empty? || issuer_id.to_s.strip.empty? || key_path.to_s.strip.empty?
+    UI.user_error!(
+      "App Store Connect API key is not configured. Expected ASC_KEY_ID, " \
+      "ASC_ISSUER_ID and ASC_KEY_PATH in the environment (set by the CI " \
+      "workflow from the APP_STORE_CONNECT_* GitHub secrets)."
     )
-
-    api_key = app_store_connect_api_key(
-      key_id: "R8DWU66GG9",
-      issuer_id: "a0bf4e3c-a1ed-4325-8f16-25317a6d2727",
-      key_content: File.read("/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_R8DWU66GG9.p8"),
-      in_house: false
-    )
-
-    upload_to_app_store(
-      username: "opdsure3@gmail.com",
-      app_identifier: "io.app.opdsure",
-      ipa: "./build/Runner.ipa",
-      team_id: "X8JCSQZDGC",
-    )
-
-    slack( message: "🚀 New iOS build uploaded to App Store Connect!")
+  end
+  unless File.exist?(key_path) && File.size(key_path) > 0
+    UI.user_error!("Decoded App Store Connect .p8 key not found or empty at ASC_KEY_PATH.")
   end
 
+  app_store_connect_api_key(
+    key_id: key_id,
+    issuer_id: issuer_id,
+    key_filepath: key_path,
+    duration: 1200,        # seconds; <= 20 min as required by Apple
+    in_house: false
+  )
 end
 
+platform :ios do
+  # ───────────────────────────────────────────────────────────────────────────
+  # Prints the next safe iOS build number for TestFlight:
+  #   (latest processed TestFlight build number for this bundle id) + 1.
+  # CI parses the marker line: "NEXT_BUILD_NUMBER=<n>".
+  # iOS build numbers are independent of the Android Play versionCode.
+  # ───────────────────────────────────────────────────────────────────────────
+  desc "Print the next safe TestFlight build number (latest + 1)"
+  lane :next_build_number do
+    token = asc_api_token
+    latest = latest_testflight_build_number(
+      api_key: token,
+      app_identifier: APP_IDENTIFIER,
+      initial_build_number: 0
+    )
+    nxt = latest.to_i + 1
+    UI.success("Latest TestFlight build number: #{latest}")
+    UI.success("NEXT_BUILD_NUMBER=#{nxt}")
+    nxt
+  end
 
+  # ───────────────────────────────────────────────────────────────────────────
+  # Uploads an already-built, signed IPA to TestFlight.
+  #
+  # Required env:
+  #   IPA_PATH  -> absolute path to the signed .ipa produced by the workflow
+  #                (verified non-empty before upload).
+  #
+  # Does NOT build, does NOT re-sign, does NOT submit for review.
+  # ───────────────────────────────────────────────────────────────────────────
+  desc "Upload a pre-built signed IPA to TestFlight"
+  lane :beta do
+    ipa_path = ENV["IPA_PATH"].to_s
+    if ipa_path.strip.empty?
+      UI.user_error!("IPA_PATH env var is empty. The workflow must pass the " \
+                     "verified path to the signed .ipa.")
+    end
+    ipa_path = File.expand_path(ipa_path)
+    unless File.exist?(ipa_path) && File.size(ipa_path) > 0
+      UI.user_error!("IPA not found or empty at #{ipa_path}. The Flutter build " \
+                     "step must produce a signed IPA before upload.")
+    end
 
-# default_platform(:ios)
-#
-# platform :ios do
-#   desc "Build and upload to App Store"
-#   lane :release do
-#     match(type: "appstore", readonly: true)
-#     build_ios_app(workspace: "Runner.xcworkspace", scheme: "Runner")
-#
-#     upload_to_app_store(
-#       skip_metadata: true,
-#       skip_screenshots: true, # Skips screenshots upload
-#       api_key_path: "/Users/intileotechnologies/Documents/Aman/opd_sure_app/ios/fastlane/AuthKey_NDXM9C5279.p8"
-#     )
-#   end
-# end
+    UI.message("Uploading IPA: #{ipa_path} (#{File.size(ipa_path)} bytes)")
+    UI.message("Bundle id: #{APP_IDENTIFIER} | Target: TestFlight (no review)")
+
+    token = asc_api_token
+
+    # upload_to_testflight raises on failure, so the lane cannot report success
+    # unless the upload is accepted by App Store Connect for processing.
+    upload_to_testflight(
+      api_key: token,
+      app_identifier: APP_IDENTIFIER,
+      ipa: ipa_path,
+      skip_submission: true,            # TestFlight only — never auto-submit
+      skip_waiting_for_build_processing: true,
+      distribute_external: false,
+      notify_external_testers: false
+    )
+
+    UI.success("Uploaded #{APP_IDENTIFIER} to App Store Connect for TestFlight processing.")
+  end
+end

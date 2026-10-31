@@ -1,0 +1,382 @@
+name: iOS Release (TestFlight)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Flow: Push/Dispatch -> Validate -> Test -> Keychain + cert + profile
+#        -> Resolve build number (ASC) -> flutter build ipa (Apple distribution
+#        signing) -> Verify IPA -> Upload to App Store Connect TestFlight
+#
+# Runs ONLY on a macOS runner (iOS tooling is macOS-only). This pipeline is
+# completely independent of the Android pipeline (.github/workflows/
+# android-release.yml) and shares NO secrets with it.
+#
+# Signing: Apple Distribution certificate + App Store provisioning profile,
+# imported into a temporary keychain. App Store Connect uploads authenticate
+# with an App Store Connect API key (.p8). The API key does NOT sign the app.
+#
+# Secrets required (GitHub repo settings → Secrets and variables → Actions):
+#   Signing (manual distribution signing):
+#     IOS_CERTIFICATE_BASE64          base64 of the Apple Distribution .p12
+#     IOS_CERTIFICATE_PASSWORD        password for the .p12
+#     IOS_PROVISIONING_PROFILE_BASE64 base64 of the App Store .mobileprovision
+#     IOS_KEYCHAIN_PASSWORD           any strong string (temp keychain password)
+#     IOS_BUNDLE_ID                   io.app.opdsure
+#     IOS_PROVISIONING_PROFILE_NAME   the profile's NAME (as shown in Apple portal)
+#   App Store Connect API (upload auth):
+#     APP_STORE_CONNECT_API_KEY_ID        the Key ID (e.g. R8DWU66GG9)
+#     APP_STORE_CONNECT_ISSUER_ID         the Issuer ID (UUID)
+#     APP_STORE_CONNECT_API_KEY_BASE64    base64 of the .p8 private key
+#   Team:
+#     APPLE_TEAM_ID                   X8JCSQZDGC (optional; default below)
+#
+# TestFlight only. This workflow never submits for App Review or releases to
+# the public App Store.
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: >-
+          Optional explicit iOS build number (CFBundleVersion). Leave blank to
+          auto-derive from App Store Connect (latest TestFlight build + 1).
+        required: false
+        type: string
+  push:
+    branches:
+      # Same release branches as the Android pipeline, kept in sync on purpose.
+      - master
+      - Aman--Dev
+
+# Least-privilege: only read repository contents. No write access required.
+permissions:
+  contents: read
+
+# Prevent overlapping iOS releases from racing on build-number assignment.
+# Separate group from Android so the two pipelines never block each other.
+concurrency:
+  group: ios-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build & publish (TestFlight)
+    # iOS builds MUST run on macOS. macos-14 provides Apple Silicon + recent Xcode.
+    runs-on: macos-14
+    timeout-minutes: 90
+
+    env:
+      # Application identity. Must match PRODUCT_BUNDLE_IDENTIFIER in
+      # ios/Runner.xcodeproj/project.pbxproj (verified: io.app.opdsure).
+      IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      # Paths for runtime-decoded, temporary credential files (outside the repo).
+      CERTIFICATE_PATH: ${{ runner.temp }}/ios_distribution.p12
+      PROFILE_PATH: ${{ runner.temp }}/ios_appstore.mobileprovision
+      ASC_KEY_PATH: ${{ runner.temp }}/asc_api_key.p8
+      KEYCHAIN_PATH: ${{ runner.temp }}/ios-signing.keychain-db
+      EXPORT_OPTIONS_PATH: ${{ runner.temp }}/ExportOptions.plist
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────
+      # actions/checkout v4.2.2 (same pin as the Android workflow)
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # ── Select a compatible Xcode ─────────────────────────────────────────
+      # Pin Xcode so builds are reproducible and don't drift when the runner
+      # image updates. 15.4 is a stable toolchain available on macos-14.
+      - name: Select Xcode
+        run: |
+          set -euo pipefail
+          sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          xcodebuild -version
+
+      # ── Toolchain: Flutter 3.44.6 (same pin as Android) ───────────────────
+      # subosito/flutter-action v2.19.0
+      - name: Set up Flutter
+        uses: subosito/flutter-action@e938fdf56512cc96ef2f93601a5a40bde3801046
+        with:
+          flutter-version: "3.44.6"
+          channel: stable
+          cache: true
+
+      # ── Toolchain: Ruby + Bundler (for Fastlane) ──────────────────────────
+      # ruby/setup-ruby v1.229.0 — installs gems from ios/Gemfile and caches.
+      - name: Set up Ruby & Bundler
+        uses: ruby/setup-ruby@354a1ad156761f5ee2b7b13fa8e09943a5e8d252
+        with:
+          ruby-version: "3.2"
+          bundler-cache: true
+          working-directory: ios
+
+      # ── Dart/Flutter dependencies (locked) ────────────────────────────────
+      # Same enforce-lockfile policy as Android: use the committed pubspec.lock
+      # exactly, never silently resolve newer plugin versions on CI.
+      - name: Install Flutter dependencies (locked)
+        run: flutter pub get --enforce-lockfile
+
+      # ── Static analysis (errors are fatal) ────────────────────────────────
+      # Mirrors the Android gate: real analyzer ERRORS stop the build; the
+      # pre-existing warning/info backlog is non-fatal to avoid blocking.
+      - name: Static analysis (errors are fatal)
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
+
+      # ── Tests (mandatory when present) ────────────────────────────────────
+      - name: Run tests
+        run: |
+          if grep -rqs --include='*.dart' 'void main' test 2>/dev/null; then
+            flutter test
+          else
+            echo "No tests found under test/ — skipping flutter test."
+          fi
+
+      # ── CocoaPods ─────────────────────────────────────────────────────────
+      # Use the runner's preinstalled, modern CocoaPods (the committed
+      # ios/Gemfile.lock pins an old cocoapods 1.10.2 that is incompatible with
+      # recent Xcode/Flutter plugins; Bundler is used only for Fastlane).
+      # `flutter precache --ios` + `flutter pub get` generate the Flutter pod
+      # config that `pod install` consumes.
+      - name: Install CocoaPods dependencies
+        working-directory: ios
+        run: |
+          set -euo pipefail
+          pod --version
+          pod install --repo-update
+
+      # ── Import Apple Distribution certificate into a temp keychain ────────
+      # Nothing is printed. All credential material is decoded to files under
+      # the runner temp dir and removed in the cleanup step.
+      - name: Configure signing (keychain + certificate)
+        env:
+          IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -z "${IOS_CERTIFICATE_BASE64:-}" ]; then
+            echo "::error::IOS_CERTIFICATE_BASE64 secret is empty. Create an Apple Distribution certificate (.p12) and store its base64 as this secret."
+            exit 1
+          fi
+          if [ -z "${IOS_KEYCHAIN_PASSWORD:-}" ]; then
+            echo "::error::IOS_KEYCHAIN_PASSWORD secret is empty."
+            exit 1
+          fi
+
+          # Decode the distribution certificate (.p12).
+          echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE_PATH"
+          if [ ! -s "$CERTIFICATE_PATH" ]; then
+            echo "::error::Decoded certificate is empty — check IOS_CERTIFICATE_BASE64."
+            exit 1
+          fi
+
+          # Create + unlock an isolated temporary keychain.
+          security create-keychain -p "$IOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$IOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Import the distribution certificate + private key.
+          security import "$CERTIFICATE_PATH" \
+            -P "$IOS_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 \
+            -k "$KEYCHAIN_PATH"
+
+          # Allow codesign/xcodebuild to use the key without an interactive prompt.
+          security set-key-partition-list -S apple-tool:,apple: -k "$IOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" >/dev/null
+
+          # Make the temp keychain the default search list (keep login keychain too).
+          security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain-db
+          security default-keychain -s "$KEYCHAIN_PATH"
+
+          echo "Keychain created and distribution certificate imported."
+
+      # ── Install the App Store provisioning profile ────────────────────────
+      - name: Install provisioning profile
+        env:
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${IOS_PROVISIONING_PROFILE_BASE64:-}" ]; then
+            echo "::error::IOS_PROVISIONING_PROFILE_BASE64 secret is empty. Create an App Store provisioning profile for ${IOS_BUNDLE_ID} and store its base64 as this secret."
+            exit 1
+          fi
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
+          if [ ! -s "$PROFILE_PATH" ]; then
+            echo "::error::Decoded provisioning profile is empty — check IOS_PROVISIONING_PROFILE_BASE64."
+            exit 1
+          fi
+          # Install into the location Xcode reads profiles from. Decode the
+          # signed profile to a plain plist first, then read its UUID.
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          DECODED="${RUNNER_TEMP:-/tmp}/profile_decoded.plist"
+          security cms -D -i "$PROFILE_PATH" > "$DECODED"
+          UUID="$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$DECODED")"
+          rm -f "$DECODED"
+          if [ -z "${UUID:-}" ]; then
+            echo "::error::Could not read UUID from the provisioning profile."
+            exit 1
+          fi
+          cp "$PROFILE_PATH" "$HOME/Library/MobileDevice/Provisioning Profiles/${UUID}.mobileprovision"
+          echo "Installed provisioning profile UUID: ${UUID}"
+          echo "PROVISIONING_PROFILE_UUID=${UUID}" >> "$GITHUB_ENV"
+
+      # ── Decode the App Store Connect API key (.p8) ────────────────────────
+      - name: Decode App Store Connect API key
+        env:
+          APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${APP_STORE_CONNECT_API_KEY_BASE64:-}" ]; then
+            echo "::error::APP_STORE_CONNECT_API_KEY_BASE64 secret is empty."
+            exit 1
+          fi
+          echo "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode > "$ASC_KEY_PATH"
+          if [ ! -s "$ASC_KEY_PATH" ]; then
+            echo "::error::Decoded App Store Connect .p8 key is empty — check APP_STORE_CONNECT_API_KEY_BASE64."
+            exit 1
+          fi
+          echo "App Store Connect API key decoded."
+
+      # ── Resolve iOS build number (ASC latest + 1, or manual input) ────────
+      # iOS build numbers are independent of the Android Play versionCode. We
+      # ask App Store Connect for the latest processed TestFlight build and use
+      # +1 so uploads never collide. A manual workflow_dispatch input overrides.
+      - name: Resolve iOS build number
+        id: bn
+        env:
+          INPUT_BUILD_NUMBER: ${{ github.event.inputs.build_number }}
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        working-directory: ios
+        run: |
+          set -euo pipefail
+          if [ -n "${INPUT_BUILD_NUMBER:-}" ]; then
+            echo "Using manually provided build number: ${INPUT_BUILD_NUMBER}"
+            echo "build_number=${INPUT_BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          set +e
+          OUT="$(bundle exec fastlane next_build_number 2>&1)"
+          STATUS=$?
+          set -e
+          echo "$OUT"
+          if [ $STATUS -ne 0 ]; then
+            echo "::error::Failed to query App Store Connect for the next build number. Provide 'build_number' manually or check API key permissions/app record."
+            exit 1
+          fi
+          NEXT="$(echo "$OUT" | grep -oE 'NEXT_BUILD_NUMBER=[0-9]+' | tail -n1 | cut -d= -f2)"
+          if [ -z "${NEXT:-}" ]; then
+            echo "::error::Could not parse NEXT_BUILD_NUMBER from Fastlane output."
+            exit 1
+          fi
+          echo "Resolved next iOS build number: ${NEXT}"
+          echo "build_number=${NEXT}" >> "$GITHUB_OUTPUT"
+
+      # ── Resolve versionName from pubspec.yaml ─────────────────────────────
+      - name: Resolve versionName
+        id: vn
+        run: |
+          set -euo pipefail
+          RAW="$(grep -E '^version:' pubspec.yaml | head -n1 | sed -E 's/version:[[:space:]]*//')"
+          NAME="${RAW%%+*}"
+          echo "Version name: ${NAME}"
+          echo "version_name=${NAME}" >> "$GITHUB_OUTPUT"
+
+      # ── Generate ExportOptions.plist (manual App Store signing) ───────────
+      # Written at runtime so the provisioning-profile NAME and team come from
+      # secrets rather than being committed with a guessed value.
+      - name: Generate ExportOptions.plist
+        env:
+          IOS_PROVISIONING_PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+        run: |
+          set -euo pipefail
+          TEAM="${APPLE_TEAM_ID:-X8JCSQZDGC}"
+          if [ -z "${IOS_PROVISIONING_PROFILE_NAME:-}" ]; then
+            echo "::error::IOS_PROVISIONING_PROFILE_NAME secret is empty. Set it to the exact name of your App Store provisioning profile."
+            exit 1
+          fi
+          # Build the plist with PlistBuddy (avoids heredoc indentation pitfalls
+          # and shell-escaping of the profile name / bundle id).
+          PB=/usr/libexec/PlistBuddy
+          rm -f "$EXPORT_OPTIONS_PATH"
+          "$PB" -c "Add :method string app-store" "$EXPORT_OPTIONS_PATH"
+          "$PB" -c "Add :teamID string ${TEAM}" "$EXPORT_OPTIONS_PATH"
+          "$PB" -c "Add :signingStyle string manual" "$EXPORT_OPTIONS_PATH"
+          "$PB" -c "Add :stripSwiftSymbols bool true" "$EXPORT_OPTIONS_PATH"
+          "$PB" -c "Add :uploadBitcode bool false" "$EXPORT_OPTIONS_PATH"
+          "$PB" -c "Add :uploadSymbols bool true" "$EXPORT_OPTIONS_PATH"
+          "$PB" -c "Add :provisioningProfiles dict" "$EXPORT_OPTIONS_PATH"
+          "$PB" -c "Add :provisioningProfiles:${IOS_BUNDLE_ID} string ${IOS_PROVISIONING_PROFILE_NAME}" "$EXPORT_OPTIONS_PATH"
+          echo "ExportOptions.plist written (method=app-store, signingStyle=manual, team=${TEAM})."
+
+      # ── Build the signed release IPA ──────────────────────────────────────
+      # flutter build ipa drives `xcodebuild archive` + `-exportArchive` using
+      # our ExportOptions.plist, so the archive is signed with the Apple
+      # Distribution identity + App Store profile imported above.
+      - name: Build signed IPA
+        env:
+          IOS_KEYCHAIN_PASSWORD: ${{ secrets.IOS_KEYCHAIN_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # Keep the temp keychain unlocked for the whole xcodebuild run.
+          security unlock-keychain -p "$IOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          flutter build ipa --release \
+            --build-name="${{ steps.vn.outputs.version_name }}" \
+            --build-number="${{ steps.bn.outputs.build_number }}" \
+            --export-options-plist="$EXPORT_OPTIONS_PATH"
+
+      # ── Verify the IPA exists and is non-empty ────────────────────────────
+      - name: Verify IPA
+        id: ipa
+        run: |
+          set -euo pipefail
+          echo "Contents of build/ios/ipa:"
+          ls -l build/ios/ipa/ || {
+            echo "::error::build/ios/ipa does not exist. The archive/export step did not produce an IPA (check signing errors above)."
+            exit 1
+          }
+          IPA="$(ls -1 build/ios/ipa/*.ipa 2>/dev/null | head -n1 || true)"
+          if [ -z "${IPA:-}" ] || [ ! -s "$IPA" ]; then
+            echo "::error::No non-empty .ipa found under build/ios/ipa/."
+            exit 1
+          fi
+          # Resolve to an absolute path without relying on python.
+          ABS="$(cd "$(dirname "$IPA")" && pwd)/$(basename "$IPA")"
+          echo "IPA OK: $ABS ($(stat -f%z "$ABS") bytes)"
+          echo "abs_path=$ABS" >> "$GITHUB_OUTPUT"
+
+      # ── Upload the IPA as a workflow artifact (traceability) ──────────────
+      # actions/upload-artifact v4.6.2 (same pin as Android).
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: app-release-${{ steps.bn.outputs.build_number }}.ipa
+          path: build/ios/ipa/*.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      # ── Upload to App Store Connect (TestFlight) ──────────────────────────
+      - name: Upload to TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          # ASC_KEY_PATH + IPA_PATH consumed by the Fastfile `beta` lane.
+          IPA_PATH: ${{ steps.ipa.outputs.abs_path }}
+        working-directory: ios
+        run: |
+          set -euo pipefail
+          if [ ! -s "${IPA_PATH:-}" ]; then
+            echo "::error::IPA_PATH (${IPA_PATH:-<empty>}) is missing or empty right before upload."
+            exit 1
+          fi
+          bundle exec fastlane beta
+
+      # ── Always clean up decoded credentials + temp keychain ───────────────
+      - name: Clean up signing material
+        if: ${{ always() }}
+        run: |
+          security delete-keychain "$KEYCHAIN_PATH" 2>/dev/null || true
+          rm -f "$CERTIFICATE_PATH" "$PROFILE_PATH" "$ASC_KEY_PATH" "$EXPORT_OPTIONS_PATH" || true
+          if [ -n "${PROVISIONING_PROFILE_UUID:-}" ]; then
+            rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/${PROVISIONING_PROFILE_UUID}.mobileprovision" || true
+          fi
+          echo "Removed temporary keychain, certificate, profile and API key."

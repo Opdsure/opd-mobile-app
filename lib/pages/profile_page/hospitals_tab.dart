@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opdsure/config/app_design_system.dart';
+import 'package:opdsure/custom_ui/app_button.dart';
 import 'package:opdsure/custom_ui/app_card_view.dart';
 import 'package:opdsure/model/hospital/hospital_model.dart';
 import 'package:opdsure/pages/profile_page/profile_page.dart';
@@ -13,6 +15,31 @@ class HospitalsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // "Create Hospital" button stays pinned at the TOP of the tab in every
+    // state (loading / empty / list), so the user can always add a hospital.
+    return Column(
+      children: [
+        _buildCreateHospitalButton(context),
+        const SizedBox(height: AppDesign.spacingLg),
+        Expanded(child: _buildBody()),
+      ],
+    );
+  }
+
+  Widget _buildCreateHospitalButton(BuildContext context) {
+    return AppButton(
+      text: 'Create Hospital',
+      icon: Icons.add_rounded,
+      onClick: () async {
+        // Navigate to the add-hospital flow, then refresh on return so a newly
+        // added hospital appears in the list.
+        await context.push('/home/hospitals/add');
+        controller.getHospitals();
+      },
+    );
+  }
+
+  Widget _buildBody() {
     final hospitals = controller.hospitals;
 
     // Still loading.
@@ -31,8 +58,7 @@ class HospitalsTab extends StatelessWidget {
     }
 
     // Approved hospitals first, then the rest (pending/rejected).
-    final sorted = [...hospitals]
-      ..sort((a, b) {
+    final sorted = [...hospitals]..sort((a, b) {
         if (a.isApproved == b.isApproved) return 0;
         return a.isApproved ? -1 : 1;
       });
