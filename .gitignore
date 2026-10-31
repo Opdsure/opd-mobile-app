@@ -85,6 +85,7 @@ ios/fastlane/.env
 **/*.cer
 **/*.certSigningRequest
 **/*.mobileprovision
+**/*.pem
 **/*.provisionprofile
 # Temporary keychains / decoded credentials created on CI runners.
 **/*.keychain-db

@@ -219,6 +219,107 @@ jobs:
           echo "Installed provisioning profile UUID: ${UUID}"
           echo "PROVISIONING_PROFILE_UUID=${UUID}" >> "$GITHUB_ENV"
 
+      # ── Diagnostics: verify profile + certificate (NO secrets printed) ────
+      # Prints only non-sensitive metadata (name, team, bundle id, expiry, UUID)
+      # and asserts it matches the expected identity. Also confirms the imported
+      # distribution identity is present in the temp keychain and that the
+      # certificate embedded in the profile matches the imported certificate
+      # (by comparing certificate fingerprints — no private-key material).
+      - name: Verify signing assets (safe diagnostics)
+        env:
+          IOS_PROVISIONING_PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+        run: |
+          set -euo pipefail
+          PB=/usr/libexec/PlistBuddy
+          DECODED="${RUNNER_TEMP:-/tmp}/profile_check.plist"
+          security cms -D -i "$PROFILE_PATH" > "$DECODED"
+
+          P_NAME="$("$PB" -c 'Print :Name' "$DECODED")"
+          P_UUID="$("$PB" -c 'Print :UUID' "$DECODED")"
+          P_TEAM="$("$PB" -c 'Print :TeamIdentifier:0' "$DECODED")"
+          P_EXPIRE="$("$PB" -c 'Print :ExpirationDate' "$DECODED")"
+          # Entitlements application-identifier is "<TEAMID>.<bundle id>".
+          P_APPID="$("$PB" -c 'Print :Entitlements:application-identifier' "$DECODED" 2>/dev/null || echo '')"
+          P_BUNDLE="${P_APPID#*.}"
+
+          echo "Profile Name:        ${P_NAME}"
+          echo "Profile UUID:        ${P_UUID}"
+          echo "Profile Team:        ${P_TEAM}"
+          echo "Profile Bundle ID:   ${P_BUNDLE}"
+          echo "Profile Expiration:  ${P_EXPIRE}"
+
+          FAIL=0
+          if [ "${P_NAME}" != "${IOS_PROVISIONING_PROFILE_NAME}" ]; then
+            echo "::error::Profile name '${P_NAME}' does not match IOS_PROVISIONING_PROFILE_NAME '${IOS_PROVISIONING_PROFILE_NAME}'. ExportOptions will not find the profile."
+            FAIL=1
+          fi
+          if [ "${P_TEAM}" != "${APPLE_TEAM_ID:-X8JCSQZDGC}" ]; then
+            echo "::error::Profile team '${P_TEAM}' does not match APPLE_TEAM_ID '${APPLE_TEAM_ID:-X8JCSQZDGC}'."
+            FAIL=1
+          fi
+          if [ "${P_BUNDLE}" != "${IOS_BUNDLE_ID}" ] && [ "${P_BUNDLE}" != "*" ]; then
+            echo "::error::Profile bundle id '${P_BUNDLE}' does not match IOS_BUNDLE_ID '${IOS_BUNDLE_ID}'."
+            FAIL=1
+          fi
+
+          # Expiration check (shell-only; compares epoch seconds).
+          if [ -n "${P_EXPIRE:-}" ]; then
+            EXP_EPOCH="$(date -j -f '%a %b %d %H:%M:%S %Z %Y' "$P_EXPIRE" +%s 2>/dev/null || echo '')"
+            NOW_EPOCH="$(date +%s)"
+            if [ -n "$EXP_EPOCH" ] && [ "$EXP_EPOCH" -lt "$NOW_EPOCH" ]; then
+              echo "::error::Provisioning profile expired on ${P_EXPIRE}."
+              FAIL=1
+            else
+              echo "Profile expiration check passed (${P_EXPIRE})."
+            fi
+          fi
+
+          # Certificate association: compare the SHA-1 fingerprint of the cert
+          # embedded in the profile against certs in the temp keychain. Uses
+          # PlistBuddy to export the first DeveloperCertificate as raw DER.
+          PROFILE_CERT="${RUNNER_TEMP:-/tmp}/profile_cert.der"
+          if "$PB" -c 'Print :DeveloperCertificates:0' "$DECODED" > "$PROFILE_CERT" 2>/dev/null && [ -s "$PROFILE_CERT" ]; then
+            PROFILE_FP="$(openssl x509 -inform DER -in "$PROFILE_CERT" -noout -fingerprint -sha1 2>/dev/null | sed 's/.*=//' | tr -d ': ' || true)"
+            KEYCHAIN_FPS="$(security find-certificate -a -Z "$KEYCHAIN_PATH" 2>/dev/null | awk '/SHA-1/{print $NF}' | tr -d ': ' || true)"
+            if [ -n "${PROFILE_FP:-}" ] && echo "$KEYCHAIN_FPS" | grep -qi "$PROFILE_FP"; then
+              echo "Certificate association OK: the profile's certificate is present in the keychain."
+            else
+              echo "::warning::Could not confirm the profile's certificate matches a certificate in the keychain. If signing fails, verify IOS_CERTIFICATE_BASE64 is the certificate used to create the '${IOS_PROVISIONING_PROFILE_NAME}' profile."
+            fi
+          else
+            echo "::warning::Could not extract the certificate embedded in the profile for association check."
+          fi
+
+          # Confirm at least one Apple Distribution identity is usable.
+          if security find-identity -v -p codesigning "$KEYCHAIN_PATH" | grep -qi "Distribution"; then
+            echo "Found an Apple Distribution code-signing identity in the keychain."
+          else
+            echo "::warning::No 'Distribution' code-signing identity found in the keychain. The imported .p12 must be an Apple Distribution certificate (with its private key)."
+          fi
+
+          rm -f "$DECODED" "$PROFILE_CERT" || true
+          if [ "$FAIL" -ne 0 ]; then
+            exit 1
+          fi
+
+      # ── Force MANUAL distribution signing on the Runner target (CI only) ──
+      # flutter build ipa archives using the Runner app target's Release build
+      # settings, which in the committed project are CODE_SIGN_STYLE=Automatic
+      # + "Apple Development". On a CI runner (no Apple ID / dev profile) the
+      # archive cannot resolve a profile and fails. We rewrite the signing
+      # settings ONLY for the Runner target, ONLY on the ephemeral runner
+      # checkout (never committed), using Fastlane's purpose-built
+      # update_code_signing_settings. This is TARGET-SCOPED, so the Pods
+      # targets are untouched. It leaves the committed project and local
+      # developer signing unchanged.
+      - name: Force manual distribution signing (CI, Runner target only)
+        env:
+          IOS_PROVISIONING_PROFILE_NAME: ${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}
+        working-directory: ios
+        run: |
+          set -euo pipefail
+          bundle exec fastlane configure_manual_signing
+
       # ── Decode the App Store Connect API key (.p8) ────────────────────────
       - name: Decode App Store Connect API key
         env:

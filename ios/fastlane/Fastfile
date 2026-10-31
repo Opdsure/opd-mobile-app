@@ -48,7 +48,35 @@ def asc_api_token
   )
 end
 
+TEAM_ID = (ENV["APPLE_TEAM_ID"] || "X8JCSQZDGC").freeze
+
 platform :ios do
+  # ───────────────────────────────────────────────────────────────────────────
+  # Rewrites the Runner app target's signing to MANUAL distribution signing so
+  # `flutter build ipa` can archive on CI (no Apple ID / dev profile present).
+  # Target-scoped to "Runner" and the Release build config only — Pods and the
+  # RunnerTests target are left untouched. Run on the ephemeral CI checkout; it
+  # is never committed. Requires IOS_PROVISIONING_PROFILE_NAME in the env.
+  # ───────────────────────────────────────────────────────────────────────────
+  desc "Set manual Apple Distribution signing on the Runner target (CI only)"
+  lane :configure_manual_signing do
+    profile_name = ENV["IOS_PROVISIONING_PROFILE_NAME"].to_s
+    if profile_name.strip.empty?
+      UI.user_error!("IOS_PROVISIONING_PROFILE_NAME is empty — cannot configure manual signing.")
+    end
+    update_code_signing_settings(
+      path: "Runner.xcodeproj",
+      targets: ["Runner"],
+      build_configurations: ["Release"],
+      use_automatic_signing: false,
+      team_id: TEAM_ID,
+      code_sign_identity: "Apple Distribution",
+      bundle_identifier: APP_IDENTIFIER,
+      profile_name: profile_name
+    )
+    UI.success("Runner (Release) set to manual signing with profile '#{profile_name}'.")
+  end
+
   # ───────────────────────────────────────────────────────────────────────────
   # Prints the next safe iOS build number for TestFlight:
   #   (latest processed TestFlight build number for this bundle id) + 1.
