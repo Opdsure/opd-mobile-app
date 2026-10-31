@@ -1,5 +1,9 @@
-# Uncomment this line to define a global platform for your project
-platform :ios, '12.0'
+# Minimum iOS version. Raised 12.0 -> 13.0 because flutter_pdfview 1.4.5
+# (pinned in pubspec.lock) declares `s.ios.deployment_target = '13.0'` in its
+# podspec; CocoaPods cannot install a pod whose minimum is above the app's
+# platform. 13.0 is the EXACT minimum required by the installed dependency,
+# not an arbitrary bump. NOTE: this drops iOS 12 support (see report).
+platform :ios, '13.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -28,7 +32,16 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 flutter_ios_podfile_setup
 
 target 'Runner' do
-  use_frameworks!
+  # STATIC linkage is required because Razorpay's native SDK (`razorpay-pod`,
+  # pulled in by razorpay_flutter) ships as a PREBUILT STATIC binary framework
+  # that vends the `Razorpay` and `RazorpayCore` modules. Under Flutter's
+  # default dynamic `use_frameworks!`, CocoaPods does not reliably expose that
+  # static framework's `RazorpayCore` module map to the razorpay_flutter pod
+  # target, so `import RazorpayCore` fails at compile time ("No such module
+  # 'RazorpayCore'") even though `pod install` succeeds. `:linkage => :static`
+  # links the vendored framework correctly and exposes its modules. This keeps
+  # CocoaPods authoritative and does not change any plugin version.
+  use_frameworks! :linkage => :static
   use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
@@ -40,5 +53,15 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+    # Ensure every pod target's minimum matches the app's 13.0 floor. Some pods
+    # otherwise reset IPHONEOS_DEPLOYMENT_TARGET below the project minimum,
+    # which triggers CocoaPods/Xcode version-mismatch errors. Only raises
+    # targets that are below 13.0; never lowers a pod that needs a higher one.
+    target.build_configurations.each do |config|
+      current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+      if current.nil? || current.to_f < 13.0
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      end
+    end
   end
 end

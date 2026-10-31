@@ -60,8 +60,10 @@ concurrency:
 jobs:
   release:
     name: Build & publish (TestFlight)
-    # iOS builds MUST run on macOS. macos-14 provides Apple Silicon + recent Xcode.
-    runs-on: macos-14
+    # iOS builds MUST run on macOS. macos-15 (Apple Silicon) — macos-14 is in
+    # brownout/deprecation. macos-15 ships Xcode 16.x (default 16.4); it does
+    # NOT include Xcode 15.4, so the Xcode selection below targets 16.4.
+    runs-on: macos-15
     timeout-minutes: 90
 
     env:
@@ -69,12 +71,14 @@ jobs:
       # ios/Runner.xcodeproj/project.pbxproj (verified: io.app.opdsure).
       IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      # Paths for runtime-decoded, temporary credential files (outside the repo).
-      CERTIFICATE_PATH: ${{ runner.temp }}/ios_distribution.p12
-      PROFILE_PATH: ${{ runner.temp }}/ios_appstore.mobileprovision
-      ASC_KEY_PATH: ${{ runner.temp }}/asc_api_key.p8
-      KEYCHAIN_PATH: ${{ runner.temp }}/ios-signing.keychain-db
-      EXPORT_OPTIONS_PATH: ${{ runner.temp }}/ExportOptions.plist
+      # NOTE: the credential file paths (CERTIFICATE_PATH, PROFILE_PATH, etc.)
+      # are intentionally NOT defined here. A job-level `env:` value is NOT
+      # shell-expanded, so "$RUNNER_TEMP/..." would stay a literal string (bash
+      # does not re-expand a variable's VALUE), which previously caused
+      # "$RUNNER_TEMP/ios_distribution.p12: No such file or directory". They are
+      # instead exported with the real, expanded $RUNNER_TEMP in the
+      # "Set credential file paths" step below, so every later step receives
+      # absolute paths.
 
     steps:
       # ── Checkout ──────────────────────────────────────────────────────────
@@ -82,14 +86,58 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      # ── Select a compatible Xcode ─────────────────────────────────────────
-      # Pin Xcode so builds are reproducible and don't drift when the runner
-      # image updates. 15.4 is a stable toolchain available on macos-14.
-      - name: Select Xcode
+      # ── Resolve credential file paths (expanded $RUNNER_TEMP) ─────────────
+      # Exports absolute paths for the runtime-decoded credential files to
+      # $GITHUB_ENV so every later step sees real paths. This is done in a shell
+      # (not job-level `env:`) because job `env:` values are not shell-expanded,
+      # so "$RUNNER_TEMP/..." would otherwise stay a literal string.
+      - name: Set credential file paths
         run: |
           set -euo pipefail
-          sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+          {
+            echo "CERTIFICATE_PATH=$RUNNER_TEMP/ios_distribution.p12"
+            echo "PROFILE_PATH=$RUNNER_TEMP/ios_appstore.mobileprovision"
+            echo "ASC_KEY_PATH=$RUNNER_TEMP/asc_api_key.p8"
+            echo "KEYCHAIN_PATH=$RUNNER_TEMP/ios-signing.keychain-db"
+            echo "EXPORT_OPTIONS_PATH=$RUNNER_TEMP/ExportOptions.plist"
+          } >> "$GITHUB_ENV"
+          echo "Credential file paths resolved under: $RUNNER_TEMP"
+
+      # ── Select Xcode 26 (iOS 26 SDK) ──────────────────────────────────────
+      # Apple requires uploads to be built with the iOS 26 SDK (Xcode 26+).
+      # macos-15's DEFAULT Xcode is 16.4 (iOS 18.5 SDK), which App Store Connect
+      # now rejects — so we MUST explicitly select an installed Xcode 26.x.
+      # macos-15 ships Xcode 26.0.1/26.1.1/26.2/26.3; `26` resolves to the
+      # latest installed 26.x. setup-xcode runs `xcode-select -s`, so every
+      # later step (Flutter, CocoaPods, xcodebuild, flutter build ipa) uses it.
+      - name: Select Xcode 26
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "26"
+
+      # ── Diagnostics + HARD SDK gate: fail before building if SDK < 26.0 ───
+      # Prints the selected Xcode + iOS SDK, then fails the job if the iOS SDK
+      # is below 26.0 so we never build an unacceptable IPA. No secrets printed.
+      - name: Print toolchain versions and validate iOS SDK >= 26.0
+        run: |
+          set -euo pipefail
+          echo "── macOS version ──"
+          sw_vers
+          echo "── Selected Xcode ──"
+          xcode-select -p
           xcodebuild -version
+          echo "── iOS SDK version ──"
+          SDK_VER="$(xcrun --sdk iphoneos --show-sdk-version)"
+          echo "iphoneos SDK = ${SDK_VER}"
+          echo "── iOS SDKs available ──"
+          xcodebuild -showsdks | grep -i ios || true
+          # Compare MAJOR version numerically; require >= 26.
+          SDK_MAJOR="${SDK_VER%%.*}"
+          if [ -z "${SDK_MAJOR:-}" ] || [ "${SDK_MAJOR}" -lt 26 ]; then
+            echo "::error::iOS SDK is ${SDK_VER} (< 26.0). Apple requires the iOS 26 SDK (Xcode 26+). Xcode 26 was not selected correctly."
+            exit 1
+          fi
+          echo "iOS SDK ${SDK_VER} satisfies the >= 26.0 requirement."
 
       # ── Toolchain: Flutter 3.44.6 (same pin as Android) ───────────────────
       # subosito/flutter-action v2.19.0
@@ -100,6 +148,18 @@ jobs:
           channel: stable
           cache: true
 
+      # ── Enable Swift Package Manager (hybrid SPM + CocoaPods) ─────────────
+      # razorpay_flutter 1.4.7 adds SPM support (ios/razorpay_flutter/Package.swift
+      # depends on razorpay-pod, which vends RazorpayCore). We ENABLE SPM so that
+      # plugin resolves via SPM. Flutter's hybrid model keeps CocoaPods for
+      # plugins without SPM support (fluttertoast, smart_auth, etc.). This is the
+      # default in Flutter 3.44, set explicitly here for determinism.
+      - name: Enable Swift Package Manager (hybrid with CocoaPods)
+        run: |
+          set -euo pipefail
+          flutter config --enable-swift-package-manager
+          flutter config | grep -i "swift-package-manager" || true
+
       # ── Toolchain: Ruby + Bundler (for Fastlane) ──────────────────────────
       # ruby/setup-ruby v1.229.0 — installs gems from ios/Gemfile and caches.
       - name: Set up Ruby & Bundler
@@ -109,11 +169,33 @@ jobs:
           bundler-cache: true
           working-directory: ios
 
+      # ── Remove stale generated iOS Flutter config ────────────────────────
+      # ios/Flutter/Generated.xcconfig is a MACHINE-SPECIFIC generated file
+      # (it bakes in the absolute FLUTTER_ROOT of whoever last ran
+      # `flutter pub get`). If a Windows-generated copy ever reaches the macOS
+      # runner, CocoaPods tries to load a Windows path
+      # (C:\src\flutter\...\podhelper) and fails. It is gitignored and no longer
+      # tracked, but we also delete any stale copy here so the next step
+      # regenerates it against the macOS Flutter SDK. ephemeral/ is removed too.
+      - name: Remove stale generated iOS Flutter config
+        run: |
+          set -euo pipefail
+          rm -f ios/Flutter/Generated.xcconfig
+          rm -f ios/Flutter/flutter_export_environment.sh
+          rm -rf ios/Flutter/ephemeral
+          echo "Removed any stale generated iOS Flutter configuration."
+
       # ── Dart/Flutter dependencies (locked) ────────────────────────────────
       # Same enforce-lockfile policy as Android: use the committed pubspec.lock
       # exactly, never silently resolve newer plugin versions on CI.
+      # `flutter pub get` regenerates ios/Flutter/Generated.xcconfig with the
+      # CORRECT macOS FLUTTER_ROOT. `flutter precache --ios` ensures the iOS
+      # engine artifacts referenced by that config are present.
       - name: Install Flutter dependencies (locked)
-        run: flutter pub get --enforce-lockfile
+        run: |
+          set -euo pipefail
+          flutter precache --ios
+          flutter pub get --enforce-lockfile
 
       # ── Static analysis (errors are fatal) ────────────────────────────────
       # Mirrors the Android gate: real analyzer ERRORS stop the build; the
@@ -130,18 +212,120 @@ jobs:
             echo "No tests found under test/ — skipping flutter test."
           fi
 
+      # ── Validate the regenerated Flutter config before CocoaPods ─────────
+      # The Podfile loads <FLUTTER_ROOT>/packages/flutter_tools/bin/podhelper.
+      # If FLUTTER_ROOT is wrong (e.g. a leftover Windows path), `pod install`
+      # fails with a confusing "cannot load such file" error. Assert the path
+      # is a real macOS Flutter SDK BEFORE running pod install, and fail with a
+      # clear message otherwise. No secrets are read or printed.
+      - name: Verify Flutter SDK path in Generated.xcconfig
+        run: |
+          set -euo pipefail
+          CONFIG="ios/Flutter/Generated.xcconfig"
+          if [ ! -f "$CONFIG" ]; then
+            echo "::error::$CONFIG was not generated. 'flutter pub get' must run first."
+            exit 1
+          fi
+          FLUTTER_ROOT="$(grep -E '^FLUTTER_ROOT=' "$CONFIG" | head -n1 | cut -d= -f2-)"
+          echo "FLUTTER_ROOT = ${FLUTTER_ROOT:-<empty>}"
+          if [ -z "${FLUTTER_ROOT:-}" ]; then
+            echo "::error::FLUTTER_ROOT is empty in $CONFIG."
+            exit 1
+          fi
+          case "$FLUTTER_ROOT" in
+            *\\*|[A-Za-z]:*)
+              echo "::error::FLUTTER_ROOT ('$FLUTTER_ROOT') looks like a Windows path. A stale Generated.xcconfig reached the runner; it must be regenerated by the macOS Flutter SDK."
+              exit 1
+              ;;
+          esac
+          if [ ! -d "$FLUTTER_ROOT" ]; then
+            echo "::error::Flutter SDK directory does not exist: $FLUTTER_ROOT"
+            exit 1
+          fi
+          PODHELPER="$FLUTTER_ROOT/packages/flutter_tools/bin/podhelper.rb"
+          if [ ! -f "$PODHELPER" ]; then
+            echo "::error::podhelper.rb not found at $PODHELPER. FLUTTER_ROOT is not a valid Flutter SDK."
+            exit 1
+          fi
+          echo "Verified Flutter SDK: $FLUTTER_ROOT (podhelper.rb present)."
+
       # ── CocoaPods ─────────────────────────────────────────────────────────
       # Use the runner's preinstalled, modern CocoaPods (the committed
       # ios/Gemfile.lock pins an old cocoapods 1.10.2 that is incompatible with
       # recent Xcode/Flutter plugins; Bundler is used only for Fastlane).
-      # `flutter precache --ios` + `flutter pub get` generate the Flutter pod
-      # config that `pod install` consumes.
+      # Runs only AFTER the FLUTTER_ROOT verification above passes.
       - name: Install CocoaPods dependencies
         working-directory: ios
         run: |
           set -euo pipefail
           pod --version
           pod install --repo-update
+
+      # ── Diagnostics: Razorpay native SDK linkage (NO secrets) ─────────────
+      # Confirms the Razorpay native pod and its RazorpayCore module are present
+      # in the generated Pods BEFORE the Xcode archive, so a missing-module
+      # failure is explained here rather than deep in the Swift compile. Reads
+      # only build metadata — no signing material or secrets.
+      - name: Diagnostics - Razorpay SPM resolution & RazorpayCore
+        run: |
+          set -uo pipefail   # not -e: diagnostics run to completion
+          echo "── razorpay_flutter resolved version (expect 1.4.7) ──"
+          # Robust, portable parse: take the first `version:` line that appears
+          # after the `razorpay_flutter:` block header in pubspec.lock, then
+          # strip quotes/spaces with sed/tr. (No awk — avoids YAML/shell quote
+          # escaping pitfalls.)
+          RZ_BLOCK="$(grep -A 8 -E '^[[:space:]]+razorpay_flutter:' pubspec.lock || true)"
+          RZ_VER="$(printf '%s\n' "$RZ_BLOCK" | grep -m1 'version:' | sed -E 's/.*version:[[:space:]]*"?([^"[:space:]]+)"?.*/\1/' || true)"
+          echo "razorpay_flutter = ${RZ_VER:-<none>}"
+          if [ "${RZ_VER:-}" != "1.4.7" ]; then
+            echo "::error::razorpay_flutter is not 1.4.7 (got '${RZ_VER:-none}'); SPM support requires >= 1.4.7."
+            exit 1
+          fi
+
+          echo "── razorpay_flutter SPM manifest (Package.swift) present in the plugin? ──"
+          PLUGIN_SYMLINK="ios/.symlinks/plugins/razorpay_flutter"
+          PKG="$(find "$PLUGIN_SYMLINK" -name Package.swift 2>/dev/null | head -n1)"
+          if [ -z "${PKG:-}" ]; then
+            # Fall back to the pub cache location if the symlink layout differs.
+            PKG="$(find "$HOME/.pub-cache" "$FLUTTER_ROOT" -path '*razorpay_flutter*/ios/*/Package.swift' 2>/dev/null | head -n1 || true)"
+          fi
+          if [ -n "${PKG:-}" ]; then
+            echo "Found Package.swift: $PKG"
+            echo "── native razorpay-pod dependency declared in Package.swift ──"
+            grep -iE 'razorpay-pod|RazorpayCheckout|RazorpayCore|\.package\(' "$PKG" || echo "(no razorpay-pod dependency lines matched)"
+          else
+            echo "::error::razorpay_flutter Package.swift (SPM manifest) not found; 1.4.7 should ship it."
+            exit 1
+          fi
+
+          echo "── SPM integration in the generated Runner project (expected ENABLED) ──"
+          PBX="ios/Runner.xcodeproj/project.pbxproj"
+          if grep -Eiq 'FlutterGeneratedPluginSwiftPackage|XCSwiftPackageProductDependency|XCLocalSwiftPackageReference' "$PBX"; then
+            echo "SwiftPM integration present (FlutterGeneratedPluginSwiftPackage) — razorpay_flutter resolves via SPM."
+          else
+            echo "::warning::No SwiftPM package references in Runner project. If razorpay_flutter is NOT also resolved via CocoaPods, the RazorpayCore import may fail."
+          fi
+
+          echo "── Flutter SPM package manifest (lists which plugins use SPM) ──"
+          GEN_PKG="ios/Flutter/ephemeral/Packages/FlutterGeneratedPluginSwiftPackage/Package.swift"
+          if [ -f "$GEN_PKG" ]; then
+            echo "FlutterGeneratedPluginSwiftPackage dependencies:"
+            grep -iE 'razorpay|fluttertoast|smart_auth|\.package\(' "$GEN_PKG" || echo "(no matching dependency lines)"
+          else
+            echo "(FlutterGeneratedPluginSwiftPackage/Package.swift not present)"
+          fi
+
+          echo "── CocoaPods fallback (non-SPM plugins still via pods) ──"
+          echo "Podfile.lock pods:"; grep -iE 'razorpay|fluttertoast|smart_auth' ios/Podfile.lock 2>/dev/null || echo "(none of these in Podfile.lock)"
+          echo "Manifest.lock present:"; [ -f ios/Pods/Manifest.lock ] && echo "yes" || echo "no"
+
+          echo "── Resolved SPM checkout of razorpay-pod + RazorpayCore module (best-effort) ──"
+          # When SPM resolves, Xcode checks the package out under DerivedData /
+          # SourcePackages. This build hasn't archived yet, so just report any
+          # razorpay-pod / RazorpayCore artifacts already present on disk.
+          find ~/Library/Developer/Xcode/DerivedData ios -ipath '*razorpay-pod*' 2>/dev/null | head -n 20 || true
+          find ~/Library/Developer/Xcode/DerivedData ios -iname '*RazorpayCore*' 2>/dev/null | head -n 20 || true
+          echo "Razorpay SPM diagnostics complete."
 
       # ── Import Apple Distribution certificate into a temp keychain ────────
       # Nothing is printed. All credential material is decoded to files under
@@ -162,10 +346,36 @@ jobs:
             exit 1
           fi
 
-          # Decode the distribution certificate (.p12).
-          echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE_PATH"
-          if [ ! -s "$CERTIFICATE_PATH" ]; then
-            echo "::error::Decoded certificate is empty — check IOS_CERTIFICATE_BASE64."
+          # Decode the distribution certificate (.p12) to the EXACT path later
+          # commands use ($CERTIFICATE_PATH = $RUNNER_TEMP/ios_distribution.p12).
+          # `base64 --decode` on macOS tolerates embedded newlines, so this
+          # handles both single-line and wrapped base64 secret formats. Fail
+          # clearly if the decode produced nothing.
+          if ! echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE_PATH" 2>/dev/null; then
+            echo "::error::Failed to Base64-decode IOS_CERTIFICATE_BASE64. Ensure the secret is the base64 of the Apple Distribution .p12 (e.g. 'base64 -i cert.p12 | pbcopy'), with no extra quoting."
+            exit 1
+          fi
+
+          # ── Safe diagnostics before import (no secret material printed) ────
+          if [ ! -f "$CERTIFICATE_PATH" ]; then
+            echo "::error::Certificate file was not created at $CERTIFICATE_PATH."
+            exit 1
+          fi
+          CERT_SIZE="$(stat -f%z "$CERTIFICATE_PATH" 2>/dev/null || echo 0)"
+          echo "Decoded certificate present at $CERTIFICATE_PATH (${CERT_SIZE} bytes)."
+          if [ "${CERT_SIZE}" -le 0 ]; then
+            echo "::error::Decoded certificate is empty (0 bytes) — check IOS_CERTIFICATE_BASE64."
+            exit 1
+          fi
+          # Validate the .p12 structure with the password. -noout prevents any
+          # certificate/key material from being printed; -passin env: keeps the
+          # password off the command line. OpenSSL 3 (macos-15) may need
+          # -legacy for older PKCS#12 encryption, so try both before failing.
+          if openssl pkcs12 -info -in "$CERTIFICATE_PATH" -noout -passin env:IOS_CERTIFICATE_PASSWORD >/dev/null 2>&1 \
+             || openssl pkcs12 -legacy -info -in "$CERTIFICATE_PATH" -noout -passin env:IOS_CERTIFICATE_PASSWORD >/dev/null 2>&1; then
+            echo "Certificate validated as a PKCS#12 archive (password accepted)."
+          else
+            echo "::error::The decoded .p12 is not a valid PKCS#12 archive, or IOS_CERTIFICATE_PASSWORD is wrong. (No certificate contents are printed.)"
             exit 1
           fi
 
@@ -380,6 +590,12 @@ jobs:
           RAW="$(grep -E '^version:' pubspec.yaml | head -n1 | sed -E 's/version:[[:space:]]*//')"
           NAME="${RAW%%+*}"
           echo "Version name: ${NAME}"
+          # Marketing version MUST exceed the approved App Store version (2.0.2).
+          # Fail fast if it ever drifts back (e.g. to 1.26.0), which Apple rejects.
+          if [ "${NAME}" != "2.0.3" ]; then
+            echo "::error::CFBundleShortVersionString must be 2.0.3 (pubspec version name is '${NAME}'). Update pubspec.yaml 'version:' to 2.0.3+<build>."
+            exit 1
+          fi
           echo "version_name=${NAME}" >> "$GITHUB_OUTPUT"
 
       # ── Generate ExportOptions.plist (manual App Store signing) ───────────
@@ -408,6 +624,83 @@ jobs:
           "$PB" -c "Add :provisioningProfiles dict" "$EXPORT_OPTIONS_PATH"
           "$PB" -c "Add :provisioningProfiles:${IOS_BUNDLE_ID} string ${IOS_PROVISIONING_PROFILE_NAME}" "$EXPORT_OPTIONS_PATH"
           echo "ExportOptions.plist written (method=app-store, signingStyle=manual, team=${TEAM})."
+
+      # ── Final pre-archive diagnostics (immediately before the build) ──────
+      # Captures the AUTHORITATIVE state the archive will see, right before
+      # `flutter build ipa`. `flutter build ios --config-only` re-runs the same
+      # plugin generation / build-prep as the real build, so if SwiftPM
+      # re-migration happens it surfaces HERE (steps 207/332 run earlier and
+      # could be undone by build-prep). Inspects the native SDK module, the
+      # CocoaPods target graph, the Xcode search paths, and which target
+      # compiles RazorpayDelegate.swift. No secrets are read or printed.
+      - name: Final pre-archive diagnostics (RazorpayCore)
+        run: |
+          set -uo pipefail   # not -e: diagnostics must run to completion
+          echo "::group::Re-run build-prep (config only, no codesign)"
+          flutter build ios --config-only --no-codesign --release || true
+          echo "::endgroup::"
+
+          PBX="ios/Runner.xcodeproj/project.pbxproj"
+          PODS="ios/Pods"
+
+          echo "::group::C. Xcode project: SwiftPM integration after build-prep (EXPECTED now)"
+          if grep -Eiq 'FlutterGeneratedPluginSwiftPackage|XCSwiftPackageProductDependency|XCLocalSwiftPackageReference' "$PBX"; then
+            echo "SwiftPM integration PRESENT (expected): razorpay_flutter 1.4.7 resolves RazorpayCore via SPM."
+            grep -nEi 'FlutterGeneratedPluginSwiftPackage|XCSwiftPackageProductDependency|XCLocalSwiftPackageReference' "$PBX" | head -n 30
+          else
+            echo "::warning::No SwiftPM integration in project.pbxproj. razorpay_flutter must then resolve RazorpayCore via the CocoaPods fallback (razorpay-pod)."
+          fi
+          echo "── SPM-resolved razorpay-pod / RazorpayCore checkout (DerivedData SourcePackages) ──"
+          find ~/Library/Developer/Xcode/DerivedData -ipath '*razorpay-pod*' 2>/dev/null | head -n 20 || true
+          find ~/Library/Developer/Xcode/DerivedData -iname '*RazorpayCore*' 2>/dev/null | head -n 20 || true
+          echo "::endgroup::"
+
+          echo "::group::A. Native SDK: razorpay-pod framework + module map"
+          RZDIR="$PODS/razorpay-pod"
+          if [ -d "$RZDIR" ]; then
+            echo "razorpay-pod contents:"; find "$RZDIR" -maxdepth 4 \( -name '*.framework' -o -name '*.xcframework' -o -name '*.modulemap' -o -name 'module.modulemap' \) -print
+            echo "── module maps found (prove whether RazorpayCore is a module) ──"
+            find "$RZDIR" -name '*.modulemap' -print -exec sh -c 'echo "---- $1 ----"; cat "$1"' _ {} \;
+            echo "── framework binaries + their Swift module dirs ──"
+            find "$RZDIR" -name '*.framework' -type d -print -exec sh -c 'echo "Modules/ of $1:"; ls -la "$1/Modules" 2>/dev/null || echo "(no Modules dir)"' _ {} \;
+            echo "── nm/strings scan for RazorpayCore symbol/module names (best-effort) ──"
+            BIN="$(find "$RZDIR" -type f \( -name 'Razorpay' -o -name 'RazorpayCore' \) 2>/dev/null | head -n1)"
+            if [ -n "${BIN:-}" ]; then
+              echo "binary: $BIN"; otool -L "$BIN" 2>/dev/null | head -n 20 || true
+            fi
+          else
+            echo "::warning::$RZDIR not found."
+          fi
+          # Does ANY module named RazorpayCore exist anywhere under Pods?
+          echo "── Any 'RazorpayCore' module/swiftmodule under Pods? ──"
+          find "$PODS" -iname '*RazorpayCore*' 2>/dev/null | sort -u || true
+          echo "::endgroup::"
+
+          echo "::group::B. CocoaPods target graph (razorpay_flutter -> razorpay-pod)"
+          echo "Podfile.lock razorpay deps:"; grep -iE 'razorpay' ios/Podfile.lock || true
+          echo "Manifest.lock razorpay deps:"; grep -iE 'razorpay' "$PODS/Manifest.lock" 2>/dev/null || true
+          echo "Pods project targets/refs mentioning razorpay (from Pods.xcodeproj):"
+          grep -oiE 'name = "?razorpay[^";]*"?' "$PODS/Pods.xcodeproj/project.pbxproj" 2>/dev/null | sort -u || echo "(Pods.xcodeproj not found)"
+          echo "razorpay_flutter target's dependency on razorpay-pod (xcconfig inheritance):"
+          grep -iE 'razorpay-pod|razorpay_pod' "$PODS/Target Support Files/razorpay_flutter/razorpay_flutter.release.xcconfig" 2>/dev/null || echo "(no direct razorpay-pod reference in razorpay_flutter xcconfig)"
+          echo "::endgroup::"
+
+          echo "::group::C/D. Build settings for razorpay_flutter target (search paths, xcconfig)"
+          # Ask xcodebuild for the EFFECTIVE settings the razorpay_flutter pod
+          # target compiles with. This shows FRAMEWORK/HEADER/SWIFT search paths
+          # and whether the CocoaPods modulemap for razorpay-pod is on the path.
+          xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner \
+            -configuration Release -showBuildSettings -target razorpay_flutter 2>/dev/null \
+            | grep -iE 'FRAMEWORK_SEARCH_PATHS|HEADER_SEARCH_PATHS|SWIFT_INCLUDE_PATHS|OTHER_SWIFT_FLAGS|OTHER_LDFLAGS|MODULEMAP|DEFINES_MODULE|razorpay' \
+            || echo "(razorpay_flutter target not directly queryable; dumping Pods xcconfig instead)"
+          echo "── razorpay_flutter pod xcconfig (release) ──"
+          cat "$PODS/Target Support Files/razorpay_flutter/razorpay_flutter.release.xcconfig" 2>/dev/null || echo "(not found)"
+          echo "── Pods-Runner xcconfig (release) razorpay/search-path lines ──"
+          grep -iE 'razorpay|FRAMEWORK_SEARCH_PATHS|HEADER_SEARCH_PATHS|OTHER_SWIFT_FLAGS|SWIFT_INCLUDE_PATHS' \
+            "$PODS/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig" 2>/dev/null || echo "(not found)"
+          echo "::endgroup::"
+
+          echo "Pre-archive diagnostics complete (non-fatal; see groups above)."
 
       # ── Build the signed release IPA ──────────────────────────────────────
       # flutter build ipa drives `xcodebuild archive` + `-exportArchive` using
@@ -454,6 +747,57 @@ jobs:
           path: build/ios/ipa/*.ipa
           if-no-files-found: error
           retention-days: 14
+
+      # ── Verify the built IPA's Info.plist BEFORE uploading ────────────────
+      # Gates the TestFlight upload on the exact identity/version Apple checks:
+      #   CFBundleIdentifier        == io.app.opdsure
+      #   CFBundleShortVersionString == 2.0.3  (marketing version; must be > 2.0.2)
+      #   CFBundleVersion           == the ASC-derived build number
+      # Also re-prints the selected Xcode, iOS SDK, resolved version + build
+      # number for the record. Fails the job if any check mismatches. No secrets.
+      - name: Verify IPA Info.plist (identity + version) before upload
+        env:
+          EXPECTED_VERSION: "2.0.3"
+          EXPECTED_BUILD: ${{ steps.bn.outputs.build_number }}
+          IPA_PATH: ${{ steps.ipa.outputs.abs_path }}
+        run: |
+          set -euo pipefail
+          echo "── Toolchain recap ──"
+          xcodebuild -version | head -n1
+          echo "iphoneos SDK = $(xcrun --sdk iphoneos --show-sdk-version)"
+          echo "Resolved version name = ${{ steps.vn.outputs.version_name }}"
+          echo "Resolved build number = ${EXPECTED_BUILD}"
+
+          if [ ! -s "${IPA_PATH:-}" ]; then
+            echo "::error::IPA_PATH (${IPA_PATH:-<empty>}) missing/empty before Info.plist check."
+            exit 1
+          fi
+
+          WORK="$RUNNER_TEMP/ipa_inspect"
+          rm -rf "$WORK"; mkdir -p "$WORK"
+          unzip -q "$IPA_PATH" -d "$WORK"
+          PLIST="$(find "$WORK/Payload" -maxdepth 2 -name 'Info.plist' | head -n1)"
+          if [ -z "${PLIST:-}" ]; then
+            echo "::error::Could not locate Payload/*.app/Info.plist inside the IPA."
+            exit 1
+          fi
+          PB=/usr/libexec/PlistBuddy
+          BID="$("$PB" -c 'Print :CFBundleIdentifier' "$PLIST")"
+          SHORT="$("$PB" -c 'Print :CFBundleShortVersionString' "$PLIST")"
+          BUILD="$("$PB" -c 'Print :CFBundleVersion' "$PLIST")"
+          echo "IPA CFBundleIdentifier        = ${BID}"
+          echo "IPA CFBundleShortVersionString = ${SHORT}"
+          echo "IPA CFBundleVersion            = ${BUILD}"
+
+          FAIL=0
+          [ "${BID}" = "${IOS_BUNDLE_ID}" ] || { echo "::error::CFBundleIdentifier '${BID}' != '${IOS_BUNDLE_ID}'."; FAIL=1; }
+          [ "${SHORT}" = "${EXPECTED_VERSION}" ] || { echo "::error::CFBundleShortVersionString '${SHORT}' != '${EXPECTED_VERSION}' (must be > 2.0.2)."; FAIL=1; }
+          [ "${BUILD}" = "${EXPECTED_BUILD}" ] || { echo "::error::CFBundleVersion '${BUILD}' != generated build number '${EXPECTED_BUILD}'."; FAIL=1; }
+          rm -rf "$WORK" || true
+          if [ "$FAIL" -ne 0 ]; then
+            exit 1
+          fi
+          echo "Info.plist verified: ${BID} ${SHORT} (${BUILD}). Proceeding to upload."
 
       # ── Upload to App Store Connect (TestFlight) ──────────────────────────
       - name: Upload to TestFlight
