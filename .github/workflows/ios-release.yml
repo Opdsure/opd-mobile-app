@@ -125,13 +125,20 @@ jobs:
           sw_vers
           echo "── Selected Xcode ──"
           xcode-select -p
-          xcodebuild -version
+          # Capture xcodebuild output fully before printing/filtering. Never
+          # pipe `xcodebuild` directly into head/grep under `set -o pipefail`:
+          # the downstream closing stdout early makes Xcode 26 abort with a
+          # "Broken pipe" (SIGPIPE) and exit 134, failing the step.
+          XCODE_VERSION_OUTPUT="$(xcodebuild -version)"
+          echo "$XCODE_VERSION_OUTPUT"
           echo "── iOS SDK version ──"
-          SDK_VER="$(xcrun --sdk iphoneos --show-sdk-version)"
-          echo "iphoneos SDK = ${SDK_VER}"
+          IOS_SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
+          echo "iOS SDK: $IOS_SDK_VERSION"
           echo "── iOS SDKs available ──"
-          xcodebuild -showsdks | grep -i ios || true
+          SHOWSDKS_OUTPUT="$(xcodebuild -showsdks)"
+          printf '%s\n' "$SHOWSDKS_OUTPUT" | grep -i ios || true
           # Compare MAJOR version numerically; require >= 26.
+          SDK_VER="$IOS_SDK_VERSION"
           SDK_MAJOR="${SDK_VER%%.*}"
           if [ -z "${SDK_MAJOR:-}" ] || [ "${SDK_MAJOR}" -lt 26 ]; then
             echo "::error::iOS SDK is ${SDK_VER} (< 26.0). Apple requires the iOS 26 SDK (Xcode 26+). Xcode 26 was not selected correctly."
@@ -763,8 +770,13 @@ jobs:
         run: |
           set -euo pipefail
           echo "── Toolchain recap ──"
-          xcodebuild -version | head -n1
-          echo "iphoneos SDK = $(xcrun --sdk iphoneos --show-sdk-version)"
+          # Capture xcodebuild output fully (do NOT pipe into head/grep: under
+          # `set -o pipefail`, the downstream closing the pipe makes Xcode 26
+          # abort with SIGPIPE/"Broken pipe" and exit 134, failing this step).
+          XCODE_VERSION_OUTPUT="$(xcodebuild -version)"
+          echo "$XCODE_VERSION_OUTPUT"
+          IOS_SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
+          echo "iOS SDK: $IOS_SDK_VERSION"
           echo "Resolved version name = ${{ steps.vn.outputs.version_name }}"
           echo "Resolved build number = ${EXPECTED_BUILD}"
 
