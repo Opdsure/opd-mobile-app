@@ -45,6 +45,10 @@
 	<string>$(PRODUCT_NAME) camera use</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>$(PRODUCT_NAME) microphone use</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>OPDSure uses your location while you are using the app to show relevant nearby healthcare services.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>OPDSure uses your location while you are using the app to show relevant nearby healthcare services.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to your photo library to allow you to select and upload photos.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
