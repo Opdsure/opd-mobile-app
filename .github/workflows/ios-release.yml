@@ -599,8 +599,8 @@ jobs:
           echo "Version name: ${NAME}"
           # Marketing version MUST exceed the approved App Store version (2.0.2).
           # Fail fast if it ever drifts back (e.g. to 1.26.0), which Apple rejects.
-          if [ "${NAME}" != "2.0.3" ]; then
-            echo "::error::CFBundleShortVersionString must be 2.0.3 (pubspec version name is '${NAME}'). Update pubspec.yaml 'version:' to 2.0.3+<build>."
+          if [ "${NAME}" != "2.0.4" ]; then
+            echo "::error::CFBundleShortVersionString must be 2.0.4 (pubspec version name is '${NAME}'). Update pubspec.yaml 'version:' to 2.0.4+<build>."
             exit 1
           fi
           echo "version_name=${NAME}" >> "$GITHUB_OUTPUT"
@@ -758,13 +758,13 @@ jobs:
       # ── Verify the built IPA's Info.plist BEFORE uploading ────────────────
       # Gates the TestFlight upload on the exact identity/version Apple checks:
       #   CFBundleIdentifier        == io.app.opdsure
-      #   CFBundleShortVersionString == 2.0.3  (marketing version; must be > 2.0.2)
+      #   CFBundleShortVersionString == 2.0.4  (marketing version; must be > 2.0.2)
       #   CFBundleVersion           == the ASC-derived build number
       # Also re-prints the selected Xcode, iOS SDK, resolved version + build
       # number for the record. Fails the job if any check mismatches. No secrets.
       - name: Verify IPA Info.plist (identity + version) before upload
         env:
-          EXPECTED_VERSION: "2.0.3"
+          EXPECTED_VERSION: "2.0.4"
           EXPECTED_BUILD: ${{ steps.bn.outputs.build_number }}
           IPA_PATH: ${{ steps.ipa.outputs.abs_path }}
         run: |
